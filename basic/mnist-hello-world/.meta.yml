@@ -1,0 +1,6 @@
+author: PL team
+created: 2021-01-31
+updtaed: 2021-02-29
+license: CC
+requirements:
+  - torchvision

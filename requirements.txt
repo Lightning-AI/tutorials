@@ -1,5 +1,3 @@
-pytorch-lightning>=1.2
-
 ipython[notebook]
 jupytext  # converting
 treon  # testing
