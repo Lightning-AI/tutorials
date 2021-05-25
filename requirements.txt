@@ -1,4 +1,6 @@
 pytorch-lightning>=1.2
 
 ipython[notebook]
-jupytext
+jupytext  # converting
+treon  # testing
+papermill  # render
