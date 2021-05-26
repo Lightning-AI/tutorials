@@ -1,0 +1,8 @@
+sphinx>=3.0, <3.5  # fails with sphinx.ext.viewcode  # fails with sphinx_paramlinks with 4.0.0
+recommonmark  # fails with badges
+m2r  # fails with multi-line text
+nbsphinx>=0.8
+pandoc>=1.0
+docutils>=0.16
+
+https://github.com/PyTorchLightning/lightning_sphinx_theme/archive/master.zip#egg=pt-lightning-sphinx-theme

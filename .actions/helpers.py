@@ -7,6 +7,7 @@ import click
 import yaml
 
 SKIP_DIRS = (
+    "docs",
     ".actions",
     ".github",
 )
