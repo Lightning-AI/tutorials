@@ -47,24 +47,34 @@ jobs:
       shell: bash
 
     - name: Process folders
+      id: changed
       run: |
         head=$(git rev-parse origin/$PUB_BRANCH)
         git diff --name-only $head --output=master-diff.txt
         python .actions/filter-folders.py master-diff.txt changed_folders.txt
+        python -c "lines = open('changed_folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
       shell: bash
 
     - name: Generate notebook
+      if: steps.changed.outputs.dirs != 0
       run: |
         while IFS= read -r line; do
             bash .actions/generate-ipynb.sh $line
         done <<< $(cat changed_folders.txt)
       shell: bash
 
-    - name: Render notebook
+    - uses: fregante/setup-git-token@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Sync to pub
       run: |
         git checkout $PUB_BRANCH
         git merge main
+        git push
 
+    - name: Render notebook
+      if: steps.changed.outputs.dirs != 0
+      run: |
         while IFS= read -r line; do
             bash .actions/render-ipynb.sh $line
         done <<< $(cat changed_folders.txt)
