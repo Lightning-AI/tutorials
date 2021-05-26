@@ -59,7 +59,7 @@ jobs:
       if: steps.changed.outputs.dirs != 0
       run: |
         while IFS= read -r line; do
-            bash .actions/generate-ipynb.sh $line
+            bash .actions/ipynb-generate.sh $line
         done <<< $(cat changed_folders.txt)
       shell: bash
 
@@ -76,7 +76,7 @@ jobs:
       if: steps.changed.outputs.dirs != 0
       run: |
         while IFS= read -r line; do
-            bash .actions/render-ipynb.sh $line
+            bash .actions/ipynb-render.sh $line
         done <<< $(cat changed_folders.txt)
 
         git commit -m ${{ github.event.head_commit.message }}
