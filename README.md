@@ -21,7 +21,7 @@ jupytext --set-formats ipynb,py:percent notebook.ipynb
 jupytext --set-formats ipynb,py:percent notebook.py
 
 # testing
-treon -v notebook.py
+treon -v notebook.ipynb
 
 # generating 
 papermill in-notebook.ipynb out-notebook.ipynb
