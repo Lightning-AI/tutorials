@@ -90,7 +90,7 @@ train_ds = MNIST(os.getcwd(), train=True, download=True, transform=transforms.To
 train_loader = DataLoader(train_ds, batch_size=32)
 
 # Initialize a trainer
-trainer = pl.Trainer(gpus=1, max_epochs=3, progress_bar_refresh_rate=20)
+trainer = pl.Trainer(gpus=torch.cuda.device_count(), max_epochs=3, progress_bar_refresh_rate=20)
 
 # Train the model ⚡
 trainer.fit(mnist_model, train_loader)

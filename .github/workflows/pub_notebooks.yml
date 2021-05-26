@@ -1,16 +1,17 @@
-name: CI complete testing
+name: Publish notebook
 
 # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows
 on:  # Trigger the workflow on push to master
-  push: {}
-  # FIXME
-  #  branches: [main]
+  push:
+    branches: [main]
 
 jobs:
   generate-ipynb:
     runs-on: ubuntu-20.04
     # Timeout: https://stackoverflow.com/a/59076067/4521646
     timeout-minutes: 45
+    env:
+      PUB_BRANCH: publication
 
     steps:
     - uses: actions/checkout@v2
@@ -20,6 +21,12 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: 3.8
+
+    - name: Sanity branch check
+      run: |
+        echo $PUB_BRANCH
+        git ls-remote --heads origin ${PUB_BRANCH} | grep ${PUB_BRANCH} >/dev/null
+        if [ "$?" == "1" ] ; then echo "Branch doesn't exist"; exit; fi
 
     - name: Get pip cache
       id: pip-cache
@@ -41,10 +48,27 @@ jobs:
 
     - name: Process folders
       run: |
-        head=$(git rev-parse origin/main)
+        head=$(git rev-parse origin/$PUB_BRANCH)
         git diff --name-only $head --output=master-diff.txt
         python .actions/filter-folders.py master-diff.txt changed_folders.txt
+      shell: bash
+
+    - name: Generate notebook
+      run: |
         while IFS= read -r line; do
             bash .actions/generate-ipynb.sh $line
         done <<< $(cat changed_folders.txt)
+      shell: bash
+
+    - name: Render notebook
+      run: |
+        git checkout $PUB_BRANCH
+        git merge main
+
+        while IFS= read -r line; do
+            bash .actions/render-ipynb.sh $line
+        done <<< $(cat changed_folders.txt)
+
+        git commit -m ${{ github.event.head_commit.message }}
+        git push
       shell: bash
