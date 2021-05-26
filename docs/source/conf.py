@@ -45,7 +45,7 @@ github_repo = project
 
 # If your documentation needs a minimal Sphinx version, state it here.
 
-needs_sphinx = '3.4'
+needs_sphinx = '4.0'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -55,9 +55,10 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.napoleon',
     'sphinx.ext.imgmath',
-    'nbsphinx',
-    'sphinx_paramlinks',
     "sphinx.ext.githubpages",
+    'sphinx_paramlinks',
+    'nbsphinx',
+    'myst_parser',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

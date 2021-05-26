@@ -10,7 +10,6 @@ Lightning-Sandbox documentation
    :name: start
    :caption: Start here
 
-   readme
 
 
 Indices and tables

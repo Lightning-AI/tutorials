@@ -61,7 +61,9 @@ jobs:
 
     - uses: fregante/setup-git-token@v1
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.PAT_GHOST }}
+        name: PL Ghost
+        email: pl-github@grid.ai
     - name: Sync to pub
       run: |
         git checkout $PUB_BRANCH
