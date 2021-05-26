@@ -12,7 +12,7 @@ echo $pub_file
 pub_dir="$(dirname "$pub_file")"
 mkdir -p $pub_dir
 
-python .actions/parse-requirements.py $1
+python .actions/helpers.py parse-requirements $1
 pip install -r "$1/requirements.txt"
 
 papermill $ipynb_file $pub_file

@@ -1,7 +1,10 @@
-pytorch-lightning>=1.2
-
+Click
+PyYAML
 virtualenv
 ipython[notebook]
 jupytext  # converting
 treon  # testing
 papermill  # render
+
+# default for all examples
+pytorch-lightning>=1.2

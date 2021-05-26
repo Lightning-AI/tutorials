@@ -9,7 +9,7 @@ jobs:
   generate-ipynb:
     runs-on: ubuntu-20.04
     # Timeout: https://stackoverflow.com/a/59076067/4521646
-    timeout-minutes: 45
+    # timeout-minutes: 45
     env:
       PUB_BRANCH: publication
 
@@ -51,8 +51,8 @@ jobs:
       run: |
         head=$(git rev-parse origin/$PUB_BRANCH)
         git diff --name-only $head --output=master-diff.txt
-        python .actions/filter-folders.py master-diff.txt changed_folders.txt
-        python -c "lines = open('changed_folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
+        python .actions/helpers.py filter-folders master-diff.txt changed-folders.txt
+        python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
       shell: bash
 
     - name: Generate notebook
@@ -60,7 +60,7 @@ jobs:
       run: |
         while IFS= read -r line; do
             bash .actions/ipynb-generate.sh $line
-        done <<< $(cat changed_folders.txt)
+        done <<< $(cat changed-folders.txt)
       shell: bash
 
     - uses: fregante/setup-git-token@v1
@@ -76,7 +76,7 @@ jobs:
       run: |
         while IFS= read -r line; do
             bash .actions/ipynb-render.sh $line
-        done <<< $(cat changed_folders.txt)
+        done <<< $(cat changed-folders.txt)
 
         git commit -m "${{ github.event.head_commit.message }}"
       shell: bash
