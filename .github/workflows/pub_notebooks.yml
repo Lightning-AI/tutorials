@@ -70,7 +70,6 @@ jobs:
       run: |
         git checkout $PUB_BRANCH
         git merge main
-        git push
 
     - name: Render notebook
       if: steps.changed.outputs.dirs != 0
@@ -79,6 +78,9 @@ jobs:
             bash .actions/ipynb-render.sh $line
         done <<< $(cat changed_folders.txt)
 
-        git commit -m ${{ github.event.head_commit.message }}
-        git push
+        git commit -m "${{ github.event.head_commit.message }}"
       shell: bash
+
+    - name: Finish push
+      run: |
+        git push

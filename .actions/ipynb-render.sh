@@ -12,11 +12,9 @@ echo $pub_file
 pub_dir="$(dirname "$pub_file")"
 mkdir -p $pub_dir
 
-# todo: parse requirements
-
-# todo: install requirements
+python .actions/parse-requirements.py $1
+pip install -r "$1/requirements.txt"
 
 papermill $ipynb_file $pub_file
-
 
 git add $pub_file

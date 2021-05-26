@@ -218,7 +218,7 @@ class LitMNIST(pl.LightningModule):
 
 # %% colab={} colab_type="code" id="Mb0U5Rk2kLBy"
 model = LitMNIST()
-trainer = pl.Trainer(gpus=1, max_epochs=3, progress_bar_refresh_rate=20)
+trainer = pl.Trainer(gpus=torch.cuda.device_count(), max_epochs=3, progress_bar_refresh_rate=20)
 trainer.fit(model)
 
 # %% [markdown] colab_type="text" id="nht8AvMptY6I"
