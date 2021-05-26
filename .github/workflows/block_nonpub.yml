@@ -1,0 +1,15 @@
+name: Prevent bypass public
+
+# see: https://help.github.com/en/actions/reference/events-that-trigger-workflows
+on:  # Trigger the workflow on PR to master
+  pull_request:
+    branches: [main]
+    paths:
+      - .notebooks/*.ipynb
+      - .notebooks/**/*.ipynb
+
+jobs:
+  prevent-ipynb:
+    runs-on: ubuntu-latest
+    steps:
+    - run: exit 1
