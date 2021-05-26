@@ -78,9 +78,11 @@ jobs:
             bash .actions/ipynb-render.sh $line
         done <<< $(cat changed-folders.txt)
 
-        git commit -m "${{ github.event.head_commit.message }}"
+        git status
+        git commit -m "publish: ${{ github.event.head_commit.message }}"
       shell: bash
 
     - name: Finish push
       run: |
+        git status
         git push

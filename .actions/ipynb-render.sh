@@ -6,7 +6,7 @@ python -c "import glob ; assert(len(glob.glob('$1/*.ipynb')) == 1)"
 ipynb_file=( $(ls "$1"/*.ipynb) )
 echo $ipynb_file
 
-pub_file=".notebook/$1.ipynb"
+pub_file=".notebooks/$1.ipynb"
 echo $pub_file
 
 pub_dir="$(dirname "$pub_file")"
