@@ -14,73 +14,72 @@ jobs:
       PUB_BRANCH: publication
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        # fetch all history for all branches and tags
-        fetch-depth: 0
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
+      - uses: actions/checkout@v2
+        with:
+          # fetch all history for all branches and tags
+          fetch-depth: 0
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
 
-    - name: Sanity branch check
-      run: |
-        echo $PUB_BRANCH
-        git ls-remote --heads origin ${PUB_BRANCH} | grep ${PUB_BRANCH} >/dev/null
-        if [ "$?" == "1" ] ; then echo "Branch doesn't exist"; exit; fi
+      - name: Sanity branch check
+        run: |
+          echo $PUB_BRANCH
+          git ls-remote --heads origin ${PUB_BRANCH} | grep ${PUB_BRANCH} >/dev/null
+          if [ "$?" == "1" ] ; then echo "Branch doesn't exist"; exit; fi
 
-    - name: Cache pip
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-        restore-keys: ${{ runner.os }}-pip-
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
 
-    - name: Install dependencies
-      run: |
-        pip --version
-        pip install --requirement requirements.txt
-        pip list
-      shell: bash
+      - name: Install dependencies
+        run: |
+          pip --version
+          pip install --requirement requirements.txt
+          pip list
+        shell: bash
 
-    - name: Process folders
-      id: changed
-      run: |
-        head=$(git rev-parse origin/$PUB_BRANCH)
-        git diff --name-only $head --output=master-diff.txt
-        python .actions/helpers.py filter-folders master-diff.txt changed-folders.txt
-        python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
-      shell: bash
+      - name: Process folders
+        id: changed
+        run: |
+          head=$(git rev-parse origin/$PUB_BRANCH)
+          git diff --name-only $head --output=master-diff.txt
+          python .actions/helpers.py filter-folders master-diff.txt changed-folders.txt
+          python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
+        shell: bash
 
-    - name: Generate notebook
-      if: steps.changed.outputs.dirs != 0
-      run: |
-        while IFS= read -r line; do
-            bash .actions/ipynb-generate.sh $line
-        done <<< $(cat changed-folders.txt)
-      shell: bash
+      - name: Generate notebook
+        if: steps.changed.outputs.dirs != 0
+        run: |
+          while IFS= read -r line; do
+              bash .actions/ipynb-generate.sh $line
+          done <<< $(cat changed-folders.txt)
+        shell: bash
 
-    - uses: fregante/setup-git-token@v1
-      with:
-        token: ${{ secrets.PAT_GHOST }}
-        name: PL Ghost
-        email: pl-github@grid.ai
-    - name: Sync to pub
-      run: |
-        git checkout $PUB_BRANCH
-        git merge -s resolve main
+      - uses: fregante/setup-git-token@v1
+        with:
+          token: ${{ secrets.PAT_GHOST }}
+          name: PL Ghost
+          email: pl-github@grid.ai
+      - name: Sync to pub
+        run: |
+          git checkout $PUB_BRANCH
+          git merge -s resolve main
 
-    - name: Render notebook
-      if: steps.changed.outputs.dirs != 0
-      run: |
-        while IFS= read -r line; do
-            bash .actions/ipynb-render.sh $line
-        done <<< $(cat changed-folders.txt)
+      - name: Render notebook
+        if: steps.changed.outputs.dirs != 0
+        run: |
+          while IFS= read -r line; do
+              bash .actions/ipynb-render.sh $line
+          done <<< $(cat changed-folders.txt)
+          git status
+          git commit -m "publish: ${{ github.event.head_commit.message }}"
+        shell: bash
 
-        git status
-        git commit -m "publish: ${{ github.event.head_commit.message }}"
-      shell: bash
-
-    - name: Finish push
-      run: |
-        git status
-        git push
+      - name: Finish push
+        run: |
+          git status
+          git push

@@ -31,10 +31,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip --version
-          pip install --quiet --upgrade --requirement requirements.txt -f https://download.pytorch.org/whl/cpu/torch_stable.html
           pip install --quiet --requirement docs/requirements.txt
           # install Texlive, see https://linuxconfig.org/how-to-install-latex-on-ubuntu-20-04-focal-fossa-linux
           sudo apt-get update
+          sudo apt-get install -y cmake pandoc
           sudo apt-get install -y texlive-latex-extra dvipng texlive-pictures
           pip list
         shell: bash

@@ -11,13 +11,15 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-
+import glob
 import os
+import shutil
 import sys
 
 import pt_lightning_sphinx_theme
 
 _PATH_HERE = os.path.abspath(os.path.dirname(__file__))
+_PATH_IPYNB = os.path.join(_PATH_HERE, 'notebooks')
 _PATH_ROOT = os.path.realpath(os.path.join(_PATH_HERE, "..", ".."))
 sys.path.insert(0, os.path.abspath(_PATH_ROOT))
 
@@ -41,6 +43,24 @@ github_repo = project
 
 # -- Project documents -------------------------------------------------------
 
+ls_ipynb = []
+for sub in (['*.ipynb'], ['**', '*.ipynb']):
+    ls_ipynb += glob.glob(os.path.join(_PATH_ROOT, '.notebooks', *sub))
+
+os.makedirs(_PATH_IPYNB, exist_ok=True)
+ipynb_content = []
+for path_ipynb in ls_ipynb:
+    ipynb = path_ipynb.split(os.path.sep)
+    sub_ipynb = os.path.sep.join(ipynb[ipynb.index('.notebooks') + 1:])
+    new_ipynb = os.path.join(_PATH_IPYNB, sub_ipynb)
+    os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
+    print(f'{path_ipynb} -> {new_ipynb}')
+    shutil.copy(path_ipynb, new_ipynb)
+    ipynb_content.append(os.path.join('notebooks', sub_ipynb))
+
+# with open(os.path.join(_PATH_HERE, 'ipynb_content.rst'), 'w') as fp:
+#     fp.write(os.linesep.join(ipynb_content))
+
 # -- General configuration ---------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -56,9 +76,9 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.imgmath',
     "sphinx.ext.githubpages",
-    'sphinx_paramlinks',
     'nbsphinx',
     'myst_parser',
+    'sphinx_paramlinks',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -75,7 +95,7 @@ nbsphinx_requirejs_path = ''
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-source_suffix = {
+source_parsers = {
     '.rst': 'restructuredtext',
     '.txt': 'markdown',
     '.md': 'markdown',
@@ -97,6 +117,8 @@ language = None
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = [
     'PULL_REQUEST_TEMPLATE.md',
+    '_build',
+    '**.ipynb_checkpoints',
 ]
 
 # The name of the Pygments (syntax highlighting) style to use.

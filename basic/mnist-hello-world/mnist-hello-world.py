@@ -16,10 +16,10 @@
 
 # %% [markdown] colab_type="text" id="view-in-github"
 # <a href="https://colab.research.google.com/github/PytorchLightning/pytorch-lightning/blob/master/notebooks/01-mnist-hello-world.ipynb" target="_parent">
-# <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+# <img src="https://colab.research.google.com/assets/colab-badge.png" alt="Open In Colab"/></a>
 
 # %% [markdown] colab_type="text" id="i7XbLCXGkll9"
-# # Introduction to Pytorch Lightning ⚡
+# # Introduction to Pytorch Lightning
 #
 # In this notebook, we'll go over the basics of lightning by preparing models to train on the [MNIST Handwritten Digits dataset](https://en.wikipedia.org/wiki/MNIST_database).
 #

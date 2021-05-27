@@ -9,7 +9,9 @@ Lightning-Sandbox documentation
    :maxdepth: 1
    :name: start
    :caption: Start here
+   :glob:
 
+   notebooks/**/*
 
 
 Indices and tables
