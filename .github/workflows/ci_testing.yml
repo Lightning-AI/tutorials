@@ -23,6 +23,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # fetch all history for all branches and tags
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
@@ -45,11 +47,13 @@ jobs:
       - name: Process folders
         id: changed
         run: |
-          head=$(git rev-parse "${{ github.base_ref }}")
+          head=$(git rev-parse origin/"${{ github.base_ref }}")
           git diff --name-only $head --output=master-diff.txt
           python .actions/helpers.py filter-folders master-diff.txt changed-folders.txt
           python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
         shell: bash
+
+      # todo: differentiate - changed, removed
 
       - name: Generate notebook
         if: steps.changed.outputs.dirs != 0

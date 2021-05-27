@@ -16,8 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          # fetch all history for all branches and tags
-          fetch-depth: 0
+          fetch-depth: 0  # fetch all history for all branches and tags
       - uses: actions/setup-python@v2
         with:
           python-version: 3.8
