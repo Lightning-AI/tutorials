@@ -29,7 +29,7 @@
 #   - Join us [on Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)
 
 # %% [markdown] colab_type="text" id="2LODD6w9ixlT"
-# ### Setup  
+# ### Setup
 # Lightning is easy to install. Simply ```pip install pytorch-lightning```
 
 # %% colab={} colab_type="code" id="zK7-Gg69kMnG"
@@ -38,15 +38,14 @@
 # %% colab={} colab_type="code" id="w4_TYnt_keJi"
 import os
 
+import pytorch_lightning as pl
 import torch
+from pytorch_lightning.metrics.functional import accuracy
 from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, random_split
-from torchvision.datasets import MNIST
 from torchvision import transforms
-import pytorch_lightning as pl
-from pytorch_lightning.metrics.functional import accuracy
-
+from torchvision.datasets import MNIST
 
 # %% [markdown] colab_type="text" id="EHpyMPKFkVbZ"
 # ## Simplest example
@@ -54,6 +53,7 @@ from pytorch_lightning.metrics.functional import accuracy
 # Here's the simplest most minimal example with just a training loop (no validation, no testing).
 #
 # **Keep in Mind** - A `LightningModule` *is* a PyTorch `nn.Module` - it just has a few more helpful features.
+
 
 # %% colab={} colab_type="code" id="V7ELesz1kVQo"
 class MNISTModel(pl.LightningModule):
@@ -95,7 +95,6 @@ trainer = pl.Trainer(gpus=torch.cuda.device_count(), max_epochs=3, progress_bar_
 # Train the model ⚡
 trainer.fit(mnist_model, train_loader)
 
-
 # %% [markdown] colab_type="text" id="KNpOoBeIjscS"
 # ## A more complete MNIST Lightning Module Example
 #
@@ -115,7 +114,7 @@ trainer.fit(mnist_model, train_loader)
 #     - **Note we do not make any state assignments in this function** (i.e. `self.something = ...`)
 #
 # 2. [setup(stage)](https://pytorch-lightning.readthedocs.io/en/latest/common/lightning-module.html#setup) ⚙️
-#     - Loads in data from file and prepares PyTorch tensor datasets for each split (train, val, test). 
+#     - Loads in data from file and prepares PyTorch tensor datasets for each split (train, val, test).
 #     - Setup expects a 'stage' arg which is used to separate logic for 'fit' and 'test'.
 #     - If you don't mind loading all your datasets at once, you can set up a condition to allow for both 'fit' related setup and 'test' related setup to run whenever `None` is passed to `stage` (or ignore it altogether and exclude any conditionals).
 #     - **Note this runs across all GPUs and it *is* safe to make state assignments here**
@@ -123,9 +122,10 @@ trainer.fit(mnist_model, train_loader)
 # 3. [x_dataloader()](https://pytorch-lightning.readthedocs.io/en/latest/common/lightning-module.html#data-hooks) ♻️
 #     - `train_dataloader()`, `val_dataloader()`, and `test_dataloader()` all return PyTorch `DataLoader` instances that are created by wrapping their respective datasets that we prepared in `setup()`
 
+
 # %% colab={} colab_type="code" id="4DNItffri95Q"
 class LitMNIST(pl.LightningModule):
-    
+
     def __init__(self, data_dir='./', hidden_size=64, learning_rate=2e-4):
 
         super().__init__()
@@ -139,21 +139,12 @@ class LitMNIST(pl.LightningModule):
         self.num_classes = 10
         self.dims = (1, 28, 28)
         channels, width, height = self.dims
-        self.transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,))
-        ])
+        self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307, ), (0.3081, ))])
 
         # Define PyTorch model
         self.model = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(channels * width * height, hidden_size),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(hidden_size, hidden_size),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(hidden_size, self.num_classes)
+            nn.Flatten(), nn.Linear(channels * width * height, hidden_size), nn.ReLU(), nn.Dropout(0.1),
+            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Dropout(0.1), nn.Linear(hidden_size, self.num_classes)
         )
 
     def forward(self, x):
@@ -268,7 +259,7 @@ trainer.fit(model)
 # * Please, star [Bolt](https://github.com/PyTorchLightning/lightning-bolts)
 #
 # ### Contributions !
-# The best way to contribute to our community is to become a code contributor! At any time you can go to [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) or [Bolt](https://github.com/PyTorchLightning/lightning-bolts) GitHub Issues page and filter for "good first issue". 
+# The best way to contribute to our community is to become a code contributor! At any time you can go to [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) or [Bolt](https://github.com/PyTorchLightning/lightning-bolts) GitHub Issues page and filter for "good first issue".
 #
 # * [Lightning good first issue](https://github.com/PyTorchLightning/pytorch-lightning/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
 # * [Bolt good first issue](https://github.com/PyTorchLightning/lightning-bolts/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
