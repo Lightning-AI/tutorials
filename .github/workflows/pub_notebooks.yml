@@ -67,7 +67,7 @@ jobs:
     - name: Sync to pub
       run: |
         git checkout $PUB_BRANCH
-        git merge main
+        git merge -s resolve main
 
     - name: Render notebook
       if: steps.changed.outputs.dirs != 0
