@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 echo "Testing: $1"
 
 python -c "import glob ; assert(len(glob.glob('$1/*.ipynb')) == 1)"
