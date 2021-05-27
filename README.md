@@ -31,3 +31,9 @@ alternative execution
 ```bash
 jupyter nbconvert --ExecutePreprocessor.timeout=600 --to notebook --execute notebook.py
 ```
+
+## Todo
+
+- add header according `.meta.yml`
+- add badges GridAI/Colab
+- add for with call-to-action

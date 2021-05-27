@@ -2,9 +2,13 @@ name: CI testing
 
 # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows
 on:  # Trigger the workflow on push or pull request, but only for the main branch
-  push: {}
   pull_request:
-    branches: [main]
+    paths-ignore:
+      - .actions/**
+      - .github/**
+      - .notebooks/*.ipynb
+      - .notebooks/**/*.ipynb
+      - docs/**
 
 jobs:
   treon:
@@ -41,7 +45,7 @@ jobs:
       - name: Process folders
         id: changed
         run: |
-          head=$(git rev-parse origin/$PUB_BRANCH)
+          head=$(git rev-parse "${{ github.base_ref }}")
           git diff --name-only $head --output=master-diff.txt
           python .actions/helpers.py filter-folders master-diff.txt changed-folders.txt
           python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
