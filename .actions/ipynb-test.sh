@@ -14,7 +14,9 @@ cat "$1/requirements.txt"
 
 python -m venv --system-site-packages "$1/venv"
 source "$1/venv/bin/activate"
+pip --version
 pip install --requirement "$1/requirements.txt"
+pip list
 
 python -m treon -v $ipynb_file
 
