@@ -49,11 +49,9 @@ jobs:
         run: |
           head=$(git rev-parse origin/"${{ github.base_ref }}")
           git diff --name-only $head --output=master-diff.txt
-          python .actions/helpers.py group-folders master-diff.txt changed-folders.txt
+          python .actions/helpers.py group-folders master-diff.txt
           python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
         shell: bash
-
-      # todo: differentiate - changed, removed
 
       - name: Generate notebook
         if: steps.changed.outputs.dirs != 0

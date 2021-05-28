@@ -71,7 +71,11 @@ class Helper:
             fp.writelines(py_file)
 
     @staticmethod
-    def group_folders(fpath_gitdiff: str = "master-diff.txt", fpath_folders: str = "changed-folders.txt") -> None:
+    def group_folders(
+        fpath_gitdiff: str,
+        fpath_change_folders: str = "changed-folders.txt",
+        fpath_drop_folders: str = "dropped-folders.txt",
+    ) -> None:
         """Group changes by folders
 
         Args:
@@ -95,8 +99,11 @@ class Helper:
         # valid folder has meta
         dirs = [d for d in dirs if os.path.isfile(os.path.join(d, Helper.META_FILE))]
 
-        with open(fpath_folders, "w") as fp:
-            fp.write(os.linesep.join(dirs))
+        with open(fpath_change_folders, "w") as fp:
+            fp.write(os.linesep.join([d for d in dirs if os.path.isdir(d)]))
+
+        with open(fpath_drop_folders, "w") as fp:
+            fp.write(os.linesep.join([d for d in dirs if not os.path.isdir(d)]))
 
     @staticmethod
     def parse_requirements(dir_path: str):

@@ -46,7 +46,7 @@ jobs:
         run: |
           head=$(git rev-parse origin/$PUB_BRANCH)
           git diff --name-only $head --output=master-diff.txt
-          python .actions/helpers.py group-folders master-diff.txt changed-folders.txt
+          python .actions/helpers.py group-folders master-diff.txt
           python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
         shell: bash
 
@@ -71,14 +71,17 @@ jobs:
       - name: Render notebook
         if: steps.changed.outputs.dirs != 0
         run: |
+          # render the actual notebooks
           while IFS= read -r line; do
               bash .actions/ipynb-render.sh $line
           done <<< $(cat changed-folders.txt)
+          # remove notebooks which have moved
+          while IFS= read -r line; do
+              git rm .notebooks/$line.ipynb
+          done <<< $(cat dropped-folders.txt)
           git status
           git commit -m "publish: ${{ github.event.head_commit.message }}"
         shell: bash
-
-      # todo: remove notebooks which have moved
 
       - name: Finish push
         run: |
