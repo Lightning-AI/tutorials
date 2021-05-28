@@ -1,10 +1,10 @@
-Fire
-PyYAML
 virtualenv
 ipython[notebook]
 jupytext  # converting
 treon  # testing
 papermill  # render
+
+-r ../.actions/requirements.txt
 
 # default for all examples
 pytorch-lightning>=1.2
