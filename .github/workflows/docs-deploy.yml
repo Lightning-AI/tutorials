@@ -40,9 +40,8 @@ jobs:
         shell: bash
 
       - name: Make Documentation
-        run: |
-          cd docs
-          make html --jobs $(nproc)
+        working-directory: ./docs
+        run: make html --jobs $(nproc)
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@3.7.1
