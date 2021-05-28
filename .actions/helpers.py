@@ -1,7 +1,10 @@
+import glob
 import os
+import shutil
 from pprint import pprint
 
 import fire
+import tqdm
 import yaml
 
 REPO_NAME = "lightning-examples"
@@ -47,7 +50,7 @@ TEMPLATE_FOOTER = """
 """
 
 
-class Helper:
+class HelperCLI:
 
     SKIP_DIRS = (
         "docs",
@@ -71,7 +74,11 @@ class Helper:
             fp.writelines(py_file)
 
     @staticmethod
-    def group_folders(fpath_gitdiff: str = "master-diff.txt", fpath_folders: str = "changed-folders.txt") -> None:
+    def group_folders(
+        fpath_gitdiff: str,
+        fpath_change_folders: str = "changed-folders.txt",
+        fpath_drop_folders: str = "dropped-folders.txt",
+    ) -> None:
         """Group changes by folders
 
         Args:
@@ -91,12 +98,15 @@ class Helper:
         # not empty paths
         dirs = [ln for ln in dirs if ln]
         # drop folder with skip folder
-        dirs = [pd for pd in dirs if not any(nd in Helper.SKIP_DIRS for nd in pd.split(os.path.sep))]
+        dirs = [pd for pd in dirs if not any(nd in HelperCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]
         # valid folder has meta
-        dirs = [d for d in dirs if os.path.isfile(os.path.join(d, Helper.META_FILE))]
+        dirs = [d for d in dirs if os.path.isfile(os.path.join(d, HelperCLI.META_FILE))]
 
-        with open(fpath_folders, "w") as fp:
-            fp.write(os.linesep.join(dirs))
+        with open(fpath_change_folders, "w") as fp:
+            fp.write(os.linesep.join([d for d in dirs if os.path.isdir(d)]))
+
+        with open(fpath_drop_folders, "w") as fp:
+            fp.write(os.linesep.join([d for d in dirs if not os.path.isdir(d)]))
 
     @staticmethod
     def parse_requirements(dir_path: str):
@@ -104,17 +114,34 @@ class Helper:
 
         :param dir_path: path to the folder
         """
-        fpath = os.path.join(dir_path, Helper.META_FILE)
+        fpath = os.path.join(dir_path, HelperCLI.META_FILE)
         assert os.path.isfile(fpath)
         meta = yaml.safe_load(open(fpath))
         pprint(meta)
 
         req = meta.get('requirements', [])
-        fname = os.path.join(dir_path, Helper.REQUIREMENTS_FILE)
+        fname = os.path.join(dir_path, HelperCLI.REQUIREMENTS_FILE)
         print(fname)
         with open(fname, "w") as fp:
             fp.write(os.linesep.join(req))
 
+    @staticmethod
+    def copy_notebooks(path_root: str, path_docs_ipynb: str = "docs/source/notebooks"):
+        ls_ipynb = []
+        for sub in (['*.ipynb'], ['**', '*.ipynb']):
+            ls_ipynb += glob.glob(os.path.join(path_root, '.notebooks', *sub))
+
+        os.makedirs(path_docs_ipynb, exist_ok=True)
+        ipynb_content = []
+        for path_ipynb in tqdm.tqdm(ls_ipynb):
+            ipynb = path_ipynb.split(os.path.sep)
+            sub_ipynb = os.path.sep.join(ipynb[ipynb.index('.notebooks') + 1:])
+            new_ipynb = os.path.join(path_docs_ipynb, sub_ipynb)
+            os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
+            print(f'{path_ipynb} -> {new_ipynb}')
+            shutil.copy(path_ipynb, new_ipynb)
+            ipynb_content.append(os.path.join('notebooks', sub_ipynb))
+
 
 if __name__ == '__main__':
-    fire.Fire(Helper)
+    fire.Fire(HelperCLI)

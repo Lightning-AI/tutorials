@@ -7,3 +7,5 @@ sphinx-paramlinks>=0.4.0
 ipython[notebook]
 
 https://github.com/PyTorchLightning/lightning_sphinx_theme/archive/master.zip#egg=pt-lightning-sphinx-theme
+
+-r ../.actions/requirements.txt

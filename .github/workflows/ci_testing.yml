@@ -45,18 +45,22 @@ jobs:
         shell: bash
 
       - name: Process folders
-        id: changed
         run: |
           head=$(git rev-parse origin/"${{ github.base_ref }}")
           git diff --name-only $head --output=master-diff.txt
-          python .actions/helpers.py group-folders master-diff.txt changed-folders.txt
-          python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
+          python .actions/helpers.py group-folders master-diff.txt
+          echo "Changed folder:"
+          cat changed-folders.txt
+          echo "Dropped folder:"
+          cat dropped-folders.txt
         shell: bash
 
-      # todo: differentiate - changed, removed
+      - name: ">> output"
+        id: chnaged
+        run: python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
 
       - name: Generate notebook
-        if: steps.changed.outputs.dirs != 0
+        if: steps.chnaged.outputs.dirs != 0
         run: |
           while IFS= read -r line; do
               bash .actions/ipynb-generate.sh $line
@@ -64,7 +68,7 @@ jobs:
         shell: bash
 
       - name: Treon notebook
-        if: steps.changed.outputs.dirs != 0
+        if: steps.chnaged.outputs.dirs != 0
         run: |
           while IFS= read -r line; do
               bash .actions/ipynb-test.sh $line
