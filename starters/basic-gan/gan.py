@@ -22,8 +22,6 @@
 # ! pip install pytorch-lightning --quiet
 
 # %% colab={} colab_type="code" id="BjEPuiVLyanw"
-import os
-from argparse import ArgumentParser
 from collections import OrderedDict
 
 import numpy as np
@@ -32,11 +30,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
+from pytorch_lightning import LightningDataModule, LightningModule, Trainer
 from torch.utils.data import DataLoader, random_split
 from torchvision.datasets import MNIST
-
-from pytorch_lightning import Trainer, LightningModule
-
 
 # %% [markdown] colab_type="text" id="OuXJzr4G2uHV"
 # ### MNIST DataModule
@@ -69,7 +65,6 @@ class MNISTDataModule(LightningDataModule):
         MNIST(self.data_dir, train=False, download=True)
 
     def setup(self, stage=None):
-
         # Assign train/val datasets for use in dataloaders
         if stage == 'fit' or stage is None:
             mnist_full = MNIST(self.data_dir, train=True, transform=self.transform)
@@ -155,8 +150,8 @@ class Discriminator(nn.Module):
 #     - `type_as` is the way we recommend to do this.
 #   - This example shows how to use multiple dataloaders in your `LightningModule`.
 
- # %% colab={} colab_type="code" id="3vKszYf6y1Vv"
- class GAN(LightningModule):
+# %% colab={} colab_type="code" id="3vKszYf6y1Vv"
+class GAN(LightningModule):
 
     def __init__(
         self,
@@ -275,34 +270,3 @@ trainer.fit(model, dm)
 # Start tensorboard.
 # %load_ext tensorboard
 # %tensorboard --logdir lightning_logs/
-
-# %% [markdown]
-# <code style="color:#792ee5;">
-#     <h1> <strong> Congratulations - Time to Join the Community! </strong>  </h1>
-# </code>
-#
-# Congratulations on completing this notebook tutorial! If you enjoyed this and would like to join the Lightning movement, you can do so in the following ways!
-#
-# ### Star [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) on GitHub
-# The easiest way to help our community is just by starring the GitHub repos! This helps raise awareness of the cool tools we're building.
-#
-# * Please, star [Lightning](https://github.com/PyTorchLightning/pytorch-lightning)
-#
-# ### Join our [Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)!
-# The best way to keep up to date on the latest advancements is to join our community! Make sure to introduce yourself and share your interests in `#general` channel
-#
-# ### Interested by SOTA AI models ! Check out [Bolt](https://github.com/PyTorchLightning/lightning-bolts)
-# Bolts has a collection of state-of-the-art models, all implemented in [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) and can be easily integrated within your own projects.
-#
-# * Please, star [Bolt](https://github.com/PyTorchLightning/lightning-bolts)
-#
-# ### Contributions !
-# The best way to contribute to our community is to become a code contributor! At any time you can go to [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) or [Bolt](https://github.com/PyTorchLightning/lightning-bolts) GitHub Issues page and filter for "good first issue". 
-#
-# * [Lightning good first issue](https://github.com/PyTorchLightning/pytorch-lightning/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
-# * [Bolt good first issue](https://github.com/PyTorchLightning/lightning-bolts/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
-# * You can also contribute your own notebooks with useful examples !
-#
-# ### Great thanks from the entire Pytorch Lightning Team for your interest !
-#
-# <img src="https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png?raw=true" width="800" height="200" />
