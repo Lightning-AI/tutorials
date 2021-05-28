@@ -156,6 +156,20 @@ class HelperCLI:
             shutil.copy(path_ipynb, new_ipynb)
             ipynb_content.append(os.path.join('notebooks', sub_ipynb))
 
+    @staticmethod
+    def valid_accelerator(dir_path: str):
+        """Parse standard requirements from meta file
+
+        :param dir_path: path to the folder
+        """
+        fpath = os.path.join(dir_path, HelperCLI.META_FILE)
+        assert os.path.isfile(fpath)
+        meta = yaml.safe_load(open(fpath))
+        # default is COU runtime
+        accels = [acc.lower() for acc in meta.get("accelerator", ('CPU'))]
+        os_acc = os.environ.get("ACCLERATOR", 'cpu')
+        return int(os_acc in accels)
+
 
 if __name__ == '__main__':
     fire.Fire(HelperCLI)

@@ -12,6 +12,7 @@ jobs:
     # timeout-minutes: 45
     env:
       PUB_BRANCH: publication
+      ACCLERATOR: CPU
 
     steps:
       - uses: actions/checkout@v2

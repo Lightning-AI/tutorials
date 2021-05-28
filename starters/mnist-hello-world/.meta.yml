@@ -6,3 +6,6 @@ license: CC
 description: "In this notebook, we'll go over the basics of lightning by preparing models to train on the [MNIST Handwritten Digits dataset](https://en.wikipedia.org/wiki/MNIST_database)."
 requirements:
   - torchvision
+accelerator:
+  - CPU
+  - GPU
