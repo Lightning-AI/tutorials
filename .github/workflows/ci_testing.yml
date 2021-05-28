@@ -45,16 +45,21 @@ jobs:
         shell: bash
 
       - name: Process folders
-        id: changed
+        id: folders
         run: |
           head=$(git rev-parse origin/"${{ github.base_ref }}")
           git diff --name-only $head --output=master-diff.txt
           python .actions/helpers.py group-folders master-diff.txt
-          python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
+          echo "Changed folder:"
+          cat changed-folders.txt
+          python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=changed::{len(lines)}')"
+          echo "Dropped folder:"
+          cat dropped-folders.txt
+          python -c "lines = open('dropped-folders.txt').readlines(); print(f'::set-output name=dropped::{len(lines)}')"
         shell: bash
 
       - name: Generate notebook
-        if: steps.changed.outputs.dirs != 0
+        if: steps.folders.outputs.changed != 0
         run: |
           while IFS= read -r line; do
               bash .actions/ipynb-generate.sh $line
@@ -62,7 +67,7 @@ jobs:
         shell: bash
 
       - name: Treon notebook
-        if: steps.changed.outputs.dirs != 0
+        if: steps.folders.outputs.changed != 0
         run: |
           while IFS= read -r line; do
               bash .actions/ipynb-test.sh $line
