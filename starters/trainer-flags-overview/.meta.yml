@@ -1,0 +1,14 @@
+title: Introduction to Lightning Flags
+author: PL team
+created: 2021-01-31
+updated: 2021-02-23
+license: CC
+description: >
+  In this notebook, we'll go over the flags available in the `Trainer` object.
+  Note that not everything will work in the Colab environment (multi-gpu, etc).
+  This notebook accompanies the Trainer videos we'll be putting out.
+requirements:
+  - torchvision
+accelerator:
+  - CPU
+  - GPU
