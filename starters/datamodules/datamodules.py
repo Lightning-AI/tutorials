@@ -28,15 +28,14 @@
 
 # %% colab={} colab_type="code" id="eg-xDlmDdAwy"
 import pytorch_lightning as pl
-from pytorch_lightning.metrics.functional import accuracy
 import torch
-from torch import nn
 import torch.nn.functional as F
-from torch.utils.data import random_split, DataLoader
-
-# Note - you must have torchvision installed for this example
-from torchvision.datasets import MNIST, CIFAR10
+from pytorch_lightning.metrics.functional import accuracy
+from torch import nn
+from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
+# Note - you must have torchvision installed for this example
+from torchvision.datasets import CIFAR10, MNIST
 
 # %% [markdown] colab_type="text" id="DzgY7wi88UuG"
 # ## Defining the LitMNISTModel
