@@ -14,6 +14,7 @@ mkdir -p $pub_dir
 
 python .actions/helpers.py parse-requirements $1
 pip install --quiet --requirement requirements.txt
+cat "$1/requirements.txt"
 pip install --requirement "$1/requirements.txt"
 
 papermill $ipynb_file $pub_file

@@ -14,16 +14,6 @@
 #     name: python3
 # ---
 
-# %% [markdown] colab_type="text" id="i7XbLCXGkll9"
-# # Introduction to Pytorch Lightning
-#
-# In this notebook, we'll go over the basics of lightning by preparing models to train on the [MNIST Handwritten Digits dataset](https://en.wikipedia.org/wiki/MNIST_database).
-#
-# ---
-#   - Give us a ⭐ [on Github](https://www.github.com/PytorchLightning/pytorch-lightning/)
-#   - Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/latest/)
-#   - Join us [on Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)
-
 # %% [markdown] colab_type="text" id="2LODD6w9ixlT"
 # ### Setup
 # Lightning is easy to install. Simply ```pip install pytorch-lightning```

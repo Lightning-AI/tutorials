@@ -11,8 +11,19 @@ REPO_NAME = "lightning-examples"
 DEFAULT_BRANCH = "main"
 TEMPLATE_HEADER = f"""
 # %%%% [markdown] colab_type="text" id="view-in-github"
+#
+# # %(title)s
+#
+# %(description)s
+#
+# ---
+# Open in
 # <a href="https://colab.research.google.com/github/PytorchLightning/{REPO_NAME}/blob/{DEFAULT_BRANCH}/%(local_path)s" target="_parent">
-# <img src="https://colab.research.google.com/assets/colab-badge.png" alt="Open In Colab"/></a>
+# <img src="https://colab.research.google.com/assets/colab-badge.png" alt="Open In Colab" width="117" height="20px"/></a>
+#
+# Give us a ⭐ [on Github](https://www.github.com/PytorchLightning/pytorch-lightning/)
+# | Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/latest/)
+# | Join us [on Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)
 
 """
 TEMPLATE_FOOTER = """
@@ -64,9 +75,12 @@ class HelperCLI:
     def expand_script(fpath: str):
         with open(fpath, "r") as fp:
             py_file = fp.readlines()
+        fpath_meta = os.path.join(os.path.dirname(fpath), HelperCLI.META_FILE)
+        meta = yaml.safe_load(open(fpath_meta))
+        meta.update(dict(local_path=fpath))
 
         first_empty = min([i for i, ln in enumerate(py_file) if not ln.startswith("#")])
-        header = TEMPLATE_HEADER % dict(local_path=fpath)
+        header = TEMPLATE_HEADER % meta
         py_file[first_empty] = header
         py_file.append(TEMPLATE_FOOTER)
 
