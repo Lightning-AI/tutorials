@@ -49,13 +49,14 @@ jobs:
           head=$(git rev-parse origin/"${{ github.base_ref }}")
           git diff --name-only $head --output=master-diff.txt
           python .actions/helpers.py group-folders master-diff.txt
-          echo "Changed folder:"
+          echo "\n\nChanged folder:"
           cat changed-folders.txt
-          echo "Dropped folder:"
+          echo "\n\nDropped folder:"
           cat dropped-folders.txt
         shell: bash
 
-      - id: chnaged
+      - name: ">> output"
+        id: chnaged
         run: python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
 
       - name: Generate notebook

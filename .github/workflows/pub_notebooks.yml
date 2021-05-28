@@ -46,16 +46,17 @@ jobs:
           head=$(git rev-parse origin/$PUB_BRANCH)
           git diff --name-only $head --output=master-diff.txt
           python .actions/helpers.py group-folders master-diff.txt
-          echo "Changed folder:"
+          echo "\n\nChanged folder:"
           cat changed-folders.txt
-          echo "Dropped folder:"
+          echo "\n\nDropped folder:"
           cat dropped-folders.txt
         shell: bash
 
-      - id: chnaged
+      - name: ">> output"
+        id: chnaged
         run: python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
-
-      - id: dropped
+      - name: ">> output"
+        id: dropped
         run: python -c "lines = open('dropped-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
 
       - uses: fregante/setup-git-token@v1
