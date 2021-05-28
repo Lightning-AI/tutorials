@@ -8,4 +8,3 @@ make ipynb
 git commit -m "regenerate all notebooks"
 git push
 ```
-

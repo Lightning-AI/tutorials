@@ -11,9 +11,7 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-import glob
 import os
-import shutil
 import sys
 
 import pt_lightning_sphinx_theme
@@ -24,7 +22,7 @@ _PATH_ROOT = os.path.realpath(os.path.join(_PATH_HERE, "..", ".."))
 sys.path.insert(0, os.path.abspath(_PATH_ROOT))
 sys.path.append(os.path.join(_PATH_ROOT, '.actions'))
 
-from helpers import HelperCLI
+from helpers import HelperCLI  # noqa: E401 E402
 
 # -- Project information -----------------------------------------------------
 
