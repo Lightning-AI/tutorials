@@ -1,4 +1,4 @@
-Click
+Fire
 PyYAML
 virtualenv
 ipython[notebook]
