@@ -39,14 +39,12 @@
 import os
 
 import torch
+from pytorch_lightning import LightningModule, seed_everything, Trainer
 from torch import nn
 from torch.nn import functional as F
-from torch.utils.data import DataLoader
-from torch.utils.data import random_split
-from pytorch_lightning import LightningModule, Trainer, seed_everything
-
-from torchvision.datasets.mnist import MNIST
+from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
+from torchvision.datasets.mnist import MNIST
 
 # %% id="6tgkS8IYZwY_"
 # ------------
