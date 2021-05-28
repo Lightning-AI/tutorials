@@ -2,7 +2,10 @@
 
 echo "Converting: $1"
 
-python -c "import glob ; assert(len(glob.glob('$1/*.py')) == 1)"
+# check that there is only one python script
+python -c "import os, glob ; assert(len(glob.glob(os.path.join('$1', '*.py'))) == 1)"
+# check that there is meta file
+python -c "import os ; assert(os.path.isfile(os.path.join('$1', '.meta.yml')))"
 py_file=( $(ls "$1"/*.py) )
 echo $py_file
 

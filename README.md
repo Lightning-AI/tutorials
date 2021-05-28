@@ -1,10 +1,14 @@
 # Pytorch lightning Examples
 
+[![Publish notebook](https://github.com/PyTorchLightning/lightning-examples/actions/workflows/pub_notebooks.yml/badge.svg)](https://github.com/PyTorchLightning/lightning-examples/actions/workflows/pub_notebooks.yml)
+[![Code formatting](https://github.com/PyTorchLightning/lightning-examples/actions/workflows/ci_code-format.yml/badge.svg?event=push)](https://github.com/PyTorchLightning/lightning-examples/actions/workflows/ci_code-format.yml)
+[![Deploy Docs](https://github.com/PyTorchLightning/lightning-examples/actions/workflows/docs-deploy.yml/badge.svg)](https://github.com/PyTorchLightning/lightning-examples/actions/workflows/docs-deploy.yml)
+
 inspiration:
 - https://keras.io/examples/
 - https://project-awesome.org/markusschanta/awesome-jupyter
 
-## notes
+## Meantime notes
 
 ### Preparing source scripts
 
@@ -27,10 +31,6 @@ treon -v notebook.ipynb
 papermill in-notebook.ipynb out-notebook.ipynb
 ```
 
-alternative execution
-```bash
-jupyter nbconvert --ExecutePreprocessor.timeout=600 --to notebook --execute notebook.py
-```
 
 ## Remaining ideas/tasks
 
