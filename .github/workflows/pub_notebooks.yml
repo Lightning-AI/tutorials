@@ -50,14 +50,6 @@ jobs:
           python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
         shell: bash
 
-      - name: Generate notebook
-        if: steps.changed.outputs.dirs != 0
-        run: |
-          while IFS= read -r line; do
-              bash .actions/ipynb-generate.sh $line
-          done <<< $(cat changed-folders.txt)
-        shell: bash
-
       - uses: fregante/setup-git-token@v1
         with:
           token: ${{ secrets.PAT_GHOST }}
@@ -67,6 +59,14 @@ jobs:
         run: |
           git checkout $PUB_BRANCH
           git merge -s resolve main
+
+      - name: Generate notebook
+        if: steps.changed.outputs.dirs != 0
+        run: |
+          while IFS= read -r line; do
+              bash .actions/ipynb-generate.sh $line
+          done <<< $(cat changed-folders.txt)
+        shell: bash
 
       - name: Render notebook
         if: steps.changed.outputs.dirs != 0

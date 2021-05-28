@@ -14,10 +14,6 @@
 #     name: python3
 # ---
 
-# %% [markdown] colab_type="text" id="view-in-github"
-# <a href="https://colab.research.google.com/github/PytorchLightning/pytorch-lightning/blob/master/notebooks/01-mnist-hello-world.ipynb" target="_parent">
-# <img src="https://colab.research.google.com/assets/colab-badge.png" alt="Open In Colab"/></a>
-
 # %% [markdown] colab_type="text" id="i7XbLCXGkll9"
 # # Introduction to Pytorch Lightning
 #
@@ -237,34 +233,3 @@ trainer.fit(model)
 # Start tensorboard.
 # %load_ext tensorboard
 # %tensorboard --logdir lightning_logs/
-
-# %% [markdown]
-# <code style="color:#792ee5;">
-#     <h1> <strong> Congratulations - Time to Join the Community! </strong>  </h1>
-# </code>
-#
-# Congratulations on completing this notebook tutorial! If you enjoyed this and would like to join the Lightning movement, you can do so in the following ways!
-#
-# ### Star [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) on GitHub
-# The easiest way to help our community is just by starring the GitHub repos! This helps raise awareness of the cool tools we're building.
-#
-# * Please, star [Lightning](https://github.com/PyTorchLightning/pytorch-lightning)
-#
-# ### Join our [Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)!
-# The best way to keep up to date on the latest advancements is to join our community! Make sure to introduce yourself and share your interests in `#general` channel
-#
-# ### Interested by SOTA AI models ! Check out [Bolt](https://github.com/PyTorchLightning/lightning-bolts)
-# Bolts has a collection of state-of-the-art models, all implemented in [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) and can be easily integrated within your own projects.
-#
-# * Please, star [Bolt](https://github.com/PyTorchLightning/lightning-bolts)
-#
-# ### Contributions !
-# The best way to contribute to our community is to become a code contributor! At any time you can go to [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) or [Bolt](https://github.com/PyTorchLightning/lightning-bolts) GitHub Issues page and filter for "good first issue".
-#
-# * [Lightning good first issue](https://github.com/PyTorchLightning/pytorch-lightning/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
-# * [Bolt good first issue](https://github.com/PyTorchLightning/lightning-bolts/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
-# * You can also contribute your own notebooks with useful examples !
-#
-# ### Great thanks from the entire Pytorch Lightning Team for your interest !
-#
-# <img src="https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png?raw=true" width="800" height="200" />
