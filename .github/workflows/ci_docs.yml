@@ -56,6 +56,8 @@ jobs:
         shell: bash
 
       - name: Make Documentation
+        # todo: add dummy notebook if needed
+        if: steps.chnaged.outputs.dirs != 0
         working-directory: ./docs
         run: |
           # First run the same pipeline as Read-The-Docs
