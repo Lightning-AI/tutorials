@@ -1,12 +1,7 @@
-name: Deploy Docs
-on:
-  push:
-    branches: [publication]
-  workflow_dispatch: {}
-  workflow_run:
-    workflows: ["Publish notebook"]
-    types:
-      - completed
+name: test Docs
+
+on:  # Trigger the workflow on push or pull request
+  pull_request: {}
 
 jobs:
   # https://github.com/marketplace/actions/deploy-to-github-pages
@@ -39,17 +34,30 @@ jobs:
           pip list
         shell: bash
 
+      - name: Process folders
+        run: |
+          head=$(git rev-parse origin/"${{ github.base_ref }}")
+          git diff --name-only $head --output=master-diff.txt
+          python .actions/helpers.py group-folders master-diff.txt
+          echo "Changed folder:"
+          cat changed-folders.txt
+        shell: bash
+
+      - name: ">> output"
+        id: chnaged
+        run: python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
+
+      - name: Generate notebook
+        if: steps.chnaged.outputs.dirs != 0
+        run: |
+          while IFS= read -r line; do
+              bash .actions/ipynb-generate.sh $line
+              mv "$line.ipynb" ".notebooks/$line.ipynb"
+          done <<< $(cat changed-folders.txt)
+        shell: bash
+
       - name: Make Documentation
         working-directory: ./docs
-        run: make html --jobs $(nproc)
-
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@3.7.1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_BRANCH: publication
-          BRANCH: gh-pages # The branch the action should deploy to.
-          FOLDER: docs/build/html # The folder the action should deploy.
-          CLEAN: true # Automatically remove deleted files from the deploy branch
-          TARGET_FOLDER: docs # If you'd like to push the contents of the deployment folder into a specific directory
-        if: success()
+        run: |
+          # First run the same pipeline as Read-The-Docs
+          make html --debug --jobs $(nproc) SPHINXOPTS="-W --keep-going"
