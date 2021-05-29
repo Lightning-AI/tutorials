@@ -7,7 +7,7 @@ jobs:
   build-docs:
     runs-on: ubuntu-20.04
     env:
-      PUB_BRANCH: publication
+      PUB_BRANCH: origin/publication
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v2
