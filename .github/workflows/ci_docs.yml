@@ -52,7 +52,8 @@ jobs:
         run: |
           while IFS= read -r line; do
               bash .actions/ipynb-generate.sh $line
-              mv "$line.ipynb" ".notebooks/$line.ipynb"
+              ipynb=( $(ls "$1"/*.ipynb) )
+              mv $ipynb ".notebooks/$line.ipynb"
           done <<< $(cat changed-folders.txt)
         shell: bash
 
