@@ -46,6 +46,8 @@ jobs:
       - name: ">> output"
         id: chnaged
         run: python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
+      - name: Sync to pub
+        run: git merge -s resolve $PUB_BRANCH
 
       - name: Generate notebook
         if: steps.chnaged.outputs.dirs != 0
@@ -58,8 +60,6 @@ jobs:
         shell: bash
 
       - name: Make Documentation
-        # todo: add dummy notebook if needed
-        if: steps.chnaged.outputs.dirs != 0
         working-directory: ./docs
         run: |
           # First run the same pipeline as Read-The-Docs
