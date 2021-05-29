@@ -4,8 +4,7 @@ on:  # Trigger the workflow on push or pull request
   pull_request: {}
 
 jobs:
-  # https://github.com/marketplace/actions/deploy-to-github-pages
-  build-docs-deploy:
+  build-docs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout 🛎️
