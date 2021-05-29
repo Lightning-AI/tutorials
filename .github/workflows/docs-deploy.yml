@@ -13,7 +13,7 @@ jobs:
   build-docs-deploy:
     runs-on: ubuntu-20.04
     env:
-      PUB_BRANCH: origin/publication
+      PUB_BRANCH: publication
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v2
