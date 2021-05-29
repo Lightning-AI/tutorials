@@ -29,6 +29,7 @@ jobs:
           sudo apt-get install -y cmake pandoc
           sudo apt-get install -y texlive-latex-extra dvipng texlive-pictures
           pip --version
+          pip install --quiet --requirement requirements.txt
           pip install --quiet --requirement docs/requirements.txt
           pip list
         shell: bash
