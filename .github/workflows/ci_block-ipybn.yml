@@ -1,15 +1,13 @@
-name: Prevent bypass public
+name: Prevent adding/chnaging notebooks
 
 # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows
 on:  # Trigger the workflow on PR to master
   pull_request:
-    branches: [main]
     paths:
-      - .notebooks/*.ipynb
-      - .notebooks/**/*.ipynb
+      - ./**/*.ipynb
 
 jobs:
-  prevent-ipynb:
+  block-ipynb:
     runs-on: ubuntu-latest
     steps:
     - run: exit 1
