@@ -48,6 +48,10 @@ jobs:
       - name: ">> output"
         id: chnaged
         run: python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
+      - uses: oleksiyrudenko/gha-git-credentials@v2.1
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          global: true
       - name: Sync to pub
         run: git merge -s resolve origin/$PUB_BRANCH
 
