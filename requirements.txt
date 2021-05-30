@@ -3,6 +3,9 @@ ipython[notebook]
 jupytext  # converting
 treon  # testing
 papermill  # render
+yapf
+flake8
+isort
 
 -r .actions/requirements.txt
 
