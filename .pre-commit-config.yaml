@@ -12,7 +12,7 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
-      #- id: check-yaml
+      - id: check-yaml
       - id: pretty-format-json
 
   - repo: https://github.com/PyCQA/isort
@@ -20,9 +20,6 @@ repos:
     hooks:
       - id: isort
         name: imports
-        entry: isort
-        language: python
-        types: [python]
         require_serial: false
 
   - repo: https://github.com/pre-commit/mirrors-yapf
@@ -30,16 +27,11 @@ repos:
     hooks:
       - id: yapf
         name: formatting
-        entry: yapf
-        args: [--parallel]
         language: python
-        types: [python]
+        require_serial: false
 
   - repo: https://github.com/PyCQA/flake8
     rev: 3.9.2
     hooks:
       - id: flake8
         name: PEP8
-        entry: flake8
-        language: python
-        types: [python]
