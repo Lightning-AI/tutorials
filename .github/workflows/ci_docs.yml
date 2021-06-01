@@ -1,0 +1,72 @@
+name: test Docs
+
+on:  # Trigger the workflow on push or pull request
+  pull_request: {}
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-20.04
+    env:
+      PUB_BRANCH: publication
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # fetch all history for all branches and tags
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('docs/requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          # install Texlive, see https://linuxconfig.org/how-to-install-latex-on-ubuntu-20-04-focal-fossa-linux
+          sudo apt-get update
+          sudo apt-get install -y cmake pandoc
+          sudo apt-get install -y texlive-latex-extra dvipng texlive-pictures
+          pip --version
+          pip install --quiet --requirement requirements.txt
+          pip install --quiet --requirement docs/requirements.txt
+          pip list
+        shell: bash
+
+      - name: Process folders
+        run: |
+          head=$(git rev-parse origin/"${{ github.base_ref }}")
+          git diff --name-only $head --output=master-diff.txt
+          python .actions/helpers.py group-folders master-diff.txt
+          echo "Changed folder:"
+          cat changed-folders.txt
+        shell: bash
+
+      - name: ">> output"
+        id: chnaged
+        run: python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
+      - uses: oleksiyrudenko/gha-git-credentials@v2.1
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          global: true
+      - name: Sync to pub
+        run: git merge -s resolve origin/$PUB_BRANCH
+
+      - name: Generate notebook
+        if: steps.chnaged.outputs.dirs != 0
+        run: |
+          while IFS= read -r line; do
+              bash .actions/ipynb-generate.sh $line
+              ipynb=( $(ls "$line"/*.ipynb) )
+              mv $ipynb ".notebooks/$line.ipynb"
+          done <<< $(cat changed-folders.txt)
+        shell: bash
+
+      - name: Make Documentation
+        working-directory: ./docs
+        run: |
+          # First run the same pipeline as Read-The-Docs
+          make html --debug --jobs $(nproc) SPHINXOPTS="-W --keep-going"

@@ -1,14 +1,8 @@
 name: CI testing
 
 # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows
-on:  # Trigger the workflow on push or pull request, but only for the main branch
-  pull_request:
-    paths-ignore:
-      - .actions/**
-      - .github/**
-      - .notebooks/*.ipynb
-      - .notebooks/**/*.ipynb
-      - docs/**
+on:  # Trigger the workflow on push or pull request
+  pull_request: {}
 
 jobs:
   treon:
