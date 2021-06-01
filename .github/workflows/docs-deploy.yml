@@ -12,13 +12,11 @@ jobs:
   # https://github.com/marketplace/actions/deploy-to-github-pages
   build-docs-deploy:
     runs-on: ubuntu-20.04
-    env:
-      PUB_BRANCH: publication
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v2
         with:
-          ref: $PUB_BRANCH
+          ref: publication
       - uses: actions/setup-python@v2
         with:
           python-version: 3.8
@@ -49,7 +47,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_BRANCH: $PUB_BRANCH
+          BASE_BRANCH: publication
           BRANCH: gh-pages # The branch the action should deploy to.
           FOLDER: docs/build/html # The folder the action should deploy.
           CLEAN: true # Automatically remove deleted files from the deploy branch
