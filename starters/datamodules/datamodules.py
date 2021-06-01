@@ -22,7 +22,7 @@
 # ! pip install pytorch-lightning --quiet
 
 # %% [markdown] colab_type="text" id="8g2mbvy-9xDI"
-# # Introduction
+# ## Introduction
 #
 # First, we'll go over a regular `LightningModule` implementation without the use of a `LightningDataModule`
 
@@ -38,13 +38,14 @@ from torchvision import transforms
 from torchvision.datasets import CIFAR10, MNIST
 
 # %% [markdown] colab_type="text" id="DzgY7wi88UuG"
-# ## Defining the LitMNISTModel
+# ### Defining the LitMNISTModel
 #
 # Below, we reuse a `LightningModule` from our hello world tutorial that classifies MNIST Handwritten Digits.
 #
 # Unfortunately, we have hardcoded dataset-specific items within the model, forever limiting it to working with MNIST Data. 😢
 #
-# This is fine if you don't plan on training/evaluating your model on different datasets. However, in many cases, this can become bothersome when you want to try out your architecture with different datasets.
+# This is fine if you don't plan on training/evaluating your model on different datasets.
+# However, in many cases, this can become bothersome when you want to try out your architecture with different datasets.
 
 
 # %% colab={} colab_type="code" id="IQkW8_FF5nU2"
@@ -125,7 +126,7 @@ class LitMNIST(pl.LightningModule):
 
 
 # %% [markdown] colab_type="text" id="K7sg9KQd-QIO"
-# ## Training the ListMNIST Model
+# ### Training the ListMNIST Model
 
 # %% colab={} colab_type="code" id="QxDNDaus6byD"
 model = LitMNIST()
@@ -133,12 +134,12 @@ trainer = pl.Trainer(max_epochs=2, gpus=torch.cuda.device_count(), progress_bar_
 trainer.fit(model)
 
 # %% [markdown] colab_type="text" id="dY8d6GxmB0YU"
-# # Using DataModules
+# ## Using DataModules
 #
 # DataModules are a way of decoupling data-related hooks from the `LightningModule` so you can develop dataset agnostic models.
 
 # %% [markdown] colab_type="text" id="eJeT5bW081wn"
-# ## Defining The MNISTDataModule
+# ### Defining The MNISTDataModule
 #
 # Let's go over each function in the class below and talk about what they're doing:
 #
@@ -204,7 +205,7 @@ class MNISTDataModule(pl.LightningDataModule):
 
 
 # %% [markdown] colab_type="text" id="H2Yoj-9M9dS7"
-# ## Defining the dataset agnostic `LitModel`
+# ### Defining the dataset agnostic `LitModel`
 #
 # Below, we define the same model as the `LitMNIST` model we made earlier.
 #
@@ -258,7 +259,7 @@ class LitModel(pl.LightningModule):
 
 
 # %% [markdown] colab_type="text" id="G4Z5olPe-xEo"
-# ## Training the `LitModel` using the `MNISTDataModule`
+# ### Training the `LitModel` using the `MNISTDataModule`
 #
 # Now, we initialize and train the `LitModel` using the `MNISTDataModule`'s configuration settings and dataloaders.
 
@@ -273,7 +274,7 @@ trainer = pl.Trainer(max_epochs=3, progress_bar_refresh_rate=20, gpus=torch.cuda
 trainer.fit(model, dm)
 
 # %% [markdown] colab_type="text" id="WNxrugIGRRv5"
-# ## Defining the CIFAR10 DataModule
+# ### Defining the CIFAR10 DataModule
 #
 # Lets prove the `LitModel` we made earlier is dataset agnostic by defining a new datamodule for the CIFAR10 dataset.
 
@@ -318,7 +319,7 @@ class CIFAR10DataModule(pl.LightningDataModule):
 
 
 # %% [markdown] colab_type="text" id="BrXxf3oX_gsZ"
-# ## Training the `LitModel` using the `CIFAR10DataModule`
+# ### Training the `LitModel` using the `CIFAR10DataModule`
 #
 # Our model isn't very good, so it will perform pretty badly on the CIFAR10 dataset.
 #
