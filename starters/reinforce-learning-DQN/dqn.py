@@ -21,37 +21,36 @@
 # %% colab={"base_uri": "https://localhost:8080/", "height": 938} id="UGjilEHk4vb7" outputId="229670cf-ec26-446f-afe5-2432c4571030"
 # ! pip install pytorch-lightning --upgrade
 
-# %% [markdown] id="NWvMLBDySQI5"
-# ## DQN example
-#
-# How to train a Deep Q Network
-#
-# Main takeaways:
-# 1. RL has the same flow as previous models we have seen, with a few additions
-# 2. Handle unsupervised learning by using an IterableDataset where the dataset itself is constantly updated during training
-# 3. Each training step carries has the agent taking an action in the environment and storing the experience in the IterableDataset
+# %% id="nm9BKoF0Sv_O"
+import argparse
+from collections import deque, namedtuple, OrderedDict
+from typing import List, Tuple
 
-# %% colab={"base_uri": "https://localhost:8080/", "height": 146} id="4ARIT37rDdIZ" outputId="37ea5092-0db7-4e73-b507-f4be9bb0ae7e"
-# !pip install gym
-
-# %% [markdown] id="nm9BKoF0Sv_O"
-# ### DQN Network
+import gym
+import numpy as np
+import pytorch_lightning as pl
+import torch
+from pytorch_lightning import LightningModule
+from torch import nn
+from torch.optim import Adam, Optimizer
+from torch.utils.data import DataLoader
+from torch.utils.data.dataset import IterableDataset
 
 # %% id="FXkKtnEhSaIV"
-from torch import nn
 
 
 class DQN(nn.Module):
     """
     Simple MLP network
-
-    Args:
-        obs_size: observation/state size of the environment
-        n_actions: number of discrete actions available in the environment
-        hidden_size: size of hidden layers
     """
 
     def __init__(self, obs_size: int, n_actions: int, hidden_size: int = 128):
+        """
+        Args:
+            obs_size: observation/state size of the environment
+            n_actions: number of discrete actions available in the environment
+            hidden_size: size of hidden layers
+        """
         super(DQN, self).__init__()
         self.net = nn.Sequential(nn.Linear(obs_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, n_actions))
 
@@ -63,15 +62,12 @@ class DQN(nn.Module):
 # ### Memory
 
 # %% id="zUmawp0ITE3I"
-from collections import namedtuple
 
 # Named tuple for storing experience steps gathered in training
 Experience = namedtuple('Experience', field_names=['state', 'action', 'reward', 'done', 'new_state'])
 
+
 # %% id="Zs7h_Z0LTVoy"
-from typing import Tuple
-
-
 class ReplayBuffer:
     """
     Replay Buffer for storing past experiences allowing the agent to learn from them
@@ -106,9 +102,6 @@ class ReplayBuffer:
 
 
 # %% id="R5UK2VRvTgS1"
-from torch.utils.data.dataset import IterableDataset
-
-
 class RLDataset(IterableDataset):
     """
     Iterable Dataset containing the ExperienceBuffer
@@ -132,11 +125,8 @@ class RLDataset(IterableDataset):
 # %% [markdown] id="d7sCGSURTuQK"
 # ### Agent
 
+
 # %% id="dS2RpSHHTvpO"
-import gym
-import torch
-
-
 class Agent:
     """
     Base Agent class handeling the interaction with the environment
@@ -215,17 +205,9 @@ class Agent:
 # %% [markdown] id="IAlT0-75T_Kv"
 # ### DQN Lightning Module
 
+
 # %% id="BS5D7s83T13H"
-import pytorch_lightning as pl
-import argparse
-from collections import OrderedDict, deque
-from typing import Tuple, List
-import torch.optim as optim
-from torch.optim import Optimizer
-from torch.utils.data import DataLoader
-
-
-class DQNLightning(pl.LightningModule):
+class DQNLightning(LightningModule):
     """ Basic DQN Model """
 
     def __init__(self, hparams: argparse.Namespace) -> None:
@@ -339,7 +321,7 @@ class DQNLightning(pl.LightningModule):
 
     def configure_optimizers(self) -> List[Optimizer]:
         """ Initialize Adam optimizer"""
-        optimizer = optim.Adam(self.net.parameters(), lr=self.hparams.lr)
+        optimizer = Adam(self.net.parameters(), lr=self.hparams.lr)
         return [optimizer]
 
     def __dataloader(self) -> DataLoader:
@@ -369,15 +351,17 @@ def main(hparams) -> None:
     model = DQNLightning(hparams)
 
     trainer = pl.Trainer(
-        gpus=1, distributed_backend='dp', max_epochs=500, early_stop_callback=False, val_check_interval=100
+        gpus=1,
+        distributed_backend='dp',
+        max_epochs=500,
+        early_stop_callback=False,
+        val_check_interval=100,
     )
 
     trainer.fit(model)
 
 
 # %% colab={"base_uri": "https://localhost:8080/", "height": 380, "referenced_widgets": ["e9a6bf4eda3244c6bb17216715f36525", "0922c5b2de554b4fa28dd531603f2709", "c293fc4171b0438595bc9a49fbb250cf", "819c83bf0bbd472ba417c31e957718c7", "c24384195a074989a86217b2edc411cb", "b3817e0ba30f449585f7641b4d3061bb", "8591bd2136ab4bb7831579609b43ee9c", "5a761ed145474ec7a30006bc584b26be"]} id="-iV9PQC9VOHK" outputId="2fd70097-c913-4d68-e80a-d240532edd19"
-import numpy as np
-import argparse
 
 torch.manual_seed(0)
 np.random.seed(0)

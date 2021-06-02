@@ -1,0 +1,16 @@
+title: How to train a Deep Q Network
+author: PL team
+created: 2021-01-31
+updated: 2021-02-23
+license: CC
+description: |
+  Main takeaways:
+
+  1. RL has the same flow as previous models we have seen, with a few additions
+  2. Handle unsupervised learning by using an IterableDataset where the dataset itself is constantly updated during training
+  3. Each training step carries has the agent taking an action in the environment and storing the experience in the IterableDataset
+requirements:
+  - gym
+accelerator:
+  - CPU
+  - GPU
