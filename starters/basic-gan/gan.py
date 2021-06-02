@@ -40,6 +40,7 @@ from torchvision.datasets import MNIST
 # Below, we define a DataModule for the MNIST Dataset. To learn more about DataModules, check out our tutorial
 # on them or see the [latest docs](https://pytorch-lightning.readthedocs.io/en/latest/extensions/datamodules.html).
 
+
 # %% colab={} colab_type="code" id="DOY_nHu328g7"
 class MNISTDataModule(LightningDataModule):
 
@@ -51,7 +52,7 @@ class MNISTDataModule(LightningDataModule):
 
         self.transform = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,))
+            transforms.Normalize((0.1307, ), (0.3081, )),
         ])
 
         # self.dims is returned when you call dm.size()
@@ -88,8 +89,10 @@ class MNISTDataModule(LightningDataModule):
 # %% [markdown] colab_type="text" id="tW3c0QrQyF9P"
 # ### A. Generator
 
+
 # %% colab={} colab_type="code" id="0E2QDjl5yWtz"
 class Generator(nn.Module):
+
     def __init__(self, latent_dim, img_shape):
         super().__init__()
         self.img_shape = img_shape
@@ -102,12 +105,8 @@ class Generator(nn.Module):
             return layers
 
         self.model = nn.Sequential(
-            *block(latent_dim, 128, normalize=False),
-            *block(128, 256),
-            *block(256, 512),
-            *block(512, 1024),
-            nn.Linear(1024, int(np.prod(img_shape))),
-            nn.Tanh()
+            *block(latent_dim, 128, normalize=False), *block(128, 256), *block(256, 512), *block(512, 1024),
+            nn.Linear(1024, int(np.prod(img_shape))), nn.Tanh()
         )
 
     def forward(self, z):
@@ -119,8 +118,10 @@ class Generator(nn.Module):
 # %% [markdown] colab_type="text" id="uyrltsGvyaI3"
 # ### B. Discriminator
 
+
 # %% colab={} colab_type="code" id="Ed3MR3vnyxyW"
 class Discriminator(nn.Module):
+
     def __init__(self, img_shape):
         super().__init__()
 
@@ -150,6 +151,7 @@ class Discriminator(nn.Module):
 #     - In this example, we pull from latent dim on the fly, so we need to dynamically add tensors to the right device.
 #     - `type_as` is the way we recommend to do this.
 #   - This example shows how to use multiple dataloaders in your `LightningModule`.
+
 
 # %% colab={} colab_type="code" id="3vKszYf6y1Vv"
 class GAN(LightningModule):
@@ -210,11 +212,7 @@ class GAN(LightningModule):
             # adversarial loss is binary cross-entropy
             g_loss = self.adversarial_loss(self.discriminator(self(z)), valid)
             tqdm_dict = {'g_loss': g_loss}
-            output = OrderedDict({
-                'loss': g_loss,
-                'progress_bar': tqdm_dict,
-                'log': tqdm_dict
-            })
+            output = OrderedDict({'loss': g_loss, 'progress_bar': tqdm_dict, 'log': tqdm_dict})
             return output
 
         # train discriminator
@@ -231,17 +229,12 @@ class GAN(LightningModule):
             fake = torch.zeros(imgs.size(0), 1)
             fake = fake.type_as(imgs)
 
-            fake_loss = self.adversarial_loss(
-                self.discriminator(self(z).detach()), fake)
+            fake_loss = self.adversarial_loss(self.discriminator(self(z).detach()), fake)
 
             # discriminator loss is the average of these
             d_loss = (real_loss + fake_loss) / 2
             tqdm_dict = {'d_loss': d_loss}
-            output = OrderedDict({
-                'loss': d_loss,
-                'progress_bar': tqdm_dict,
-                'log': tqdm_dict
-            })
+            output = OrderedDict({'loss': d_loss, 'progress_bar': tqdm_dict, 'log': tqdm_dict})
             return output
 
     def configure_optimizers(self):
@@ -260,6 +253,7 @@ class GAN(LightningModule):
         sample_imgs = self(z)
         grid = torchvision.utils.make_grid(sample_imgs)
         self.logger.experiment.add_image('generated_images', grid, self.current_epoch)
+
 
 # %% colab={} colab_type="code" id="Ey5FmJPnzm_E"
 dm = MNISTDataModule()
