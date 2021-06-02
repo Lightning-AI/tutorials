@@ -71,7 +71,8 @@ cifar10_dm = CIFAR10DataModule(
 
 # %% [markdown] id="SfCsutp3qUMc"
 # ### Resnet
-# Modify the pre-existing Resnet architecture from TorchVision. The pre-existing architecture is based on ImageNet images (224x224) as input. So we need to modify it for CIFAR10 images (32x32).
+# Modify the pre-existing Resnet architecture from TorchVision. The pre-existing architecture is based on ImageNet
+# images (224x224) as input. So we need to modify it for CIFAR10 images (32x32).
 
 
 # %% id="GNSeJgwvhHp-"
@@ -84,7 +85,10 @@ def create_model():
 
 # %% [markdown] id="HUCj5TKsqty1"
 # ### Lightning Module
-# Check out the [`configure_optimizers`](https://pytorch-lightning.readthedocs.io/en/stable/common/lightning_module.html#configure-optimizers) method to use custom Learning Rate schedulers. The OneCycleLR with SGD will get you to around 92-93% accuracy in 20-30 epochs and 93-94% accuracy in 40-50 epochs. Feel free to experiment with different LR schedules from https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+# Check out the [`configure_optimizers`](https://pytorch-lightning.readthedocs.io/en/stable/common/lightning_module.html#configure-optimizers)
+# method to use custom Learning Rate schedulers. The OneCycleLR with SGD will get you to around 92-93% accuracy
+# in 20-30 epochs and 93-94% accuracy in 40-50 epochs. Feel free to experiment with different
+# LR schedules from https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
 
 
 # %% id="03OMrBa5iGtT"
