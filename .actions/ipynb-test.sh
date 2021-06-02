@@ -7,7 +7,7 @@ python -c "import glob ; assert(len(glob.glob('$1/*.ipynb')) == 1)"
 ipynb_file=( $(ls "$1"/*.ipynb) )
 echo $ipynb_file
 
-pip install --quiet --requirement requirements.txt
+pip install --quiet --requirement requirements.txt --upgrade-strategy only-if-needed
 
 python .actions/helpers.py parse-requirements $1
 cat "$1/requirements.txt"

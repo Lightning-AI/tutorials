@@ -18,9 +18,6 @@
 # ### Setup
 # Lightning is easy to install. Simply ```pip install pytorch-lightning```
 
-# %% colab={} colab_type="code" id="zK7-Gg69kMnG"
-# ! pip install pytorch-lightning --quiet
-
 # %% colab={} colab_type="code" id="w4_TYnt_keJi"
 import os
 
