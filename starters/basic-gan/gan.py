@@ -37,7 +37,8 @@ from torchvision.datasets import MNIST
 # %% [markdown] colab_type="text" id="OuXJzr4G2uHV"
 # ### MNIST DataModule
 #
-# Below, we define a DataModule for the MNIST Dataset. To learn more about DataModules, check out our tutorial on them or see the [latest docs](https://pytorch-lightning.readthedocs.io/en/latest/extensions/datamodules.html).
+# Below, we define a DataModule for the MNIST Dataset. To learn more about DataModules, check out our tutorial
+# on them or see the [latest docs](https://pytorch-lightning.readthedocs.io/en/latest/extensions/datamodules.html).
 
 # %% colab={} colab_type="code" id="DOY_nHu328g7"
 class MNISTDataModule(LightningDataModule):
