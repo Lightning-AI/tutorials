@@ -14,6 +14,8 @@ PATH_ROOT = os.path.dirname(PATH_HERE)
 PATH_REQ_DEFAULT = os.path.join(PATH_ROOT, "requirements", "default.txt")
 REPO_NAME = "lightning-tutorials"
 DEFAULT_BRANCH = "main"
+ENV_DEVICE = "ACCELERATOR"
+DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, 'cpu').lower()
 TEMPLATE_HEADER = f"""
 # %%%% [markdown] colab_type="text" id="view-in-github"
 #
@@ -70,6 +72,7 @@ class HelperCLI:
 
     SKIP_DIRS = (
         ".actions",
+        ".azure-pipelines",
         ".github",
         ".notebooks",
         "docs",
@@ -179,14 +182,13 @@ class HelperCLI:
         fpath = os.path.join(dir_path, HelperCLI.META_FILE)
         assert os.path.isfile(fpath)
         meta = yaml.safe_load(open(fpath))
-        # default is COU runtime
+        # default is CPU runtime
         accels = [acc.lower() for acc in meta.get("accelerator", ('CPU'))]
-        os_acc = os.environ.get("ACCLERATOR", 'cpu')
-        return int(os_acc in accels)
+        return int(DEVICE_ACCELERATOR in accels)
 
     @staticmethod
     def update_env_details(dir_path: str):
-        """Export the actial packages used in runtime
+        """Export the actual packages used in runtime
         Args:
              dir_path: path to the folder
         """
