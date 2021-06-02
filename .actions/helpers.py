@@ -1,6 +1,7 @@
 import glob
 import os
 import shutil
+from datetime import datetime
 from pprint import pprint
 
 import fire
@@ -207,6 +208,7 @@ class HelperCLI:
         require = set([_parse(r) for r in req if r])
         env = {_parse(p): p for p in freeze.freeze()}
         meta['environment'] = [env[r] for r in require]
+        meta['updated'] = datetime.now().isoformat()
 
         yaml.safe_dump(meta, stream=open(fpath, 'w'))
 
