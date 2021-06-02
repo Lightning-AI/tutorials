@@ -1,16 +1,42 @@
+trigger: none
 pr:
   - main
-  - release/*
+
+#stages:
+#- stage: testing
 
 jobs:
+  - job: change
+    pool:
+      vmImage: 'ubuntu-20.04'
+    steps:
+
+    - bash: pip install --requirement .actions/requirements.txt
+      displayName: 'Install dependencies'
+    - bash: |
+        head=$(git rev-parse origin/main)
+        git diff --name-only $head --output=master-diff.txt
+        python .actions/helpers.py group-folders master-diff.txt
+        echo "Changed folder:"
+        cat changed-folders.txt
+      displayName: 'Process folders'
+
+    - script: |
+        FOLDERS=$(cat changed-folders.txt)
+        echo "Chnaged folders: $FOLDERS"
+        echo "##vso[task.setvariable variable=folders;isOutput=true]$FOLDERS"
+      name: changed
+    - script: echo $(changed.folders)
+      name: echovar
+
   - job: treon
+    dependsOn: change
     # how long to run the job before automatically cancelling
     timeoutInMinutes: 45
     # how much time to give 'run always even if cancelled tasks' before stopping them
     cancelTimeoutInMinutes: 2
 
     pool: gridai-spot-pool
-
     # this need to have installed docker in the base image...
     container:
       # base ML image: mcr.microsoft.com/azureml/openmpi3.1.2-cuda10.2-cudnn8-ubuntu18.04
@@ -18,10 +44,9 @@ jobs:
       #endpoint: azureContainerRegistryConnection
       options: "--runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=all"
 
-    workspace:
-      clean: all
     variables:
       ACCELERATOR: GPU
+      CHANGED_DIRS: $[ dependencies.change.outputs['changed.folders'] ]
 
     steps:
 
@@ -30,8 +55,6 @@ jobs:
         whereis nvidia
         nvidia-smi
         python --version
-        pip --version
-        pip list
       displayName: 'Image info & NVIDIA'
 
     - bash: |
@@ -42,32 +65,21 @@ jobs:
 
     - bash: |
         python -c "import torch ; mgpu = torch.cuda.device_count() ; assert mgpu > 0, f'GPU: {mgpu}'"
-      displayName: 'Env details'
-    - bash: |
-        head=$(git rev-parse origin/main)
-        git diff --name-only $head --output=master-diff.txt
-        python .actions/helpers.py group-folders master-diff.txt
-        echo "Changed folder:"
-        cat changed-folders.txt
-        echo "Dropped folder:"
-        cat dropped-folders.txt
-      displayName: 'Process folders'
+      displayName: 'Sanity check'
 
-    - bash: |
-        NB_DIRS=$( python -c "lines = open('changed-folders.txt').readlines(); print(len(lines))" )
-        echo "Number of chnaged folders: $NB_DIRS"
-        echo "##vso[task.setvariable variable=chnaged_dirs]$NB_DIRS"
-      displayName: 'Count changed'
+    - script: |
+        echo "Chnaged folders: $CHANGED_DIRS"
 
     - bash: |
         while IFS= read -r line; do
             bash .actions/ipynb-generate.sh $line
-        done <<< $(cat changed-folders.txt)
-      condition: gt( chnaged_dirs, 0 )
+        done <<< $CHANGED_DIRS
+      condition: gt(length(variables['CHANGED_DIRS']), 0)
       displayName: 'Generate notebook'
 
     - bash: |
         while IFS= read -r line; do
             bash .actions/ipynb-test.sh $line
-        done <<< $(cat changed-folders.txt)
+        done <<< $CHANGED_DIRS
+      condition: gt(length(variables['CHANGED_DIRS']), 0)
       displayName: 'Treon notebook'
