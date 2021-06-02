@@ -6,7 +6,11 @@ from pprint import pprint
 import fire
 import tqdm
 import yaml
+from pip._internal.operations import freeze
 
+PATH_HERE = os.path.dirname(__file__)
+PATH_ROOT = os.path.dirname(PATH_HERE)
+PATH_REQ_DEFAULT = os.path.join(PATH_ROOT, "requirements", "default.txt")
 REPO_NAME = "lightning-tutorials"
 DEFAULT_BRANCH = "main"
 TEMPLATE_HEADER = f"""
@@ -64,9 +68,10 @@ TEMPLATE_FOOTER = """
 class HelperCLI:
 
     SKIP_DIRS = (
-        "docs",
         ".actions",
         ".github",
+        ".notebooks",
+        "docs",
     )
     META_FILE = ".meta.yml"
     REQUIREMENTS_FILE = "requirements.txt"
@@ -141,6 +146,13 @@ class HelperCLI:
 
     @staticmethod
     def copy_notebooks(path_root: str, path_docs_ipynb: str = "docs/source/notebooks"):
+        """Copy all notebooks from a folder to doc folder.
+
+        Args:
+            path_root: source path to the project root in this tutorials
+            path_docs_ipynb: destination path to the notebooks location
+
+        """
         ls_ipynb = []
         for sub in (['*.ipynb'], ['**', '*.ipynb']):
             ls_ipynb += glob.glob(os.path.join(path_root, '.notebooks', *sub))
@@ -169,6 +181,34 @@ class HelperCLI:
         accels = [acc.lower() for acc in meta.get("accelerator", ('CPU'))]
         os_acc = os.environ.get("ACCLERATOR", 'cpu')
         return int(os_acc in accels)
+
+    @staticmethod
+    def update_env_details(dir_path: str):
+        """Export the actial packages used in runtime
+
+        :param dir_path: path to the folder
+        """
+        fpath = os.path.join(dir_path, HelperCLI.META_FILE)
+        assert os.path.isfile(fpath)
+        meta = yaml.safe_load(open(fpath))
+        # default is COU runtime
+        with open(PATH_REQ_DEFAULT) as fp:
+            req = fp.readlines()
+        req += meta.get('requirements', [])
+        req = [r.strip() for r in req]
+
+        def _parse(pkg: str, keys: str = " <=>") -> str:
+            """Parsing just the package name"""
+            if any(c in pkg for c in keys):
+                ix = min([pkg.index(c) for c in keys if c in pkg])
+                pkg = pkg[:ix]
+            return pkg
+
+        require = set([_parse(r) for r in req if r])
+        env = {_parse(p): p for p in freeze.freeze()}
+        meta['environment'] = [env[r] for r in require]
+
+        yaml.safe_dump(meta, stream=open(fpath, 'w'))
 
 
 if __name__ == '__main__':

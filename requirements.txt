@@ -1,13 +1,5 @@
-virtualenv
-ipython[notebook]
-jupytext  # converting
-treon  # testing
-papermill  # render
-yapf
-flake8
-isort
-
+-r requirements/devel.txt
 -r .actions/requirements.txt
 
 # default for all examples
-pytorch-lightning>=1.2
+-r requirements/default.txt
