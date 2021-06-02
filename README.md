@@ -1,8 +1,8 @@
-# Pytorch lightning Examples
+# PytorchLightning Tutorials
 
-[![Publish notebook](https://github.com/PyTorchLightning/lightning-examples/actions/workflows/pub_notebooks.yml/badge.svg)](https://github.com/PyTorchLightning/lightning-examples/actions/workflows/pub_notebooks.yml)
-[![Code formatting](https://github.com/PyTorchLightning/lightning-examples/actions/workflows/ci_code-format.yml/badge.svg?event=push)](https://github.com/PyTorchLightning/lightning-examples/actions/workflows/ci_code-format.yml)
-[![Deploy Docs](https://github.com/PyTorchLightning/lightning-examples/actions/workflows/docs-deploy.yml/badge.svg)](https://github.com/PyTorchLightning/lightning-examples/actions/workflows/docs-deploy.yml)
+[![Publish notebook](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/pub_notebooks.yml/badge.svg)](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/pub_notebooks.yml)
+[![Code formatting](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/ci_code-format.yml/badge.svg?event=push)](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/ci_code-format.yml)
+[![Deploy Docs](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/docs-deploy.yml/badge.svg)](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/docs-deploy.yml)
 
 This is the Lightning Library - collection of Lightning related notebooks which are pulled back to the main repo as submodule and rendered inside the main documentations.
 The key features/highlights:

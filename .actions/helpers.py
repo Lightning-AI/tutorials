@@ -7,7 +7,7 @@ import fire
 import tqdm
 import yaml
 
-REPO_NAME = "lightning-examples"
+REPO_NAME = "lightning-tutorials"
 DEFAULT_BRANCH = "main"
 TEMPLATE_HEADER = f"""
 # %%%% [markdown] colab_type="text" id="view-in-github"

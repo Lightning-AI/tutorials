@@ -27,7 +27,7 @@ from helpers import HelperCLI  # noqa: E401 E402
 # -- Project information -----------------------------------------------------
 
 # this name shall match the project name in Github as it is used for linking to code
-project = 'Lightning-Examples'
+project = 'lightning-tutorials'
 author = "PytorchLightning team"
 copyright = f'Copyright (c) 2020-2021, {author}.'
 homepage = "https://www.pytorchlightning.ai"
