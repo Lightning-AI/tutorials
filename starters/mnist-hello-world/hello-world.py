@@ -212,7 +212,8 @@ trainer.fit(model)
 #
 # To test a model, call `trainer.test(model)`.
 #
-# Or, if you've just trained a model, you can just call `trainer.test()` and Lightning will automatically test using the best saved checkpoint (conditioned on val_loss).
+# Or, if you've just trained a model, you can just call `trainer.test()` and Lightning will automatically
+# test using the best saved checkpoint (conditioned on val_loss).
 
 # %% colab={} colab_type="code" id="PA151FkLtprO"
 trainer.test()

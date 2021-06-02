@@ -45,7 +45,8 @@ BATCH_SIZE = 256 if AVAIL_GPUS else 64
 #
 # Below, we reuse a `LightningModule` from our hello world tutorial that classifies MNIST Handwritten Digits.
 #
-# Unfortunately, we have hardcoded dataset-specific items within the model, forever limiting it to working with MNIST Data. 😢
+# Unfortunately, we have hardcoded dataset-specific items within the model,
+# forever limiting it to working with MNIST Data. 😢
 #
 # This is fine if you don't plan on training/evaluating your model on different datasets.
 # However, in many cases, this can become bothersome when you want to try out your architecture with different datasets.
@@ -143,7 +144,8 @@ trainer.fit(model)
 # %% [markdown] colab_type="text" id="dY8d6GxmB0YU"
 # ## Using DataModules
 #
-# DataModules are a way of decoupling data-related hooks from the `LightningModule` so you can develop dataset agnostic models.
+# DataModules are a way of decoupling data-related hooks from the `LightningModule
+# ` so you can develop dataset agnostic models.
 
 # %% [markdown] colab_type="text" id="eJeT5bW081wn"
 # ### Defining The MNISTDataModule
