@@ -145,7 +145,7 @@ model.datamodule = cifar10_dm
 trainer = pl.Trainer(
     progress_bar_refresh_rate=20,
     max_epochs=40,
-    gpus=1,
+    gpus=torch.cuda.device_count(),
     logger=pl.loggers.TensorBoardLogger('lightning_logs/', name='resnet'),
     callbacks=[LearningRateMonitor(logging_interval='step')],
 )
@@ -203,7 +203,7 @@ swa_model.datamodule = cifar10_dm
 swa_trainer = pl.Trainer(
     progress_bar_refresh_rate=20,
     max_epochs=20,
-    gpus=1,
+    gpus=torch.cuda.device_count(),
     logger=pl.loggers.TensorBoardLogger('lightning_logs/', name='swa_resnet'),
 )
 
