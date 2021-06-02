@@ -78,7 +78,11 @@ class HelperCLI:
     REQUIREMENTS_FILE = "requirements.txt"
 
     @staticmethod
-    def expand_script(fpath: str):
+    def enrich_script(fpath: str):
+        """Add template header and footer to the python base script.
+        Args:
+            fpath: path to python script
+        """
         with open(fpath, "r") as fp:
             py_file = fp.readlines()
         fpath_meta = os.path.join(os.path.dirname(fpath), HelperCLI.META_FILE)
@@ -100,7 +104,6 @@ class HelperCLI:
         fpath_drop_folders: str = "dropped-folders.txt",
     ) -> None:
         """Group changes by folders
-
         Args:
             fpath_gitdiff: raw git changes
 
@@ -131,8 +134,8 @@ class HelperCLI:
     @staticmethod
     def parse_requirements(dir_path: str):
         """Parse standard requirements from meta file
-
-        :param dir_path: path to the folder
+        Args:
+            dir_path: path to the folder
         """
         fpath = os.path.join(dir_path, HelperCLI.META_FILE)
         assert os.path.isfile(fpath)
@@ -148,11 +151,9 @@ class HelperCLI:
     @staticmethod
     def copy_notebooks(path_root: str, path_docs_ipynb: str = "docs/source/notebooks"):
         """Copy all notebooks from a folder to doc folder.
-
         Args:
             path_root: source path to the project root in this tutorials
             path_docs_ipynb: destination path to the notebooks location
-
         """
         ls_ipynb = []
         for sub in (['*.ipynb'], ['**', '*.ipynb']):
@@ -172,8 +173,8 @@ class HelperCLI:
     @staticmethod
     def valid_accelerator(dir_path: str):
         """Parse standard requirements from meta file
-
-        :param dir_path: path to the folder
+        Args:
+            dir_path: path to the folder
         """
         fpath = os.path.join(dir_path, HelperCLI.META_FILE)
         assert os.path.isfile(fpath)
@@ -186,8 +187,8 @@ class HelperCLI:
     @staticmethod
     def update_env_details(dir_path: str):
         """Export the actial packages used in runtime
-
-        :param dir_path: path to the folder
+        Args:
+             dir_path: path to the folder
         """
         fpath = os.path.join(dir_path, HelperCLI.META_FILE)
         assert os.path.isfile(fpath)
