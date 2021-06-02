@@ -10,5 +10,4 @@ description: >
 requirements:
   - torchvision
 accelerator:
-  - CPU
   - GPU
