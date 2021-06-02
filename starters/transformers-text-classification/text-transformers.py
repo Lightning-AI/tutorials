@@ -37,6 +37,251 @@ from transformers import (
     get_linear_schedule_with_warmup,
 )
 
+# %% [markdown] id="7uQVI-xv9Ddj"
+# ---
+# ## BERT example
+# BERT + Lightning
+
+# %% id="e2npX-Gi9uwa"
+# ! pip install transformers
+
+# %% [markdown] id="DeLyZQ_E9o1T"
+# #### Data download + processing
+#
+# Let's grab the correct data
+
+# %% colab={"base_uri": "https://localhost:8080/", "height": 164, "referenced_widgets": ["5484eef7b6f247d68a89f86965b0940f", "0c3473a16a5e4c46a6c7515e610bca7f", "ad849800b2124195b92f3bf9dfc7681b", "6ae5b2f9195847b5a0aa9991e14aa397", "240764252e7c4f5ca39db14fd1c724ed", "386ff59e3694480394253f1c24ff8e84", "70e48d7d8e8a411a90642926db4aada8", "1f3364ab59b541268fabcb3f9fb5c64c", "0fad6468e3c849b380e34f674e074219", "10a88a05740b45d4a6ea5873d4a7151a", "d3b107acd1b1401cabe3090724e12e86", "b3563100dd1b4a4abe14ab7193649064", "17f0e360e85f48d9a17b84c9b7f6c9f0", "29f35103a6e94af09c8ac9cdb2cca89c", "e6e15d5c14134be0b4cf86fdecfef687", "f23f02d00d424574afa29311b8d0906e", "e918a6de59b64bd590e4f1233bbc078a", "abeb0a773f3542c39ff724ae0674b74e", "892246fdf6bb476abb35ec321ddf86e8", "88c181cd21a94ec9a43df9754c1986c9", "e4098b0091124fef8ba342783a82cc6e", "498a50387a0742a88356a7ee9920bf7a", "86482894cddd4956ae2fc3d9edd8ef9a", "438d19fb8e8243ebbc658f4b1d27df99"]} id="eBP6FeY18_Ck" outputId="b2a5c5fd-88cf-4428-d196-9e1c1ddc7e30"
+from transformers.data.processors.glue import MnliProcessor
+from transformers import (BertModel, BertTokenizer)
+
+tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
+bert = BertModel.from_pretrained('bert-base-cased', output_attentions=True)
+
+# %% id="vMbozzxs9xq_"
+import os
+import urllib.request
+import zipfile
+
+TASKS = ["CoLA", "SST", "MRPC", "QQP", "STS", "MNLI", "SNLI", "QNLI", "RTE", "WNLI", "diagnostic"]
+URL_DATA = "https://firebasestorage.googleapis.com/v0/b/mtl-sentence-representations.appspot.com/o/data"
+TASK2PATH = {
+    "CoLA": URL_DATA + "%2FCoLA.zip?alt=media&token=46d5e637-3411-4188-bc44-5809b5bfb5f4",
+    "SST": URL_DATA + "%2FSST-2.zip?alt=media&token=aabc5f6b-e466-44a2-b9b4-cf6337f84ac8",
+    "MRPC": URL_DATA + "%2Fmrpc_dev_ids.tsv?alt=media&token=ec5c0836-31d5-48f4-b431-7480817f1adc",
+    "QQP": URL_DATA + "%2FQQP-clean.zip?alt=media&token=11a647cb-ecd3-49c9-9d31-79f8ca8fe277",
+    "STS": URL_DATA + "%2FSTS-B.zip?alt=media&token=bddb94a7-8706-4e0d-a694-1109e12273b5",
+    "MNLI": URL_DATA + "%2FMNLI.zip?alt=media&token=50329ea1-e339-40e2-809c-10c40afff3ce",
+    "SNLI": URL_DATA + "%2FSNLI.zip?alt=media&token=4afcfbb2-ff0c-4b2d-a09a-dbf07926f4df",
+    "QNLI": URL_DATA + "%2FQNLIv2.zip?alt=media&token=6fdcf570-0fc5-4631-8456-9505272d1601",
+    "RTE": URL_DATA + "%2FRTE.zip?alt=media&token=5efa7e85-a0bb-4f19-8ea2-9e1840f077fb",
+    "WNLI": URL_DATA + "%2FWNLI.zip?alt=media&token=068ad0a0-ded7-4bd7-99a5-5e00222e0faf",
+    "diagnostic": [
+        "https://storage.googleapis.com/mtl-sentence-representations.appspot.com/tsvsWithoutLabels%2FAX.tsv?GoogleAccessId=firebase-adminsdk-0khhl@mtl-sentence-representations.iam.gserviceaccount.com&Expires=2498860800&Signature=DuQ2CSPt2Yfre0C%2BiISrVYrIFaZH1Lc7hBVZDD4ZyR7fZYOMNOUGpi8QxBmTNOrNPjR3z1cggo7WXFfrgECP6FBJSsURv8Ybrue8Ypt%2FTPxbuJ0Xc2FhDi%2BarnecCBFO77RSbfuz%2Bs95hRrYhTnByqu3U%2FYZPaj3tZt5QdfpH2IUROY8LiBXoXS46LE%2FgOQc%2FKN%2BA9SoscRDYsnxHfG0IjXGwHN%2Bf88q6hOmAxeNPx6moDulUF6XMUAaXCSFU%2BnRO2RDL9CapWxj%2BDl7syNyHhB7987hZ80B%2FwFkQ3MEs8auvt5XW1%2Bd4aCU7ytgM69r8JDCwibfhZxpaa4gd50QXQ%3D%3D",  # noqa
+        "https://www.dropbox.com/s/ju7d95ifb072q9f/diagnostic-full.tsv?dl=1",
+    ],
+}
+
+MRPC_TRAIN = "https://dl.fbaipublicfiles.com/senteval/senteval_data/msr_paraphrase_train.txt"
+MRPC_TEST = "https://dl.fbaipublicfiles.com/senteval/senteval_data/msr_paraphrase_test.txt"
+
+
+def download_and_extract(task, data_dir):
+    print("Downloading and extracting %s..." % task)
+    data_file = "%s.zip" % task
+    urllib.request.urlretrieve(TASK2PATH[task], data_file)
+    with zipfile.ZipFile(data_file) as zip_ref:
+        zip_ref.extractall(data_dir)
+    os.remove(data_file)
+    print("\tCompleted!")
+
+
+# %% colab={"base_uri": "https://localhost:8080/", "height": 51} id="3CVHOXQY9yVm" outputId="f06b886b-cc32-4972-918e-f4ca5828fb2c"
+download_and_extract('MNLI', '../../notebooks')
+
+# %% id="vOR0Q1Yg-HmN"
+from transformers import glue_convert_examples_to_features as convert_examples_to_features
+from torch.utils.data import TensorDataset, RandomSampler, random_split
+
+processor = MnliProcessor()
+
+# %% [markdown] id="yuUwBKpn-TIK"
+# #### Data loaders
+#
+
+
+# %% id="kMdQZUjO-MI7"
+def generate_mnli_bert_dataloaders():
+    # ----------------------
+    # TRAIN/VAL DATALOADERS
+    # ----------------------
+    train = processor.get_train_examples('MNLI')
+    features = convert_examples_to_features(
+        train,
+        tokenizer,
+        label_list=['contradiction', 'neutral', 'entailment'],
+        max_length=128,
+        output_mode='classification',
+        pad_on_left=False,
+        pad_token=tokenizer.pad_token_id,
+        pad_token_segment_id=0
+    )
+    train_dataset = TensorDataset(
+        torch.tensor([f.input_ids for f in features], dtype=torch.long),
+        torch.tensor([f.attention_mask for f in features], dtype=torch.long),
+        torch.tensor([f.token_type_ids for f in features], dtype=torch.long),
+        torch.tensor([f.label for f in features], dtype=torch.long)
+    )
+
+    nb_train_samples = int(0.95 * len(train_dataset))
+    nb_val_samples = len(train_dataset) - nb_train_samples
+
+    bert_mnli_train_dataset, bert_mnli_val_dataset = random_split(train_dataset, [nb_train_samples, nb_val_samples])
+
+    # train loader
+    train_sampler = RandomSampler(bert_mnli_train_dataset)
+    bert_mnli_train_dataloader = DataLoader(bert_mnli_train_dataset, sampler=train_sampler, batch_size=32)
+
+    # val loader
+    val_sampler = RandomSampler(bert_mnli_val_dataset)
+    bert_mnli_val_dataloader = DataLoader(bert_mnli_val_dataset, sampler=val_sampler, batch_size=32)
+
+    # ----------------------
+    # TEST DATALOADERS
+    # ----------------------
+    dev = processor.get_dev_examples('MNLI')
+    features = convert_examples_to_features(
+        dev,
+        tokenizer,
+        label_list=['contradiction', 'neutral', 'entailment'],
+        max_length=128,
+        output_mode='classification',
+        pad_on_left=False,
+        pad_token=tokenizer.pad_token_id,
+        pad_token_segment_id=0
+    )
+
+    bert_mnli_test_dataset = TensorDataset(
+        torch.tensor([f.input_ids for f in features], dtype=torch.long),
+        torch.tensor([f.attention_mask for f in features], dtype=torch.long),
+        torch.tensor([f.token_type_ids for f in features], dtype=torch.long),
+        torch.tensor([f.label for f in features], dtype=torch.long)
+    )
+
+    # test dataset
+    test_sampler = RandomSampler(bert_mnli_test_dataset)
+    bert_mnli_test_dataloader = DataLoader(bert_mnli_test_dataset, sampler=test_sampler, batch_size=32)
+
+    return bert_mnli_train_dataloader, bert_mnli_val_dataloader, bert_mnli_test_dataloader
+
+
+# %% id="iV-baDhN-U6B"
+bert_mnli_train_dataloader, bert_mnli_val_dataloader, bert_mnli_test_dataloader = generate_mnli_bert_dataloaders()
+
+# %% [markdown] id="yr7eaxkF-djf"
+# ### BERT Lightning module!
+#
+# Finally, we can create the LightningModule
+
+# %% id="UIXLW8CO-W8w"
+from sklearn.metrics import accuracy_score
+import torch.nn.functional as F
+
+
+class BertMNLIFinetuner(pl.LightningModule):
+
+    def __init__(self):
+        super(BertMNLIFinetuner, self).__init__()
+
+        self.bert = bert
+        self.W = nn.Linear(bert.config.hidden_size, 3)
+        self.num_classes = 3
+
+    def forward(self, input_ids, attention_mask, token_type_ids):
+
+        h, _, attn = self.bert(input_ids=input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids)
+
+        h_cls = h[:, 0]
+        logits = self.W(h_cls)
+        return logits, attn
+
+    def training_step(self, batch, batch_nb):
+        # batch
+        input_ids, attention_mask, token_type_ids, label = batch
+
+        # fwd
+        y_hat, attn = self(input_ids, attention_mask, token_type_ids)
+
+        # loss
+        loss = F.cross_entropy(y_hat, label)
+
+        # logs
+        tensorboard_logs = {'train_loss': loss}
+        return {'loss': loss, 'log': tensorboard_logs}
+
+    def validation_step(self, batch, batch_nb):
+        # batch
+        input_ids, attention_mask, token_type_ids, label = batch
+
+        # fwd
+        y_hat, attn = self(input_ids, attention_mask, token_type_ids)
+
+        # loss
+        loss = F.cross_entropy(y_hat, label)
+
+        # acc
+        a, y_hat = torch.max(y_hat, dim=1)
+        val_acc = accuracy_score(y_hat.cpu(), label.cpu())
+        val_acc = torch.tensor(val_acc)
+
+        return {'val_loss': loss, 'val_acc': val_acc}
+
+    def validation_epoch_end(self, outputs):
+        avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
+        avg_val_acc = torch.stack([x['val_acc'] for x in outputs]).mean()
+
+        tensorboard_logs = {'val_loss': avg_loss, 'avg_val_acc': avg_val_acc}
+        return {'val_loss': avg_loss, 'progress_bar': tensorboard_logs}
+
+    def test_step(self, batch, batch_nb):
+        input_ids, attention_mask, token_type_ids, label = batch
+
+        y_hat, attn = self(input_ids, attention_mask, token_type_ids)
+
+        a, y_hat = torch.max(y_hat, dim=1)
+        test_acc = accuracy_score(y_hat.cpu(), label.cpu())
+
+        return {'test_acc': torch.tensor(test_acc)}
+
+    def test_epoch_end(self, outputs):
+
+        avg_test_acc = torch.stack([x['test_acc'] for x in outputs]).mean()
+
+        tensorboard_logs = {'avg_test_acc': avg_test_acc}
+        return {'avg_test_acc': avg_test_acc, 'log': tensorboard_logs, 'progress_bar': tensorboard_logs}
+
+    def configure_optimizers(self):
+        return torch.optim.Adam([p for p in self.parameters() if p.requires_grad], lr=2e-05, eps=1e-08)
+
+    def train_dataloader(self):
+        return bert_mnli_train_dataloader
+
+    def val_dataloader(self):
+        return bert_mnli_val_dataloader
+
+    def test_dataloader(self):
+        return bert_mnli_test_dataloader
+
+
+# %% [markdown] id="FHt8tgwa_DcM"
+# ### Trainer
+
+# %% colab={"base_uri": "https://localhost:8080/", "height": 83, "referenced_widgets": ["86bedd1fc6da4b8fa0deac637628729e", "f444ab7646444b9885cfec41b5a2236e", "fad0b06dc57e4b4599cf43daad7106b8", "c190999c2761453380f816372fcca608", "a5cc9e60aff641dca27f1adf6807e5b3", "0a96cc26343e4bb2ac2f5145be2fbacf", "cce9ed8de0a048679453e53b71523eea", "773fd1b84c364903bc7350630e76a825", "0e149cc766d147aba2c05f8b0f2c69d5", "191f483b5b0346a8a28cac37f29ac2dc", "24b28a7423a541c0b84ba93d70416c1a", "4820f0005e60493793e506e9f0caf5d4", "fce1fc72006f4e84a6497a493cbbfca2", "f220485e332d4c3cbfc3c45ce3b5fdf1", "bf257b8a04b44a389da2e6f4c64379d4", "7efa007fdb2d4e06b5f34c4286fe9a2f"]} id="gMRMJ-Kd-oup" outputId="790ab73c-b37d-4bcb-af5f-46b464e46f9b"
+bert_finetuner = BertMNLIFinetuner()
+
+# most basic trainer, uses good defaults (1 gpu)
+trainer = pl.Trainer(gpus=1)
+trainer.fit(bert_finetuner)
+
 # %% [markdown] colab_type="text" id="9ORJfiuiNZ_N"
 # ## GLUE DataModule
 
