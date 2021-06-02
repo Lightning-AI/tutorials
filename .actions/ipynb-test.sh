@@ -12,7 +12,7 @@ pip install --quiet --requirement requirements.txt
 python .actions/helpers.py parse-requirements $1
 cat "$1/requirements.txt"
 
-python -m venv --system-site-packages "$1/venv"
+python -m virtualenv --system-site-packages "$1/venv"
 source "$1/venv/bin/activate"
 pip --version
 pip install --requirement "$1/requirements.txt"
