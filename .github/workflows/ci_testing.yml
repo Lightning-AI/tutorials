@@ -64,7 +64,7 @@ jobs:
         shell: bash
 
       - name: Treon notebook
-        if: steps.chnaged.outputs.dirs != 0
+        if: success() && steps.chnaged.outputs.dirs != 0
         run: |
           while IFS= read -r line; do
               bash .actions/ipynb-test.sh $line

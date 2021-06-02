@@ -11,4 +11,4 @@ echo $py_file
 
 python .actions/helpers.py enrich-script $py_file
 
-jupytext --set-formats "ipynb,py:percent" $py_file
+python -m jupytext --set-formats "ipynb,py:percent" $py_file

@@ -20,7 +20,7 @@ pip install --requirement "$1/requirements.txt"
 accel=$(python .actions/helpers.py valid-accelerator $1 2>&1)
 if [ $accel -eq 1 ]
 then
-  papermill $ipynb_file $pub_file
+  python -m papermill $ipynb_file $pub_file
   python .actions/helpers.py update-env-details $1
 else
   echo "WARNING: not valid accelerator so no outputs will be generated"
