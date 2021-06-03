@@ -1,9 +1,9 @@
 name: Publish notebook
 
 # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows
-on:  # Trigger the workflow on push to master
-  push:
-    branches: [main]
+on:
+  schedule:
+    - cron: "0 0 0 * *" # At the end of every day
 
 jobs:
   generate-ipynb:
