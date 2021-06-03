@@ -46,6 +46,7 @@ jobs:
 
     variables:
       ACCELERATOR: GPU
+      PATH_DATASETS: "$(Build.Repository.LocalPath)/.datasets"
       # Note the syntax ${{}} for compile time and $[] for runtime expressions.
       CHANGED_DIRS: $[ dependencies.change.outputs['changed.folders'] ]
 
@@ -72,7 +73,13 @@ jobs:
         echo "Chnaged folders: $CHANGED_DIRS"
 
     - script: |
-        wget www.di.ens.fr/~lelarge/MNIST.tar.gz
+        echo $PATH_DATASETS
+        mkdir $PATH_DATASETS
+        cd $PATH_DATASETS
+        wget www.di.ens.fr/~lelarge/MNIST.tar.gz --progress=bar:force:noscroll
+        tar -zxvf MNIST.tar.gz
+        ls -l
+      displayName: 'Pull datasets'
 
     - bash: |
         while IFS= read -r line; do

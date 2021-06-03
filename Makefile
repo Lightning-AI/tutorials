@@ -3,6 +3,7 @@
 # META := $(wildcard **/.meta.yml)
 META := $(shell find -name .meta.yml)
 IPYNB := $(META:%/.meta.yml=%.ipynb)
+export PATH_DATASETS="./"
 
 ipynb: ${IPYNB}
 # 	@echo $<

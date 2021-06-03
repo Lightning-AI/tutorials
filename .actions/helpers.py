@@ -74,6 +74,7 @@ class HelperCLI:
     SKIP_DIRS = (
         ".actions",
         ".azure-pipelines",
+        ".datasets",
         ".github",
         ".notebooks",
         "docs",

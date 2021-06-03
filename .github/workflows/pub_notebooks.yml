@@ -13,6 +13,7 @@ jobs:
     env:
       PUB_BRANCH: publication
       ACCELERATOR: CPU
+      PATH_DATASETS: "$GITHUB_ACTION_PATH/.datasets"
 
     steps:
       - uses: actions/checkout@v2

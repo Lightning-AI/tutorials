@@ -24,6 +24,8 @@
 # First, we'll go over a regular `LightningModule` implementation without the use of a `LightningDataModule`
 
 # %% colab={} colab_type="code" id="eg-xDlmDdAwy"
+import os
+
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
@@ -33,6 +35,8 @@ from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 # Note - you must have torchvision installed for this example
 from torchvision.datasets import CIFAR10, MNIST
+
+PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
 
 # %% [markdown] colab_type="text" id="DzgY7wi88UuG"
 # ### Defining the LitMNISTModel
@@ -48,7 +52,7 @@ from torchvision.datasets import CIFAR10, MNIST
 # %% colab={} colab_type="code" id="IQkW8_FF5nU2"
 class LitMNIST(pl.LightningModule):
 
-    def __init__(self, data_dir='./', hidden_size=64, learning_rate=2e-4):
+    def __init__(self, data_dir=PATH_DATASETS, hidden_size=64, learning_rate=2e-4):
 
         super().__init__()
 
@@ -164,7 +168,7 @@ trainer.fit(model)
 # %% colab={} colab_type="code" id="DfGKyGwG_X9v"
 class MNISTDataModule(pl.LightningDataModule):
 
-    def __init__(self, data_dir: str = './'):
+    def __init__(self, data_dir: str = PATH_DATASETS):
         super().__init__()
         self.data_dir = data_dir
         self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307, ), (0.3081, ))])

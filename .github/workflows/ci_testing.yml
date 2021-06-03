@@ -16,6 +16,7 @@ jobs:
     timeout-minutes: 55
     env:
       ACCELERATOR: CPU
+      PATH_DATASETS: ${{ github.workspace }}/.datasets
 
     steps:
       - uses: actions/checkout@v2
@@ -39,6 +40,13 @@ jobs:
           pip install --requirement requirements.txt --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
           pip list
         shell: bash
+
+      - name: Create Data dir
+        run: |
+          echo $PWD
+          echo $GITHUB_WORKSPACE
+          echo $PATH_DATASETS
+          mkdir $PATH_DATASETS
 
       - name: Process folders
         run: |

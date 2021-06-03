@@ -30,6 +30,8 @@ from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 from torchvision.datasets import MNIST
 
+PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
+
 # %% [markdown] colab_type="text" id="EHpyMPKFkVbZ"
 # ## Simplest example
 #
@@ -69,7 +71,7 @@ class MNISTModel(pl.LightningModule):
 mnist_model = MNISTModel()
 
 # Init DataLoader from MNIST Dataset
-train_ds = MNIST(os.getcwd(), train=True, download=True, transform=transforms.ToTensor())
+train_ds = MNIST(PATH_DATASETS, train=True, download=True, transform=transforms.ToTensor())
 train_loader = DataLoader(train_ds, batch_size=32)
 
 # Initialize a trainer
