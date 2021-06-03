@@ -71,6 +71,9 @@ jobs:
     - script: |
         echo "Chnaged folders: $CHANGED_DIRS"
 
+    - script: |
+        wget www.di.ens.fr/~lelarge/MNIST.tar.gz
+
     - bash: |
         while IFS= read -r line; do
             bash .actions/ipynb-generate.sh $line
