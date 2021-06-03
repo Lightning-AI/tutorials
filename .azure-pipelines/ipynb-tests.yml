@@ -6,35 +6,6 @@ pr:
 #- stage: testing
 
 jobs:
-  #- job: change
-  #  pool:
-  #    vmImage: 'ubuntu-20.04'
-  #  steps:
-  #
-  #  - bash: pip install --requirement .actions/requirements.txt
-  #    displayName: 'Install dependencies'
-  #  - bash: |
-  #      head=$(git rev-parse origin/main)
-  #      git diff --name-only $head --output=master-diff.txt
-  #      python .actions/helpers.py group-folders master-diff.txt
-  #      echo "Changed folder:"
-  #      cat changed-folders.txt
-  #    displayName: 'Process folders'
-  #
-  #  - script: |
-  #      COUNT=$(python -c "lines = open('changed-folders.txt').readlines() ; print(len(lines))")
-  #      echo "Chnaged folders: $COUNT"
-  #      echo "##vso[task.setvariable variable=folders;isOutput=true]$COUNT"
-  #    name: changed
-  #  - script: echo $(changed.folders)
-  #    name: echovar
-  #
-  #  - script: echo $(changed.folders)
-  #    condition: eq(variables['changed.folders'], 0)
-  #    name: echovar2
-  #  - script: echo $(changed.folders)
-  #    condition: gt(variables['changed.folders'], 0)
-  #    name: echovar3
 
   - job: treon
     # how long to run the job before automatically cancelling
