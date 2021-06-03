@@ -11,7 +11,7 @@ pr:
 
 jobs:
 
-  - job: treon
+  - job: papermill
     # how much time to give 'run always even if cancelled tasks' before stopping them
     cancelTimeoutInMinutes: 2
 
@@ -104,7 +104,7 @@ jobs:
             bash .actions/ipynb-render.sh $line
         done <<< $(cat changed-folders.txt)
         git status
-        git commit -m "publish [GPU]: ${{ github.event.head_commit.message }}"
+        git commit -m "publish [GPU]: $(Build.SourceVersionMessage)"
       condition: and(succeeded(), gt(variables['changed.folders'], 0))
       displayName: 'Render notebook'
 
@@ -114,7 +114,7 @@ jobs:
             git rm .notebooks/$line.ipynb
         done <<< $(cat dropped-folders.txt)
         git status
-        git commit -m "prune: ${{ github.event.head_commit.message }}"
+        git commit -m "prune: $(Build.SourceVersionMessage)"
       condition: gt(variables['dropped.folders'], 0)
       displayName: 'Prune notebook'
 
