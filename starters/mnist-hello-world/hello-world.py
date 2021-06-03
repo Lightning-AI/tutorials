@@ -75,7 +75,12 @@ train_ds = MNIST(PATH_DATASETS, train=True, download=True, transform=transforms.
 train_loader = DataLoader(train_ds, batch_size=32)
 
 # Initialize a trainer
-trainer = pl.Trainer(gpus=torch.cuda.device_count(), max_epochs=3, progress_bar_refresh_rate=20)
+trainer = pl.Trainer(
+    gpus=torch.cuda.device_count(),
+    accelerator='ddp_spawn',
+    max_epochs=3,
+    progress_bar_refresh_rate=20,
+)
 
 # Train the model ⚡
 trainer.fit(mnist_model, train_loader)
@@ -194,7 +199,12 @@ class LitMNIST(pl.LightningModule):
 
 # %% colab={} colab_type="code" id="Mb0U5Rk2kLBy"
 model = LitMNIST()
-trainer = pl.Trainer(gpus=torch.cuda.device_count(), max_epochs=3, progress_bar_refresh_rate=20)
+trainer = pl.Trainer(
+    gpus=torch.cuda.device_count(),
+    accelerator='ddp_spawn',
+    max_epochs=3,
+    progress_bar_refresh_rate=20,
+)
 trainer.fit(model)
 
 # %% [markdown] colab_type="text" id="nht8AvMptY6I"

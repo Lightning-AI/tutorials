@@ -43,8 +43,6 @@ jobs:
 
       - name: Create Data dir
         run: |
-          echo $PWD
-          echo $GITHUB_WORKSPACE
           echo $PATH_DATASETS
           mkdir $PATH_DATASETS
 

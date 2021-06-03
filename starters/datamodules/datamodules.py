@@ -131,7 +131,12 @@ class LitMNIST(pl.LightningModule):
 
 # %% colab={} colab_type="code" id="QxDNDaus6byD"
 model = LitMNIST()
-trainer = pl.Trainer(max_epochs=2, gpus=torch.cuda.device_count(), progress_bar_refresh_rate=20)
+trainer = pl.Trainer(
+    max_epochs=2,
+    gpus=torch.cuda.device_count(),
+    accelerator='ddp_spawn',
+    progress_bar_refresh_rate=20,
+)
 trainer.fit(model)
 
 # %% [markdown] colab_type="text" id="dY8d6GxmB0YU"
@@ -270,7 +275,12 @@ dm = MNISTDataModule()
 # Init model from datamodule's attributes
 model = LitModel(*dm.size(), dm.num_classes)
 # Init trainer
-trainer = pl.Trainer(max_epochs=3, progress_bar_refresh_rate=20, gpus=torch.cuda.device_count())
+trainer = pl.Trainer(
+    max_epochs=3,
+    progress_bar_refresh_rate=20,
+    gpus=torch.cuda.device_count(),
+    accelerator='ddp_spawn',
+)
 # Pass the datamodule as arg to trainer.fit to override model hooks :)
 trainer.fit(model, dm)
 
@@ -329,5 +339,10 @@ class CIFAR10DataModule(pl.LightningDataModule):
 # %% colab={} colab_type="code" id="sd-SbWi_krdj"
 dm = CIFAR10DataModule()
 model = LitModel(*dm.size(), dm.num_classes, hidden_size=256)
-trainer = pl.Trainer(max_epochs=5, progress_bar_refresh_rate=20, gpus=torch.cuda.device_count())
+trainer = pl.Trainer(
+    max_epochs=5,
+    progress_bar_refresh_rate=20,
+    gpus=torch.cuda.device_count(),
+    accelerator='ddp_spawn',
+)
 trainer.fit(model, dm)
