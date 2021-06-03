@@ -38,22 +38,23 @@ jobs:
       displayName: 'Image info & NVIDIA'
 
     - checkout: self
+      clean: true
       persistCredentials: true
 
     - bash: |
         git fetch --all
-        echo $PUB_BRANCH
+        echo $(PUB_BRANCH)
         git ls-remote --heads origin ${PUB_BRANCH} | grep ${PUB_BRANCH} >/dev/null
         if [ "$?" == "1" ] ; then echo "Branch doesn't exist"; exit; fi
       displayName: 'Sanity branch check'
 
     - task: Cache@2
       inputs:
-        key: 'python | "$(Agent.OS)" | requirements.txt'
+        key: 'python | "$(Agent.OS)" | requirements/devel.txt'
         restoreKeys: |
           python | "$(Agent.OS)"
           python
-        path: $(PIP_CACHE_DIR)
+        path: $(pip cache dir)
       displayName: Cache pip packages
 
     - bash: |
@@ -67,7 +68,7 @@ jobs:
       displayName: 'Sanity check'
 
     - bash: |
-        head=$(git rev-parse origin/$PUB_BRANCH)
+        head=$(git rev-parse origin/$(PUB_BRANCH))
         # todo: still missing past names for rename/modified
         git diff --name-only $head --output=master-diff.txt
         python .actions/helpers.py group-folders master-diff.txt
@@ -90,16 +91,18 @@ jobs:
       name: dropped
 
     - script: |
-        echo $PATH_DATASETS
-        mkdir $PATH_DATASETS
-        cd $PATH_DATASETS
+        echo $(PATH_DATASETS)
+        mkdir $(PATH_DATASETS)
+        cd $(PATH_DATASETS)
         wget www.di.ens.fr/~lelarge/MNIST.tar.gz --progress=bar:force:noscroll
         tar -zxvf MNIST.tar.gz
         ls -l
       displayName: 'Pull datasets'
 
     - bash: |
-        git checkout $PUB_BRANCH
+        git config --global user.email "pipelines@azure.com"
+        git config --global user.name "Azure Pipelines"
+        git checkout $(PUB_BRANCH)
         git merge -s resolve origin/main
       displayName: 'Sync to pub'
 
@@ -133,5 +136,7 @@ jobs:
     - bash: |
         git status
         # FIXME
-        #git push
+        echo $(Build.Repository.Uri)
+        echo $(PAT_GHOST)
+        git push https://$(PAT_GHOST)@github.com:PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
       displayName: 'Finish push'
