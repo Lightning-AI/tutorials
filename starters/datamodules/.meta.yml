@@ -1,7 +1,7 @@
 title: PyTorch Lightning DataModules
 author: PL team
 created: 2021-01-31
-updated: 2021-02-21
+updated: 2021-02-20
 license: CC
 description: This notebook will walk you through how to start using Datamodules. With
   the release of `pytorch-lightning` version 0.9.0, we have included a new class called

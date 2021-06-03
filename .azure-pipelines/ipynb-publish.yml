@@ -120,5 +120,6 @@ jobs:
 
     - bash: |
         git status
-        git push
+        # FIXME
+        #git push
       displayName: 'Finish push'
