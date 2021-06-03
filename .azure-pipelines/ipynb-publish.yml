@@ -37,6 +37,9 @@ jobs:
         python --version
       displayName: 'Image info & NVIDIA'
 
+    - checkout: self
+      persistCredentials: true
+
     - bash: |
         git fetch --all
         echo $PUB_BRANCH
