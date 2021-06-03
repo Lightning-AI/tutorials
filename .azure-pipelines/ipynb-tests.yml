@@ -22,12 +22,19 @@ jobs:
       displayName: 'Process folders'
 
     - script: |
-        FOLDERS=$(cat changed-folders.txt)
-        echo "Chnaged folders: $FOLDERS"
-        echo "##vso[task.setvariable variable=folders;isOutput=true]$FOLDERS"
+        COUNT=$(python -c "lines = open('changed-folders.txt').readlines() ; print(len(lines))")
+        echo "Chnaged folders: $COUNT"
+        echo "##vso[task.setvariable variable=folders;isOutput=true]$COUNT"
       name: changed
     - script: echo $(changed.folders)
       name: echovar
+
+    - script: echo $(changed.folders)
+      condition: eq(variables['changed.folders'], 0)
+      name: echovar2
+    - script: echo $(changed.folders)
+      condition: gt(variables['changed.folders'], 0)
+      name: echovar3
 
   - job: treon
     dependsOn: change
