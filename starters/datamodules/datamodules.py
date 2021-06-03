@@ -18,15 +18,14 @@
 # ### Setup
 # Lightning is easy to install. Simply ```pip install pytorch-lightning```
 
-# %% colab={} colab_type="code" id="lj2zD-wsbvGr"
-# ! pip install pytorch-lightning --quiet
-
 # %% [markdown] colab_type="text" id="8g2mbvy-9xDI"
 # ## Introduction
 #
 # First, we'll go over a regular `LightningModule` implementation without the use of a `LightningDataModule`
 
 # %% colab={} colab_type="code" id="eg-xDlmDdAwy"
+import os
+
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
@@ -36,6 +35,10 @@ from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 # Note - you must have torchvision installed for this example
 from torchvision.datasets import CIFAR10, MNIST
+
+PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
+AVAIL_GPUS = min(1, torch.cuda.device_count())
+BATCH_SIZE = 256 if AVAIL_GPUS else 64
 
 # %% [markdown] colab_type="text" id="DzgY7wi88UuG"
 # ### Defining the LitMNISTModel
@@ -51,7 +54,7 @@ from torchvision.datasets import CIFAR10, MNIST
 # %% colab={} colab_type="code" id="IQkW8_FF5nU2"
 class LitMNIST(pl.LightningModule):
 
-    def __init__(self, data_dir='./', hidden_size=64, learning_rate=2e-4):
+    def __init__(self, data_dir=PATH_DATASETS, hidden_size=64, learning_rate=2e-4):
 
         super().__init__()
 
@@ -116,13 +119,13 @@ class LitMNIST(pl.LightningModule):
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def train_dataloader(self):
-        return DataLoader(self.mnist_train, batch_size=32)
+        return DataLoader(self.mnist_train, batch_size=128)
 
     def val_dataloader(self):
-        return DataLoader(self.mnist_val, batch_size=32)
+        return DataLoader(self.mnist_val, batch_size=128)
 
     def test_dataloader(self):
-        return DataLoader(self.mnist_test, batch_size=32)
+        return DataLoader(self.mnist_test, batch_size=128)
 
 
 # %% [markdown] colab_type="text" id="K7sg9KQd-QIO"
@@ -130,7 +133,11 @@ class LitMNIST(pl.LightningModule):
 
 # %% colab={} colab_type="code" id="QxDNDaus6byD"
 model = LitMNIST()
-trainer = pl.Trainer(max_epochs=2, gpus=torch.cuda.device_count(), progress_bar_refresh_rate=20)
+trainer = pl.Trainer(
+    max_epochs=2,
+    gpus=AVAIL_GPUS,
+    progress_bar_refresh_rate=20,
+)
 trainer.fit(model)
 
 # %% [markdown] colab_type="text" id="dY8d6GxmB0YU"
@@ -167,7 +174,7 @@ trainer.fit(model)
 # %% colab={} colab_type="code" id="DfGKyGwG_X9v"
 class MNISTDataModule(pl.LightningDataModule):
 
-    def __init__(self, data_dir: str = './'):
+    def __init__(self, data_dir: str = PATH_DATASETS):
         super().__init__()
         self.data_dir = data_dir
         self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307, ), (0.3081, ))])
@@ -195,13 +202,13 @@ class MNISTDataModule(pl.LightningDataModule):
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def train_dataloader(self):
-        return DataLoader(self.mnist_train, batch_size=32)
+        return DataLoader(self.mnist_train, batch_size=BATCH_SIZE)
 
     def val_dataloader(self):
-        return DataLoader(self.mnist_val, batch_size=32)
+        return DataLoader(self.mnist_val, batch_size=BATCH_SIZE)
 
     def test_dataloader(self):
-        return DataLoader(self.mnist_test, batch_size=32)
+        return DataLoader(self.mnist_test, batch_size=BATCH_SIZE)
 
 
 # %% [markdown] colab_type="text" id="H2Yoj-9M9dS7"
@@ -269,7 +276,11 @@ dm = MNISTDataModule()
 # Init model from datamodule's attributes
 model = LitModel(*dm.size(), dm.num_classes)
 # Init trainer
-trainer = pl.Trainer(max_epochs=3, progress_bar_refresh_rate=20, gpus=torch.cuda.device_count())
+trainer = pl.Trainer(
+    max_epochs=3,
+    progress_bar_refresh_rate=20,
+    gpus=AVAIL_GPUS,
+)
 # Pass the datamodule as arg to trainer.fit to override model hooks :)
 trainer.fit(model, dm)
 
@@ -309,13 +320,13 @@ class CIFAR10DataModule(pl.LightningDataModule):
             self.cifar_test = CIFAR10(self.data_dir, train=False, transform=self.transform)
 
     def train_dataloader(self):
-        return DataLoader(self.cifar_train, batch_size=32)
+        return DataLoader(self.cifar_train, batch_size=BATCH_SIZE)
 
     def val_dataloader(self):
-        return DataLoader(self.cifar_val, batch_size=32)
+        return DataLoader(self.cifar_val, batch_size=BATCH_SIZE)
 
     def test_dataloader(self):
-        return DataLoader(self.cifar_test, batch_size=32)
+        return DataLoader(self.cifar_test, batch_size=BATCH_SIZE)
 
 
 # %% [markdown] colab_type="text" id="BrXxf3oX_gsZ"
@@ -328,5 +339,9 @@ class CIFAR10DataModule(pl.LightningDataModule):
 # %% colab={} colab_type="code" id="sd-SbWi_krdj"
 dm = CIFAR10DataModule()
 model = LitModel(*dm.size(), dm.num_classes, hidden_size=256)
-trainer = pl.Trainer(max_epochs=5, progress_bar_refresh_rate=20, gpus=torch.cuda.device_count())
+trainer = pl.Trainer(
+    max_epochs=5,
+    progress_bar_refresh_rate=20,
+    gpus=AVAIL_GPUS,
+)
 trainer.fit(model, dm)

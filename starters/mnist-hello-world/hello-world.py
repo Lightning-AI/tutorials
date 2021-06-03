@@ -18,9 +18,6 @@
 # ### Setup
 # Lightning is easy to install. Simply ```pip install pytorch-lightning```
 
-# %% colab={} colab_type="code" id="zK7-Gg69kMnG"
-# ! pip install pytorch-lightning --quiet
-
 # %% colab={} colab_type="code" id="w4_TYnt_keJi"
 import os
 
@@ -32,6 +29,10 @@ from torch.nn import functional as F
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 from torchvision.datasets import MNIST
+
+PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
+AVAIL_GPUS = min(1, torch.cuda.device_count())
+BATCH_SIZE = 256 if AVAIL_GPUS else 64
 
 # %% [markdown] colab_type="text" id="EHpyMPKFkVbZ"
 # ## Simplest example
@@ -72,11 +73,15 @@ class MNISTModel(pl.LightningModule):
 mnist_model = MNISTModel()
 
 # Init DataLoader from MNIST Dataset
-train_ds = MNIST(os.getcwd(), train=True, download=True, transform=transforms.ToTensor())
-train_loader = DataLoader(train_ds, batch_size=32)
+train_ds = MNIST(PATH_DATASETS, train=True, download=True, transform=transforms.ToTensor())
+train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE)
 
 # Initialize a trainer
-trainer = pl.Trainer(gpus=torch.cuda.device_count(), max_epochs=3, progress_bar_refresh_rate=20)
+trainer = pl.Trainer(
+    gpus=AVAIL_GPUS,
+    max_epochs=3,
+    progress_bar_refresh_rate=20,
+)
 
 # Train the model ⚡
 trainer.fit(mnist_model, train_loader)
@@ -184,18 +189,22 @@ class LitMNIST(pl.LightningModule):
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def train_dataloader(self):
-        return DataLoader(self.mnist_train, batch_size=32)
+        return DataLoader(self.mnist_train, batch_size=BATCH_SIZE)
 
     def val_dataloader(self):
-        return DataLoader(self.mnist_val, batch_size=32)
+        return DataLoader(self.mnist_val, batch_size=BATCH_SIZE)
 
     def test_dataloader(self):
-        return DataLoader(self.mnist_test, batch_size=32)
+        return DataLoader(self.mnist_test, batch_size=BATCH_SIZE)
 
 
 # %% colab={} colab_type="code" id="Mb0U5Rk2kLBy"
 model = LitMNIST()
-trainer = pl.Trainer(gpus=torch.cuda.device_count(), max_epochs=3, progress_bar_refresh_rate=20)
+trainer = pl.Trainer(
+    gpus=AVAIL_GPUS,
+    max_epochs=3,
+    progress_bar_refresh_rate=20,
+)
 trainer.fit(model)
 
 # %% [markdown] colab_type="text" id="nht8AvMptY6I"

@@ -12,7 +12,8 @@ jobs:
     # timeout-minutes: 45
     env:
       PUB_BRANCH: publication
-      ACCLERATOR: CPU
+      ACCELERATOR: CPU
+      PATH_DATASETS: "$GITHUB_ACTION_PATH/.datasets"
 
     steps:
       - uses: actions/checkout@v2

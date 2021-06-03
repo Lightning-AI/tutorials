@@ -3,8 +3,13 @@
 # META := $(wildcard **/.meta.yml)
 META := $(shell find -name .meta.yml)
 IPYNB := $(META:%/.meta.yml=%.ipynb)
+export PATH_DATASETS="$(PWD)/.datasets"
 
-ipynb: ${IPYNB}
+init:
+	@echo $(PATH_DATASETS)
+	mkdir -p $(PATH_DATASETS)
+
+ipynb: init ${IPYNB}
 # 	@echo $<
 
 %.ipynb: %/.meta.yml
@@ -17,6 +22,7 @@ docs: clean
 	python -m sphinx -b html -W --keep-going docs/source docs/build
 
 clean:
+	rm -rf ./.datasets
 	# clean all temp runs
 	rm -rf ./docs/build
 	rm -rf ./docs/source/notebooks
