@@ -5,6 +5,7 @@ echo "Testing: $1"
 
 python -c "import glob ; assert(len(glob.glob('$1/*.ipynb')) == 1)"
 ipynb_file=( $(ls "$1"/*.ipynb) )
+py_file=( $(ls "$1"/*.py) )
 echo $ipynb_file
 
 pip install --quiet --requirement requirements.txt --upgrade-strategy only-if-needed
@@ -18,6 +19,7 @@ pip --version
 pip install --requirement "$1/requirements.txt"
 pip list
 
+#python $py_file
 python -m treon -v $ipynb_file
 
 deactivate
