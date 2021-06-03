@@ -38,6 +38,7 @@ from torchvision.datasets import CIFAR10, MNIST
 
 PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
 AVAIL_GPUS = min(1, torch.cuda.device_count())
+BATCH_SIZE = 256 if AVAIL_GPUS else 64
 
 # %% [markdown] colab_type="text" id="DzgY7wi88UuG"
 # ### Defining the LitMNISTModel
@@ -118,13 +119,13 @@ class LitMNIST(pl.LightningModule):
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def train_dataloader(self):
-        return DataLoader(self.mnist_train, batch_size=32)
+        return DataLoader(self.mnist_train, batch_size=128)
 
     def val_dataloader(self):
-        return DataLoader(self.mnist_val, batch_size=32)
+        return DataLoader(self.mnist_val, batch_size=128)
 
     def test_dataloader(self):
-        return DataLoader(self.mnist_test, batch_size=32)
+        return DataLoader(self.mnist_test, batch_size=128)
 
 
 # %% [markdown] colab_type="text" id="K7sg9KQd-QIO"
@@ -201,13 +202,13 @@ class MNISTDataModule(pl.LightningDataModule):
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def train_dataloader(self):
-        return DataLoader(self.mnist_train, batch_size=32)
+        return DataLoader(self.mnist_train, batch_size=BATCH_SIZE)
 
     def val_dataloader(self):
-        return DataLoader(self.mnist_val, batch_size=32)
+        return DataLoader(self.mnist_val, batch_size=BATCH_SIZE)
 
     def test_dataloader(self):
-        return DataLoader(self.mnist_test, batch_size=32)
+        return DataLoader(self.mnist_test, batch_size=BATCH_SIZE)
 
 
 # %% [markdown] colab_type="text" id="H2Yoj-9M9dS7"
@@ -319,13 +320,13 @@ class CIFAR10DataModule(pl.LightningDataModule):
             self.cifar_test = CIFAR10(self.data_dir, train=False, transform=self.transform)
 
     def train_dataloader(self):
-        return DataLoader(self.cifar_train, batch_size=32)
+        return DataLoader(self.cifar_train, batch_size=BATCH_SIZE)
 
     def val_dataloader(self):
-        return DataLoader(self.cifar_val, batch_size=32)
+        return DataLoader(self.cifar_val, batch_size=BATCH_SIZE)
 
     def test_dataloader(self):
-        return DataLoader(self.cifar_test, batch_size=32)
+        return DataLoader(self.cifar_test, batch_size=BATCH_SIZE)
 
 
 # %% [markdown] colab_type="text" id="BrXxf3oX_gsZ"

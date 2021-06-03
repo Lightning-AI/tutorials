@@ -32,6 +32,7 @@ from torchvision.datasets import MNIST
 
 PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
 AVAIL_GPUS = min(1, torch.cuda.device_count())
+BATCH_SIZE = 256 if AVAIL_GPUS else 64
 
 # %% [markdown] colab_type="text" id="EHpyMPKFkVbZ"
 # ## Simplest example
@@ -73,7 +74,7 @@ mnist_model = MNISTModel()
 
 # Init DataLoader from MNIST Dataset
 train_ds = MNIST(PATH_DATASETS, train=True, download=True, transform=transforms.ToTensor())
-train_loader = DataLoader(train_ds, batch_size=32)
+train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE)
 
 # Initialize a trainer
 trainer = pl.Trainer(
@@ -188,13 +189,13 @@ class LitMNIST(pl.LightningModule):
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def train_dataloader(self):
-        return DataLoader(self.mnist_train, batch_size=32)
+        return DataLoader(self.mnist_train, batch_size=BATCH_SIZE)
 
     def val_dataloader(self):
-        return DataLoader(self.mnist_val, batch_size=32)
+        return DataLoader(self.mnist_val, batch_size=BATCH_SIZE)
 
     def test_dataloader(self):
-        return DataLoader(self.mnist_test, batch_size=32)
+        return DataLoader(self.mnist_test, batch_size=BATCH_SIZE)
 
 
 # %% colab={} colab_type="code" id="Mb0U5Rk2kLBy"
