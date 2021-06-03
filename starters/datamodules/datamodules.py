@@ -37,6 +37,7 @@ from torchvision import transforms
 from torchvision.datasets import CIFAR10, MNIST
 
 PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
+AVAIL_GPUS = min(1, torch.cuda.device_count())
 
 # %% [markdown] colab_type="text" id="DzgY7wi88UuG"
 # ### Defining the LitMNISTModel
@@ -133,8 +134,7 @@ class LitMNIST(pl.LightningModule):
 model = LitMNIST()
 trainer = pl.Trainer(
     max_epochs=2,
-    gpus=torch.cuda.device_count(),
-    accelerator='ddp_spawn',
+    gpus=AVAIL_GPUS,
     progress_bar_refresh_rate=20,
 )
 trainer.fit(model)
@@ -278,8 +278,7 @@ model = LitModel(*dm.size(), dm.num_classes)
 trainer = pl.Trainer(
     max_epochs=3,
     progress_bar_refresh_rate=20,
-    gpus=torch.cuda.device_count(),
-    accelerator='ddp_spawn',
+    gpus=AVAIL_GPUS,
 )
 # Pass the datamodule as arg to trainer.fit to override model hooks :)
 trainer.fit(model, dm)
@@ -342,7 +341,6 @@ model = LitModel(*dm.size(), dm.num_classes, hidden_size=256)
 trainer = pl.Trainer(
     max_epochs=5,
     progress_bar_refresh_rate=20,
-    gpus=torch.cuda.device_count(),
-    accelerator='ddp_spawn',
+    gpus=AVAIL_GPUS,
 )
 trainer.fit(model, dm)

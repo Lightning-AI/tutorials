@@ -31,6 +31,7 @@ from torchvision import transforms
 from torchvision.datasets import MNIST
 
 PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
+AVAIL_GPUS = min(1, torch.cuda.device_count())
 
 # %% [markdown] colab_type="text" id="EHpyMPKFkVbZ"
 # ## Simplest example
@@ -76,8 +77,7 @@ train_loader = DataLoader(train_ds, batch_size=32)
 
 # Initialize a trainer
 trainer = pl.Trainer(
-    gpus=torch.cuda.device_count(),
-    accelerator='ddp_spawn',
+    gpus=AVAIL_GPUS,
     max_epochs=3,
     progress_bar_refresh_rate=20,
 )
@@ -200,8 +200,7 @@ class LitMNIST(pl.LightningModule):
 # %% colab={} colab_type="code" id="Mb0U5Rk2kLBy"
 model = LitMNIST()
 trainer = pl.Trainer(
-    gpus=torch.cuda.device_count(),
-    accelerator='ddp_spawn',
+    gpus=AVAIL_GPUS,
     max_epochs=3,
     progress_bar_refresh_rate=20,
 )
