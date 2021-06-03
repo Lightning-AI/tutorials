@@ -47,6 +47,15 @@ jobs:
         if [ "$?" == "1" ] ; then echo "Branch doesn't exist"; exit; fi
       displayName: 'Sanity branch check'
 
+    - task: Cache@2
+      inputs:
+        key: 'python | "$(Agent.OS)" | requirements.txt'
+        restoreKeys: |
+          python | "$(Agent.OS)"
+          python
+        path: $(PIP_CACHE_DIR)
+      displayName: Cache pip packages
+
     - bash: |
         pip --version
         pip install --requirement requirements.txt
