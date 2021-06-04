@@ -8,6 +8,5 @@ description: >
 requirements:
   - torchvision
   - lightning-bolts
-  - kornia
 accelerator:
   - GPU
