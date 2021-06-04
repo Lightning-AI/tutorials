@@ -26,6 +26,7 @@ jobs:
       ACCELERATOR: CPU,GPU
       PUB_BRANCH: publication
       PATH_DATASETS: "$(Build.Repository.LocalPath)/.datasets"
+      COMMIT_MSG: $(Build.SourceVersionMessage)
 
     steps:
 
@@ -117,7 +118,7 @@ jobs:
             bash .actions/ipynb-render.sh $line
         done <<< $(cat changed-folders.txt)
         git status
-        git commit -m "publish [GPU]: $(Build.SourceVersionMessage)"
+        git commit -m "publish [GPU]: $(COMMIT_MSG)"
       condition: and(succeeded(), gt(variables['changed.folders'], 0))
       displayName: 'Render notebook'
 
@@ -127,7 +128,7 @@ jobs:
             git rm .notebooks/$line.ipynb
         done <<< $(cat dropped-folders.txt)
         git status
-        git commit -m "prune: $(Build.SourceVersionMessage)"
+        git commit -m "prune: $(COMMIT_MSG)"
       condition: gt(variables['dropped.folders'], 0)
       displayName: 'Prune notebook'
 
