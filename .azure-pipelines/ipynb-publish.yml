@@ -4,7 +4,7 @@ trigger:
       - main
       # fixme
       - ci/gpu
-
+pr: none
 #stages:
 #- stage: testing
 
@@ -43,15 +43,6 @@ jobs:
         if [ "$?" == "1" ] ; then echo "Branch doesn't exist"; exit; fi
       displayName: 'Sanity branch check'
 
-    - task: Cache@2
-      inputs:
-        key: 'python | "$(Agent.OS)" | requirements/devel.txt'
-        restoreKeys: |
-          python | "$(Agent.OS)"
-          python
-        path: $(pip cache dir)
-      displayName: Cache pip packages
-
     - bash: |
         pip --version
         pip install --requirement requirements.txt
@@ -61,6 +52,11 @@ jobs:
     - bash: |
         python -c "import torch ; mgpu = torch.cuda.device_count() ; assert mgpu > 0, f'GPU: {mgpu}'"
       displayName: 'Sanity check'
+
+    - bash: |
+        cat .actions/ipynb-render.sh
+        cp -r .actions .actions-temp
+      displayName: 'FIXME: copy'
 
     - bash: |
         head=$(git rev-parse origin/$(PUB_BRANCH))
@@ -98,8 +94,14 @@ jobs:
         git config --global user.email "pipelines@azure.com"
         git config --global user.name "Azure Pipelines"
         git checkout $(PUB_BRANCH)
-        git merge -s resolve origin/main
+        # FIXME
+        git merge -s resolve origin/ci/gpu
       displayName: 'Sync to pub'
+
+    - bash: |
+        cp -r .actions-temp .actions
+        cat .actions/ipynb-render.sh
+      displayName: 'FIXME: copy'
 
     - bash: |
         while IFS= read -r line; do
@@ -109,6 +111,7 @@ jobs:
       displayName: 'Generate notebook'
 
     - bash: |
+        echo "available: $ACCELERATOR"
         # render the actual notebooks
         while IFS= read -r line; do
             bash .actions/ipynb-render.sh $line
@@ -130,8 +133,5 @@ jobs:
 
     - bash: |
         git status
-        # FIXME
-        echo $(Build.Repository.Uri)
-        echo $(PAT_GHOST)
         git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
       displayName: 'Finish push'
