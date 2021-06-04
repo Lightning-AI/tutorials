@@ -51,13 +51,10 @@ jobs:
       displayName: 'Install dependencies'
 
     - bash: |
+        set -e
         python -c "import torch ; mgpu = torch.cuda.device_count() ; assert mgpu > 0, f'GPU: {mgpu}'"
+        papermill --version
       displayName: 'Sanity check'
-
-    - bash: |
-        cat .actions/ipynb-render.sh
-        cp -r .actions .actions-temp
-      displayName: 'FIXME: copy'
 
     - bash: |
         head=$(git rev-parse origin/$(PUB_BRANCH))
@@ -97,12 +94,8 @@ jobs:
         git checkout $(PUB_BRANCH)
         # FIXME
         git merge -s resolve origin/ci/gpu
+        #git merge -s resolve origin/main
       displayName: 'Sync to pub'
-
-    - bash: |
-        cp -r .actions-temp .actions
-        cat .actions/ipynb-render.sh
-      displayName: 'FIXME: copy'
 
     - bash: |
         while IFS= read -r line; do
@@ -112,7 +105,6 @@ jobs:
       displayName: 'Generate notebook'
 
     - bash: |
-        echo "available: $ACCELERATOR"
         # render the actual notebooks
         while IFS= read -r line; do
             bash .actions/ipynb-render.sh $line
@@ -134,5 +126,6 @@ jobs:
 
     - bash: |
         git status
-        git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
+        # FIXME
+        #git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
       displayName: 'Finish push'
