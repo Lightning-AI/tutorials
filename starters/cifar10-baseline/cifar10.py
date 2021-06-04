@@ -32,12 +32,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
+import kornia as K
 from pl_bolts.datamodules import CIFAR10DataModule
-from pl_bolts.transforms.dataset_normalizations import cifar10_normalization
 from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning.metrics.functional import accuracy
 from torch.optim.lr_scheduler import OneCycleLR
 from torch.optim.swa_utils import AveragedModel, update_bn
+from torchvision.transforms.transforms import Normalize, ToTensor
 
 # %% id="54JMU1N-0y0g"
 pl.seed_everything(7)
@@ -50,17 +51,54 @@ pl.seed_everything(7)
 # %% id="S9e-W8CSa8nH"
 batch_size = 32
 
-train_transforms = torchvision.transforms.Compose([
-    torchvision.transforms.RandomCrop(32, padding=4),
-    torchvision.transforms.RandomHorizontalFlip(),
-    torchvision.transforms.ToTensor(),
-    cifar10_normalization(),
-])
+#train_transforms = torchvision.transforms.Compose([
+#    torchvision.transforms.RandomCrop(32, padding=4),
+#    torchvision.transforms.RandomHorizontalFlip(),
+#    torchvision.transforms.ToTensor(),
+#    cifar10_normalization(),
+#])
+import numpy as np
 
-test_transforms = torchvision.transforms.Compose([
-    torchvision.transforms.ToTensor(),
-    cifar10_normalization(),
-])
+class ToTensor(nn.Module):
+    """Module to perform pre-process using Kornia on torch tensors."""
+    def __init__(self) -> None:
+        super().__init__()
+
+    @torch.no_grad()  # disable gradients for effiency
+    def forward(self, x) -> torch.Tensor:
+        x_tmp: np.ndarray = np.array(x)  # HxWxC
+        x_out: torch.Tensor = K.utils.image_to_tensor(x_tmp, keepdim=True)  # CxHxW
+        return x_out.float()
+
+
+class Flatten(nn.Module):
+    def forward(self, input):
+        return input.squeeze()
+
+
+def _cifar10_normalization():
+    return K.augmentation.Normalize(
+        mean=torch.tensor([125.3, 123.0, 113.9]),
+        std=torch.tensor([63.0, 62.1, 66.7])
+    )
+
+train_transforms = nn.Sequential(
+    ToTensor(),
+    K.augmentation.RandomCrop((32, 32), padding=4),
+    K.augmentation.RandomHorizontalFlip(),
+    _cifar10_normalization(),
+    Flatten(),
+)
+
+#test_transforms = torchvision.transforms.Compose([
+#    torchvision.transforms.ToTensor(),
+#    cifar10_normalization(),
+#])
+test_transforms = nn.Sequential(
+    ToTensor(),
+    _cifar10_normalization(),
+    Flatten(),
+)
 
 cifar10_dm = CIFAR10DataModule(
     batch_size=batch_size,
