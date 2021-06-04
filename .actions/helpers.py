@@ -213,9 +213,9 @@ class HelperCLI:
         require = set([_parse(r) for r in req if r])
         env = {_parse(p): p for p in freeze.freeze()}
         meta['environment'] = [env[r] for r in require]
-        meta['updated'] = datetime.now().isoformat()
+        meta['published'] = datetime.now().isoformat()
 
-        yaml.safe_dump(meta, stream=open(fpath, 'w'))
+        yaml.safe_dump(meta, stream=open(fpath, 'w'), sort_keys=False)
 
 
 if __name__ == '__main__':
