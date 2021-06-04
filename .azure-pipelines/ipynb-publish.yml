@@ -1,10 +1,9 @@
 trigger:
   branches:
     include:
-      - master
-# FIXME
-pr:
-  - main
+      - main
+      # fixme
+      - ci/gpu
 
 #stages:
 #- stage: testing
