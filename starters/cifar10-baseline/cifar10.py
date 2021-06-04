@@ -143,8 +143,8 @@ model = LitResnet(lr=0.05)
 model.datamodule = cifar10_dm
 
 trainer = pl.Trainer(
-    progress_bar_refresh_rate=20,
-    max_epochs=40,
+    progress_bar_refresh_rate=10,
+    max_epochs=30,
     gpus=torch.cuda.device_count(),
     logger=pl.loggers.TensorBoardLogger('lightning_logs/', name='resnet'),
     callbacks=[LearningRateMonitor(logging_interval='step')],
