@@ -37,10 +37,6 @@ jobs:
         python --version
       displayName: 'Image info & NVIDIA'
 
-    - checkout: self
-      clean: true
-      persistCredentials: true
-
     - bash: |
         git fetch --all
         echo $(PUB_BRANCH)
@@ -138,5 +134,7 @@ jobs:
         # FIXME
         echo $(Build.Repository.Uri)
         echo $(PAT_GHOST)
-        git push https://$(PAT_GHOST)@github.com:PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
+        git push https://$(PT_TOKEN)@github.com:PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
       displayName: 'Finish push'
+      env:
+        PT_TOKEN: $(PAT_GHOST)

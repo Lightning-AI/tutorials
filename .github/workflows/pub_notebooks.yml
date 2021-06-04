@@ -1,4 +1,4 @@
-name: Publish notebook
+name: Pe-Publish notebook
 
 # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows
 on:
