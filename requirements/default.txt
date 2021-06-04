@@ -1,2 +1,6 @@
 pytorch-lightning>=1.2
 torch
+
+# vision
+lightning-bolts
+torchvision
