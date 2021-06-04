@@ -19,7 +19,14 @@ pip --version
 pip install --requirement "$1/requirements.txt"
 pip list
 
-#python $py_file
-python -m treon -v $ipynb_file
+echo "available: $ACCELERATOR"
+accel=$(python .actions/helpers.py valid-accelerator $1 2>&1)
+if [ $accel == 1 ]
+then
+  #python $py_file
+  python -m treon -v $ipynb_file
+else
+  echo "WARNING: not valid accelerator so no tests will be run"
+fi
 
 deactivate

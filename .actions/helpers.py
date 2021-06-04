@@ -186,7 +186,8 @@ class HelperCLI:
         meta = yaml.safe_load(open(fpath))
         # default is CPU runtime
         accels = [acc.lower() for acc in meta.get("accelerator", ('CPU'))]
-        return int(DEVICE_ACCELERATOR in accels)
+        dev_accels = DEVICE_ACCELERATOR.split(",")
+        return int(any(ac in accels for ac in dev_accels))
 
     @staticmethod
     def update_env_details(dir_path: str):

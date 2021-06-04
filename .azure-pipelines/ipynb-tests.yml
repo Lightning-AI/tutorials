@@ -22,7 +22,7 @@ jobs:
       options: "--runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=all"
 
     variables:
-      ACCELERATOR: GPU
+      ACCELERATOR: CPU,GPU
       PATH_DATASETS: "$(Build.Repository.LocalPath)/.datasets"
 
     steps:
@@ -59,9 +59,9 @@ jobs:
       name: changed
 
     - script: |
-        echo $PATH_DATASETS
-        mkdir $PATH_DATASETS
-        cd $PATH_DATASETS
+        echo $(PATH_DATASETS)
+        mkdir $(PATH_DATASETS)
+        cd $(PATH_DATASETS)
         wget www.di.ens.fr/~lelarge/MNIST.tar.gz --progress=bar:force:noscroll
         tar -zxvf MNIST.tar.gz
         ls -l

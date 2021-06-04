@@ -17,8 +17,9 @@ pip install --quiet --requirement requirements.txt --upgrade-strategy only-if-ne
 cat "$1/requirements.txt"
 pip install --requirement "$1/requirements.txt"
 
+echo "available: $ACCELERATOR"
 accel=$(python .actions/helpers.py valid-accelerator $1 2>&1)
-if [ $accel -eq 1 ]
+if [ $accel == 1 ]
 then
   python -m papermill $ipynb_file $pub_file
   python .actions/helpers.py update-env-details $1
