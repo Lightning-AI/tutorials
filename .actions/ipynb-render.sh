@@ -21,12 +21,13 @@ echo "available: $ACCELERATOR"
 accel=$(python .actions/helpers.py valid-accelerator $1 2>&1)
 if [ $accel == 1 ]
 then
-  python -m papermill $ipynb_file $pub_file
+  echo "Processing: $ipynb_file"
+  papermill $ipynb_file $pub_file
   python .actions/helpers.py update-env-details $1
 else
   echo "WARNING: not valid accelerator so no outputs will be generated"
   cp $ipynb_file $pub_file
 fi
 
-git add "$1/.meta.yml"
+git add ".notebooks/$1.yaml"
 git add $pub_file

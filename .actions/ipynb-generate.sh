@@ -9,6 +9,6 @@ python -c "import os ; assert(os.path.isfile(os.path.join('$1', '.meta.yml')))"
 py_file=( $(ls "$1"/*.py) )
 echo $py_file
 
-python .actions/helpers.py enrich-script $py_file
+python .actions/helpers.py augment-script $py_file
 
 python -m jupytext --set-formats "ipynb,py:percent" $py_file

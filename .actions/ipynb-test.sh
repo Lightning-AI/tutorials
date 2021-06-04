@@ -16,6 +16,7 @@ cat "$1/requirements.txt"
 python -m virtualenv --system-site-packages "$1/venv"
 source "$1/venv/bin/activate"
 pip --version
+pip install --quiet --requirement requirements.txt --upgrade-strategy only-if-needed
 pip install --requirement "$1/requirements.txt"
 pip list
 
@@ -24,6 +25,7 @@ accel=$(python .actions/helpers.py valid-accelerator $1 2>&1)
 if [ $accel == 1 ]
 then
   #python $py_file
+  echo "Testing: $ipynb_file"
   python -m treon -v $ipynb_file
 else
   echo "WARNING: not valid accelerator so no tests will be run"

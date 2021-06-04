@@ -71,19 +71,20 @@ TEMPLATE_FOOTER = """
 
 class HelperCLI:
 
+    DIR_NOTEBOOKS = ".notebooks"
     SKIP_DIRS = (
         ".actions",
         ".azure-pipelines",
         ".datasets",
         ".github",
-        ".notebooks",
         "docs",
+        DIR_NOTEBOOKS,
     )
     META_FILE = ".meta.yml"
     REQUIREMENTS_FILE = "requirements.txt"
 
     @staticmethod
-    def enrich_script(fpath: str):
+    def augment_script(fpath: str):
         """Add template header and footer to the python base script.
         Args:
             fpath: path to python script
@@ -162,13 +163,13 @@ class HelperCLI:
         """
         ls_ipynb = []
         for sub in (['*.ipynb'], ['**', '*.ipynb']):
-            ls_ipynb += glob.glob(os.path.join(path_root, '.notebooks', *sub))
+            ls_ipynb += glob.glob(os.path.join(path_root, HelperCLI.DIR_NOTEBOOKS, *sub))
 
         os.makedirs(path_docs_ipynb, exist_ok=True)
         ipynb_content = []
         for path_ipynb in tqdm.tqdm(ls_ipynb):
             ipynb = path_ipynb.split(os.path.sep)
-            sub_ipynb = os.path.sep.join(ipynb[ipynb.index('.notebooks') + 1:])
+            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(HelperCLI.DIR_NOTEBOOKS) + 1:])
             new_ipynb = os.path.join(path_docs_ipynb, sub_ipynb)
             os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
             print(f'{path_ipynb} -> {new_ipynb}')
@@ -216,7 +217,8 @@ class HelperCLI:
         meta['environment'] = [env[r] for r in require]
         meta['published'] = datetime.now().isoformat()
 
-        yaml.safe_dump(meta, stream=open(fpath, 'w'), sort_keys=False)
+        fmeta = os.path.join(HelperCLI.DIR_NOTEBOOKS, dir_path) + ".yaml"
+        yaml.safe_dump(meta, stream=open(fmeta, 'w'), sort_keys=False)
 
 
 if __name__ == '__main__':
