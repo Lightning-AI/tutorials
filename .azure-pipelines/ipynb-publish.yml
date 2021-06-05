@@ -2,8 +2,6 @@ trigger:
   branches:
     include:
       - main
-      # fixme
-      - ci/gpu
 pr: none
 #stages:
 #- stage: testing
@@ -49,14 +47,13 @@ jobs:
     #    sudo apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-distutils python${PYTHON_VERSION}-dev
     #    sudo update-alternatives --install /usr/bin/python${PYTHON_VERSION%%.*} python${PYTHON_VERSION%%.*} /usr/bin/python${PYTHON_VERSION} 1
     #    sudo update-alternatives --install /usr/bin/python python /usr/bin/python${PYTHON_VERSION} 1
-    #
     #    wget https://bootstrap.pypa.io/get-pip.py --progress=bar:force:noscroll --no-check-certificate
     #    python${PYTHON_VERSION} get-pip.py
     #    rm get-pip.py
-    #
     #    python --version
     #    pip --version
     #  displayName: 'Upgrade Python'
+    #
     #- task: Cache@2
     #  inputs:
     #    key: 'python | "$(Agent.OS)" | requirements/devel.txt | requirements/default.txt'
@@ -114,9 +111,7 @@ jobs:
         git config --global user.email "pipelines@azure.com"
         git config --global user.name "Azure Pipelines"
         git checkout $(PUB_BRANCH)
-        # FIXME
-        git merge -s resolve origin/ci/gpu
-        #git merge -s resolve origin/main
+        git merge -s resolve origin/main
       displayName: 'Sync to pub'
 
     - bash: |
@@ -148,6 +143,5 @@ jobs:
 
     - bash: |
         git status
-        # FIXME
-        #git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
+        git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
       displayName: 'Finish push'
