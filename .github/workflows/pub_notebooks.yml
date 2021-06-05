@@ -1,9 +1,9 @@
-name: Publish notebook
+name: Pe-Publish notebook
 
 # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows
-on:  # Trigger the workflow on push to master
-  push:
-    branches: [main]
+on:
+  schedule:
+    - cron: "0 0 0 * *" # At the end of every day
 
 jobs:
   generate-ipynb:
@@ -88,7 +88,7 @@ jobs:
               bash .actions/ipynb-render.sh $line
           done <<< $(cat changed-folders.txt)
           git status
-          git commit -m "publish: ${{ github.event.head_commit.message }}"
+          git commit -m "publish [CPU]: ${{ github.event.head_commit.message }}"
         shell: bash
 
       - name: Prune notebook

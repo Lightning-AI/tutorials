@@ -1,6 +1,6 @@
 # PytorchLightning Tutorials
 
-[![Publish notebook](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/pub_notebooks.yml/badge.svg)](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/pub_notebooks.yml)
+[![Build Status](https://dev.azure.com/PytorchLightning/Tutorials/_apis/build/status/PyTorchLightning.Tutorials-publishing?branchName=main)](https://dev.azure.com/PytorchLightning/Tutorials/_build/latest?definitionId=11&branchName=main)
 [![Code formatting](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/ci_code-format.yml/badge.svg?event=push)](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/ci_code-format.yml)
 [![Deploy Docs](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/docs-deploy.yml/badge.svg)](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/docs-deploy.yml)
 
