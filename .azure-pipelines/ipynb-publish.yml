@@ -16,20 +16,20 @@ jobs:
 
     pool: gridai-spot-pool
     # this need to have installed docker in the base image...
-    container:
-      # base ML image: mcr.microsoft.com/azureml/openmpi3.1.2-cuda10.2-cudnn8-ubuntu18.04
-      # image: "pytorchlightning/pytorch_lightning:base-cuda-py3.8-torch1.7"
-      image: "pytorch/pytorch:1.7.1-cuda11.0-cudnn8-runtime"
-      options: "-it --rm --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=all"
+    #container:
+    #  # base ML image: mcr.microsoft.com/azureml/openmpi3.1.2-cuda10.2-cudnn8-ubuntu18.04
+    #  image: "pytorchlightning/pytorch_lightning:base-cuda-py3.8-torch1.7"
+    #  # image: "pytorch/pytorch:1.7.1-cuda11.0-cudnn8-runtime"
+    #  options: "-it --rm --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=all"
 
     variables:
       ACCELERATOR: CPU,GPU
       PUB_BRANCH: publication
       PATH_DATASETS: "$(Build.Repository.LocalPath)/.datasets"
       COMMIT_MSG: $(Build.SourceVersionMessage)
+      PYTHON_VERSION: 3.8
 
     steps:
-
     - bash: |
         lspci | egrep 'VGA|3D'
         whereis nvidia
@@ -45,8 +45,31 @@ jobs:
       displayName: 'Sanity branch check'
 
     - bash: |
+        sudo apt-get install -y software-properties-common wget ca-certificates
+        sudo apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-distutils python${PYTHON_VERSION}-dev
+        sudo update-alternatives --install /usr/bin/python${PYTHON_VERSION%%.*} python${PYTHON_VERSION%%.*} /usr/bin/python${PYTHON_VERSION} 1
+        sudo update-alternatives --install /usr/bin/python python /usr/bin/python${PYTHON_VERSION} 1
+
+        wget https://bootstrap.pypa.io/get-pip.py --progress=bar:force:noscroll --no-check-certificate
+        python${PYTHON_VERSION} get-pip.py
+        rm get-pip.py
+
+        python --version
         pip --version
-        python -m pip install --requirement requirements.txt
+      displayName: 'Upgrade Python'
+
+    - task: Cache@2
+      inputs:
+        key: 'python | "$(Agent.OS)" | requirements/devel.txt | requirements/default.txt'
+        restoreKeys: |
+          python | "$(Agent.OS)"
+          python
+        path: $(pip cache dir)
+      displayName: Cache pip packages
+
+    - bash: |
+        pip --version
+        pip install --requirement requirements.txt
         pip list
       displayName: 'Install dependencies'
 
