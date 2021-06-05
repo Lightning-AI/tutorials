@@ -76,7 +76,7 @@ jobs:
     - bash: |
         set -e
         python -c "import torch ; mgpu = torch.cuda.device_count() ; assert mgpu > 0, f'GPU: {mgpu}'"
-        papermill --version
+        python -m papermill.cli --version
       displayName: 'Sanity check'
 
     - bash: |
