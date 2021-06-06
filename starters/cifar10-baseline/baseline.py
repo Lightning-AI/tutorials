@@ -25,27 +25,30 @@
 # Run this if you intend to use TPUs
 # # !curl https://raw.githubusercontent.com/pytorch/xla/master/contrib/scripts/env-setup.py -o pytorch-xla-env-setup.py
 # # !python pytorch-xla-env-setup.py --version nightly --apt-packages libomp5 libopenblas-dev
+
+# %% id="wjov-2N_TgeS"
 import os
 
-import pytorch_lightning as pl
-# %% id="wjov-2N_TgeS"
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 from pl_bolts.datamodules import CIFAR10DataModule
 from pl_bolts.transforms.dataset_normalizations import cifar10_normalization
+from pytorch_lightning import LightningModule, seed_everything, Trainer
 from pytorch_lightning.callbacks import LearningRateMonitor
-from pytorch_lightning.metrics.functional import accuracy
+from pytorch_lightning.loggers import TensorBoardLogger
 from torch.optim.lr_scheduler import OneCycleLR
 from torch.optim.swa_utils import AveragedModel, update_bn
-
 # %% id="54JMU1N-0y0g"
-pl.seed_everything(7)
+from torchmetrics.functional import accuracy
+
+seed_everything(7)
 
 PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 BATCH_SIZE = 256 if AVAIL_GPUS else 64
+NUM_WORKERS = int(os.cpu_count() / 2)
 
 # %% [markdown] id="FA90qwFcqIXR"
 # ### CIFAR10 Data Module
@@ -69,6 +72,7 @@ test_transforms = torchvision.transforms.Compose([
 cifar10_dm = CIFAR10DataModule(
     data_dir=PATH_DATASETS,
     batch_size=BATCH_SIZE,
+    num_workers=NUM_WORKERS,
     train_transforms=train_transforms,
     test_transforms=test_transforms,
     val_transforms=test_transforms,
@@ -97,7 +101,7 @@ def create_model():
 
 
 # %% id="03OMrBa5iGtT"
-class LitResnet(pl.LightningModule):
+class LitResnet(LightningModule):
 
     def __init__(self, lr=0.05):
         super().__init__()
@@ -147,11 +151,11 @@ class LitResnet(pl.LightningModule):
 model = LitResnet(lr=0.05)
 model.datamodule = cifar10_dm
 
-trainer = pl.Trainer(
+trainer = Trainer(
     progress_bar_refresh_rate=10,
     max_epochs=30,
     gpus=AVAIL_GPUS,
-    logger=pl.loggers.TensorBoardLogger('lightning_logs/', name='resnet'),
+    logger=TensorBoardLogger('lightning_logs/', name='resnet'),
     callbacks=[LearningRateMonitor(logging_interval='step')],
 )
 
@@ -205,11 +209,11 @@ class SWAResnet(LitResnet):
 swa_model = SWAResnet(model.model, lr=0.01)
 swa_model.datamodule = cifar10_dm
 
-swa_trainer = pl.Trainer(
+swa_trainer = Trainer(
     progress_bar_refresh_rate=20,
     max_epochs=20,
     gpus=AVAIL_GPUS,
-    logger=pl.loggers.TensorBoardLogger('lightning_logs/', name='swa_resnet'),
+    logger=TensorBoardLogger('lightning_logs/', name='swa_resnet'),
 )
 
 swa_trainer.fit(swa_model, cifar10_dm)
