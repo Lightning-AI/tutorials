@@ -20,6 +20,9 @@
 # %% colab={} colab_type="code" id="OIhHrRL-MnKK"
 # !pip install pytorch-lightning datasets transformers
 
+import os
+import urllib.request
+import zipfile
 # %% colab={} colab_type="code" id="6yuQT_ZQMpCg"
 from argparse import ArgumentParser
 from datetime import datetime
@@ -28,14 +31,22 @@ from typing import Optional
 import datasets
 import pytorch_lightning as pl
 import torch
-from torch.utils.data import DataLoader
+import torch.nn.functional as F
+from sklearn.metrics import accuracy_score
+from torch import nn
+from torch.utils.data import DataLoader, random_split, RandomSampler, TensorDataset
+# %% id="vOR0Q1Yg-HmN"
 from transformers import (
     AdamW,
     AutoConfig,
     AutoModelForSequenceClassification,
     AutoTokenizer,
+    BertModel,
+    BertTokenizer,
     get_linear_schedule_with_warmup,
 )
+from transformers import glue_convert_examples_to_features as convert_examples_to_features
+from transformers.data.processors.glue import MnliProcessor
 
 # %% [markdown] id="7uQVI-xv9Ddj"
 # ---
@@ -50,17 +61,10 @@ from transformers import (
 #
 # Let's grab the correct data
 
-# %% colab={"base_uri": "https://localhost:8080/", "height": 164, "referenced_widgets": ["5484eef7b6f247d68a89f86965b0940f", "0c3473a16a5e4c46a6c7515e610bca7f", "ad849800b2124195b92f3bf9dfc7681b", "6ae5b2f9195847b5a0aa9991e14aa397", "240764252e7c4f5ca39db14fd1c724ed", "386ff59e3694480394253f1c24ff8e84", "70e48d7d8e8a411a90642926db4aada8", "1f3364ab59b541268fabcb3f9fb5c64c", "0fad6468e3c849b380e34f674e074219", "10a88a05740b45d4a6ea5873d4a7151a", "d3b107acd1b1401cabe3090724e12e86", "b3563100dd1b4a4abe14ab7193649064", "17f0e360e85f48d9a17b84c9b7f6c9f0", "29f35103a6e94af09c8ac9cdb2cca89c", "e6e15d5c14134be0b4cf86fdecfef687", "f23f02d00d424574afa29311b8d0906e", "e918a6de59b64bd590e4f1233bbc078a", "abeb0a773f3542c39ff724ae0674b74e", "892246fdf6bb476abb35ec321ddf86e8", "88c181cd21a94ec9a43df9754c1986c9", "e4098b0091124fef8ba342783a82cc6e", "498a50387a0742a88356a7ee9920bf7a", "86482894cddd4956ae2fc3d9edd8ef9a", "438d19fb8e8243ebbc658f4b1d27df99"]} id="eBP6FeY18_Ck" outputId="b2a5c5fd-88cf-4428-d196-9e1c1ddc7e30"
-from transformers.data.processors.glue import MnliProcessor
-from transformers import (BertModel, BertTokenizer)
-
 tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
 bert = BertModel.from_pretrained('bert-base-cased', output_attentions=True)
 
 # %% id="vMbozzxs9xq_"
-import os
-import urllib.request
-import zipfile
 
 TASKS = ["CoLA", "SST", "MRPC", "QQP", "STS", "MNLI", "SNLI", "QNLI", "RTE", "WNLI", "diagnostic"]
 URL_DATA = "https://firebasestorage.googleapis.com/v0/b/mtl-sentence-representations.appspot.com/o/data"
@@ -97,10 +101,6 @@ def download_and_extract(task, data_dir):
 
 # %% colab={"base_uri": "https://localhost:8080/", "height": 51} id="3CVHOXQY9yVm" outputId="f06b886b-cc32-4972-918e-f4ca5828fb2c"
 download_and_extract('MNLI', '../../notebooks')
-
-# %% id="vOR0Q1Yg-HmN"
-from transformers import glue_convert_examples_to_features as convert_examples_to_features
-from torch.utils.data import TensorDataset, RandomSampler, random_split
 
 processor = MnliProcessor()
 
@@ -183,8 +183,6 @@ bert_mnli_train_dataloader, bert_mnli_val_dataloader, bert_mnli_test_dataloader 
 # Finally, we can create the LightningModule
 
 # %% id="UIXLW8CO-W8w"
-from sklearn.metrics import accuracy_score
-import torch.nn.functional as F
 
 
 class BertMNLIFinetuner(pl.LightningModule):
