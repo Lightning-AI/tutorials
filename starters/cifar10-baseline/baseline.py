@@ -25,6 +25,7 @@
 # Run this if you intend to use TPUs
 # # !curl https://raw.githubusercontent.com/pytorch/xla/master/contrib/scripts/env-setup.py -o pytorch-xla-env-setup.py
 # # !python pytorch-xla-env-setup.py --version nightly --apt-packages libomp5 libopenblas-dev
+import os
 
 import pytorch_lightning as pl
 # %% id="wjov-2N_TgeS"
@@ -42,13 +43,16 @@ from torch.optim.swa_utils import AveragedModel, update_bn
 # %% id="54JMU1N-0y0g"
 pl.seed_everything(7)
 
+PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
+AVAIL_GPUS = min(1, torch.cuda.device_count())
+BATCH_SIZE = 256 if AVAIL_GPUS else 64
+
 # %% [markdown] id="FA90qwFcqIXR"
 # ### CIFAR10 Data Module
 #
 # Import the existing data module from `bolts` and modify the train and test transforms.
 
 # %% id="S9e-W8CSa8nH"
-batch_size = 32
 
 train_transforms = torchvision.transforms.Compose([
     torchvision.transforms.RandomCrop(32, padding=4),
@@ -63,7 +67,8 @@ test_transforms = torchvision.transforms.Compose([
 ])
 
 cifar10_dm = CIFAR10DataModule(
-    batch_size=batch_size,
+    data_dir=PATH_DATASETS,
+    batch_size=BATCH_SIZE,
     train_transforms=train_transforms,
     test_transforms=test_transforms,
     val_transforms=test_transforms,
@@ -130,7 +135,7 @@ class LitResnet(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.SGD(self.parameters(), lr=self.hparams.lr, momentum=0.9, weight_decay=5e-4)
-        steps_per_epoch = 45000 // batch_size
+        steps_per_epoch = 45000 // BATCH_SIZE
         scheduler_dict = {
             'scheduler': OneCycleLR(optimizer, 0.1, epochs=self.trainer.max_epochs, steps_per_epoch=steps_per_epoch),
             'interval': 'step',
@@ -145,7 +150,7 @@ model.datamodule = cifar10_dm
 trainer = pl.Trainer(
     progress_bar_refresh_rate=10,
     max_epochs=30,
-    gpus=torch.cuda.device_count(),
+    gpus=AVAIL_GPUS,
     logger=pl.loggers.TensorBoardLogger('lightning_logs/', name='resnet'),
     callbacks=[LearningRateMonitor(logging_interval='step')],
 )
@@ -203,7 +208,7 @@ swa_model.datamodule = cifar10_dm
 swa_trainer = pl.Trainer(
     progress_bar_refresh_rate=20,
     max_epochs=20,
-    gpus=torch.cuda.device_count(),
+    gpus=AVAIL_GPUS,
     logger=pl.loggers.TensorBoardLogger('lightning_logs/', name='swa_resnet'),
 )
 
