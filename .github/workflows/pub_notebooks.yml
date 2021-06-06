@@ -3,7 +3,7 @@ name: Pe-Publish notebook
 # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows
 on:
   schedule:
-    - cron: "0 0 0 * *" # At the end of every day
+    - cron: "0 0 * * *" # At the end of every day
 
 jobs:
   generate-ipynb:

@@ -7,7 +7,7 @@ pr:
 
 jobs:
 
-  - job: treon
+  - job: nbval
     # how long to run the job before automatically cancelling
     timeoutInMinutes: 45
     # how much time to give 'run always even if cancelled tasks' before stopping them
@@ -79,4 +79,4 @@ jobs:
             bash .actions/ipynb-test.sh $line
         done <<< $(cat changed-folders.txt)
       condition: and(succeeded(), gt(variables['changed.folders'], 0))
-      displayName: 'Treon notebook'
+      displayName: 'PyTest notebook'

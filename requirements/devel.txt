@@ -1,7 +1,8 @@
 virtualenv
 ipython[notebook]
 jupytext  # converting
-treon  # testing
+pytest>=6.0
+nbval  # testing
 papermill  # render
 yapf
 flake8

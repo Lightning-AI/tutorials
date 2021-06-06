@@ -26,7 +26,7 @@ if [ $accel == 1 ]
 then
   #python $py_file
   echo "Testing: $ipynb_file"
-  python -m treon -v $ipynb_file
+  python -m pytest $ipynb_file -v --nbval
 else
   echo "WARNING: not valid accelerator so no tests will be run"
 fi
