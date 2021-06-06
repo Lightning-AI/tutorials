@@ -22,6 +22,7 @@
 # ! pip install pytorch-lightning --quiet
 
 # %% colab={} colab_type="code" id="BjEPuiVLyanw"
+import os
 from collections import OrderedDict
 
 import numpy as np
@@ -34,6 +35,11 @@ from pytorch_lightning import LightningDataModule, LightningModule, Trainer
 from torch.utils.data import DataLoader, random_split
 from torchvision.datasets import MNIST
 
+PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
+AVAIL_GPUS = min(1, torch.cuda.device_count())
+BATCH_SIZE = 256 if AVAIL_GPUS else 64
+NUM_WORKERS = int(os.cpu_count() / 2)
+
 # %% [markdown] colab_type="text" id="OuXJzr4G2uHV"
 # ### MNIST DataModule
 #
@@ -44,7 +50,7 @@ from torchvision.datasets import MNIST
 # %% colab={} colab_type="code" id="DOY_nHu328g7"
 class MNISTDataModule(LightningDataModule):
 
-    def __init__(self, data_dir: str = './', batch_size: int = 64, num_workers: int = 8):
+    def __init__(self, data_dir: str = PATH_DATASETS, batch_size: int = BATCH_SIZE, num_workers: int = NUM_WORKERS):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
@@ -105,8 +111,12 @@ class Generator(nn.Module):
             return layers
 
         self.model = nn.Sequential(
-            *block(latent_dim, 128, normalize=False), *block(128, 256), *block(256, 512), *block(512, 1024),
-            nn.Linear(1024, int(np.prod(img_shape))), nn.Tanh()
+            *block(latent_dim, 128, normalize=False),
+            *block(128, 256),
+            *block(256, 512),
+            *block(512, 1024),
+            nn.Linear(1024, int(np.prod(img_shape))),
+            nn.Tanh(),
         )
 
     def forward(self, z):
@@ -165,7 +175,7 @@ class GAN(LightningModule):
         lr: float = 0.0002,
         b1: float = 0.5,
         b2: float = 0.999,
-        batch_size: int = 64,
+        batch_size: int = BATCH_SIZE,
         **kwargs
     ):
         super().__init__()
@@ -258,7 +268,7 @@ class GAN(LightningModule):
 # %% colab={} colab_type="code" id="Ey5FmJPnzm_E"
 dm = MNISTDataModule()
 model = GAN(*dm.size())
-trainer = Trainer(gpus=torch.cuda.device_count(), max_epochs=5, progress_bar_refresh_rate=20)
+trainer = Trainer(gpus=AVAIL_GPUS, max_epochs=5, progress_bar_refresh_rate=20)
 trainer.fit(model, dm)
 
 # %% colab={} colab_type="code" id="MlECc7cHzolp"
