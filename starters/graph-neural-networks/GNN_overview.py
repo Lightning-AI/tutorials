@@ -25,9 +25,9 @@ import time
 # For downloading pre-trained models
 import urllib.request
 from urllib.error import HTTPError
+
 # PyTorch Lightning
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 # PyTorch
 import torch
 import torch.nn as nn
@@ -38,6 +38,7 @@ import torch.utils.data as data
 import torch_geometric
 import torch_geometric.data as geom_data
 import torch_geometric.nn as geom_nn
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 
 # Path to the folder where the datasets are/should be downloaded
 DATASET_PATH = "data/"
