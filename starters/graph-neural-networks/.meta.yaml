@@ -7,6 +7,8 @@ description: |
   This tutorial is a primer on Graph Neural Networks.
   We discuss basic layers such as Graph Convolutions and Graph Attention Layer.
   Further, we apply GNNs to semi-supervised node classification and molecule categorization.
+  This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
+  The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 requirements:
   - torch-scatter
   - torch-sparse
