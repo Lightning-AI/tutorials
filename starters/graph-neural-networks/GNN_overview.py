@@ -14,24 +14,10 @@
 # ---
 
 # %% [markdown]
-# # Graph Neural Networks
-#
-# *This notebook is part of a lecture series on Deep Learning at the University of Amsterdam. The full list of tutorials can be found [here](https://uvadlc-notebooks.readthedocs.io/en/latest/index.html).*
-#
-# [![Open In Collab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/phlippe/uvadlc_notebooks/blob/master/docs/tutorial_notebooks/tutorial7/GNN_overview.ipynb)
-
-# %% [markdown]
-# **Pre-trained models:**
-# [![View files on Github](https://img.shields.io/static/v1.svg?logo=github&label=Repo&message=View%20On%20Github&color=lightgrey)](https://github.com/phlippe/saved_models/tree/main/tutorial7)
-# [![GoogleDrive](https://img.shields.io/static/v1.svg?logo=google-drive&logoColor=yellow&label=GDrive&message=Download&color=yellow)](https://drive.google.com/drive/folders/1DOTV_oYt5boa-MElbc2izat4VMSc1gob?usp=sharing)
-
-# %% [markdown]
 # In this tutorial, we will discuss the application of neural networks on graphs. Graph Neural Networks (GNNs) have recently gained increasing popularity in both applications and research, including domains such as social networks, knowledge graphs, recommender systems, and bioinformatics. While the theory and math behind GNNs might first seem complicated, the implementation of those models is quite simple and helps in understanding the methodology. Therefore, we will discuss the implementation of basic network layers of a GNN, namely graph convolutions, and attention layers. Finally, we will apply a GNN on a node-level, edge-level, and graph-level tasks.
 #
 # Below, we will start by importing our standard libraries.
 
-import json
-import math
 # %%
 # Standard libraries
 import os
@@ -39,10 +25,9 @@ import time
 # For downloading pre-trained models
 import urllib.request
 from urllib.error import HTTPError
-
-import numpy as np
 # PyTorch Lightning
 import pytorch_lightning as pl
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 # PyTorch
 import torch
 import torch.nn as nn
@@ -53,7 +38,6 @@ import torch.utils.data as data
 import torch_geometric
 import torch_geometric.data as geom_data
 import torch_geometric.nn as geom_nn
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 
 # Path to the folder where the datasets are/should be downloaded
 DATASET_PATH = "data/"
