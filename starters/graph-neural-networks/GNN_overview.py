@@ -96,7 +96,7 @@ for file_name in pretrained_files:
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
-            print("Something went wrong. Please try to download the file from the GDrive folder," + \
+            print("Something went wrong. Please try to download the file from the GDrive folder," +
                   " or contact the author with the full output including the following error:\n", e)
 
 
@@ -316,7 +316,6 @@ class GATLayer(nn.Module):
         return node_feats
 
 
-
 # %% [markdown]
 # Again, we can apply the graph attention layer on our example graph above to understand the dynamics better. As before, the input layer is initialized as an identity matrix, but we set $\mathbf{a}$ to be a vector of arbitrary numbers to obtain different attention values. We use two heads to show the parallel, independent attention mechanisms working in the layer.
 
@@ -438,7 +437,6 @@ class GNNModel(nn.Module):
             else:
                 x = layer(x)
         return x
-
 
 
 # %% [markdown]
@@ -726,7 +724,7 @@ class GraphLevelGNN(pl.LightningModule):
         super().__init__()
         # Saving hyperparameters
         self.save_hyperparameters()
-        
+
         self.model = GraphGNNModel(**model_kwargs)
         self.loss_module = nn.BCEWithLogitsLoss() if self.hparams.c_out == 1 else nn.CrossEntropyLoss()
 
@@ -734,7 +732,7 @@ class GraphLevelGNN(pl.LightningModule):
         x, edge_index, batch_idx = data.x, data.edge_index, data.batch
         x = self.model(x, edge_index, batch_idx)
         x = x.squeeze(dim=-1)
-        
+
         if self.hparams.c_out == 1:
             preds = (x > 0).float()
             data.y = data.y.float()
