@@ -10,6 +10,8 @@ description: |
 requirements:
   - transformers
   - datasets
+  - scipy
+  - scikit-learn
 accelerator:
   - CPU
   - GPU
