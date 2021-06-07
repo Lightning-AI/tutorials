@@ -4,7 +4,7 @@ created: 2021-06-07
 updated: 2021-06-07
 license: CC
 description: |
-  This tutorial is a primer on Graph Neural Networks. 
+  This tutorial is a primer on Graph Neural Networks.
   We discuss basic layers such as Graph Convolutions and Graph Attention Layer.
   Further, we apply GNNs to semi-supervised node classification and molecule categorization.
 requirements:
