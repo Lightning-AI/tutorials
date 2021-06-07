@@ -23,8 +23,7 @@
 
 # %% id="L-W_Gq2FORoU"
 # Run this if you intend to use TPUs
-# # !curl https://raw.githubusercontent.com/pytorch/xla/master/contrib/scripts/env-setup.py -o pytorch-xla-env-setup.py
-# # !python pytorch-xla-env-setup.py --version nightly --apt-packages libomp5 libopenblas-dev
+# # !pip install cloud-tpu-client==0.10 https://storage.googleapis.com/tpu-pytorch/wheels/torch_xla-1.8-cp37-cp37m-linux_x86_64.whl
 
 # %% id="wjov-2N_TgeS"
 import os
