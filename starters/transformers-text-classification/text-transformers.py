@@ -70,7 +70,6 @@ bert = BertModel.from_pretrained('bert-base-cased', output_attentions=True)
 
 # %% id="vMbozzxs9xq_"
 
-TASKS = ["CoLA", "SST", "MRPC", "QQP", "STS", "MNLI", "SNLI", "QNLI", "RTE", "WNLI", "diagnostic"]
 URL_DATA = "https://firebasestorage.googleapis.com/v0/b/mtl-sentence-representations.appspot.com/o/data"
 TASK2PATH = {
     "CoLA": URL_DATA + "%2FCoLA.zip?alt=media&token=46d5e637-3411-4188-bc44-5809b5bfb5f4",
@@ -104,6 +103,12 @@ def download_and_extract(task, data_dir: str = PATH_DATASETS):
 
 
 # %% colab={"base_uri": "https://localhost:8080/", "height": 51} id="3CVHOXQY9yVm" outputId="f06b886b-cc32-4972-918e-f4ca5828fb2c"
+
+# import urllib
+# opener = urllib.request.build_opener()
+# opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+# urllib.request.install_opener(opener)
+
 download_and_extract('MNLI')
 
 processor = MnliProcessor()
