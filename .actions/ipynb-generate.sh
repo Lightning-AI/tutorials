@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 echo "Converting: $1"
 
 # check that there is only one python script
