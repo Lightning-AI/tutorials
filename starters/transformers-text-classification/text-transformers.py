@@ -60,6 +60,8 @@ from transformers.data.processors.glue import MnliProcessor
 #
 # Let's grab the correct data
 
+# %% id="vMbozxxs9xq_"
+
 tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
 bert = BertModel.from_pretrained('bert-base-cased', output_attentions=True)
 
