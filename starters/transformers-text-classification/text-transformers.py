@@ -93,7 +93,7 @@ MRPC_TRAIN = "https://dl.fbaipublicfiles.com/senteval/senteval_data/msr_paraphra
 MRPC_TEST = "https://dl.fbaipublicfiles.com/senteval/senteval_data/msr_paraphrase_test.txt"
 
 
-def download_and_extract(task, data_dir):
+def download_and_extract(task, data_dir: str = PATH_DATASETS):
     print("Downloading and extracting %s..." % task)
     data_file = "%s.zip" % task
     urllib.request.urlretrieve(TASK2PATH[task], data_file)
@@ -104,7 +104,7 @@ def download_and_extract(task, data_dir):
 
 
 # %% colab={"base_uri": "https://localhost:8080/", "height": 51} id="3CVHOXQY9yVm" outputId="f06b886b-cc32-4972-918e-f4ca5828fb2c"
-download_and_extract('MNLI', '../../notebooks')
+download_and_extract('MNLI')
 
 processor = MnliProcessor()
 
