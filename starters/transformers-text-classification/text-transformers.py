@@ -29,9 +29,9 @@ from datetime import datetime
 from typing import Optional
 
 import datasets
-import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
+from pytorch_lightning import LightningDataModule, LightningModule, seed_everything, Trainer
 from sklearn.metrics import accuracy_score
 from torch import nn
 from torch.utils.data import DataLoader, random_split, RandomSampler, TensorDataset
@@ -50,14 +50,13 @@ from transformers.data.processors.glue import MnliProcessor
 
 # %% [markdown] id="7uQVI-xv9Ddj"
 # ---
-# ## BERT example
-# BERT + Lightning
+# ## BERT + Lightning
 
 # %% id="e2npX-Gi9uwa"
 # ! pip install transformers
 
 # %% [markdown] id="DeLyZQ_E9o1T"
-# #### Data download + processing
+# ### Data download + processing
 #
 # Let's grab the correct data
 
@@ -185,7 +184,7 @@ bert_mnli_train_dataloader, bert_mnli_val_dataloader, bert_mnli_test_dataloader 
 # %% id="UIXLW8CO-W8w"
 
 
-class BertMNLIFinetuner(pl.LightningModule):
+class BertMNLIFinetuner(LightningModule):
 
     def __init__(self):
         super(BertMNLIFinetuner, self).__init__()
@@ -271,21 +270,24 @@ class BertMNLIFinetuner(pl.LightningModule):
 
 
 # %% [markdown] id="FHt8tgwa_DcM"
-# ### Trainer
+# ### Lightning Training
 
 # %% colab={"base_uri": "https://localhost:8080/", "height": 83, "referenced_widgets": ["86bedd1fc6da4b8fa0deac637628729e", "f444ab7646444b9885cfec41b5a2236e", "fad0b06dc57e4b4599cf43daad7106b8", "c190999c2761453380f816372fcca608", "a5cc9e60aff641dca27f1adf6807e5b3", "0a96cc26343e4bb2ac2f5145be2fbacf", "cce9ed8de0a048679453e53b71523eea", "773fd1b84c364903bc7350630e76a825", "0e149cc766d147aba2c05f8b0f2c69d5", "191f483b5b0346a8a28cac37f29ac2dc", "24b28a7423a541c0b84ba93d70416c1a", "4820f0005e60493793e506e9f0caf5d4", "fce1fc72006f4e84a6497a493cbbfca2", "f220485e332d4c3cbfc3c45ce3b5fdf1", "bf257b8a04b44a389da2e6f4c64379d4", "7efa007fdb2d4e06b5f34c4286fe9a2f"]} id="gMRMJ-Kd-oup" outputId="790ab73c-b37d-4bcb-af5f-46b464e46f9b"
 bert_finetuner = BertMNLIFinetuner()
 
 # most basic trainer, uses good defaults (1 gpu)
-trainer = pl.Trainer(gpus=1)
+trainer = Trainer(gpus=1)
 trainer.fit(bert_finetuner)
 
 # %% [markdown] colab_type="text" id="9ORJfiuiNZ_N"
-# ## GLUE DataModule
+# ## GLUE + Lightning
+
+# %% [markdown] colab_type="text" id="9ORJfiuiNZ_N"
+# ### Lightning DataModule for GLUE
 
 
 # %% colab={} colab_type="code" id="jW9xQhZxMz1G"
-class GLUEDataModule(pl.LightningDataModule):
+class GLUEDataModule(LightningDataModule):
 
     task_text_field_map = {
         'cola': ['sentence'],
@@ -390,7 +392,7 @@ class GLUEDataModule(pl.LightningDataModule):
 
 
 # %% [markdown] colab_type="text" id="jQC3a6KuOpX3"
-# #### You could use this datamodule with standalone PyTorch if you wanted...
+# **You could use this datamodule with standalone PyTorch if you wanted...**
 
 # %% colab={} colab_type="code" id="JCMH3IAsNffF"
 dm = GLUEDataModule('distilbert-base-uncased')
@@ -399,11 +401,11 @@ dm.setup('fit')
 next(iter(dm.train_dataloader()))
 
 # %% [markdown] colab_type="text" id="l9fQ_67BO2Lj"
-# ## GLUE Model
+# ### GLUE Model
 
 
 # %% colab={} colab_type="code" id="gtn5YGKYO65B"
-class GLUETransformer(pl.LightningModule):
+class GLUETransformer(LightningModule):
 
     def __init__(
         self,
@@ -523,7 +525,7 @@ class GLUETransformer(pl.LightningModule):
 # %% colab={} colab_type="code" id="3dEHnl3RPlAR"
 def parse_args(args=None):
     parser = ArgumentParser()
-    parser = pl.Trainer.add_argparse_args(parser)
+    parser = Trainer.add_argparse_args(parser)
     parser = GLUEDataModule.add_argparse_args(parser)
     parser = GLUETransformer.add_model_specific_args(parser)
     parser.add_argument('--seed', type=int, default=42)
@@ -531,20 +533,20 @@ def parse_args(args=None):
 
 
 def main(args):
-    pl.seed_everything(args.seed)
+    seed_everything(args.seed)
     dm = GLUEDataModule.from_argparse_args(args)
     dm.prepare_data()
     dm.setup('fit')
     model = GLUETransformer(num_labels=dm.num_labels, eval_splits=dm.eval_splits, **vars(args))
-    trainer = pl.Trainer.from_argparse_args(args)
+    trainer = Trainer.from_argparse_args(args)
     return dm, model, trainer
 
 
-# %% [markdown] colab_type="text" id="PkuLaeec3sJ-"
-# # Training
+# %% [markdown] colab_type="text" id="QSpueK5UPsN7"
+# ### Lightning Training
 
 # %% [markdown] colab_type="text" id="QSpueK5UPsN7"
-# ## CoLA
+# #### CoLA
 #
 # See an interactive view of the
 # CoLA dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=cola)
@@ -561,7 +563,7 @@ dm, model, trainer = main(args)
 trainer.fit(model, dm)
 
 # %% [markdown] colab_type="text" id="_MrNsTnqdz4z"
-# ## MRPC
+# #### MRPC
 #
 # See an interactive view of the
 # MRPC dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=mrpc)
@@ -578,7 +580,7 @@ dm, model, trainer = main(args)
 trainer.fit(model, dm)
 
 # %% [markdown] colab_type="text" id="iZhbn0HzfdCu"
-# ## MNLI
+# #### MNLI
 #
 #  - The MNLI dataset is huge, so we aren't going to bother trying to train it here.
 #  - Let's just make sure our multi-dataloader logic is right by skipping over training and going straight to validation.
