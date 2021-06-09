@@ -48,6 +48,9 @@ from transformers import (
 from transformers import glue_convert_examples_to_features as convert_examples_to_features
 from transformers.data.processors.glue import MnliProcessor
 
+PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
+AVAIL_GPUS = min(1, torch.cuda.device_count())
+
 # %% [markdown] id="7uQVI-xv9Ddj"
 # ---
 # ## BERT + Lightning
@@ -278,7 +281,7 @@ class BertMNLIFinetuner(LightningModule):
 bert_finetuner = BertMNLIFinetuner()
 
 # most basic trainer, uses good defaults (1 gpu)
-trainer = Trainer(gpus=1)
+trainer = Trainer(gpus=AVAIL_GPUS)
 trainer.fit(bert_finetuner)
 
 # %% [markdown] colab_type="text" id="9ORJfiuiNZ_N"
@@ -554,11 +557,11 @@ def main(args):
 # CoLA dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=cola)
 
 # %% colab={} colab_type="code" id="NJnFmtpnPu0Y"
-mocked_args = """
+mocked_args = f"""
     --model_name_or_path albert-base-v2
     --task_name cola
     --max_epochs 3
-    --gpus 1""".split()
+    --gpus {AVAIL_GPUS}""".split()
 
 args = parse_args(mocked_args)
 dm, model, trainer = main(args)
@@ -571,11 +574,11 @@ trainer.fit(model, dm)
 # MRPC dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=mrpc)
 
 # %% colab={} colab_type="code" id="LBwRxg9Cb3d-"
-mocked_args = """
+mocked_args = f"""
     --model_name_or_path distilbert-base-cased
     --task_name mrpc
     --max_epochs 3
-    --gpus 1""".split()
+    --gpus {AVAIL_GPUS}""".split()
 
 args = parse_args(mocked_args)
 dm, model, trainer = main(args)
@@ -591,11 +594,11 @@ trainer.fit(model, dm)
 # MRPC dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=mnli)
 
 # %% colab={} colab_type="code" id="AvsZMOggfcWW"
-mocked_args = """
+mocked_args = f"""
     --model_name_or_path distilbert-base-uncased
     --task_name mnli
     --max_epochs 1
-    --gpus 1
+    --gpus {AVAIL_GPUS}
     --limit_train_batches 10
     --progress_bar_refresh_rate 20""".split()
 
