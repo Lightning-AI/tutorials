@@ -47,8 +47,10 @@ jobs:
         run: |
           head=$(git rev-parse origin/$PUB_BRANCH)
           # todo: still missing past names for rename/modified
-          git diff --name-only $head --output=master-diff.txt
-          python .actions/helpers.py group-folders master-diff.txt
+          git diff --name-only $head --output=target-diff.txt
+          echo "Raw chnages:"
+          cat target-diff.txt
+          python .actions/helpers.py group-folders target-diff.txt
           echo "Changed folder:"
           cat changed-folders.txt
           echo "Dropped folder:"

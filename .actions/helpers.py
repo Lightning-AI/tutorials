@@ -108,6 +108,7 @@ class HelperCLI:
         fpath_gitdiff: str,
         fpath_change_folders: str = "changed-folders.txt",
         fpath_drop_folders: str = "dropped-folders.txt",
+        strict: bool = True,
     ) -> None:
         """Group changes by folders
         Args:
@@ -117,7 +118,9 @@ class HelperCLI:
                 > head=$(git rev-parse origin/main)
                 > git diff --name-only $head --output=master-diff.txt
 
-            fpath_folders: output file with folders
+            fpath_change_folders: output file with changed folders
+            fpath_drop_folders: output file with deleted folders
+            strict: raise error if some folder outside skipped does not have valid meta file
         """
         with open(fpath_gitdiff, "r") as fp:
             changed = [ln.strip() for ln in fp.readlines()]
@@ -129,7 +132,12 @@ class HelperCLI:
         # drop folder with skip folder
         dirs = [pd for pd in dirs if not any(nd in HelperCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]
         # valid folder has meta
+        dirs_ = [d for d in dirs if not os.path.isfile(os.path.join(d, HelperCLI.META_FILE))]
         dirs = [d for d in dirs if os.path.isfile(os.path.join(d, HelperCLI.META_FILE))]
+        if strict and dirs_:
+            raise FileNotFoundError(
+                f"Following folders do not have valid `{HelperCLI.META_FILE}` \n {os.linesep.join(dirs_)}"
+            )
 
         with open(fpath_change_folders, "w") as fp:
             fp.write(os.linesep.join([d for d in dirs if os.path.isdir(d)]))

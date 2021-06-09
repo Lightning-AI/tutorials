@@ -46,8 +46,10 @@ jobs:
 
     - bash: |
         head=$(git rev-parse origin/main)
-        git diff --name-only $head --output=master-diff.txt
-        python .actions/helpers.py group-folders master-diff.txt
+        git diff --name-only $head --output=target-diff.txt
+        echo "Raw chnages:"
+        cat target-diff.txt
+        python .actions/helpers.py group-folders target-diff.txt
         echo "Changed folder:"
         cat changed-folders.txt
       displayName: 'Process folders'
