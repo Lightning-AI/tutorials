@@ -22,25 +22,36 @@
 #
 # Below, we will start by importing our standard libraries.
 
+# %%
+# Standard libraries
 import os
+# For downloading pre-trained models
 import urllib.request
 from urllib.error import HTTPError
 
+# PyTorch Lightning
 import pytorch_lightning as pl
+# PyTorch
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+# PyTorch geometric
 import torch_geometric
 import torch_geometric.data as geom_data
 import torch_geometric.nn as geom_nn
+# PL callbacks
 from pytorch_lightning.callbacks import ModelCheckpoint
 
+# Path to the folder where the datasets are/should be downloaded
 DATASET_PATH = "data/"
+# Path to the folder where the pretrained models are saved
 CHECKPOINT_PATH = "saved_models/GNNs/"
 
+# Setting the seed
 pl.seed_everything(42)
 
+# Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.determinstic = True
 torch.backends.cudnn.benchmark = False
 
@@ -50,11 +61,16 @@ print("Using device", device)
 # %% [markdown]
 # We also have a few pre-trained models we download below.
 
+# %%
+# Github URL where saved models are stored for this tutorial
 base_url = "https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial7/"
+# Files to download
 pretrained_files = ["NodeLevelMLP.ckpt", "NodeLevelGNN.ckpt", "GraphLevelGraphConv.ckpt"]
 
+# Create checkpoint path if it doesn't exist yet
 os.makedirs(CHECKPOINT_PATH, exist_ok=True)
 
+# For each file, check whether it already exists. If not, try downloading it.
 for file_name in pretrained_files:
     file_path = os.path.join(CHECKPOINT_PATH, file_name)
     if "/" in file_name:
@@ -142,6 +158,7 @@ for file_name in pretrained_files:
 # Written as a PyTorch module, the GCN layer is defined as follows:
 
 
+# %%
 class GCNLayer(nn.Module):
 
     def __init__(self, c_in, c_out):
@@ -169,6 +186,7 @@ class GCNLayer(nn.Module):
 # To further understand the GCN layer, we can apply it to our example graph above.
 # First, let's specify some node features and the adjacency matrix with added self-connections:
 
+# %%
 node_feats = torch.arange(8, dtype=torch.float32).view(1, 4, 2)
 adj_matrix = torch.Tensor([[[1, 1, 0, 0], [1, 1, 1, 1], [0, 1, 1, 1], [0, 1, 1, 1]]])
 
@@ -180,6 +198,7 @@ print("\nAdjacency matrix:\n", adj_matrix)
 # For simplicity, we initialize the linear weight matrix as an identity matrix so that the input features are equal to the messages.
 # This makes it easier for us to verify the message passing operation.
 
+# %%
 layer = GCNLayer(c_in=2, c_out=2)
 layer.projection.weight.data = torch.Tensor([[1., 0.], [0., 1.]])
 layer.projection.bias.data = torch.Tensor([0., 0.])
@@ -260,6 +279,7 @@ print("Output features", out_feats)
 # After having discussed the graph attention layer in detail, we can implement it below:
 
 
+# %%
 class GATLayer(nn.Module):
 
     def __init__(self, c_in, c_out, num_heads=1, concat_heads=True, alpha=0.2):
@@ -345,6 +365,7 @@ class GATLayer(nn.Module):
 # As before, the input layer is initialized as an identity matrix, but we set $\mathbf{a}$ to be a vector of arbitrary numbers to obtain different attention values.
 # We use two heads to show the parallel, independent attention mechanisms working in the layer.
 
+# %%
 layer = GATLayer(2, 2, num_heads=2)
 layer.projection.weight.data = torch.Tensor([[1., 0.], [0., 1.]])
 layer.projection.bias.data = torch.Tensor([0., 0.])
@@ -381,6 +402,7 @@ print("Output features", out_feats)
 # In our tasks below, we want to allow us to pick from a multitude of graph layers.
 # Thus, we define again below a dictionary to access those using a string:
 
+# %%
 gnn_layer_by_name = {"GCN": geom_nn.GCNConv, "GAT": geom_nn.GATConv, "GraphConv": geom_nn.GraphConv}
 
 # %% [markdown]
@@ -419,12 +441,14 @@ gnn_layer_by_name = {"GCN": geom_nn.GCNConv, "GAT": geom_nn.GATConv, "GraphConv"
 #
 # We will load the dataset below:
 
+# %%
 cora_dataset = torch_geometric.datasets.Planetoid(root=DATASET_PATH, name="Cora")
 
 # %% [markdown]
 # Let's look at how PyTorch Geometric represents the graph data.
 # Note that although we have a single graph, PyTorch Geometric returns a dataset for compatibility to other datasets.
 
+# %%
 cora_dataset[0]
 
 # %% [markdown]
@@ -438,6 +462,7 @@ cora_dataset[0]
 # See below for the specific implementation.
 
 
+# %%
 class GNNModel(nn.Module):
 
     def __init__(self, c_in, c_hidden, c_out, num_layers=2, layer_name="GCN", dp_rate=0.1, **kwargs):
@@ -490,6 +515,7 @@ class GNNModel(nn.Module):
 # To check this, we implement a simple MLP below.
 
 
+# %%
 class MLPModel(nn.Module):
 
     def __init__(self, c_in, c_hidden, c_out, num_layers=2, dp_rate=0.1):
@@ -522,6 +548,7 @@ class MLPModel(nn.Module):
 # Finally, we can merge the models into a PyTorch Lightning module which handles the training, validation, and testing for us.
 
 
+# %%
 class NodeLevelGNN(pl.LightningModule):
 
     def __init__(self, model_name, **model_kwargs):
@@ -581,6 +608,7 @@ class NodeLevelGNN(pl.LightningModule):
 # Finally, we test the model and return the results.
 
 
+# %%
 def train_node_classifier(model_name, dataset, **model_kwargs):
     pl.seed_everything(42)
     node_data_loader = geom_data.DataLoader(dataset, batch_size=1)
@@ -624,6 +652,8 @@ def train_node_classifier(model_name, dataset, **model_kwargs):
 # Now, we can train our models. First, let's train the simple MLP:
 
 
+# %%
+# Small function for printing the test scores
 def print_results(result_dict):
     if "train" in result_dict:
         print("Train accuracy: %4.2f%%" % (100.0 * result_dict["train"]))
@@ -632,6 +662,7 @@ def print_results(result_dict):
     print("Test accuracy:  %4.2f%%" % (100.0 * result_dict["test"]))
 
 
+# %%
 node_mlp_model, node_mlp_result = train_node_classifier(
     model_name="MLP", dataset=cora_dataset, c_hidden=16, num_layers=2, dp_rate=0.1
 )
@@ -642,6 +673,7 @@ print_results(node_mlp_result)
 # Although the MLP can overfit on the training dataset because of the high-dimensional input features, it does not perform too well on the test set.
 # Let's see if we can beat this score with our graph networks:
 
+# %%
 node_gnn_model, node_gnn_result = train_node_classifier(
     model_name="GNN", layer_name="GCN", dataset=cora_dataset, c_hidden=16, num_layers=2, dp_rate=0.1
 )
@@ -696,11 +728,13 @@ print_results(node_gnn_result)
 # The dataset is part of a large collection of different graph classification datasets, known as the [TUDatasets](https://chrsmrrs.github.io/datasets/), which is directly accessible via `torch_geometric.datasets.TUDataset` ([documentation](https://pytorch-geometric.readthedocs.io/en/latest/modules/datasets.html#torch_geometric.datasets.TUDataset)) in PyTorch Geometric.
 # We can load the dataset below.
 
+# %%
 tu_dataset = torch_geometric.datasets.TUDataset(root=DATASET_PATH, name="MUTAG")
 
 # %% [markdown]
 # Let's look at some statistics for the dataset:
 
+# %%
 print("Data object:", tu_dataset.data)
 print("Length:", len(tu_dataset))
 print("Average label: %4.2f" % (tu_dataset.data.y.float().mean().item()))
@@ -716,6 +750,7 @@ print("Average label: %4.2f" % (tu_dataset.data.y.float().mean().item()))
 # Note that we do not use a validation set this time because of the small size of the dataset.
 # Therefore, our model might overfit slightly on the validation set due to the noise of the evaluation, but we still get an estimate of the performance on untrained data.
 
+# %%
 torch.manual_seed(42)
 tu_dataset.shuffle()
 train_dataset = tu_dataset[:150]
@@ -733,6 +768,7 @@ test_dataset = tu_dataset[150:]
 # The adjacency matrix is zero for any nodes that come from two different graphs, and otherwise according to the adjacency matrix of the individual graph.
 # Luckily, this strategy is already implemented in torch geometric, and hence we can use the corresponding data loader:
 
+# %%
 graph_train_loader = geom_data.DataLoader(train_dataset, batch_size=64, shuffle=True)
 graph_val_loader = geom_data.DataLoader(test_dataset, batch_size=64)  # Additional loader for a larger datasets
 graph_test_loader = geom_data.DataLoader(test_dataset, batch_size=64)
@@ -740,6 +776,7 @@ graph_test_loader = geom_data.DataLoader(test_dataset, batch_size=64)
 # %% [markdown]
 # Let's load a batch below to see the batching in action:
 
+# %%
 batch = next(iter(graph_test_loader))
 print("Batch:", batch)
 print("Labels:", batch.y[:10])
@@ -756,6 +793,7 @@ print("Batch indices:", batch.batch[:40])
 # Specifically, we re-use our class `GNNModel` from before, and simply add an average pool and single linear layer for the graph prediction task.
 
 
+# %%
 class GraphGNNModel(nn.Module):
 
     def __init__(self, c_in, c_hidden, c_out, dp_rate_linear=0.5, **kwargs):
@@ -795,6 +833,7 @@ class GraphGNNModel(nn.Module):
 # As we have a binary classification task, we use the Binary Cross Entropy loss.
 
 
+# %%
 class GraphLevelGNN(pl.LightningModule):
 
     def __init__(self, **model_kwargs):
@@ -843,6 +882,7 @@ class GraphLevelGNN(pl.LightningModule):
 # Below we train the model on our dataset. It resembles the typical training functions we have seen so far.
 
 
+# %%
 def train_graph_classifier(model_name, **model_kwargs):
     pl.seed_everything(42)
 
@@ -884,10 +924,12 @@ def train_graph_classifier(model_name, **model_kwargs):
 # Finally, let's perform the training and testing.
 # Feel free to experiment with different GNN layers, hyperparameters, etc.
 
+# %%
 model, result = train_graph_classifier(
     model_name="GraphConv", c_hidden=256, layer_name="GraphConv", num_layers=3, dp_rate_linear=0.5, dp_rate=0.0
 )
 
+# %%
 print("Train performance: %4.2f%%" % (100.0 * result['train']))
 print("Test performance:  %4.2f%%" % (100.0 * result['test']))
 
