@@ -327,8 +327,8 @@ class GATLayer(nn.Module):
         # => Create a tensor of [W*h_i||W*h_j] with i and j being the indices of all edges
         edges = adj_matrix.nonzero(as_tuple=False)  # Returns indices where the adjacency matrix is not 0 => edges
         node_feats_flat = node_feats.view(batch_size * num_nodes, self.num_heads, -1)
-        edge_indices_row = edges[:, 0] * batch_size + edges[:, 1]
-        edge_indices_col = edges[:, 0] * batch_size + edges[:, 2]
+        edge_indices_row = edges[:, 0] * num_nodes + edges[:, 1]
+        edge_indices_col = edges[:, 0] * num_nodes + edges[:, 2]
         a_input = torch.cat(
             [
                 torch.index_select(input=node_feats_flat, index=edge_indices_row, dim=0),
