@@ -43,8 +43,10 @@ import torch_geometric.nn as geom_nn
 # PL callbacks
 from pytorch_lightning.callbacks import ModelCheckpoint
 
+AVAIL_GPUS = min(1, torch.cuda.device_count())
+BATCH_SIZE = 256 if AVAIL_GPUS else 64
 # Path to the folder where the datasets are/should be downloaded
-DATASET_PATH = "data/"
+PATH_DATASETS = os.environ.get('PATH_DATASETS', "data/")
 # Path to the folder where the pretrained models are saved
 CHECKPOINT_PATH = "saved_models/GNNs/"
 
@@ -54,9 +56,6 @@ pl.seed_everything(42)
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.determinstic = True
 torch.backends.cudnn.benchmark = False
-
-device = torch.device("cuda:0") if torch.cuda.is_available() else torch.cuda("cpu")
-print("Using device", device)
 
 # %% [markdown]
 # We also have a few pre-trained models we download below.
@@ -619,7 +618,7 @@ def train_node_classifier(model_name, dataset, **model_kwargs):
     trainer = pl.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-        gpus=1 if str(device).startswith("cuda") else 0,
+        gpus=AVAIL_GPUS,
         max_epochs=200,
         progress_bar_refresh_rate=0
     )  # 0 because epoch size is 1
@@ -769,9 +768,9 @@ test_dataset = tu_dataset[150:]
 # Luckily, this strategy is already implemented in torch geometric, and hence we can use the corresponding data loader:
 
 # %%
-graph_train_loader = geom_data.DataLoader(train_dataset, batch_size=64, shuffle=True)
-graph_val_loader = geom_data.DataLoader(test_dataset, batch_size=64)  # Additional loader for a larger datasets
-graph_test_loader = geom_data.DataLoader(test_dataset, batch_size=64)
+graph_train_loader = geom_data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+graph_val_loader = geom_data.DataLoader(test_dataset, batch_size=BATCH_SIZE)  # Additional loader for a larger datasets
+graph_test_loader = geom_data.DataLoader(test_dataset, batch_size=BATCH_SIZE)
 
 # %% [markdown]
 # Let's load a batch below to see the batching in action:
@@ -892,7 +891,7 @@ def train_graph_classifier(model_name, **model_kwargs):
     trainer = pl.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-        gpus=1 if str(device).startswith("cuda") else 0,
+        gpus=AVAIL_GPUS,
         max_epochs=500,
         progress_bar_refresh_rate=0
     )
