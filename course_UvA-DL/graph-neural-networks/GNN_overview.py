@@ -46,9 +46,9 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 BATCH_SIZE = 256 if AVAIL_GPUS else 64
 # Path to the folder where the datasets are/should be downloaded
-PATH_DATASETS = os.environ.get('PATH_DATASETS', "data/")
+DATASET_PATH = os.environ.get('PATH_DATASETS', "data/")
 # Path to the folder where the pretrained models are saved
-CHECKPOINT_PATH = "saved_models/GNNs/"
+CHECKPOINT_PATH = os.environ.get('PATH_CHECKPOINT', "saved_models/GNNs/")
 
 # Setting the seed
 pl.seed_everything(42)
