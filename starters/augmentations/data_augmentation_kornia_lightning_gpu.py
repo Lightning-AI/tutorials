@@ -30,27 +30,20 @@
 
 # %% id="Z_XTj-y1gYJL"
 import os
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
 
 import kornia as K
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchmetrics
 import torchvision
+from pytorch_lightning import Trainer
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
-
-import torchmetrics
-import pytorch_lightning as pl
-import kornia as K
-from pytorch_lightning import Trainer
-
 
 # %% [markdown] id="hA4-AFd6gKo-"
 # ## Define Data Augmentations module
