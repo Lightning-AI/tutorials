@@ -1,0 +1,17 @@
+title: GPU and batched data augmentation with Kornia and PyTorch-Lightning
+author: PL/Kornia team
+created: 2021-06-11
+updated: 2021-06-11
+license: CC
+description: |
+  In this tutorial we will show how to combine both Kornia.org and PyTorch Lightning
+  to perform efficient data augmentation to train a simpple model using the GPU in batch
+  mode without additional effort.
+requirements:
+  - pytorch-lightning
+  - kornia
+  - torchmetrics
+  - torchvision
+accelerator:
+  - CPU
+  - GPU
