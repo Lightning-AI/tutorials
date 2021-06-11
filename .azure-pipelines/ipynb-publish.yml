@@ -90,7 +90,7 @@ jobs:
 
     - script: |
         COUNT=$(python -c "lines = open('changed-folders.txt').readlines() ; print(len(lines))")
-        echo "Chnaged folders: $COUNT"
+        echo "Changed folders: $COUNT"
         echo "##vso[task.setvariable variable=folders;isOutput=true]$COUNT"
       name: changed
 

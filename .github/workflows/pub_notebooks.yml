@@ -58,7 +58,7 @@ jobs:
         shell: bash
 
       - name: ">> output"
-        id: chnaged
+        id: changed
         run: python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
       - name: ">> output"
         id: dropped
@@ -75,7 +75,7 @@ jobs:
           git merge -s resolve main
 
       - name: Generate notebook
-        if: steps.chnaged.outputs.dirs != 0
+        if: steps.changed.outputs.dirs != 0
         run: |
           while IFS= read -r line; do
               bash .actions/ipynb-generate.sh $line
@@ -83,7 +83,7 @@ jobs:
         shell: bash
 
       - name: Render notebook
-        if: steps.chnaged.outputs.dirs != 0
+        if: steps.changed.outputs.dirs != 0
         run: |
           # render the actual notebooks
           while IFS= read -r line; do
