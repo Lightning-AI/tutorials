@@ -30,20 +30,18 @@
 
 # %% id="Z_XTj-y1gYJL"
 import os
-import numpy as np
-import matplotlib.pyplot as plt
 
+import kornia as K
+import matplotlib.pyplot as plt
+import numpy as np
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
+import torchmetrics
+import torchvision
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
-import torchvision
 from torchvision.datasets import CIFAR10
-
-import torchmetrics
-import pytorch_lightning as pl
-import kornia as K
-
 
 # %% [markdown] id="hA4-AFd6gKo-"
 # ## Define Data Augmentations module
@@ -54,9 +52,11 @@ import kornia as K
 #
 # Checkout the different augmentation operators in Kornia docs and experiment yourself !
 
+
 # %% id="RvdMAbyXgRPh"
 class DataAugmentation(nn.Module):
     """Module to perform data augmentation using Kornia on torch tensors."""
+
     def __init__(self, apply_color_jitter: bool = False) -> None:
         super().__init__()
         self._apply_color_jitter = apply_color_jitter
@@ -86,10 +86,11 @@ class DataAugmentation(nn.Module):
 #
 # To do that we will use `kornia.image_to_tensor` which casts and permutes the images in the right format.
 
+
 # %% id="EjPPQjcXkNT3"
 class Preprocess(nn.Module):
     """Module to perform pre-process using Kornia on torch tensors."""
- 
+
     @torch.no_grad()  # disable gradients for effiency
     def forward(self, x: 'Image') -> torch.Tensor:
         x_tmp: np.ndarray = np.array(x)  # HxWxC
@@ -105,6 +106,7 @@ class Preprocess(nn.Module):
 # Notice that the `Preprocess` class is injected into the dataset and will be applied per sample.
 #
 # The interesting part in the proposed approach happens inside the `training_step` where with just a single line of code we apply the data augmentation in batch and no need to worry about the device. This means that our `DataAugmentation` pipeline will automatically executed in the GPU.
+
 
 # %% id="aDagOcKyZ_qh"
 class CoolSystem(pl.LightningModule):
@@ -122,20 +124,23 @@ class CoolSystem(pl.LightningModule):
 
     def forward(self, x):
         return F.softmax(self.model(x))
-    
+
     def compute_loss(self, y_hat, y):
         return F.cross_entropy(y_hat, y)
 
-    def show_batch(self, win_size = (10, 10)):
+    def show_batch(self, win_size=(10, 10)):
+
         def _to_vis(data):
-            return K.utils.tensor_to_image(
-                torchvision.utils.make_grid(data, nrow=8))
+            return K.utils.tensor_to_image(torchvision.utils.make_grid(data, nrow=8))
+
         # get a batch from the training set: try with `val_datlaoader` :)
         imgs, labels = next(iter(self.train_dataloader()))
         imgs_aug = self.transform(imgs)  # apply transforms
         # use matplotlib to visualize
-        plt.figure(figsize=win_size); plt.imshow(_to_vis(imgs))
-        plt.figure(figsize=win_size); plt.imshow(_to_vis(imgs_aug))
+        plt.figure(figsize=win_size)
+        plt.imshow(_to_vis(imgs))
+        plt.figure(figsize=win_size)
+        plt.imshow(_to_vis(imgs_aug))
 
     def training_step(self, batch, batch_idx):
         x, y = batch
