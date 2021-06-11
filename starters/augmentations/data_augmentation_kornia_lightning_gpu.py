@@ -30,6 +30,9 @@
 
 # %% id="Z_XTj-y1gYJL"
 import os
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
 
 import kornia as K
 import matplotlib.pyplot as plt
@@ -42,6 +45,12 @@ import torchvision
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
+
+import torchmetrics
+import pytorch_lightning as pl
+import kornia as K
+from pytorch_lightning import Trainer
+
 
 # %% [markdown] id="hA4-AFd6gKo-"
 # ## Define Data Augmentations module
@@ -92,7 +101,7 @@ class Preprocess(nn.Module):
     """Module to perform pre-process using Kornia on torch tensors."""
 
     @torch.no_grad()  # disable gradients for effiency
-    def forward(self, x: 'Image') -> torch.Tensor:
+    def forward(self, x) -> torch.Tensor:
         x_tmp: np.ndarray = np.array(x)  # HxWxC
         x_out: torch.Tensor = K.image_to_tensor(x_tmp, keepdim=True)  # CxHxW
         return x_out.float() / 255.
@@ -192,8 +201,6 @@ model.show_batch(win_size=(14, 14))
 # ## Run training
 
 # %% id="O_AFCY3WlwKg" colab={"base_uri": "https://localhost:8080/", "height": 553, "referenced_widgets": ["709f1f18ae7b4057a564ebc20c30cf14", "efb1a69c4cb845ca8e42d6b06c8f49d2", "c811b82ef9354d7f83f47ec1546eb561", "4415c8b9a5b44c3d939728447fab9f4b", "7370c65f4bbf4d0eb5d81ed7a2d373af", "3089633e5f9f429684990ffb14e4c4b9", "9b0c91d7f2524a6eb8643118033ad30c", "2f7c9dc8c4394de2bbfc95ad24a9672a", "975dcd78a68247adbe3d305baece7c48", "c271876882a24ea6a7eb65816e34fa70", "1f753f12e0e54986bf101c21a4e5dfb8", "87a05880ab66478ab3b5cc849490cc06", "a9e8ee5e6a0d4f1fac52b4a361d35a66", "175d1617dbe14a61b924d3f44d0ace68", "14a50a956e0a4ed8b6e42d67ede920c7", "5911bec114fd4cbbba278e4d9c48711e", "893b98245d96477e887839494deb8b3d", "cc8ad4fbde744d7f9e43905929732cfa", "12c6b06aba1b4b93abbbd9ec5990ded6", "d5ed68ccedc14d88bc4bfa83015d500b", "c0d2b3e733b44dd0a60925e77b2c2843", "849740f2aa3f4b89b48ca9b75b4199ef", "7056185dcfa14145ba34704ccd31310e", "1594b1b3e13944e98ff6583e08b7da74", "60cd8ee70e83400ea0a340a9019c4613", "ec2e09636e4347bbb09eb5db626bb629", "a5602e74c0ef433d94af5ea32c0082d9", "c9006e61791e4a478c264ba3aa1ed735", "52a05b6e3531499cad49d8a6fbb21e87", "3bf765a4a77640518b91e529322163a3", "0b9dc57ed0984178be55834ed5ffaf6c", "9f0a2e194ab649a3af6ab6f1c5bddf40", "376c5e8cfdc44d2abab0056fbfd66d10", "0435543f907e4982993ad25c8045fd7b", "4946d46482ea4c979267f8947189f8ef", "6d29e2ad483b4ccabcba7f0adbb153a8", "be9607a996654cd1ac5953e3e9ccd9c9", "6e5e25f7a38d4aa2a31aae68ec57809c", "4e521a90685841fa8971afce65cf2082", "b6648c8e46fb49bd9d100b39d160ba6d", "6ebcfe11f51b49ebba4fba50a98bd272", "3e9d78e22b0a44e09503bbc4fd67c4e3", "80f22520340f41ce844f2a48b6ca26e6", "fcbbda9fd1c84687add33bbdb4876c19", "22aff830f48a4af59f0c1883b32329e6", "d46e2150726d43cd95cf9c59d2473ba7", "0c76afa96d044f839ecd6fbb4b20ca52", "1359309ae6e04b57b85941e8322207b1", "1b67cc25af184e7f9556c5de1dfd54cd", "98b4b51a2aaf49afaa8401e764d7833a", "a75282d841454fc399f626ad5602a74d", "dba0cfbbf338449b90a67e921e9b88b9", "6ac0a596086d44c69fcdf3ede8d6cf97", "79b7c0471b9f4361b7f163d9bb20547b", "d419cbe0111c4244a4147e960f8877d4", "96f4f3a8c31141a8834394db86f59f9a", "ec033e4dca90465c90fc2be25dd22f78", "aa5e83835b5140fe9b58a4d9294aaf26", "cad29c4d9f7545a29b4a90e89d9215aa", "212b03cac43443c194d1b07e009b7fa4", "35be5b0f9a0b4e52bdd3d3fee4973a2a", "a619744530a64286903d72570ae22e66", "0858b8de821d4a97925a1c2345384506", "aeb789428b5f48a380e842b276899aaf", "599c941c2a5748a1bd23c01997f89deb", "1159393a62f8445b9987cc5c6a0345b9", "0aa995b993044fc2859a0bd78bd0f574", "3435453a01004b8ab13aba41380669c0", "f1f82dafccc94d36b94235edc5e8e9a2", "e4ada31d4fa247d09f4902d24c0de8fc", "eba24180d9504770a215579e231f77c5", "fe78a1c28f4e48e580e90bb86c2cd974", "de0a418bdb7b4645a720e42c4360bc56", "5dc59cbf46d34facbf6bda28d901f23d", "77f480b972fa4a429985b665a703bca5", "1ad61d6d3ba742058f33ba42d0f7aee5", "40ac1628402c404397f5f7fe4a392ec4", "58907965ba6548698fd4ee09d8cc537f", "c6173d0bae434ad894bbcdb950978597", "5a19c9bd4631496c83c086c9a0790eb7", "36bc9e0864c041a3a9ba99138526dd0a", "9e5951cd14134a01a0989847610e5158", "b2ab723a9bd442caa234c31c3a0b37f2", "ba95f0a20a644817838d65454c68e62a", "6d1131a36b0643d0bbe361b1dce2530a", "2aad354dd58a4370ab02e9717b222527", "307eda2be3d44b6586e10cde67457eb1", "a86b460ff8b64039b3c1ad9c20fc509b", "dd8c0b79bc1e4543827f4c945e612afe", "98b00e759bd1480d8642e74dd513bb81", "8a1bc0325fa340c09908f90fdc5c3d3b", "0db90d9f3f8f4b369c902c4e1fb7d872", "6ec62f397aa24e08ae2d3333333e67e2", "6ad4eb9da10b4257aaae2edc87ed75bd", "013b59fa0c4d487eb71f900a4703c7bc", "aa6bdb26784c46e98dadcd8ccef5af45"]} outputId="12d1be70-3b5c-41e1-95bd-1f9d91bd07ae"
-from pytorch_lightning import Trainer
-
 # create the csv logger
 logger = pl.loggers.CSVLogger(save_dir='logs/', name="cifar10-resnet18")
 
@@ -208,8 +215,6 @@ trainer.fit(model)
 # ### Visualize the training results
 
 # %% colab={"base_uri": "https://localhost:8080/", "height": 635} id="jXhH_0mbx_ye" outputId="d294929e-4af5-44d1-8b57-ccb378167fa3"
-import pandas as pd
-
 metrics = pd.read_csv(f'{trainer.logger.log_dir}/metrics.csv')
 print(metrics.head())
 
