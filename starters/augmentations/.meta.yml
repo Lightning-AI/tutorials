@@ -12,6 +12,8 @@ requirements:
   - kornia
   - torchmetrics
   - torchvision
+  - matplotlib
+  - pandas
 accelerator:
   - CPU
   - GPU
