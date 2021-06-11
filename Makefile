@@ -1,8 +1,9 @@
 .PHONY: ipynb clean docs
 
 # META := $(wildcard **/.meta.yml)
-META := $(shell find -name .meta.yml)
+META := $(shell find -regex ".*/.meta.y[a]?ml")
 IPYNB := $(META:%/.meta.yml=%.ipynb)
+IPYNB := $(IPYNB:%/.meta.yaml=%.ipynb)
 export PATH_DATASETS=$(PWD)/.datasets
 
 init:
@@ -12,7 +13,7 @@ init:
 ipynb: init ${IPYNB}
 # 	@echo $<
 
-%.ipynb: %/.meta.yml
+%.ipynb: %/.meta.y*ml
 	@echo $<
 	bash .actions/ipynb-generate.sh $(shell dirname $<)
 	bash .actions/ipynb-render.sh $(shell dirname $<)
