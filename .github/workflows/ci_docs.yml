@@ -46,7 +46,7 @@ jobs:
         shell: bash
 
       - name: ">> output"
-        id: chnaged
+        id: changed
         run: python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
       - uses: oleksiyrudenko/gha-git-credentials@v2.1
         with:
@@ -56,7 +56,7 @@ jobs:
         run: git merge -s resolve origin/$PUB_BRANCH
 
       - name: Generate notebook
-        if: steps.chnaged.outputs.dirs != 0
+        if: steps.changed.outputs.dirs != 0
         run: |
           while IFS= read -r line; do
               bash .actions/ipynb-generate.sh $line
