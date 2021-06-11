@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import glob
 import os
 import shutil
 from datetime import datetime
@@ -9,6 +8,7 @@ import fire
 import tqdm
 import yaml
 from pip._internal.operations import freeze
+from wcmatch import glob
 
 PATH_HERE = os.path.dirname(__file__)
 PATH_ROOT = os.path.dirname(PATH_HERE)
@@ -80,8 +80,14 @@ class HelperCLI:
         "docs",
         DIR_NOTEBOOKS,
     )
-    META_FILE = ".meta.yml"
+    META_FILE_REGEX = ".meta.{yaml,yml}"
     REQUIREMENTS_FILE = "requirements.txt"
+
+    @staticmethod
+    def _meta_file(folder: str) -> str:
+        files = glob.glob(os.path.join(folder, HelperCLI.META_FILE_REGEX), flags=glob.BRACE)
+        if len(files) == 1:
+            return files[0]
 
     @staticmethod
     def augment_script(fpath: str):
@@ -91,7 +97,7 @@ class HelperCLI:
         """
         with open(fpath, "r") as fp:
             py_file = fp.readlines()
-        fpath_meta = os.path.join(os.path.dirname(fpath), HelperCLI.META_FILE)
+        fpath_meta = HelperCLI._meta_file(os.path.dirname(fpath))
         meta = yaml.safe_load(open(fpath_meta))
         meta.update(dict(local_path=fpath))
 
@@ -132,11 +138,11 @@ class HelperCLI:
         # drop folder with skip folder
         dirs = [pd for pd in dirs if not any(nd in HelperCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]
         # valid folder has meta
-        dirs_ = [d for d in dirs if not os.path.isfile(os.path.join(d, HelperCLI.META_FILE))]
-        dirs = [d for d in dirs if os.path.isfile(os.path.join(d, HelperCLI.META_FILE))]
+        dirs_ = [d for d in dirs if not HelperCLI._meta_file(d)]
+        dirs = [d for d in dirs if HelperCLI._meta_file(d)]
         if strict and dirs_:
             raise FileNotFoundError(
-                f"Following folders do not have valid `{HelperCLI.META_FILE}` \n {os.linesep.join(dirs_)}"
+                f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}` \n {os.linesep.join(dirs_)}"
             )
 
         with open(fpath_change_folders, "w") as fp:
@@ -151,8 +157,8 @@ class HelperCLI:
         Args:
             dir_path: path to the folder
         """
-        fpath = os.path.join(dir_path, HelperCLI.META_FILE)
-        assert os.path.isfile(fpath)
+        fpath = HelperCLI._meta_file(dir_path)
+        assert fpath, f"Missing Meta file in {dir_path}"
         meta = yaml.safe_load(open(fpath))
         pprint(meta)
 
@@ -190,8 +196,8 @@ class HelperCLI:
         Args:
             dir_path: path to the folder
         """
-        fpath = os.path.join(dir_path, HelperCLI.META_FILE)
-        assert os.path.isfile(fpath)
+        fpath = HelperCLI._meta_file(dir_path)
+        assert fpath, f"Missing Meta file in {dir_path}"
         meta = yaml.safe_load(open(fpath))
         # default is CPU runtime
         accels = [acc.lower() for acc in meta.get("accelerator", ('CPU'))]
@@ -204,8 +210,8 @@ class HelperCLI:
         Args:
              dir_path: path to the folder
         """
-        fpath = os.path.join(dir_path, HelperCLI.META_FILE)
-        assert os.path.isfile(fpath)
+        fpath = HelperCLI._meta_file(dir_path)
+        assert fpath, f"Missing Meta file in {dir_path}"
         meta = yaml.safe_load(open(fpath))
         # default is COU runtime
         with open(PATH_REQ_DEFAULT) as fp:
