@@ -199,7 +199,8 @@ trainer = Trainer(
     progress_bar_refresh_rate=20,
     gpus=min(1, torch.cuda.device_count()),
     max_epochs=10,
-    logger=pl.loggers.CSVLogger(save_dir='logs/', name="cifar10-resnet18"))
+    logger=pl.loggers.CSVLogger(save_dir='logs/', name="cifar10-resnet18")
+)
 
 # Train the model ⚡
 trainer.fit(model)
