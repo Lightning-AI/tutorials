@@ -14,7 +14,9 @@ PATH_HERE = os.path.dirname(__file__)
 PATH_ROOT = os.path.dirname(PATH_HERE)
 PATH_REQ_DEFAULT = os.path.join(PATH_ROOT, "requirements", "default.txt")
 REPO_NAME = "lightning-tutorials"
+COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
 DEFAULT_BRANCH = "main"
+PUBLIC_BRANCH = "publication"
 ENV_DEVICE = "ACCELERATOR"
 DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, 'cpu').lower()
 TEMPLATE_HEADER = f"""
@@ -25,9 +27,7 @@ TEMPLATE_HEADER = f"""
 # %(description)s
 #
 # ---
-# Open in
-# <a href="https://colab.research.google.com/github/PytorchLightning/{REPO_NAME}/blob/{DEFAULT_BRANCH}/%(local_path)s" target="_parent">
-# <img src="https://colab.research.google.com/assets/colab-badge.png" alt="Open In Colab" width="117" height="20px"/></a>
+# Open in [![Open In Colab](https://colab.research.google.com/assets/colab-badge.png){{height="20px" width="117px"}}]({COLAB_REPO_LINK}/{REPO_NAME}/blob/{PUBLIC_BRANCH}/.notebooks/%(local_ipynb)s)
 #
 # Give us a ⭐ [on Github](https://www.github.com/PytorchLightning/pytorch-lightning/)
 # | Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/latest/)
@@ -64,7 +64,7 @@ TEMPLATE_FOOTER = """
 #
 # ### Great thanks from the entire Pytorch Lightning Team for your interest !
 #
-# <img src="https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png?raw=true" width="800" height="200" />
+# ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png?raw=true){height="60px" height="60px" width="240px"}]
 
 """
 
@@ -99,7 +99,7 @@ class HelperCLI:
             py_file = fp.readlines()
         fpath_meta = HelperCLI._meta_file(os.path.dirname(fpath))
         meta = yaml.safe_load(open(fpath_meta))
-        meta.update(dict(local_path=fpath))
+        meta.update(dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"))
 
         first_empty = min([i for i, ln in enumerate(py_file) if not ln.startswith("#")])
         header = TEMPLATE_HEADER % meta
