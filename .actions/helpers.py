@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import glob
 import os
 import shutil
 from datetime import datetime
@@ -9,12 +8,15 @@ import fire
 import tqdm
 import yaml
 from pip._internal.operations import freeze
+from wcmatch import glob
 
 PATH_HERE = os.path.dirname(__file__)
 PATH_ROOT = os.path.dirname(PATH_HERE)
 PATH_REQ_DEFAULT = os.path.join(PATH_ROOT, "requirements", "default.txt")
 REPO_NAME = "lightning-tutorials"
+COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
 DEFAULT_BRANCH = "main"
+PUBLIC_BRANCH = "publication"
 ENV_DEVICE = "ACCELERATOR"
 DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, 'cpu').lower()
 TEMPLATE_HEADER = f"""
@@ -25,9 +27,7 @@ TEMPLATE_HEADER = f"""
 # %(description)s
 #
 # ---
-# Open in
-# <a href="https://colab.research.google.com/github/PytorchLightning/{REPO_NAME}/blob/{DEFAULT_BRANCH}/%(local_path)s" target="_parent">
-# <img src="https://colab.research.google.com/assets/colab-badge.png" alt="Open In Colab" width="117" height="20px"/></a>
+# Open in [![Open In Colab](https://colab.research.google.com/assets/colab-badge.png){{height="20px" width="117px"}}]({COLAB_REPO_LINK}/{REPO_NAME}/blob/{PUBLIC_BRANCH}/.notebooks/%(local_ipynb)s)
 #
 # Give us a ⭐ [on Github](https://www.github.com/PytorchLightning/pytorch-lightning/)
 # | Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/latest/)
@@ -64,7 +64,7 @@ TEMPLATE_FOOTER = """
 #
 # ### Great thanks from the entire Pytorch Lightning Team for your interest !
 #
-# <img src="https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png?raw=true" width="800" height="200" />
+# ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png?raw=true){height="60px" height="60px" width="240px"}]
 
 """
 
@@ -80,8 +80,14 @@ class HelperCLI:
         "docs",
         DIR_NOTEBOOKS,
     )
-    META_FILE = ".meta.yml"
+    META_FILE_REGEX = ".meta.{yaml,yml}"
     REQUIREMENTS_FILE = "requirements.txt"
+
+    @staticmethod
+    def _meta_file(folder: str) -> str:
+        files = glob.glob(os.path.join(folder, HelperCLI.META_FILE_REGEX), flags=glob.BRACE)
+        if len(files) == 1:
+            return files[0]
 
     @staticmethod
     def augment_script(fpath: str):
@@ -91,9 +97,9 @@ class HelperCLI:
         """
         with open(fpath, "r") as fp:
             py_file = fp.readlines()
-        fpath_meta = os.path.join(os.path.dirname(fpath), HelperCLI.META_FILE)
+        fpath_meta = HelperCLI._meta_file(os.path.dirname(fpath))
         meta = yaml.safe_load(open(fpath_meta))
-        meta.update(dict(local_path=fpath))
+        meta.update(dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"))
 
         first_empty = min([i for i, ln in enumerate(py_file) if not ln.startswith("#")])
         header = TEMPLATE_HEADER % meta
@@ -132,11 +138,11 @@ class HelperCLI:
         # drop folder with skip folder
         dirs = [pd for pd in dirs if not any(nd in HelperCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]
         # valid folder has meta
-        dirs_ = [d for d in dirs if not os.path.isfile(os.path.join(d, HelperCLI.META_FILE))]
-        dirs = [d for d in dirs if os.path.isfile(os.path.join(d, HelperCLI.META_FILE))]
+        dirs_ = [d for d in dirs if not HelperCLI._meta_file(d)]
+        dirs = [d for d in dirs if HelperCLI._meta_file(d)]
         if strict and dirs_:
             raise FileNotFoundError(
-                f"Following folders do not have valid `{HelperCLI.META_FILE}` \n {os.linesep.join(dirs_)}"
+                f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}` \n {os.linesep.join(dirs_)}"
             )
 
         with open(fpath_change_folders, "w") as fp:
@@ -151,8 +157,8 @@ class HelperCLI:
         Args:
             dir_path: path to the folder
         """
-        fpath = os.path.join(dir_path, HelperCLI.META_FILE)
-        assert os.path.isfile(fpath)
+        fpath = HelperCLI._meta_file(dir_path)
+        assert fpath, f"Missing Meta file in {dir_path}"
         meta = yaml.safe_load(open(fpath))
         pprint(meta)
 
@@ -190,8 +196,8 @@ class HelperCLI:
         Args:
             dir_path: path to the folder
         """
-        fpath = os.path.join(dir_path, HelperCLI.META_FILE)
-        assert os.path.isfile(fpath)
+        fpath = HelperCLI._meta_file(dir_path)
+        assert fpath, f"Missing Meta file in {dir_path}"
         meta = yaml.safe_load(open(fpath))
         # default is CPU runtime
         accels = [acc.lower() for acc in meta.get("accelerator", ('CPU'))]
@@ -204,8 +210,8 @@ class HelperCLI:
         Args:
              dir_path: path to the folder
         """
-        fpath = os.path.join(dir_path, HelperCLI.META_FILE)
-        assert os.path.isfile(fpath)
+        fpath = HelperCLI._meta_file(dir_path)
+        assert fpath, f"Missing Meta file in {dir_path}"
         meta = yaml.safe_load(open(fpath))
         # default is COU runtime
         with open(PATH_REQ_DEFAULT) as fp:

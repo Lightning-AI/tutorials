@@ -1,4 +1,5 @@
 Fire
 tqdm
 PyYAML
+wcmatch
 pip
