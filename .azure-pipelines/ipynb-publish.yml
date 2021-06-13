@@ -2,6 +2,7 @@ trigger:
   branches:
     include:
       - main
+      - cd/git-diff
 pr: none
 #stages:
 #- stage: testing
@@ -42,26 +43,10 @@ jobs:
         if [ "$?" == "1" ] ; then echo "Branch doesn't exist"; exit; fi
       displayName: 'Sanity branch check'
 
-    #- bash: |
-    #    sudo apt-get install -y software-properties-common wget ca-certificates
-    #    sudo apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-distutils python${PYTHON_VERSION}-dev
-    #    sudo update-alternatives --install /usr/bin/python${PYTHON_VERSION%%.*} python${PYTHON_VERSION%%.*} /usr/bin/python${PYTHON_VERSION} 1
-    #    sudo update-alternatives --install /usr/bin/python python /usr/bin/python${PYTHON_VERSION} 1
-    #    wget https://bootstrap.pypa.io/get-pip.py --progress=bar:force:noscroll --no-check-certificate
-    #    python${PYTHON_VERSION} get-pip.py
-    #    rm get-pip.py
-    #    python --version
-    #    pip --version
-    #  displayName: 'Upgrade Python'
-    #
-    #- task: Cache@2
-    #  inputs:
-    #    key: 'python | "$(Agent.OS)" | requirements/devel.txt | requirements/default.txt'
-    #    restoreKeys: |
-    #      python | "$(Agent.OS)"
-    #      python
-    #    path: $(pip cache dir)
-    #  displayName: Cache pip packages
+    - bash: |
+        git config --global user.email "pipelines@azure.com"
+        git config --global user.name "Azure Pipelines"
+      displayName: 'Set Git user'
 
     - bash: |
         pip --version
@@ -76,17 +61,8 @@ jobs:
       displayName: 'Sanity check'
 
     - bash: |
-        head=$(git rev-parse origin/$(PUB_BRANCH))
-        # todo: still missing past names for rename/modified
-        git diff --name-only $head --output=target-diff.txt
-        echo "Raw chnages:"
-        cat target-diff.txt
-        python .actions/helpers.py group-folders target-diff.txt
-        echo "Changed folder:"
-        cat changed-folders.txt
-        echo "Dropped folder:"
-        cat dropped-folders.txt
-      displayName: 'Process folders'
+        bash .actions/git-diff.sh main $(PUB_BRANCH)
+      displayName: 'Compare changes'
 
     - script: |
         COUNT=$(python -c "lines = open('changed-folders.txt').readlines() ; print(len(lines))")
@@ -110,8 +86,6 @@ jobs:
       displayName: 'Pull datasets'
 
     - bash: |
-        git config --global user.email "pipelines@azure.com"
-        git config --global user.name "Azure Pipelines"
         git checkout $(PUB_BRANCH)
         git merge -s resolve origin/main
       displayName: 'Sync to pub'
@@ -145,5 +119,5 @@ jobs:
 
     - bash: |
         git status
-        git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
+        # git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
       displayName: 'Finish push'

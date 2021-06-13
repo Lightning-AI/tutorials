@@ -3,6 +3,7 @@ import os
 import shutil
 from datetime import datetime
 from pprint import pprint
+from typing import Sequence, Optional
 
 import fire
 import tqdm
@@ -114,6 +115,7 @@ class HelperCLI:
         fpath_gitdiff: str,
         fpath_change_folders: str = "changed-folders.txt",
         fpath_drop_folders: str = "dropped-folders.txt",
+        fpaths_actual_dirs: Optional[Sequence[str]] = None,
         strict: bool = True,
     ) -> None:
         """Group changes by folders
@@ -126,7 +128,11 @@ class HelperCLI:
 
             fpath_change_folders: output file with changed folders
             fpath_drop_folders: output file with deleted folders
+            fpaths_actual_dirs: files with listed all folder in particular stat
             strict: raise error if some folder outside skipped does not have valid meta file
+
+        Example:
+            >> python helpers.py group-folders ../target-diff.txt --fpaths_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
         """
         with open(fpath_gitdiff, "r") as fp:
             changed = [ln.strip() for ln in fp.readlines()]
@@ -135,6 +141,15 @@ class HelperCLI:
         dirs = set([os.path.dirname(ln) for ln in changed])
         # not empty paths
         dirs = [ln for ln in dirs if ln]
+
+        if fpaths_actual_dirs:
+            assert isinstance(fpaths_actual_dirs, list)
+            assert all(os.path.isfile(p) for p in fpaths_actual_dirs)
+            dir_sets = [set([ln.strip() for ln in open(fp).readlines()]) for fp in fpaths_actual_dirs]
+            # get only different
+            dirs_diff = set.union(*dir_sets) - set.intersection(*dir_sets)
+            dirs.append(list(dirs_diff))
+
         # drop folder with skip folder
         dirs = [pd for pd in dirs if not any(nd in HelperCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]
         # valid folder has meta
