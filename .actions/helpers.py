@@ -3,7 +3,7 @@ import os
 import shutil
 from datetime import datetime
 from pprint import pprint
-from typing import Sequence, Optional
+from typing import Sequence
 
 import fire
 import tqdm
@@ -115,7 +115,7 @@ class HelperCLI:
         fpath_gitdiff: str,
         fpath_change_folders: str = "changed-folders.txt",
         fpath_drop_folders: str = "dropped-folders.txt",
-        fpaths_actual_dirs: Optional[Sequence[str]] = None,
+        fpaths_actual_dirs: Sequence[str] = ("dirs-main.txt", "dirs-publication.txt"),
         strict: bool = True,
     ) -> None:
         """Group changes by folders
@@ -147,8 +147,7 @@ class HelperCLI:
             assert all(os.path.isfile(p) for p in fpaths_actual_dirs)
             dir_sets = [set([ln.strip() for ln in open(fp).readlines()]) for fp in fpaths_actual_dirs]
             # get only different
-            dirs_diff = set.union(*dir_sets) - set.intersection(*dir_sets)
-            dirs.append(list(dirs_diff))
+            dirs += list(set.union(*dir_sets) - set.intersection(*dir_sets))
 
         # drop folder with skip folder
         dirs = [pd for pd in dirs if not any(nd in HelperCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]

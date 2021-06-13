@@ -61,8 +61,10 @@ jobs:
       displayName: 'Sanity check'
 
     - bash: |
-        bash .actions/git-diff.sh main $(PUB_BRANCH)
-      displayName: 'Compare changes'
+        current_branch=$(cut -d '/' -f3- <<< $(Build.SourceBranch))
+        echo $current_branch
+        bash .actions/git-diff.sh $current_branch $(PUB_BRANCH)
+      displayName: 'Compare changes & sync'
 
     - script: |
         COUNT=$(python -c "lines = open('changed-folders.txt').readlines() ; print(len(lines))")
@@ -84,11 +86,6 @@ jobs:
         tar -zxvf MNIST.tar.gz
         ls -l
       displayName: 'Pull datasets'
-
-    - bash: |
-        git checkout $(PUB_BRANCH)
-        git merge -s resolve origin/main
-      displayName: 'Sync to pub'
 
     - bash: |
         while IFS= read -r line; do
