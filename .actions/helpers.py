@@ -97,6 +97,7 @@ RUNTIME_VERSIONS = dict(
     TORCH_MAJOR_DOT_MINOR='.'.join(TORCH_VERSION.split('.')[:2]),
     CUDA_VERSION=CUDA_VERSION,
     CUDA_MAJOR_MINOR=CUDA_VERSION.replace(".", ""),
+    DEVICE=f"cu{CUDA_VERSION.replace('.', '')}" if CUDA_VERSION else "cpu",
 )
 
 
