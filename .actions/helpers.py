@@ -152,18 +152,20 @@ class HelperCLI:
         # drop folder with skip folder
         dirs = [pd for pd in dirs if not any(nd in HelperCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]
         # valid folder has meta
-        dirs_ = [d for d in dirs if not HelperCLI._meta_file(d) and os.path.isdir(d)]
-        dirs = [d for d in dirs if HelperCLI._meta_file(d)]
-        if strict and dirs_:
+        dirs_exist = [d for d in dirs if os.path.isdir(d)]
+        dirs_invalid = [d for d in dirs_exist if not HelperCLI._meta_file(d)]
+        if strict and dirs_invalid:
             raise FileNotFoundError(
-                f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}` \n {os.linesep.join(dirs_)}"
+                f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}` \n {os.linesep.join(dirs_invalid)}"
             )
 
+        dirs_change = [d for d in dirs_exist if HelperCLI._meta_file(d)]
         with open(fpath_change_folders, "w") as fp:
-            fp.write(os.linesep.join([d for d in dirs if os.path.isdir(d)]))
+            fp.write(os.linesep.join(dirs_change))
 
+        dirs_drop = [d for d in dirs if not os.path.isdir(d)]
         with open(fpath_drop_folders, "w") as fp:
-            fp.write(os.linesep.join([d for d in dirs if not os.path.isdir(d)]))
+            fp.write(os.linesep.join(dirs_drop))
 
     @staticmethod
     def parse_requirements(dir_path: str):
