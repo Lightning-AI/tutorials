@@ -17,8 +17,6 @@
 # %% [markdown] id="x83-rnVKT8Wo"
 # # GPU and batched data augmentation with Kornia and PyTorch-Lightning
 #
-# In this tutorial we will show how to combine both [Kornia.org](https://www.kornia.org) and PyTorch Lightning to perform efficient data augmentation to train a simpple model using the GPU in batch mode without additional effort.
-#
 # **NOTE:** Adaptation of the original post found in [Kornia tutorials](https://kornia-tutorials.readthedocs.io/en/latest/).
 
 # %% [markdown] id="iCsre0XmawoR"
@@ -44,6 +42,8 @@ from pytorch_lightning import Trainer
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
+
+NUM_GPUS: int = min(1, torch.cuda.device_count()),
 
 # %% [markdown] id="hA4-AFd6gKo-"
 # ## Define Data Augmentations module
@@ -197,7 +197,7 @@ model.show_batch(win_size=(14, 14))
 # Initialize a trainer
 trainer = Trainer(
     progress_bar_refresh_rate=20,
-    gpus=min(1, torch.cuda.device_count()),
+    gpus=NUM_GPUS,
     max_epochs=10,
     logger=pl.loggers.CSVLogger(save_dir='logs/', name="cifar10-resnet18")
 )
