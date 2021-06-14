@@ -50,7 +50,7 @@ AVAIL_GPUS = 1 if torch.cuda.is_available() else None
 #
 # [Kornia.org](https://www.kornia.org) is low level Computer Vision library that provides a dedicated module [`kornia.augmentation`](https://kornia.readthedocs.io/en/latest/augmentation.html) module implementing en extensive set of data augmentation techniques for image and video.
 #
-# Similar to Lightning, in Kornia it's promoted to encapsulate functionalities inside classes for readability and efficiency purposes. In this case, we define a data augmentaton pipeline subclassing a `nn.Module` where the augmentations (also subclassing `nn.Module`) are combined with other PyTorch components such as `nn.Sequential`.
+# Similar to Lightning, in Kornia it's promoted to encapsulate functionalities inside classes for readability and efficiency purposes. In this case, we define a data augmentaton pipeline subclassing a `nn.Module` where the data_augmentation_kornia (also subclassing `nn.Module`) are combined with other PyTorch components such as `nn.Sequential`.
 #
 # Checkout the different augmentation operators in Kornia docs and experiment yourself !
 
@@ -120,7 +120,7 @@ class CoolSystem(pl.LightningModule):
 
         self.preprocess = Preprocess()  # per sample transforms
 
-        self.transform = DataAugmentation()  # per batch augmentations
+        self.transform = DataAugmentation()  # per batch data_augmentation_kornia
 
         self.accuracy = torchmetrics.Accuracy()
 
