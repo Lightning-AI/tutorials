@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
+import re
 import shutil
 from datetime import datetime
 from pprint import pprint
+from typing import Sequence
 
 import fire
 import tqdm
@@ -17,6 +19,7 @@ REPO_NAME = "lightning-tutorials"
 COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
 DEFAULT_BRANCH = "main"
 PUBLIC_BRANCH = "publication"
+URL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{DEFAULT_BRANCH}"
 ENV_DEVICE = "ACCELERATOR"
 DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, 'cpu').lower()
 TEMPLATE_HEADER = f"""
@@ -100,6 +103,9 @@ class HelperCLI:
         fpath_meta = HelperCLI._meta_file(os.path.dirname(fpath))
         meta = yaml.safe_load(open(fpath_meta))
         meta.update(dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"))
+        meta['description'] = meta['description'].replace(os.linesep, f"{os.linesep}# ")
+
+        py_file = HelperCLI._replace_images(py_file, os.path.dirname(fpath))
 
         first_empty = min([i for i, ln in enumerate(py_file) if not ln.startswith("#")])
         header = TEMPLATE_HEADER % meta
@@ -110,10 +116,31 @@ class HelperCLI:
             fp.writelines(py_file)
 
     @staticmethod
+    def _replace_images(lines: list, local_dir: str) -> list:
+        """Update images by URL to GitHub raw source
+        Args:
+            lines: string lines from python script
+            local_dir: relative path to the folder with script
+        """
+        md = os.linesep.join([ln.rstrip() for ln in lines])
+        imgs = []
+        # because * is a greedy quantifier, trying to match as much as it can. Make it *?
+        imgs += re.findall(r"src=\"(.*?)\"", md)
+        imgs += re.findall(r"!\[.*?\]\((.*?)\)", md)
+
+        # update all images
+        for img in set(imgs):
+            url_path = '/'.join([URL_DOWNLOAD, local_dir, img])
+            md = md.replace(img, url_path)
+
+        return [ln + os.linesep for ln in md.split(os.linesep)]
+
+    @staticmethod
     def group_folders(
         fpath_gitdiff: str,
         fpath_change_folders: str = "changed-folders.txt",
         fpath_drop_folders: str = "dropped-folders.txt",
+        fpaths_actual_dirs: Sequence[str] = tuple(),
         strict: bool = True,
     ) -> None:
         """Group changes by folders
@@ -126,7 +153,11 @@ class HelperCLI:
 
             fpath_change_folders: output file with changed folders
             fpath_drop_folders: output file with deleted folders
+            fpaths_actual_dirs: files with listed all folder in particular stat
             strict: raise error if some folder outside skipped does not have valid meta file
+
+        Example:
+            >> python helpers.py group-folders ../target-diff.txt --fpaths_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
         """
         with open(fpath_gitdiff, "r") as fp:
             changed = [ln.strip() for ln in fp.readlines()]
@@ -135,21 +166,31 @@ class HelperCLI:
         dirs = set([os.path.dirname(ln) for ln in changed])
         # not empty paths
         dirs = [ln for ln in dirs if ln]
+
+        if fpaths_actual_dirs:
+            assert isinstance(fpaths_actual_dirs, list)
+            assert all(os.path.isfile(p) for p in fpaths_actual_dirs)
+            dir_sets = [set([ln.strip() for ln in open(fp).readlines()]) for fp in fpaths_actual_dirs]
+            # get only different
+            dirs += list(set.union(*dir_sets) - set.intersection(*dir_sets))
+
         # drop folder with skip folder
         dirs = [pd for pd in dirs if not any(nd in HelperCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]
         # valid folder has meta
-        dirs_ = [d for d in dirs if not HelperCLI._meta_file(d)]
-        dirs = [d for d in dirs if HelperCLI._meta_file(d)]
-        if strict and dirs_:
+        dirs_exist = [d for d in dirs if os.path.isdir(d)]
+        dirs_invalid = [d for d in dirs_exist if not HelperCLI._meta_file(d)]
+        if strict and dirs_invalid:
             raise FileNotFoundError(
-                f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}` \n {os.linesep.join(dirs_)}"
+                f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}` \n {os.linesep.join(dirs_invalid)}"
             )
 
+        dirs_change = [d for d in dirs_exist if HelperCLI._meta_file(d)]
         with open(fpath_change_folders, "w") as fp:
-            fp.write(os.linesep.join([d for d in dirs if os.path.isdir(d)]))
+            fp.write(os.linesep.join(dirs_change))
 
+        dirs_drop = [d for d in dirs if not os.path.isdir(d)]
         with open(fpath_drop_folders, "w") as fp:
-            fp.write(os.linesep.join([d for d in dirs if not os.path.isdir(d)]))
+            fp.write(os.linesep.join(dirs_drop))
 
     @staticmethod
     def parse_requirements(dir_path: str):
