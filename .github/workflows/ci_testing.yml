@@ -42,7 +42,7 @@ jobs:
         shell: bash
 
       - name: Download Data
-        run: bash .actions/data-download.sh $(PATH_DATASETS)
+        run: bash .actions/data-download.sh $PATH_DATASETS
 
       - name: Process folders
         run: |
