@@ -117,7 +117,7 @@ trainer.fit(mnist_model, train_loader)
 # %% colab={} colab_type="code" id="4DNItffri95Q"
 class LitMNIST(pl.LightningModule):
 
-    def __init__(self, data_dir='./', hidden_size=64, learning_rate=2e-4):
+    def __init__(self, data_dir=PATH_DATASETS, hidden_size=64, learning_rate=2e-4):
 
         super().__init__()
 
