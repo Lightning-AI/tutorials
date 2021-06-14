@@ -41,7 +41,7 @@ jobs:
           head=$(git rev-parse origin/"${{ github.base_ref }}")
           git diff --name-only $head --output=master-diff.txt
           python .actions/helpers.py group-folders master-diff.txt
-          printf "Changed folder:\n"
+          printf "Changed folders:\n"
           cat changed-folders.txt
         shell: bash
 
@@ -52,6 +52,7 @@ jobs:
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           global: true
+
       - name: Sync to pub
         run: git merge -s resolve origin/$PUB_BRANCH
 
@@ -61,6 +62,11 @@ jobs:
           while IFS= read -r line; do
               bash .actions/ipynb-generate.sh $line
               ipynb=( $(ls "$line"/*.ipynb) )
+              # create folder of it is missing
+              pub_dir=$(dirname ".notebooks/$line")
+              printf "Dir: $pub_dir"
+              mkdir -p $pub_dir
+              # simulate render as somple move
               mv $ipynb ".notebooks/$line.ipynb"
           done <<< $(cat changed-folders.txt)
         shell: bash

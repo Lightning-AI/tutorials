@@ -80,6 +80,8 @@ nbsphinx_execute = 'never'
 nbsphinx_allow_errors = True
 nbsphinx_requirejs_path = ''
 
+myst_mathjax_classes = None
+
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #

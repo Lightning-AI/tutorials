@@ -10,7 +10,7 @@ printf $ipynb_file
 pub_file=".notebooks/$1.ipynb"
 printf $pub_file
 
-pub_dir="$(dirname "$pub_file")"
+pub_dir=$(dirname "$pub_file")
 mkdir -p $pub_dir
 
 python .actions/helpers.py parse-requirements $1
