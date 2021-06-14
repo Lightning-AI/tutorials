@@ -94,8 +94,10 @@ CUDA_VERSION = get_running_cuda_version()
 RUNTIME_VERSIONS = dict(
     TORCH_VERSION_FULL=TORCH_VERSION,
     TORCH_VERSION=TORCH_VERSION[:TORCH_VERSION.index('+')] if '+' in TORCH_VERSION else TORCH_VERSION,
+    TORCH_MAJOR_DOT_MINOR='.'.join(TORCH_VERSION.split('.')[:2]),
     CUDA_VERSION=CUDA_VERSION,
-    CUDA_VERSION_NODOT=CUDA_VERSION.replace(".", ""),
+    CUDA_MAJOR_MINOR=CUDA_VERSION.replace(".", ""),
+    DEVICE=f"cu{CUDA_VERSION.replace('.', '')}" if CUDA_VERSION else "cpu",
 )
 
 

@@ -18,7 +18,7 @@ source "$1/venv/bin/activate"
 pip --version
 pip install --quiet --requirement requirements.txt --upgrade-strategy only-if-needed
 pip_args=$(cat "$1/pip_arguments.txt")
-printf "pip arguments: $pip_args"
+printf "pip arguments: $pip_args\n"
 pip install --requirement "$1/requirements.txt" $pip_args
 pip list
 

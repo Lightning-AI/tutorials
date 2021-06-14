@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -e
 printf "Datasets: $1\n"
 
 mkdir -p $1
