@@ -46,7 +46,7 @@ jobs:
 
       - name: Process folders
         run: |
-          head=$(git rev-parse origin/"${{ github.base_ref }}")
+          head=$(git rev-parse origin/${{ github.base_ref }})
           git diff --name-only $head --output=target-diff.txt
           python .actions/helpers.py group-folders target-diff.txt
           printf "Changed folders:\n"
