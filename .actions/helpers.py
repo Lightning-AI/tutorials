@@ -3,6 +3,7 @@ import os
 import shutil
 from datetime import datetime
 from pprint import pprint
+from typing import Sequence
 
 import fire
 import tqdm
@@ -114,6 +115,7 @@ class HelperCLI:
         fpath_gitdiff: str,
         fpath_change_folders: str = "changed-folders.txt",
         fpath_drop_folders: str = "dropped-folders.txt",
+        fpaths_actual_dirs: Sequence[str] = tuple(),
         strict: bool = True,
     ) -> None:
         """Group changes by folders
@@ -126,7 +128,11 @@ class HelperCLI:
 
             fpath_change_folders: output file with changed folders
             fpath_drop_folders: output file with deleted folders
+            fpaths_actual_dirs: files with listed all folder in particular stat
             strict: raise error if some folder outside skipped does not have valid meta file
+
+        Example:
+            >> python helpers.py group-folders ../target-diff.txt --fpaths_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
         """
         with open(fpath_gitdiff, "r") as fp:
             changed = [ln.strip() for ln in fp.readlines()]
@@ -135,21 +141,31 @@ class HelperCLI:
         dirs = set([os.path.dirname(ln) for ln in changed])
         # not empty paths
         dirs = [ln for ln in dirs if ln]
+
+        if fpaths_actual_dirs:
+            assert isinstance(fpaths_actual_dirs, list)
+            assert all(os.path.isfile(p) for p in fpaths_actual_dirs)
+            dir_sets = [set([ln.strip() for ln in open(fp).readlines()]) for fp in fpaths_actual_dirs]
+            # get only different
+            dirs += list(set.union(*dir_sets) - set.intersection(*dir_sets))
+
         # drop folder with skip folder
         dirs = [pd for pd in dirs if not any(nd in HelperCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]
         # valid folder has meta
-        dirs_ = [d for d in dirs if not HelperCLI._meta_file(d)]
-        dirs = [d for d in dirs if HelperCLI._meta_file(d)]
-        if strict and dirs_:
+        dirs_exist = [d for d in dirs if os.path.isdir(d)]
+        dirs_invalid = [d for d in dirs_exist if not HelperCLI._meta_file(d)]
+        if strict and dirs_invalid:
             raise FileNotFoundError(
-                f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}` \n {os.linesep.join(dirs_)}"
+                f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}` \n {os.linesep.join(dirs_invalid)}"
             )
 
+        dirs_change = [d for d in dirs_exist if HelperCLI._meta_file(d)]
         with open(fpath_change_folders, "w") as fp:
-            fp.write(os.linesep.join([d for d in dirs if os.path.isdir(d)]))
+            fp.write(os.linesep.join(dirs_change))
 
+        dirs_drop = [d for d in dirs if not os.path.isdir(d)]
         with open(fpath_drop_folders, "w") as fp:
-            fp.write(os.linesep.join([d for d in dirs if not os.path.isdir(d)]))
+            fp.write(os.linesep.join(dirs_drop))
 
     @staticmethod
     def parse_requirements(dir_path: str):
