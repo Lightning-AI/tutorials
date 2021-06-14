@@ -17,7 +17,9 @@ python -m virtualenv --system-site-packages "$1/venv"
 source "$1/venv/bin/activate"
 pip --version
 pip install --quiet --requirement requirements.txt --upgrade-strategy only-if-needed
-pip install --requirement "$1/requirements.txt"
+pip_args=$(cat "$1/pip_arguments.txt")
+printf "pip arguments: $pip_args\n"
+pip install --requirement "$1/requirements.txt" $pip_args
 pip list
 
 printf "available: $ACCELERATOR\n"
