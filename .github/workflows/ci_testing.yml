@@ -43,19 +43,19 @@ jobs:
 
       - name: Create Data dir
         run: |
-          echo $PATH_DATASETS
+          printf $PATH_DATASETS
           mkdir $PATH_DATASETS
 
       - name: Process folders
         run: |
           head=$(git rev-parse origin/"${{ github.base_ref }}")
           git diff --name-only $head --output=target-diff.txt
-          echo "Raw chnages:"
+          printf "Raw chnages:"
           cat target-diff.txt
           python .actions/helpers.py group-folders target-diff.txt
-          echo "Changed folder:"
+          printf "Changed folder:"
           cat changed-folders.txt
-          echo "Dropped folder:"
+          printf "Dropped folder:"
           cat dropped-folders.txt
         shell: bash
 

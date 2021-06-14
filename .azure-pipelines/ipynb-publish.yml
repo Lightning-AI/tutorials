@@ -62,24 +62,24 @@ jobs:
 
     - bash: |
         current_branch=$(cut -d '/' -f3- <<< $(Build.SourceBranch))
-        echo $current_branch
+        printf $current_branch
         bash .actions/git-diff.sh $current_branch $(PUB_BRANCH)
       displayName: 'Compare changes & sync'
 
     - script: |
         COUNT=$(python -c "lines = open('changed-folders.txt').readlines() ; print(len(lines))")
-        echo "Changed folders: $COUNT"
+        printf "Changed folders: $COUNT"
         echo "##vso[task.setvariable variable=folders;isOutput=true]$COUNT"
       name: changed
 
     - script: |
         COUNT=$(python -c "lines = open('dropped-folders.txt').readlines() ; print(len(lines))")
-        echo "Dropped folders: $COUNT"
+        printf "Dropped folders: $COUNT"
         echo "##vso[task.setvariable variable=folders;isOutput=true]$COUNT"
       name: dropped
 
     - script: |
-        echo $(PATH_DATASETS)
+        printf $(PATH_DATASETS)
         mkdir $(PATH_DATASETS)
         cd $(PATH_DATASETS)
         wget www.di.ens.fr/~lelarge/MNIST.tar.gz --progress=bar:force:noscroll
