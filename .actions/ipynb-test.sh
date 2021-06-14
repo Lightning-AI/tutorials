@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-printf "Testing: $1"
+printf "Testing: $1\n\n"
 
 python -c "import glob ; assert(len(glob.glob('$1/*.ipynb')) == 1)"
 ipynb_file=( $(ls "$1"/*.ipynb) )
@@ -20,15 +20,15 @@ pip install --quiet --requirement requirements.txt --upgrade-strategy only-if-ne
 pip install --requirement "$1/requirements.txt"
 pip list
 
-printf "available: $ACCELERATOR"
+printf "available: $ACCELERATOR\n"
 accel=$(python .actions/helpers.py valid-accelerator $1 2>&1)
 if [ $accel == 1 ]
 then
   #python $py_file
-  printf "Testing: $ipynb_file"
+  printf "Testing: $ipynb_file\n"
   python -m pytest $ipynb_file -v --nbval
 else
-  printf "WARNING: not valid accelerator so no tests will be run"
+  printf "WARNING: not valid accelerator so no tests will be run.\n"
 fi
 
 deactivate

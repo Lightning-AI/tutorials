@@ -115,7 +115,7 @@ class HelperCLI:
         fpath_gitdiff: str,
         fpath_change_folders: str = "changed-folders.txt",
         fpath_drop_folders: str = "dropped-folders.txt",
-        fpaths_actual_dirs: Sequence[str] = ("dirs-main.txt", "dirs-publication.txt"),
+        fpaths_actual_dirs: Sequence[str] = tuple(),
         strict: bool = True,
     ) -> None:
         """Group changes by folders

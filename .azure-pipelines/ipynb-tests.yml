@@ -47,16 +47,14 @@ jobs:
     - bash: |
         head=$(git rev-parse origin/main)
         git diff --name-only $head --output=target-diff.txt
-        printf "Raw chnages:"
-        cat target-diff.txt
         python .actions/helpers.py group-folders target-diff.txt
-        printf "Changed folder:"
+        printf "Changed folder:\n"
         cat changed-folders.txt
       displayName: 'Process folders'
 
     - script: |
         COUNT=$(python -c "lines = open('changed-folders.txt').readlines() ; print(len(lines))")
-        printf "Changed folders: $COUNT"
+        printf "Changed folders: $COUNT\n"
         echo "##vso[task.setvariable variable=folders;isOutput=true]$COUNT"
       name: changed
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-printf "Converting: $1"
+printf "Converting: $1\n\n"
 
 # check that there is only one python script
 python -c "import os, glob ; assert(len(glob.glob(os.path.join('$1', '*.py'))) == 1)"

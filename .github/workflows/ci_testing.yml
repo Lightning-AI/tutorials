@@ -50,13 +50,9 @@ jobs:
         run: |
           head=$(git rev-parse origin/"${{ github.base_ref }}")
           git diff --name-only $head --output=target-diff.txt
-          printf "Raw chnages:"
-          cat target-diff.txt
           python .actions/helpers.py group-folders target-diff.txt
-          printf "Changed folder:"
+          printf "Changed folder:\n"
           cat changed-folders.txt
-          printf "Dropped folder:"
-          cat dropped-folders.txt
         shell: bash
 
       - name: ">> output"
