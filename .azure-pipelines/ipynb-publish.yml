@@ -2,8 +2,6 @@ trigger:
   branches:
     include:
       - main
-      # FIXME
-      - cd/git-diff
 pr: none
 #stages:
 #- stage: testing
@@ -112,6 +110,5 @@ jobs:
 
     - bash: |
         git status
-        # FIXME
-        # git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
+        git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
       displayName: 'Finish push'
