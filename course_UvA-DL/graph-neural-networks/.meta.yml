@@ -16,6 +16,9 @@ requirements:
   - torch-spline-conv
   - torch-geometric
   - pytorch-lightning
+pip__find-link:
+  # - https://pytorch-geometric.com/whl/torch-1.8.0+cu101.html
+  - https://pytorch-geometric.com/whl/torch-%(TORCH_VERSION)s+cu%(CUDA_VERSION)s.html
 accelerator:
   - CPU
   - GPU
