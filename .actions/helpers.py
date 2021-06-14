@@ -75,7 +75,7 @@ TEMPLATE_FOOTER = """
 def get_running_cuda_version() -> str:
     try:
         import torch
-        return torch.version.cuda
+        return torch.version.cuda or ""
     except ImportError:
         return ""
 
