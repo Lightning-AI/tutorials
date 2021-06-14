@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import re
 import shutil
 from datetime import datetime
 from pprint import pprint
@@ -17,6 +18,7 @@ REPO_NAME = "lightning-tutorials"
 COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
 DEFAULT_BRANCH = "main"
 PUBLIC_BRANCH = "publication"
+URL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{DEFAULT_BRANCH}"
 ENV_DEVICE = "ACCELERATOR"
 DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, 'cpu').lower()
 TEMPLATE_HEADER = f"""
@@ -100,6 +102,9 @@ class HelperCLI:
         fpath_meta = HelperCLI._meta_file(os.path.dirname(fpath))
         meta = yaml.safe_load(open(fpath_meta))
         meta.update(dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"))
+        meta['description'] = meta['description'].replace(os.linesep, f"{os.linesep}# ")
+
+        py_file = HelperCLI._replace_images(py_file, os.path.dirname(fpath))
 
         first_empty = min([i for i, ln in enumerate(py_file) if not ln.startswith("#")])
         header = TEMPLATE_HEADER % meta
@@ -108,6 +113,26 @@ class HelperCLI:
 
         with open(fpath, "w") as fp:
             fp.writelines(py_file)
+
+    @staticmethod
+    def _replace_images(lines: list, local_dir: str) -> list:
+        """Update images by URL to GitHub raw source
+        Args:
+            lines: string lines from python script
+            local_dir: relative path to the folder with script
+        """
+        md = os.linesep.join([ln.rstrip() for ln in lines])
+        imgs = []
+        # because * is a greedy quantifier, trying to match as much as it can. Make it *?
+        imgs += re.findall(r"src=\"(.*?)\"", md)
+        imgs += re.findall(r"!\[.*?\]\((.*?)\)", md)
+
+        # update all images
+        for img in set(imgs):
+            url_path = '/'.join([URL_DOWNLOAD, local_dir, img])
+            md = md.replace(img, url_path)
+
+        return [ln + os.linesep for ln in md.split(os.linesep)]
 
     @staticmethod
     def group_folders(
