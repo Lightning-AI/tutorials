@@ -58,13 +58,7 @@ jobs:
         echo "##vso[task.setvariable variable=folders;isOutput=true]$COUNT"
       name: changed
 
-    - script: |
-        printf $(PATH_DATASETS)
-        mkdir $(PATH_DATASETS)
-        cd $(PATH_DATASETS)
-        wget www.di.ens.fr/~lelarge/MNIST.tar.gz --progress=bar:force:noscroll
-        tar -zxvf MNIST.tar.gz
-        ls -l
+    - script: bash .actions/data-download.sh $(PATH_DATASETS)
       displayName: 'Pull datasets'
 
     - bash: |

@@ -41,10 +41,8 @@ jobs:
           pip list
         shell: bash
 
-      - name: Create Data dir
-        run: |
-          printf $PATH_DATASETS
-          mkdir $PATH_DATASETS
+      - name: Download Data
+        run: bash .actions/data-download.sh $(PATH_DATASETS)
 
       - name: Process folders
         run: |

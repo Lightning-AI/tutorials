@@ -79,12 +79,7 @@ jobs:
       name: dropped
 
     - script: |
-        printf $(PATH_DATASETS)
-        mkdir $(PATH_DATASETS)
-        cd $(PATH_DATASETS)
-        wget www.di.ens.fr/~lelarge/MNIST.tar.gz --progress=bar:force:noscroll
-        tar -zxvf MNIST.tar.gz
-        ls -l
+        bash .actions/data-download.sh $(PATH_DATASETS)
       displayName: 'Pull datasets'
 
     - bash: |
