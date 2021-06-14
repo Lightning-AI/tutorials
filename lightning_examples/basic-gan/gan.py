@@ -14,13 +14,6 @@
 #     name: python3
 # ---
 
-# %% [markdown] colab_type="text" id="kg2MKpRmybht"
-# ### Setup
-# Lightning is easy to install. Simply `pip install pytorch-lightning`
-
-# %% colab={} colab_type="code" id="LfrJLKPFyhsK"
-# ! pip install pytorch-lightning --quiet
-
 # %% colab={} colab_type="code" id="BjEPuiVLyanw"
 import os
 from collections import OrderedDict
