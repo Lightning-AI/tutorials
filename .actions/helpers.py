@@ -152,7 +152,7 @@ class HelperCLI:
         # drop folder with skip folder
         dirs = [pd for pd in dirs if not any(nd in HelperCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]
         # valid folder has meta
-        dirs_ = [d for d in dirs if not HelperCLI._meta_file(d)]
+        dirs_ = [d for d in dirs if not HelperCLI._meta_file(d) and os.path.isdir(d)]
         dirs = [d for d in dirs if HelperCLI._meta_file(d)]
         if strict and dirs_:
             raise FileNotFoundError(
