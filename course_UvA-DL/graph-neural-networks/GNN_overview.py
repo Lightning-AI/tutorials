@@ -14,13 +14,7 @@
 # ---
 
 # %% [markdown]
-# In this tutorial, we will discuss the application of neural networks on graphs.
-# Graph Neural Networks (GNNs) have recently gained increasing popularity in both applications and research, including domains such as social networks, knowledge graphs, recommender systems, and bioinformatics.
-# While the theory and math behind GNNs might first seem complicated, the implementation of those models is quite simple and helps in understanding the methodology.
-# Therefore, we will discuss the implementation of basic network layers of a GNN, namely graph convolutions, and attention layers.
-# Finally, we will apply a GNN on a node-level, edge-level, and graph-level tasks.
-#
-# Below, we will start by importing our standard libraries.
+# We start by importing our standard libraries below.
 
 # %%
 # Standard libraries
