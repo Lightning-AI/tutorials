@@ -48,9 +48,14 @@ AVAIL_GPUS = 1 if torch.cuda.is_available() else None
 # %% [markdown] colab_type="text" id="hA4-AFd6gKo-"
 # ## Define Data Augmentations module
 #
-# [Kornia.org](https://www.kornia.org) is low level Computer Vision library that provides a dedicated module [`kornia.augmentation`](https://kornia.readthedocs.io/en/latest/augmentation.html) module implementing en extensive set of data augmentation techniques for image and video.
+# [Kornia.org](https://www.kornia.org) is low level Computer Vision library that provides a dedicated module
+# [`kornia.augmentation`](https://kornia.readthedocs.io/en/latest/augmentation.html) module implementing
+# en extensive set of data augmentation techniques for image and video.
 #
-# Similar to Lightning, in Kornia it's promoted to encapsulate functionalities inside classes for readability and efficiency purposes. In this case, we define a data augmentaton pipeline subclassing a `nn.Module` where the augmentation_kornia (also subclassing `nn.Module`) are combined with other PyTorch components such as `nn.Sequential`.
+# Similar to Lightning, in Kornia it's promoted to encapsulate functionalities inside classes for readability
+# and efficiency purposes. In this case, we define a data augmentaton pipeline subclassing a `nn.Module`
+# where the augmentation_kornia (also subclassing `nn.Module`) are combined with other PyTorch components
+# such as `nn.Sequential`.
 #
 # Checkout the different augmentation operators in Kornia docs and experiment yourself !
 
@@ -82,9 +87,11 @@ class DataAugmentation(nn.Module):
 # %% [markdown] colab_type="text" id="CQ06HnPtkIlq"
 # ## Define a Pre-processing module
 #
-# In addition to the `DataAugmentation` modudle that will sample random parameters during the training stage, we define a `Preprocess` class to handle the conversion of the image type to properly work with `torch.Tensor`.
+# In addition to the `DataAugmentation` modudle that will sample random parameters during the training stage,
+# we define a `Preprocess` class to handle the conversion of the image type to properly work with `torch.Tensor`.
 #
-# For this example we use `torchvision` CIFAR10 which return samples of `PIL.Image`, however, to take all the advantages of PyTorch and Kornia we need to cast the images into tensors.
+# For this example we use `torchvision` CIFAR10 which return samples of `PIL.Image`, however,
+# to take all the advantages of PyTorch and Kornia we need to cast the images into tensors.
 #
 # To do that we will use `kornia.image_to_tensor` which casts and permutes the images in the right format.
 
@@ -103,11 +110,15 @@ class Preprocess(nn.Module):
 # %% [markdown] colab_type="text" id="LXGKqIZuTLMs"
 # ## Define PyTorch Lightning model
 #
-# The next step is to define our `LightningModule` to have a proper organisation of our training pipeline. This is a simple example just to show how to structure your baseline to be used as a reference, do not expect a high performance.
+# The next step is to define our `LightningModule` to have a proper organisation of our training pipeline.
+# This is a simple example just to show how to structure your baseline to be used as a reference,
+# do not expect a high performance.
 #
 # Notice that the `Preprocess` class is injected into the dataset and will be applied per sample.
 #
-# The interesting part in the proposed approach happens inside the `training_step` where with just a single line of code we apply the data augmentation in batch and no need to worry about the device. This means that our `DataAugmentation` pipeline will automatically executed in the GPU.
+# The interesting part in the proposed approach happens inside the `training_step` where with just a single
+# line of code we apply the data augmentation in batch and no need to worry about the device.
+# This means that our `DataAugmentation` pipeline will automatically executed in the GPU.
 
 
 # %% colab={} colab_type="code" id="aDagOcKyZ_qh"
