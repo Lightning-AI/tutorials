@@ -72,6 +72,33 @@ TEMPLATE_FOOTER = """
 """
 
 
+def get_running_cuda_version() -> str:
+    try:
+        import torch
+        return torch.version.cuda
+    except ImportError:
+        return ""
+
+
+def get_running_torch_version():
+    try:
+        import torch
+        ver = torch.__version__
+        return ver[:ver.index('+')] if '+' in ver else ver
+    except ImportError:
+        return ""
+
+
+TORCH_VERSION = get_running_torch_version()
+CUDA_VERSION = get_running_cuda_version()
+RUNTIME_VERSIONS = dict(
+    TORCH_VERSION_FULL=TORCH_VERSION,
+    TORCH_VERSION=TORCH_VERSION[:TORCH_VERSION.index('+')] if '+' in TORCH_VERSION else TORCH_VERSION,
+    CUDA_VERSION=CUDA_VERSION,
+    CUDA_VERSION_NODOT=CUDA_VERSION.replace(".", ""),
+)
+
+
 class HelperCLI:
 
     DIR_NOTEBOOKS = ".notebooks"
@@ -85,6 +112,8 @@ class HelperCLI:
     )
     META_FILE_REGEX = ".meta.{yaml,yml}"
     REQUIREMENTS_FILE = "requirements.txt"
+    PIP_ARGS_FILE = "pip_arguments.txt"
+    META_PIP_KEY = 'pip__'
 
     @staticmethod
     def _meta_file(folder: str) -> str:
@@ -205,9 +234,26 @@ class HelperCLI:
 
         req = meta.get('requirements', [])
         fname = os.path.join(dir_path, HelperCLI.REQUIREMENTS_FILE)
-        print(fname)
+        print(f"Requirements: {fname}")
         with open(fname, "w") as fp:
             fp.write(os.linesep.join(req))
+
+        pip_args = {
+            k.replace(HelperCLI.META_PIP_KEY, ''): v
+            for k, v in meta.items() if k.startswith(HelperCLI.META_PIP_KEY)
+        }
+        cmd_args = []
+        for pip_key in pip_args:
+            if not isinstance(pip_args[pip_key], (list, tuple, set)):
+                pip_args[pip_key] = [pip_args[pip_key]]
+            for arg in pip_args[pip_key]:
+                arg = arg % RUNTIME_VERSIONS
+                cmd_args.append(f"--{pip_key} {arg}")
+
+        fname = os.path.join(dir_path, HelperCLI.PIP_ARGS_FILE)
+        print(f"PIP arguments: {fname}")
+        with open(fname, "w") as fp:
+            fp.write(" ".join(cmd_args))
 
     @staticmethod
     def copy_notebooks(path_root: str, path_docs_ipynb: str = "docs/source/notebooks"):
