@@ -102,6 +102,7 @@ jobs:
         # remove notebooks which have moved
         while IFS= read -r line; do
             git rm .notebooks/$line.ipynb
+            git rm .notebooks/$line.yaml
         done <<< $(cat dropped-folders.txt)
         git status
         git commit -m "prune: $(COMMIT_MSG)"
