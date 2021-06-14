@@ -14,10 +14,6 @@
 #     name: python3
 # ---
 
-# %% [markdown] colab_type="text" id="2LODD6w9ixlT"
-# ### Setup
-# Lightning is easy to install. Simply ```pip install pytorch-lightning```
-
 # %% colab={} colab_type="code" id="w4_TYnt_keJi"
 import os
 

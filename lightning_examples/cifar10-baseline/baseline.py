@@ -13,14 +13,6 @@
 #     name: python3
 # ---
 
-# %% [markdown] id="HYpMlx7apuHq"
-# ### Setup
-# Lightning is easy to install. Simply `pip install pytorch-lightning`.
-# Also check out [bolts](https://github.com/PyTorchLightning/lightning-bolts/) for pre-existing data modules and models.
-
-# %% id="ziAQCrE-TYWG"
-# ! pip install pytorch-lightning lightning-bolts -qU
-
 # %% id="L-W_Gq2FORoU"
 # Run this if you intend to use TPUs
 # # !pip install cloud-tpu-client==0.10 https://storage.googleapis.com/tpu-pytorch/wheels/torch_xla-1.8-cp37-cp37m-linux_x86_64.whl
