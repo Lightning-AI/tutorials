@@ -43,7 +43,7 @@ from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
 
-AVAIL_GPUS = 1 if torch.cuda.is_available() else None
+AVAIL_GPUS = min(1, torch.cuda.device_count())
 
 # %% [markdown] colab_type="text" id="hA4-AFd6gKo-"
 # ## Define Data Augmentations module
