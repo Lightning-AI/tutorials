@@ -17,7 +17,7 @@ python .actions/helpers.py parse-requirements $1
 pip install --quiet --requirement requirements.txt --upgrade-strategy only-if-needed
 cat "$1/requirements.txt"
 pip_args=$(cat "$1/pip_arguments.txt")
-printf "pip arguments: $pip_args"
+printf "pip arguments:\n $pip_args\n\n"
 pip install --requirement "$1/requirements.txt" $pip_args
 
 printf "available: $ACCELERATOR\n"
