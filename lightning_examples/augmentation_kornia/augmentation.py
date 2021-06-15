@@ -14,11 +14,6 @@
 #     name: python3
 # ---
 
-# %% [markdown] colab_type="text" id="x83-rnVKT8Wo"
-# # GPU and batched data augmentation with Kornia and PyTorch-Lightning
-#
-# **NOTE:** Adaptation of the original post found in [Kornia tutorials](https://kornia-tutorials.readthedocs.io/en/latest/).
-
 # %% [markdown] colab_type="text" id="iCsre0XmawoR"
 # ## Setup
 # We first need to install Kornia and PyTorch Lightning and for convenience also torchmetrics.
