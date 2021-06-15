@@ -212,9 +212,9 @@ class HelperCLI:
         """
         with open(fpath_gitdiff, "r") as fp:
             changed = [ln.strip() for ln in fp.readlines()]
-
+        dirs = [os.path.dirname(ln) for ln in changed]
         # not empty paths
-        dirs = [ln for ln in changed if ln]
+        dirs = [ln for ln in dirs if ln]
 
         if fpaths_actual_dirs:
             assert isinstance(fpaths_actual_dirs, list)
@@ -224,7 +224,7 @@ class HelperCLI:
             dirs += list(set.union(*dir_sets) - set.intersection(*dir_sets))
 
         # unique folders
-        dirs = set([os.path.dirname(ln) for ln in dirs])
+        dirs = set(dirs)
         # drop folder with skip folder
         dirs = [pd for pd in dirs if not any(nd in HelperCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]
         # valid folder has meta
