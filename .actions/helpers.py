@@ -128,6 +128,7 @@ class HelperCLI:
         ".datasets",
         ".github",
         "docs",
+        "requirements",
         DIR_NOTEBOOKS,
     )
     META_FILE_REGEX = ".meta.{yaml,yml}"
@@ -158,8 +159,8 @@ class HelperCLI:
 
         first_empty = min([i for i, ln in enumerate(py_file) if not ln.startswith("#")])
         header = TEMPLATE_HEADER % meta
-        requests = default_requirements() + meta["requirements"]
-        setup = TEMPLATE_SETUP % dict(requirements=" ".join(requests))
+        requires = set(default_requirements() + meta["requirements"])
+        setup = TEMPLATE_SETUP % dict(requirements=" ".join(requires))
         py_file[first_empty] = header + setup
         py_file.append(TEMPLATE_FOOTER)
 
@@ -212,9 +213,7 @@ class HelperCLI:
         """
         with open(fpath_gitdiff, "r") as fp:
             changed = [ln.strip() for ln in fp.readlines()]
-
-        # unique folders
-        dirs = set([os.path.dirname(ln) for ln in changed])
+        dirs = [os.path.dirname(ln) for ln in changed]
         # not empty paths
         dirs = [ln for ln in dirs if ln]
 
@@ -225,6 +224,8 @@ class HelperCLI:
             # get only different
             dirs += list(set.union(*dir_sets) - set.intersection(*dir_sets))
 
+        # unique folders
+        dirs = set(dirs)
         # drop folder with skip folder
         dirs = [pd for pd in dirs if not any(nd in HelperCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]
         # valid folder has meta
@@ -256,7 +257,7 @@ class HelperCLI:
 
         req = meta.get('requirements', [])
         fname = os.path.join(dir_path, HelperCLI.REQUIREMENTS_FILE)
-        print(f"Requirements: {fname}")
+        print(f"File for requirements: {fname}")
         with open(fname, "w") as fp:
             fp.write(os.linesep.join(req))
 
@@ -273,7 +274,7 @@ class HelperCLI:
                 cmd_args.append(f"--{pip_key} {arg}")
 
         fname = os.path.join(dir_path, HelperCLI.PIP_ARGS_FILE)
-        print(f"PIP arguments: {fname}")
+        print(f"File for PIP arguments: {fname}")
         with open(fname, "w") as fp:
             fp.write(" ".join(cmd_args))
 

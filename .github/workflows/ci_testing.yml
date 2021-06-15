@@ -41,7 +41,16 @@ jobs:
           pip list
         shell: bash
 
+      - name: Cache Data
+        id: cache-data
+        uses: actions/cache@v2
+        with:
+          path: $PATH_DATASETS
+          key: ${{ runner.os }}-datasets-${{ hashFiles('.actions/data-download.sh') }}
+          restore-keys: ${{ runner.os }}-datasets-
+
       - name: Download Data
+        if: steps.cache-data.outputs.cache-hit != 'true'
         run: bash .actions/data-download.sh $PATH_DATASETS
 
       - name: Process folders
