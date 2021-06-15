@@ -158,8 +158,8 @@ class HelperCLI:
 
         first_empty = min([i for i, ln in enumerate(py_file) if not ln.startswith("#")])
         header = TEMPLATE_HEADER % meta
-        requests = default_requirements() + meta["requirements"]
-        setup = TEMPLATE_SETUP % dict(requirements=" ".join(requests))
+        requires = set(default_requirements() + meta["requirements"])
+        setup = TEMPLATE_SETUP % dict(requirements=" ".join(requires))
         py_file[first_empty] = header + setup
         py_file.append(TEMPLATE_FOOTER)
 

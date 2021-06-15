@@ -20,7 +20,6 @@ requirements:
   - torch-cluster
   - torch-spline-conv
   - torch-geometric
-  - pytorch-lightning
 pip__find-link:
   # - https://pytorch-geometric.com/whl/torch-1.8.0+cu101.html
   - https://pytorch-geometric.com/whl/torch-%(TORCH_MAJOR_DOT_MINOR)s.0+%(DEVICE)s.html
