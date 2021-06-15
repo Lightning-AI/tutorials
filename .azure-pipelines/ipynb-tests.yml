@@ -3,7 +3,7 @@ pr:
   branches:
     include: [ main ]
   autoCancel: true
-  drafts: false
+  drafts: true
 
 jobs:
 
