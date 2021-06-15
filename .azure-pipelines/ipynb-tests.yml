@@ -1,9 +1,9 @@
 trigger: none
 pr:
-  - main
-
-#stages:
-#- stage: testing
+  branches:
+    include: [ main ]
+  autoCancel: true
+  drafts: false
 
 jobs:
 
