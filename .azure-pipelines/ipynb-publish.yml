@@ -1,8 +1,7 @@
 trigger:
   batch: true
   branches:
-    # fixme...
-    include: [ main, "azure/ci-cd" ]
+    include: [ main ]
 pr: none
 #stages:
 #- stage: testing
@@ -112,6 +111,5 @@ jobs:
 
     - bash: |
         git status
-        # fixme
-        # git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
+        git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
       displayName: 'Finish push'
