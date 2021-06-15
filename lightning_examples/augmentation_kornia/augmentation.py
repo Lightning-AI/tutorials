@@ -14,13 +14,6 @@
 #     name: python3
 # ---
 
-# %% [markdown] colab_type="text" id="iCsre0XmawoR"
-# ## Setup
-# We first need to install Kornia and PyTorch Lightning and for convenience also torchmetrics.
-
-# %% colab={} colab_type="code" id="dEeUzX_5aLrX"
-# ! pip install kornia pytorch_lightning torchmetrics -qU
-
 # %% colab={} colab_type="code" id="Z_XTj-y1gYJL"
 import os
 
