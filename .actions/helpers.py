@@ -128,6 +128,7 @@ class HelperCLI:
         ".datasets",
         ".github",
         "docs",
+        "requirements",
         DIR_NOTEBOOKS,
     )
     META_FILE_REGEX = ".meta.{yaml,yml}"
