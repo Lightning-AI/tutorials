@@ -256,7 +256,7 @@ class HelperCLI:
 
         req = meta.get('requirements', [])
         fname = os.path.join(dir_path, HelperCLI.REQUIREMENTS_FILE)
-        print(f"file for Requirements: {fname}")
+        print(f"File for requirements: {fname}")
         with open(fname, "w") as fp:
             fp.write(os.linesep.join(req))
 
@@ -273,7 +273,7 @@ class HelperCLI:
                 cmd_args.append(f"--{pip_key} {arg}")
 
         fname = os.path.join(dir_path, HelperCLI.PIP_ARGS_FILE)
-        print(f"file for PIP arguments: {fname}")
+        print(f"File for PIP arguments: {fname}")
         with open(fname, "w") as fp:
             fp.write(" ".join(cmd_args))
 
