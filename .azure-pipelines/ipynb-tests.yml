@@ -59,7 +59,15 @@ jobs:
         echo "##vso[task.setvariable variable=folders;isOutput=true]$COUNT"
       name: changed
 
+    - task: Cache@2
+      inputs:
+        key: data | .actions/data-download.sh
+        restoreKeys: data
+        path: $(PATH_DATASETS)
+        cacheHitVar: DATA_RESTORED
+
     - script: bash .actions/data-download.sh $(PATH_DATASETS)
+      condition: ne(variables.DATA_RESTORED, 'true')
       displayName: 'Pull datasets'
 
     - bash: |
