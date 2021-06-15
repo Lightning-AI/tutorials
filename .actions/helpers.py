@@ -37,6 +37,15 @@ TEMPLATE_HEADER = f"""
 # | Join us [on Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)
 
 """
+TEMPLATE_SETUP = """
+# %%%% [markdown] colab_type="text" id="kg2MKpRmybht"
+# ### Setup
+# This notebook requires some packages besides pytorch-lightning.
+
+# %%%% colab={} colab_type="code" id="LfrJLKPFyhsK"
+# ! pip install --quiet %(requirements)s
+
+"""
 TEMPLATE_FOOTER = """
 # %% [markdown]
 # <code style="color:#792ee5;">
@@ -70,6 +79,15 @@ TEMPLATE_FOOTER = """
 # ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png?raw=true){height="60px" height="60px" width="240px"}]
 
 """
+
+
+def default_requirements(path_req: str = PATH_REQ_DEFAULT) -> list:
+    with open(path_req, 'r') as fp:
+        req = fp.readlines()
+    req = [r[:r.index("#")] if "#" in r else r for r in req]
+    req = [r.strip() for r in req]
+    req = [r for r in req if r]
+    return req
 
 
 def get_running_cuda_version() -> str:
@@ -140,7 +158,9 @@ class HelperCLI:
 
         first_empty = min([i for i, ln in enumerate(py_file) if not ln.startswith("#")])
         header = TEMPLATE_HEADER % meta
-        py_file[first_empty] = header
+        requests = default_requirements() + meta["requirements"]
+        setup = TEMPLATE_SETUP % dict(requirements=" ".join(requests))
+        py_file[first_empty] = header + setup
         py_file.append(TEMPLATE_FOOTER)
 
         with open(fpath, "w") as fp:
