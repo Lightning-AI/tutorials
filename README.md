@@ -30,7 +30,7 @@ The addition has to formed as new folder
     author: [User](contact)
     created: YYYY-MM-DD
     updated: YYYY-MM-DD
-    license: CC
+    license: CC BY-SA
     # multi-line
     description: |
       This notebook will walk you through ...
