@@ -1,8 +1,5 @@
-
 # %% [markdown]
 # ## Create a Markdown cell
-#
-# NOTE: that the fist line shall be empty, so we recognise where to enter generated header
 #
 # `# %% [markdown]`
 #
@@ -30,8 +27,8 @@ print(torch.__version__)
 # From: https://matplotlib.org/stable/gallery/lines_bars_and_markers/simple_plot.html
 
 # %%
-import matplotlib.pyplot as plt
-import numpy as np
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
 
 # Data for plotting
 t = np.arange(0.0, 2.0, 0.01)
