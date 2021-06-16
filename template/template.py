@@ -1,24 +1,13 @@
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.11.2
-#   kernelspec:
-#     display_name: Python 3
-#     language: python
-#     name: python3
-# ---
 
 # %% [markdown]
 # ## Create a Markdown cell
 #
+# NOTE: that the fist line shall be empty, so we recognise where to enter generated header
+#
 # `# %% [markdown]`
 #
-# `# Add some text that will be rendered as markdown text.`
+#  the content of single cell shall be connected with `# ` at each line, so for example:
+#  `# Add some text that will be rendered as markdown text.`
 
 # %% [markdown]
 # ## Create a code cell
@@ -34,7 +23,9 @@ print(torch.__version__)
 # ## Add any Python codes
 # Easy integration with Python ecosystem libraries component.
 #
-# For example create a simple plot with `matplotlib`.
+# For example create a simple plot with `matplotlib` with an image:
+#
+# ![test image](test.png)
 #
 # From: https://matplotlib.org/stable/gallery/lines_bars_and_markers/simple_plot.html
 
@@ -54,4 +45,3 @@ ax.grid()
 
 fig.savefig("test.png")
 plt.show()
-# %%
