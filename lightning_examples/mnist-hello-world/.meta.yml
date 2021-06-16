@@ -1,7 +1,7 @@
 title: Introduction to Pytorch Lightning
 author: PL team
-created: 2021-01-31
-updated: 2021-02-22
+created: 2020-12-21
+updated: 2021-06-07
 license: CC
 description: In this notebook, we'll go over the basics of lightning by preparing
   models to train on the [MNIST Handwritten Digits dataset](https://en.wikipedia.org/wiki/MNIST_database).

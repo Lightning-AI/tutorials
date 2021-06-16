@@ -1,7 +1,7 @@
 title: PyTorch Lightning CIFAR10 ~94% Baseline Tutorial
 author: PL team
-created: 2021-01-31
-updated: 2021-02-23
+created: 2020-12-21
+updated: 2021-06-07
 license: CC
 description: >
   Train a Resnet to 94% accuracy on Cifar10!
