@@ -357,9 +357,7 @@ model = DQNLightning()
 
 trainer = pl.Trainer(
     gpus=AVAIL_GPUS,
-    distributed_backend='dp',
     max_epochs=500,
-    early_stop_callback=False,
     val_check_interval=100,
 )
 
