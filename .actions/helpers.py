@@ -52,23 +52,24 @@ TEMPLATE_FOOTER = """
 #     <h1> <strong> Congratulations - Time to Join the Community! </strong>  </h1>
 # </code>
 #
-# Congratulations on completing this notebook tutorial! If you enjoyed this and would like to join the Lightning movement, you can do so in the following ways!
+# Congratulations on completing this notebook tutorial! If you enjoyed this and would like to join the Lightning
+# movement, you can do so in the following ways!
 #
 # ### Star [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) on GitHub
-# The easiest way to help our community is just by starring the GitHub repos! This helps raise awareness of the cool tools we're building.
+# The easiest way to help our community is just by starring the GitHub repos! This helps raise awareness of the cool
+# tools we're building.
 #
 # * Please, star [Lightning](https://github.com/PyTorchLightning/pytorch-lightning)
 #
 # ### Join our [Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)!
-# The best way to keep up to date on the latest advancements is to join our community! Make sure to introduce yourself and share your interests in `#general` channel
+# The best way to keep up to date on the latest advancements is to join our community! Make sure to introduce yourself
+# and share your interests in `#general` channel
 #
-# ### Interested by SOTA AI models ! Check out [Bolt](https://github.com/PyTorchLightning/lightning-bolts)
-# Bolts has a collection of state-of-the-art models, all implemented in [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) and can be easily integrated within your own projects.
-#
-# * Please, star [Bolt](https://github.com/PyTorchLightning/lightning-bolts)
 #
 # ### Contributions !
-# The best way to contribute to our community is to become a code contributor! At any time you can go to [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) or [Bolt](https://github.com/PyTorchLightning/lightning-bolts) GitHub Issues page and filter for "good first issue".
+# The best way to contribute to our community is to become a code contributor! At any time you can go to
+# [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) or [Bolt](https://github.com/PyTorchLightning/lightning-bolts)
+# GitHub Issues page and filter for "good first issue".
 #
 # * [Lightning good first issue](https://github.com/PyTorchLightning/pytorch-lightning/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
 # * [Bolt good first issue](https://github.com/PyTorchLightning/lightning-bolts/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
@@ -76,7 +77,7 @@ TEMPLATE_FOOTER = """
 #
 # ### Great thanks from the entire Pytorch Lightning Team for your interest !
 #
-# ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png?raw=true){height="60px" height="60px" width="240px"}]
+# ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png?raw=true){height="60px" height="60px" width="240px"}
 
 """
 
