@@ -1,4 +1,3 @@
-
 # %% [markdown]
 # ## Create a Markdown cell
 #
