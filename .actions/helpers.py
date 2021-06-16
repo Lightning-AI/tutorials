@@ -23,10 +23,14 @@ URL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{DEFAULT_BR
 ENV_DEVICE = "ACCELERATOR"
 DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, 'cpu').lower()
 TEMPLATE_HEADER = f"""
-# %%%% [markdown] colab_type="text" id="view-in-github"
+# %%%% [markdown]
 #
 # # %(title)s
 #
+# * **Author:** %(author)s
+# * **License:** %(license)s
+# * **Generated:** %(generated)s
+# 
 # %(description)s
 #
 # ---
@@ -38,7 +42,7 @@ TEMPLATE_HEADER = f"""
 
 """
 TEMPLATE_SETUP = """
-# %%%% [markdown] colab_type="text" id="kg2MKpRmybht"
+# %%%% [markdown]
 # ### Setup
 # This notebook requires some packages besides pytorch-lightning.
 
@@ -123,6 +127,7 @@ RUNTIME_VERSIONS = dict(
 class HelperCLI:
 
     DIR_NOTEBOOKS = ".notebooks"
+    META_REQUIRED_FIELDS = ('title', 'author', 'license', 'description')
     SKIP_DIRS = (
         ".actions",
         ".azure-pipelines",
@@ -153,7 +158,10 @@ class HelperCLI:
             py_file = fp.readlines()
         fpath_meta = HelperCLI._meta_file(os.path.dirname(fpath))
         meta = yaml.safe_load(open(fpath_meta))
-        meta.update(dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"))
+        meta_miss = [fl for fl in HelperCLI.META_REQUIRED_FIELDS if fl not in meta]
+        if meta_miss:
+            raise ValueError(f"Meta file '{fpath_meta}' has missing following fields: {meta_miss}")
+        meta.update(dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"), generated=datetime.now().isoformat(),)
         meta['description'] = meta['description'].replace(os.linesep, f"{os.linesep}# ")
 
         py_file = HelperCLI._replace_images(py_file, os.path.dirname(fpath))
