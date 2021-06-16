@@ -21,9 +21,9 @@ from typing import List, Tuple
 
 import gym
 import numpy as np
-import pytorch_lightning as pl
 import torch
-from pytorch_lightning import LightningModule
+from pyarrow import Tensor
+from pytorch_lightning import LightningModule, Trainer
 from torch import nn
 from torch.optim import Adam, Optimizer
 from torch.utils.data import DataLoader
@@ -33,8 +33,6 @@ PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 
 # %%
-
-
 class DQN(nn.Module):
     """
     Simple MLP network
@@ -96,7 +94,6 @@ class ReplayBuffer:
             np.array(next_states)
         )
 
-
 # %%
 class RLDataset(IterableDataset):
     """
@@ -117,10 +114,8 @@ class RLDataset(IterableDataset):
         for i in range(len(dones)):
             yield states[i], actions[i], rewards[i], dones[i], new_states[i]
 
-
 # %% [markdown]
 # ### Agent
-
 
 # %%
 class Agent:
@@ -200,7 +195,6 @@ class Agent:
 # %% [markdown]
 # ### DQN Lightning Module
 
-
 # %%
 class DQNLightning(LightningModule):
     """ Basic DQN Model """
@@ -262,7 +256,7 @@ class DQNLightning(LightningModule):
         for i in range(steps):
             self.agent.play_step(self.net, epsilon=1.0)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Tensor) -> Tensor:
         """
         Passes in a state x through the network and gets the q_values of each action as an output
 
@@ -275,7 +269,7 @@ class DQNLightning(LightningModule):
         output = self.net(x)
         return output
 
-    def dqn_mse_loss(self, batch: Tuple[torch.Tensor, torch.Tensor]) -> torch.Tensor:
+    def dqn_mse_loss(self, batch: Tuple[Tensor, Tensor]) -> Tensor:
         """
         Calculates the mse loss using a mini batch from the replay buffer
 
@@ -298,7 +292,7 @@ class DQNLightning(LightningModule):
 
         return nn.MSELoss()(state_action_values, expected_state_action_values)
 
-    def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], nb_batch) -> OrderedDict:
+    def training_step(self, batch: Tuple[Tensor, Tensor], nb_batch) -> OrderedDict:
         """
         Carries out a single step through the environment to update the replay buffer.
         Then calculates loss based on the minibatch recieved
@@ -365,14 +359,14 @@ class DQNLightning(LightningModule):
         """Retrieve device currently being used by minibatch"""
         return batch[0].device.index if self.on_gpu else 'cpu'
 
-
 # %% [markdown]
 # ### Trainer
 
 # %%
+
 model = DQNLightning()
 
-trainer = pl.Trainer(
+trainer = Trainer(
     gpus=AVAIL_GPUS,
     max_epochs=500,
     val_check_interval=100,
