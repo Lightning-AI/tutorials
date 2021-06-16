@@ -22,7 +22,7 @@ from typing import List, Tuple
 import gym
 import numpy as np
 import torch
-from pyarrow import Tensor
+from torch import Tensor
 from pytorch_lightning import LightningModule, Trainer
 from torch import nn
 from torch.optim import Adam, Optimizer
