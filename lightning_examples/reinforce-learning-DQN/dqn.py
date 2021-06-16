@@ -22,9 +22,8 @@ from typing import List, Tuple
 import gym
 import numpy as np
 import torch
-from torch import Tensor
 from pytorch_lightning import LightningModule, Trainer
-from torch import nn
+from torch import nn, Tensor
 from torch.optim import Adam, Optimizer
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import IterableDataset
