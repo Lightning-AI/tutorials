@@ -1,8 +1,8 @@
 title: Introduction to Pytorch Lightning
 author: PL team
 created: 2020-12-21
-updated: 2021-06-07
-license: CC
+updated: 2021-06-16
+license: CC BY-SA
 description: In this notebook, we'll go over the basics of lightning by preparing
   models to train on the [MNIST Handwritten Digits dataset](https://en.wikipedia.org/wiki/MNIST_database).
 requirements:
@@ -11,8 +11,8 @@ accelerator:
 - CPU
 - GPU
 environment:
-- torchvision==0.8.2
 - pytorch-lightning==1.3.5
 - torch==1.7.1
 - torchmetrics==0.3.2
-published: '2021-06-16T14:21:44.562933'
+- torchvision==0.8.2
+published: '2021-06-16T19:31:16.688203'

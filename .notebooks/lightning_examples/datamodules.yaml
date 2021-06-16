@@ -2,7 +2,7 @@ title: PyTorch Lightning DataModules
 author: PL team
 created: 2020-12-21
 updated: 2021-06-07
-license: CC
+license: CC BY-SA
 description: This notebook will walk you through how to start using Datamodules. With
   the release of `pytorch-lightning` version 0.9.0, we have included a new class called
   `LightningDataModule` to help you decouple data related hooks from your `LightningModule`.
@@ -13,8 +13,8 @@ accelerator:
 - CPU
 - GPU
 environment:
+- torchvision==0.8.2
 - torchmetrics==0.3.2
 - pytorch-lightning==1.3.5
-- torchvision==0.8.2
 - torch==1.7.1
-published: '2021-06-16T14:58:23.319976'
+published: '2021-06-16T19:34:20.540706'

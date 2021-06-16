@@ -1,8 +1,8 @@
 title: PyTorch Lightning Basic GAN Tutorial
 author: PL team
 created: 2020-12-21
-updated: 2021-06-07
-license: CC
+updated: 2021-06-16
+license: CC BY-SA
 description: 'How to train a GAN!
 
 
@@ -19,8 +19,8 @@ accelerator:
 - CPU
 - GPU
 environment:
-- torchvision==0.8.2
-- torch==1.7.1
-- pytorch-lightning==1.3.5
 - torchmetrics==0.3.2
-published: '2021-06-16T14:41:25.949564'
+- pytorch-lightning==1.3.5
+- torch==1.7.1
+- torchvision==0.8.2
+published: '2021-06-16T19:31:54.601843'
