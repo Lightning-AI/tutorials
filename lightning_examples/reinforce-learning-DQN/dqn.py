@@ -1,28 +1,6 @@
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.11.2
-#   kernelspec:
-#     display_name: Python 3
-#     language: python
-#     name: python3
-# ---
-
-# %% [markdown] id="jKj5lgdr5j48"
-# ---
-# ### Setup
-# Lightning is easy to use. Simply ```pip install pytorch-lightning```
-
-# %% colab={"base_uri": "https://localhost:8080/", "height": 938} id="UGjilEHk4vb7" outputId="229670cf-ec26-446f-afe5-2432c4571030"
-# ! pip install pytorch-lightning --upgrade
-
-# %% id="nm9BKoF0Sv_O"
+# %%
 import argparse
+import os
 from collections import deque, namedtuple, OrderedDict
 from typing import List, Tuple
 
@@ -36,7 +14,10 @@ from torch.optim import Adam, Optimizer
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import IterableDataset
 
-# %% id="FXkKtnEhSaIV"
+PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
+AVAIL_GPUS = min(1, torch.cuda.device_count())
+
+# %%
 
 
 class DQN(nn.Module):
@@ -61,13 +42,13 @@ class DQN(nn.Module):
 # %% [markdown] id="c9clSz7xTFZf"
 # ### Memory
 
-# %% id="zUmawp0ITE3I"
+# %%
 
 # Named tuple for storing experience steps gathered in training
 Experience = namedtuple('Experience', field_names=['state', 'action', 'reward', 'done', 'new_state'])
 
 
-# %% id="Zs7h_Z0LTVoy"
+# %%
 class ReplayBuffer:
     """
     Replay Buffer for storing past experiences allowing the agent to learn from them
@@ -101,7 +82,7 @@ class ReplayBuffer:
         )
 
 
-# %% id="R5UK2VRvTgS1"
+# %%
 class RLDataset(IterableDataset):
     """
     Iterable Dataset containing the ExperienceBuffer
@@ -122,21 +103,22 @@ class RLDataset(IterableDataset):
             yield states[i], actions[i], rewards[i], dones[i], new_states[i]
 
 
-# %% [markdown] id="d7sCGSURTuQK"
+# %% [markdown]
 # ### Agent
 
 
-# %% id="dS2RpSHHTvpO"
+# %%
 class Agent:
     """
     Base Agent class handeling the interaction with the environment
-
-    Args:
-        env: training environment
-        replay_buffer: replay buffer storing experiences
     """
 
     def __init__(self, env: gym.Env, replay_buffer: ReplayBuffer) -> None:
+        """
+        Args:
+            env: training environment
+            replay_buffer: replay buffer storing experiences
+        """
         self.env = env
         self.replay_buffer = replay_buffer
         self.reset()
@@ -147,8 +129,7 @@ class Agent:
         self.state = self.env.reset()
 
     def get_action(self, net: nn.Module, epsilon: float, device: str) -> int:
-        """
-        Using the given network, decide what action to carry out
+        """Using the given network, decide what action to carry out
         using an epsilon-greedy policy
 
         Args:
@@ -175,8 +156,7 @@ class Agent:
 
     @torch.no_grad()
     def play_step(self, net: nn.Module, epsilon: float = 0.0, device: str = 'cpu') -> Tuple[float, bool]:
-        """
-        Carries out a single interaction step between the agent and the environment
+        """Carries out a single interaction step between the agent and the environment
 
         Args:
             net: DQN network
@@ -202,17 +182,43 @@ class Agent:
         return reward, done
 
 
-# %% [markdown] id="IAlT0-75T_Kv"
+# %% [markdown]
 # ### DQN Lightning Module
 
 
-# %% id="BS5D7s83T13H"
+# %%
 class DQNLightning(LightningModule):
     """ Basic DQN Model """
 
-    def __init__(self, hparams: argparse.Namespace) -> None:
+    def __init__(self, batch_size: int =16,
+        lr: float = 1e-2,
+        env: str = "CartPole-v0",
+        gamma: float = 0.99,
+        sync_rate: int = 10,
+        replay_size: int = 1000,
+        warm_start_size: int =1000,
+        eps_last_frame: int = 1000,
+        eps_start: float = 1.0,
+        eps_end: float = 0.01,
+        episode_length: int = 200,
+        warm_start_steps: int = 1000,) -> None:
+        """
+        Args:
+            batch_size: size of the batches")
+            lr: learning rate
+            env: gym environment tag
+            gamma: discount factor
+            sync_rate: how many frames do we update the target network
+            replay_size: capacity of the replay buffer
+            warm_start_size: how many samples do we use to fill our buffer at the start of training
+            eps_last_frame: what frame should epsilon stop decaying
+            eps_start: starting value of epsilon
+            eps_end: final value of epsilon
+            episode_length: max length of an episode
+            warm_start_steps: max episode reward in the environment
+        """
         super().__init__()
-        self.hparams = hparams
+        self.save_hyperparameters()
 
         self.env = gym.make(self.hparams.env)
         obs_size = self.env.observation_space.shape[0]
@@ -342,53 +348,22 @@ class DQNLightning(LightningModule):
         return batch[0].device.index if self.on_gpu else 'cpu'
 
 
-# %% [markdown] id="JST5AN-8VFLY"
+# %% [markdown]
 # ### Trainer
 
 
-# %% id="bQEvD7gFUSaN"
-def main(hparams) -> None:
-    model = DQNLightning(hparams)
+# %%
+model = DQNLightning()
 
-    trainer = pl.Trainer(
-        gpus=1,
-        distributed_backend='dp',
-        max_epochs=500,
-        early_stop_callback=False,
-        val_check_interval=100,
-    )
-
-    trainer.fit(model)
-
-
-# %% colab={"base_uri": "https://localhost:8080/", "height": 380, "referenced_widgets": ["e9a6bf4eda3244c6bb17216715f36525", "0922c5b2de554b4fa28dd531603f2709", "c293fc4171b0438595bc9a49fbb250cf", "819c83bf0bbd472ba417c31e957718c7", "c24384195a074989a86217b2edc411cb", "b3817e0ba30f449585f7641b4d3061bb", "8591bd2136ab4bb7831579609b43ee9c", "5a761ed145474ec7a30006bc584b26be"]} id="-iV9PQC9VOHK" outputId="2fd70097-c913-4d68-e80a-d240532edd19"
-
-torch.manual_seed(0)
-np.random.seed(0)
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--batch_size", type=int, default=16, help="size of the batches")
-parser.add_argument("--lr", type=float, default=1e-2, help="learning rate")
-parser.add_argument("--env", type=str, default="CartPole-v0", help="gym environment tag")
-parser.add_argument("--gamma", type=float, default=0.99, help="discount factor")
-parser.add_argument("--sync_rate", type=int, default=10, help="how many frames do we update the target network")
-parser.add_argument("--replay_size", type=int, default=1000, help="capacity of the replay buffer")
-parser.add_argument(
-    "--warm_start_size",
-    type=int,
-    default=1000,
-    help="how many samples do we use to fill our buffer at the start of training"
+trainer = pl.Trainer(
+    gpus=AVAIL_GPUS,
+    distributed_backend='dp',
+    max_epochs=500,
+    early_stop_callback=False,
+    val_check_interval=100,
 )
-parser.add_argument("--eps_last_frame", type=int, default=1000, help="what frame should epsilon stop decaying")
-parser.add_argument("--eps_start", type=float, default=1.0, help="starting value of epsilon")
-parser.add_argument("--eps_end", type=float, default=0.01, help="final value of epsilon")
-parser.add_argument("--episode_length", type=int, default=200, help="max length of an episode")
-parser.add_argument("--max_episode_reward", type=int, default=200, help="max episode reward in the environment")
-parser.add_argument("--warm_start_steps", type=int, default=1000, help="max episode reward in the environment")
 
-args, _ = parser.parse_known_args()
-
-main(args)
+trainer.fit(model)
 
 # %%
 # Start tensorboard.
