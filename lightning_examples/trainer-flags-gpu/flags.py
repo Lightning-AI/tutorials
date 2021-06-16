@@ -8,19 +8,7 @@
 #       format_name: percent
 #       format_version: '1.3'
 #       jupytext_version: 1.11.2
-#   kernelspec:
-#     display_name: Python 3
-#     language: python
-#     name: python3
 # ---
-
-# %% [markdown] id="jKj5lgdr5j48"
-# ---
-# ### Setup
-# First thing first, we need to install Lightning. Simply ```pip install pytorch-lightning```
-
-# %% id="UGjilEHk4vb7"
-# ! pip install pytorch-lightning
 
 # %% id="zaVUShmQ5n8Y"
 import os
@@ -128,9 +116,7 @@ class LitAutoEncoder(LightningModule):
 # ### To use the lightning trainer simply:
 #
 # 1. init your LightningModule and datasets
-#
 # 2. init lightning trainer
-#
 # 3. call trainer.fit
 #
 
@@ -473,6 +459,7 @@ trainer.fit(model, train_loader, val_loader)
 # 4. Each process performs a full forward and backward pass in parallel.
 # 5. The gradients are synced and averaged across all processes.
 # 6. Each process updates its optimizer.
+#
 # If you request multiple GPUs or nodes without setting a mode, DDP will be automatically used.
 #
 
@@ -623,73 +610,6 @@ trainer = Trainer(accelerator="ddp_cpu", num_processes=2)
 
 trainer.fit(model, train_loader, val_loader)
 
-# %% [markdown] id="Br_btCy5lgES"
-# # Training on TPUS
-#
-
-# %% [markdown] id="DXkBNITdv44d"
-# Another option for accelerating your training is using TPUs.
-# A TPU is a Tensor processing unit, designed specifically for deep learning.
-# Each TPU has 8 cores where each core is optimized for 128x128 matrix multiplies.
-# Google estimates that 8 TPU cores are about as fast as 4 V100 GPUs!
-#
-# A TPU pod hosts many TPUs on it. Currently, TPU pod v2 has 2048 cores!
-# You can request a full pod from Google cloud or a “slice” which gives you some subset of those 2048 cores.
-#
-# At this moment, TPUs are available on Google Cloud (GCP), Google Colab and Kaggle Environments.
-#
-# Lightning supports training on TPUs without any code adjustments to your model. Just like when using GPUs,
-# Lightning automatically inserts the correct samplers - no need to do this yourself!
-#
-# Under the hood, lightning uses the XLA framework developed jointly by the facebook and google XLA teams.
-# And we want to recognize their efforts in advancing TPU adoption of PyTorch.
-#
-# ## tpu_cores
-# To train on TPUs, set the tpu_cores flag.
-#
-# When using colab or kaggle, the allowed values are 1 or 8 cores. When using google cloud,
-# any value above 8 is allowed.
-#
-# Your effective batch size is the batch size passed into a dataloader times the total number of tpu cores.
-
-# %% id="itP9y70gmD9M"
-# int: train on a single core
-trainer = Trainer(tpu_cores=1)
-
-trainer.fit(model, train_loader, val_loader)
-
-# %% id="NJKnzPb3mKEg"
-# int: train on all cores few cores
-trainer = Trainer(tpu_cores=8)
-
-trainer.fit(model, train_loader, val_loader)
-
-# %% [markdown] id="8a4exfWUmOHq"
-# You can also choose which TPU core to train on, by passing a list [1-8].
-# This is not an officially supported use case but we are working with the XLA team to improve this user experience.
-#
-
-# %% id="S6OrjE_bmT-_"
-# list: train on a single selected core
-trainer = Trainer(tpu_cores=[2])
-
-trainer.fit(model, train_loader, val_loader)
-
-# %% [markdown] id="Afqx3sFUmfWD"
-# To train on more than 8 cores (ie: a POD), submit this script using the xla_dist script.
-#
-#
-#
-# ```
-# python -m torch_xla.distributed.xla_dist
-# --tpu=$TPU_POD_NAME
-# --conda-env=torch-xla-nightly
-# --env=XLA_USE_BF16=1
-# -- python your_trainer_file.py
-# ```
-#
-#
-
 # %% [markdown] id="ncPvbUVQqKOh"
 # # Advanced distributed training
 #
@@ -818,8 +738,6 @@ trainer.fit(model, train_loader, val_loader)
 # %% [markdown] id="8aQx5SLeMz1R"
 # # accumulate_grad_batches
 #
-#
-#
 
 # %% [markdown] id="g8GczZXFwKC7"
 # The batch size controls the accuracy of the estimate of the gradients. Small batch size use less memory,
@@ -904,8 +822,10 @@ trainer.fit(model, train_loader, val_loader)
 # Apex includes 4 optimization levels:
 # O0 (FP32 training)
 # O1 (Conservative Mixed Precision): only some whitelist ops are done in FP16.
-# O2 (Fast Mixed Precision): this is the standard mixed precision training. It maintains FP32 master weights and optimizer.step acts directly on the FP32 master weights.
-# O3 (FP16 training): full FP16. Passing keep_batchnorm_fp32=True can speed things up as cudnn batchnorm is faster anyway.
+# O2 (Fast Mixed Precision): this is the standard mixed precision training.
+# It maintains FP32 master weights and optimizer.step acts directly on the FP32 master weights.
+# O3 (FP16 training): full FP16.
+# Passing keep_batchnorm_fp32=True can speed things up as cudnn batchnorm is faster anyway.
 #
 
 # %% id="FshMFPowNbWt"
@@ -916,9 +836,6 @@ trainer.fit(model, train_loader, val_loader)
 
 # %% [markdown] id="y8KEr1YvNgkC"
 # # `auto_scale_batch_size`
-#
-#
-#
 #
 
 # %% [markdown] id="7F1pKFIuwSFl"
@@ -965,7 +882,9 @@ trainer.tune(model, train_dataloader=train_loader, val_dataloaders=val_loader)
 # 1. Dumping the current state of the model and trainer
 #
 # 2. Iteratively until convergence or maximum number of tries max_trials (default 25) has been reached:
-#   * Call fit() method of trainer. This evaluates steps_per_trial (default 3) number of training steps. Each training step can trigger an OOM error if the tensors (training batch, weights, gradients etc.) allocated during the steps have a too large memory footprint.
+#   * Call fit() method of trainer. This evaluates steps_per_trial (default 3) number of training steps.
+#   Each training step can trigger an OOM error if the tensors (training batch, weights, gradients etc.)
+#   allocated during the steps have a too large memory footprint.
 #   * If an OOM error is encountered, decrease the batch size
 #   * Else increase it.
 # * How much the batch size is increased/decreased is determined by the chosen strategy.
@@ -1233,7 +1152,9 @@ trainer.fit(model, train_loader, val_loader)
 # %% [markdown] id="2pt7iGh4xNs5"
 #
 # Lightning Callbacks are self-contained programs that can be reused across projects.
-# Callbacks should capture NON-ESSENTIAL logic that is NOT required for your LightningModule to run. Lightning includes some a few built-in callbacks that can be used with flags like early stopping and Model Checkpointing, but you can also create your own callbacks to add any functionality to your models.
+# Callbacks should capture NON-ESSENTIAL logic that is NOT required for your LightningModule to run.
+# Lightning includes some a few built-in callbacks that can be used with flags like early stopping
+# and Model Checkpointing, but you can also create your own callbacks to add any functionality to your models.
 #
 # The callback API includes hooks that allow you to add logic at every point of your training:
 # setup, teardown, on_epoch_start, on_epoch_end, on_batch_start, on_batch_end, on_init_start, on_keyboard_interrupt etc.
@@ -1306,7 +1227,7 @@ trainer.fit(model, train_loader, val_loader)
 # To change the checkpoint path pass in **default_root_dir=**
 
 # %% id="DgdxkrIQhvfw"
-trainer = Trainer(default_root_dir='/your/path/to/save/checkpoints')
+trainer = Trainer(default_root_dir='.')
 
 trainer.fit(model, train_loader, val_loader)
 
@@ -1388,16 +1309,12 @@ new_model = LitAutoEncoder.load_from_checkpoint(checkpoint_path="example.ckpt")
 # ### Checkpoint Loading
 # To load a model along with its weights, biases and module_arguments use following method:
 #
-#
 
 # %% id="BpAFfg5zkFmH"
-model = LitAutoEncoder.load_from_checkpoint(PATH)
+model = LitAutoEncoder.load_from_checkpoint("example.ckpt")
 
 print(model.learning_rate)
 # prints the learning_rate you used in this checkpoint
-
-model.eval()
-y_hat = model(x)
 
 # %% [markdown] id="jTQ3mxSJkhFN"
 # But if you don’t want to use the values saved in the checkpoint, pass in your own here
@@ -1423,11 +1340,11 @@ class LitAutoEncoder(LightningModule):
 LitAutoEncoder(in_dim=32, out_dim=10)
 
 # uses in_dim=32, out_dim=10
-model = LitAutoEncoder.load_from_checkpoint(PATH)
+model = LitAutoEncoder.load_from_checkpoint("example.ckpt")
 
 # %% id="14WwGpnVk0a4"
 # uses in_dim=128, out_dim=10
-model = LitAutoEncoder.load_from_checkpoint(PATH, in_dim=128, out_dim=10)
+model = LitAutoEncoder.load_from_checkpoint("example.ckpt", in_dim=128, out_dim=10)
 
 # %% [markdown] id="bY5s6wP_k1CU"
 #
@@ -1438,7 +1355,7 @@ model = LitAutoEncoder.load_from_checkpoint(PATH, in_dim=128, out_dim=10)
 
 # %% id="9zfhHtyrk3rO"
 model = LitAutoEncoder()
-trainer = Trainer(resume_from_checkpoint='some/path/to/my_checkpoint.ckpt')
+trainer = Trainer(resume_from_checkpoint="example.ckpt")
 
 # automatically restores model, epoch, step, LR schedulers, apex, etc...
 trainer.fit(model)
@@ -1451,15 +1368,15 @@ trainer.fit(model)
 
 # %% id="9OwHHFcCsrgT"
 # save to your custom path
-trainer = Trainer(weights_save_path='my/path')
+trainer = Trainer(weights_save_path='.')
 
 trainer.fit(model, train_loader, val_loader)
 
 # %% id="PbNtlJ9Wsscf"
 # if checkpoint callback used, then overrides the weights path
 # **NOTE: this saves weights to some/path NOT my/path
-checkpoint = ModelCheckpoint(filepath='some/path')
-trainer = Trainer(callbacks=[checkpoint], weights_save_path='my/path')
+checkpoint = ModelCheckpoint(filepath='.')
+trainer = Trainer(callbacks=[checkpoint], weights_save_path='.')
 trainer.fit(model, train_loader, val_loader)
 
 # %% [markdown] id="uDdxCuyHdWQt"
@@ -1496,7 +1413,12 @@ trainer.fit(model, train_loader, val_loader)
 
 # %% [markdown] id="7TAIerPYe_Q1"
 # The EarlyStopping callback runs at the end of every validation check, which, under the default configuration,
-# happens after every training epoch. However, the frequency of validation can be modified by setting various parameters on the Trainer, for example check_val_every_n_epoch and val_check_interval. It must be noted that the patience parameter counts the number of validation checks with no improvement, and not the number of training epochs. Therefore, with parameters check_val_every_n_epoch=10 and patience=3, the trainer will perform at least 40 training epochs before being stopped.
+# happens after every training epoch. However, the frequency of validation can be modified by setting various
+# parameters on the Trainer, for example check_val_every_n_epoch and val_check_interval.
+# It must be noted that the patience parameter counts the number of validation checks with no improvement,
+# and not the number of training epochs.
+# Therefore, with parameters check_val_every_n_epoch=10 and patience=3,
+# the trainer will perform at least 40 training epochs before being stopped.
 
 # %% [markdown] id="VoKrX2ENh9Fg"
 # # Logging
@@ -1512,11 +1434,7 @@ trainer.fit(model, train_loader, val_loader)
 # logger to logger trainer flag.
 #
 #
-#
 # Use the as`logger=` trainer flag to pass in a Logger, or iterable collection of Loggers, for experiment tracking.
-#
-#
-#
 #
 
 # %% id="ty5VPS3AiS8L"
@@ -1568,8 +1486,6 @@ trainer.fit(model, train_loader, val_loader)
 # ### default_root_dir
 #
 # ---
-#
-#
 #
 # Default path for logs and weights when no logger or pytorch_lightning.callbacks.ModelCheckpoint callback passed.
 # On certain clusters you might want to separate where logs and checkpoints are stored. If you don’t then use this
