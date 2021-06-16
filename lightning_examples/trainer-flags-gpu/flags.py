@@ -1314,6 +1314,7 @@ new_model = LitAutoEncoder.load_from_checkpoint(checkpoint_path="example.ckpt")
 model = LitAutoEncoder.load_from_checkpoint("example.ckpt")
 
 print(model.learning_rate)
+
 # prints the learning_rate you used in this checkpoint
 
 # %% [markdown] id="jTQ3mxSJkhFN"
