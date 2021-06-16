@@ -1,0 +1,53 @@
+title: Basics of Graph Neural Networks
+author: Phillip Lippe
+created: 2021-06-07
+updated: 2021-06-15
+license: CC
+description: 'In this tutorial, we will discuss the application of neural networks
+  on graphs.
+
+  Graph Neural Networks (GNNs) have recently gained increasing popularity in both
+  applications and research,
+
+  including domains such as social networks, knowledge graphs, recommender systems,
+  and bioinformatics.
+
+  While the theory and math behind GNNs might first seem complicated,
+
+  the implementation of those models is quite simple and helps in understanding the
+  methodology.
+
+  Therefore, we will discuss the implementation of basic network layers of a GNN,
+
+  namely graph convolutions, and attention layers.
+
+  Finally, we will apply a GNN on semi-supervised node classification and molecule
+  categorization.
+
+  This notebook is part of a lecture series on Deep Learning at the University of
+  Amsterdam.
+
+  The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
+
+  '
+requirements:
+- torch-scatter
+- torch-sparse
+- torch-cluster
+- torch-spline-conv
+- torch-geometric
+pip__find-link:
+- https://pytorch-geometric.com/whl/torch-%(TORCH_MAJOR_DOT_MINOR)s.0+%(DEVICE)s.html
+accelerator:
+- CPU
+- GPU
+environment:
+- torch-sparse==0.6.9
+- torch==1.7.1
+- torch-scatter==2.0.7
+- torch-cluster==1.5.9
+- torch-geometric==1.7.0
+- torchmetrics==0.3.2
+- pytorch-lightning==1.3.5
+- torch-spline-conv==1.2.1
+published: '2021-06-16T14:42:28.842407'
