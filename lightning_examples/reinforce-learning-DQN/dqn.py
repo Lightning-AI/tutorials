@@ -32,6 +32,7 @@ from torch.utils.data.dataset import IterableDataset
 PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 
+
 # %%
 class DQN(nn.Module):
     """
@@ -94,6 +95,7 @@ class ReplayBuffer:
             np.array(next_states)
         )
 
+
 # %%
 class RLDataset(IterableDataset):
     """
@@ -114,8 +116,10 @@ class RLDataset(IterableDataset):
         for i in range(len(dones)):
             yield states[i], actions[i], rewards[i], dones[i], new_states[i]
 
+
 # %% [markdown]
 # ### Agent
+
 
 # %%
 class Agent:
@@ -194,6 +198,7 @@ class Agent:
 
 # %% [markdown]
 # ### DQN Lightning Module
+
 
 # %%
 class DQNLightning(LightningModule):
@@ -358,6 +363,7 @@ class DQNLightning(LightningModule):
     def get_device(self, batch) -> str:
         """Retrieve device currently being used by minibatch"""
         return batch[0].device.index if self.on_gpu else 'cpu'
+
 
 # %% [markdown]
 # ### Trainer
