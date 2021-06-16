@@ -190,18 +190,21 @@ class Agent:
 class DQNLightning(LightningModule):
     """ Basic DQN Model """
 
-    def __init__(self, batch_size: int =16,
+    def __init__(
+        self,
+        batch_size: int = 16,
         lr: float = 1e-2,
         env: str = "CartPole-v0",
         gamma: float = 0.99,
         sync_rate: int = 10,
         replay_size: int = 1000,
-        warm_start_size: int =1000,
+        warm_start_size: int = 1000,
         eps_last_frame: int = 1000,
         eps_start: float = 1.0,
         eps_end: float = 0.01,
         episode_length: int = 200,
-        warm_start_steps: int = 1000,) -> None:
+        warm_start_steps: int = 1000,
+    ) -> None:
         """
         Args:
             batch_size: size of the batches")
@@ -350,7 +353,6 @@ class DQNLightning(LightningModule):
 
 # %% [markdown]
 # ### Trainer
-
 
 # %%
 model = DQNLightning()
