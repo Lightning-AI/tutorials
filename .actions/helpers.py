@@ -163,12 +163,10 @@ class HelperCLI:
 
         py_file = HelperCLI._replace_images(py_file, os.path.dirname(fpath))
 
-        first_empty = min([i for i, ln in enumerate(py_file) if not ln.startswith("#")])
         header = TEMPLATE_HEADER % meta
         requires = set(default_requirements() + meta["requirements"])
         setup = TEMPLATE_SETUP % dict(requirements=" ".join(requires))
-        py_file[first_empty] = header + setup
-        py_file.append(TEMPLATE_FOOTER)
+        py_file = [header + setup] + py_file + [TEMPLATE_FOOTER]
 
         with open(fpath, "w") as fp:
             fp.writelines(py_file)
