@@ -28,7 +28,7 @@ if [ $accel == 1 ]
 then
   #python $py_file
   printf "Testing: $ipynb_file\n"
-  python -m pytest $ipynb_file -v --nbval --nbval-cell-timeout=300
+  python -m pytest $ipynb_file -v --nbval
 else
   printf "WARNING: not valid accelerator so no tests will be run.\n"
 fi
