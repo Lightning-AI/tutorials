@@ -156,7 +156,7 @@ class HelperCLI:
         meta = yaml.safe_load(open(fpath_meta))
         meta_miss = [fl for fl in HelperCLI.META_REQUIRED_FIELDS if fl not in meta]
         if meta_miss:
-            raise ValueError(f"Meta file '{fpath_meta}' has missing following fields: {meta_miss}")
+            raise ValueError(f"Meta file '{fpath_meta}' is missing the following fields: {meta_miss}")
         meta.update(
             dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"),
             generated=datetime.now().isoformat(),
