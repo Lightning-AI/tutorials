@@ -48,9 +48,7 @@ TEMPLATE_SETUP = """
 """
 TEMPLATE_FOOTER = """
 # %% [markdown]
-# <code style="color:#792ee5;">
-#     <h1> <strong> Congratulations - Time to Join the Community! </strong>  </h1>
-# </code>
+# ## Congratulations - Time to Join the Community!
 #
 # Congratulations on completing this notebook tutorial! If you enjoyed this and would like to join the Lightning
 # movement, you can do so in the following ways!
