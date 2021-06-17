@@ -31,7 +31,7 @@ PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 BATCH_SIZE = 256 if AVAIL_GPUS else 64
 NUM_WORKERS = int(os.cpu_count() / 2)
-MAX_EPOCHS = 5
+MAX_EPOCHS = 3
 
 # Init DataLoader from MNIST Dataset
 
@@ -57,7 +57,7 @@ class MNISTDataModule(LightningDataModule):
     def setup(self, stage=None):
         # Assign train/val datasets for use in dataloaders
         mnist_full = MNIST(self.data_dir, train=True, transform=self.transform)
-        self.mnist_train, self.mnist_val = random_split(mnist_full, [55000, 5000])
+        self.mnist_train, self.mnist_val = random_split(mnist_full, [15000, 5000])
         # Assign test dataset for use in dataloader(s)
         self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
