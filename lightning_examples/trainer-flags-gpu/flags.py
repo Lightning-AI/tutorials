@@ -31,6 +31,7 @@ PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 BATCH_SIZE = 256 if AVAIL_GPUS else 64
 NUM_WORKERS = int(os.cpu_count() / 2)
+MAX_EPOCHS = 10
 
 # Init DataLoader from MNIST Dataset
 
@@ -167,7 +168,7 @@ model = LitAutoEncoder()
 # these 2 flags are explained in the later sections...but for short explanation:
 # - progress_bar_refresh_rate: limits refresh rate of tqdm progress bar so Colab doesn't freak out
 # - max_epochs: only run 2 epochs instead of default of 1000
-trainer = Trainer(progress_bar_refresh_rate=20, max_epochs=2)
+trainer = Trainer(max_epochs=MAX_EPOCHS, progress_bar_refresh_rate=20, max_epochs=2)
 
 #####################
 # 3. Train
@@ -246,9 +247,9 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="Z-EMVvKheu3D"
 # run val loop every 10 training epochs
-trainer = Trainer(check_val_every_n_epoch=10)
+trainer = Trainer(max_epochs=MAX_EPOCHS, check_val_every_n_epoch=10)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="UOzZr9S2UcSO"
 # ## val_check_interval
@@ -264,9 +265,9 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="9kbUbvrUVLrT"
 # check validation set 4 times during a training epoch
-trainer = Trainer(val_check_interval=0.25)
+trainer = Trainer(max_epochs=MAX_EPOCHS, val_check_interval=0.25)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="Onm1gBsKVaw4"
 # When you have iterable data sets, or when streaming data for production use cases,
@@ -277,9 +278,9 @@ trainer.fit(model, datamodule=mnist)
 # check validation set every 1000 training batches
 # use this when using iterableDataset and your dataset has no length
 # (ie: production cases with streaming data)
-trainer = Trainer(val_check_interval=1000)
+trainer = Trainer(max_epochs=MAX_EPOCHS, val_check_interval=1000)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="QkoYonrWkb7-"
 # ## num_sanity_val_steps
@@ -299,26 +300,26 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="zOcT-ugSkiKW"
 # turn it off
-trainer = Trainer(num_sanity_val_steps=0)
+trainer = Trainer(max_epochs=MAX_EPOCHS, num_sanity_val_steps=0)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="zS0ob1ZmTw56"
 # Set it to -1 to check all validation data before training
 
 # %% id="rzqvjA4UT263"
 # check all validation data
-trainer = Trainer(num_sanity_val_steps=-1)
+trainer = Trainer(max_epochs=MAX_EPOCHS, num_sanity_val_steps=-1)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="uMB41wq4T3Z2"
 # Or use any arbitrary number of validation steps
 
 # %% id="lGP78aQzT7VS"
-trainer = Trainer(num_sanity_val_steps=10)
+trainer = Trainer(max_epochs=MAX_EPOCHS, num_sanity_val_steps=10)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="H-xaYRtd1rb-"
 # ## Limit train, validation, and test batches
@@ -333,26 +334,26 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="XiK5cFKL1rcA"
 # run for only 10 batches
-trainer = Trainer(limit_test_batches=10)
+trainer = Trainer(max_epochs=MAX_EPOCHS, limit_test_batches=10)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="Y4LK0g65RrBm"
 # For example, some metrics need to be computed on the entire validation results, such as AUC ROC.
 
 # %% id="8MmeRs2DR3dD"
-trainer = Trainer(limit_val_batches=10)
+trainer = Trainer(max_epochs=MAX_EPOCHS, limit_val_batches=10)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="xmigcNa1A2Vy"
 # You can use a float to limit the batches be percentage of the set on every epoch
 
 # %% id="W7uGJt8nA4tv"
 # run through only 25% of the test set each epoch
-trainer = Trainer(limit_test_batches=0.25)
+trainer = Trainer(max_epochs=MAX_EPOCHS, limit_test_batches=0.25)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="YRI8THtUN7_e"
 # # Training on GPUs
@@ -363,17 +364,17 @@ trainer.fit(model, datamodule=mnist)
 # To run on 1 GPU set the flag to 1
 
 # %% id="Nnzkf3KaOE27"
-trainer = Trainer(gpus=1)
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=1)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="cxBg47s5PB1P"
 # to run on 2 or 4 GPUs, set the flag to 2 or 4.
 
 # %% id="cSEM4ihLrohT"
-trainer = Trainer(gpus=2)
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=2)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="ZE6ZgwtNudro"
 # You can also select which GPU devices to run on, using a list of indices like [1, 4]
@@ -383,24 +384,24 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="gQkJtq0urrjq"
 # list: train on GPUs 1, 4 (by bus ordering)
-# trainer = Trainer(gpus='1, 4') # equivalent
-trainer = Trainer(gpus=[1, 4])
+# trainer = Trainer(gpus='0, 1') # equivalent
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=[0, 1])
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% id="XghDPad4us74"
-trainer = Trainer(gpus=list(range(4)))
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=list(range(2)))
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="6FVkKHpSPMTW"
 # You can use all the GPUs you have available by setting `gpus=-1`
 
 # %% id="r6cKQijYrtPe"
 # trainer = Trainer(gpus='-1') - equivalent
-trainer = Trainer(gpus=-1)
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=-1)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="2C-fNLm3UGCV"
 # Lightning uses the PCI bus_id as the index for ordering GPUs.
@@ -417,9 +418,9 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="_Sd3XFsAOIwd"
 # enable auto selection (will find two available gpus on system)
-trainer = Trainer(gpus=2, auto_select_gpus=True)
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=2, auto_select_gpus=True)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="a5JGSBMQhJNp"
 # ## analyzing GPU usage
@@ -440,9 +441,9 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="idus3ZGahOki"
 # log all the GPUs (on master node only)
-trainer = Trainer(log_gpu_memory='all')
+trainer = Trainer(max_epochs=MAX_EPOCHS, log_gpu_memory='all')
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="-mevgiy_hkip"
 # To avoid the performance decrease you can also set `log_gpu_memory=min_max` to only log the min and max memory on the master node.
@@ -450,9 +451,9 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="SlvLJnWyhs7J"
 # log only the min and max memory on the master node
-trainer = Trainer(log_gpu_memory='min_max')
+trainer = Trainer(max_epochs=MAX_EPOCHS, log_gpu_memory='min_max')
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="K82FLLIJVQG3"
 #
@@ -470,11 +471,6 @@ trainer.fit(model, datamodule=mnist)
 # The world size, or the total number of GPUs you are using, will be gpus*num_nodes.
 #
 # If i set gpus=8 and num_nodes=32 then I will be training on 256 GPUs.
-
-# %% id="5iKckmDvr8zZ"
-trainer = Trainer(gpus=8, num_nodes=32)
-
-trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="GgcSbDjjlSTh"
 # ## Accelerators
@@ -499,9 +495,6 @@ trainer.fit(model, datamodule=mnist)
 # %% id="n_Brr7F5wdtj"
 # ddp = DistributedDataParallel
 # trainer = Trainer(gpus=2, num_nodes=2) equivalent
-trainer = Trainer(gpus=2, num_nodes=2, accelerator='ddp')
-
-trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="edxHyttC5J3e"
 # DDP is the fastest and recommended way to distribute your training, but you can pass in other backends
@@ -519,9 +512,8 @@ trainer.fit(model, datamodule=mnist)
 # `.spawn()` to start the training processes.
 
 # %% id="JM5TKtgLxo37"
-trainer = Trainer(gpus=2, num_nodes=2, accelerator='ddp_spawn')
-
-trainer.fit(model, datamodule=mnist)
+# trainer = Trainer(gpus=2, num_nodes=2, accelerator='ddp_spawn')
+# trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="sebhVE3qrhKK"
 # We STRONGLY discourage this use because it has limitations (due to Python and PyTorch):
@@ -591,9 +583,9 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="OO-J0ISvlVCg"
 # dp = DataParallel
-trainer = Trainer(gpus=2, accelerator='dp')
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=2, accelerator='dp')
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="Y7E2eHZKwUn9"
 # ### DDP2
@@ -615,9 +607,8 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="Y4xweqL3xHER"
 # ddp2 = DistributedDataParallel + dp
-trainer = Trainer(gpus=2, num_nodes=2, accelerator='ddp2')
-
-trainer.fit(model, datamodule=mnist)
+# trainer = Trainer(gpus=2, num_nodes=2, accelerator='ddp2')
+# trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="lhKNCnveeeq5"
 # - The second mode is ddp_spawn. This works like ddp, but instead of calling your script multiple times,
@@ -639,9 +630,9 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="ZSal5Da9kHOf"
 # Simulate DDP for debugging on your GPU-less laptop
-trainer = Trainer(accelerator="ddp_cpu", num_processes=2)
+trainer = Trainer(max_epochs=MAX_EPOCHS, accelerator="ddp_cpu", num_processes=2)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="ncPvbUVQqKOh"
 # # Advanced distributed training
@@ -677,10 +668,10 @@ trainer.fit(model, datamodule=mnist)
 #
 
 # %% id="ZfmcB_e_7HbE"
-sampler = torch.utils.data.distributed.DistributedSampler(dataset, shuffle=False)
-dataloader = DataLoader(dataset, batch_size=32, sampler=sampler)
-
-trainer = Trainer(gpus=2, num_nodes=2, replace_sampler_ddp=False)
+sampler = torch.utils.data.distributed.DistributedSampler(mnist.mnist_train, shuffle=False)
+train_dataloader = DataLoader(mnist.mnist_train, batch_size=32, sampler=sampler)
+sampler = torch.utils.data.distributed.DistributedSampler(mnist.mnist_val, shuffle=False)
+val_dataloader = DataLoader(mnist.mnist_val, batch_size=32, sampler=sampler)
 
 # %% [markdown] id="-IOhk1n0lL3_"
 # ## prepare_data_per_node
@@ -696,9 +687,9 @@ trainer = Trainer(gpus=2, num_nodes=2, replace_sampler_ddp=False)
 # This flag is defaulted to True.
 
 # %% id="WFBMUR48lM04"
-trainer = Trainer(gpus=2, num_nodes=2, prepare_data_per_node=False)
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=2, prepare_data_per_node=False)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), train_dataloader=train_dataloader, val_dataloaders=val_dataloader)
 
 # %% [markdown] id="FKBwXqo4q-Vp"
 # ## sync_batchnorm
@@ -708,9 +699,9 @@ trainer.fit(model, datamodule=mnist)
 #
 
 # %% id="GhaCLTEZrAQi"
-trainer = Trainer(gpus=4, sync_batchnorm=True)
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=2, sync_batchnorm=True)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="XuFA7VTFMY9-"
 # # Debugging flags
@@ -731,9 +722,9 @@ trainer.fit(model, datamodule=mnist)
 #
 
 # %% id="L5vuG7GSmhzK"
-trainer = Trainer(fast_dev_run=True)
+trainer = Trainer(max_epochs=MAX_EPOCHS, fast_dev_run=True)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="HRP1qQR5nT4p"
 # ## overfit_batches
@@ -745,24 +736,24 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="NTM-dqGMnXms"
 # use only 1% of the train set (and use the train set for val and test)
-trainer = Trainer(overfit_batches=0.01)
+trainer = Trainer(max_epochs=MAX_EPOCHS, overfit_batches=0.01)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% id="c0LV0gC3nl1X"
 # overfit on 10 of the same batches
-trainer = Trainer(overfit_batches=10)
+trainer = Trainer(max_epochs=MAX_EPOCHS, overfit_batches=10)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="lt3UHU6WgtS_"
 # Or a float to represent percentage of data to run
 
 # %% id="K3yUqADhgnkf"
 # run through only 25% of the test set each epoch
-trainer = Trainer(limit_test_batches=0.25)
+trainer = Trainer(max_epochs=MAX_EPOCHS, limit_test_batches=0.25)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="ODN66NeVg_2o"
 # In the case of multiple test dataloaders, the limit applies to each dataloader individually.
@@ -786,9 +777,9 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="2jB6-Z_yPhhf"
 # accumulate every 4 batches (effective batch size is batch*4)
-trainer = Trainer(accumulate_grad_batches=4)
+trainer = Trainer(max_epochs=MAX_EPOCHS, accumulate_grad_batches=4)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="_Yi-bdTOgINC"
 # You can also pass a dictionary to specify different accumulation per epoch. We can set it to `{5: 3, 10: 20}`
@@ -796,9 +787,9 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="X3xsoZ3YPgBv"
 # no accumulation for epochs 1-4. accumulate 3 for epochs 5-10. accumulate 20 after that
-trainer = Trainer(accumulate_grad_batches={5: 3, 10: 20})
+trainer = Trainer(max_epochs=MAX_EPOCHS, accumulate_grad_batches={5: 3, 10: 20})
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="myzH8mV4M1_9"
 # # 16 bit precision
@@ -834,9 +825,9 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="kBZKMVx1nw-D"
 # 16-bit precision
-trainer = Trainer(gpus=1, precision=16)
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=1, precision=16)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="VJGj3Jh7oQXU"
 # In earlier version of Lightning, we use NVIDIA Apex for 16-bit precision.
@@ -846,9 +837,9 @@ trainer.fit(model, datamodule=mnist)
 # If you insist in using Apex, you can set the amp_backend flag to 'apex' and install Apex on your own.
 
 # %% id="BDV1trAUPc9h"
-trainer = Trainer(gpus=1, precision=16, amp_backend='apex')
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=1, precision=16, amp_backend='apex')
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="HK5c_aVfNV4e"
 # ## amp_level
@@ -863,9 +854,9 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="FshMFPowNbWt"
 # default used by the Trainer
-trainer = Trainer(gpus=1, precision=16, amp_backend='apex', amp_level='O2')
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=1, precision=16, amp_backend='apex', amp_level='O2')
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="y8KEr1YvNgkC"
 # # `auto_scale_batch_size`
@@ -881,9 +872,9 @@ trainer.fit(model, datamodule=mnist)
 #
 
 # %% id="9_jE-iyyheIv"
-trainer = Trainer(auto_scale_batch_size=True)
+trainer = Trainer(max_epochs=MAX_EPOCHS, auto_scale_batch_size=True)
 
-trainer.tune(model, train_dataloader=train_loader, val_dataloaders=val_loader)
+trainer.tune(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="yaHsJvwFhNJt"
 # You can set the value to `power`. `power` scaling starts from a batch size of 1
@@ -891,9 +882,9 @@ trainer.tune(model, train_dataloader=train_loader, val_dataloaders=val_loader)
 #
 
 # %% id="Qx0FbQrphgw1"
-trainer = Trainer(auto_scale_batch_size='power')
+trainer = Trainer(max_epochs=MAX_EPOCHS, auto_scale_batch_size='power')
 
-trainer.tune(model, train_dataloader=train_loader, val_dataloaders=val_loader)
+trainer.tune(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="8bwgVF9zhZ75"
 # You can also set it to `binsearch`, that continues to finetune the batch size by performing a binary search.
@@ -901,9 +892,9 @@ trainer.tune(model, train_dataloader=train_loader, val_dataloaders=val_loader)
 
 # %% id="QObXNs3yNrg9"
 # run batch size scaling, result overrides hparams.batch_size
-trainer = Trainer(auto_scale_batch_size='binsearch')
+trainer = Trainer(max_epochs=MAX_EPOCHS, auto_scale_batch_size='binsearch')
 
-trainer.tune(model, train_dataloader=train_loader, val_dataloaders=val_loader)
+trainer.tune(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="5OWdhSsZjqW7"
 # This feature expects that a batch_size field in the hparams of your model, i.e.,
@@ -962,7 +953,7 @@ trainer.tune(model, train_dataloader=train_loader, val_dataloaders=val_loader)
 
 # %% id="iuhve9RBOfFh"
 # default used by the Trainer (no learning rate finder)
-trainer = Trainer(model, auto_lr_find=False)
+trainer = Trainer(max_epochs=MAX_EPOCHS, auto_lr_find=False)
 
 # %% [markdown] id="BL-gjXNCPDXk"
 # This flag sets your learning rate which can be accessed via self.lr or self.learning_rate.
@@ -981,18 +972,18 @@ class LitModel(LightningModule):
 
 # finds learning rate automatically
 # sets hparams.lr or hparams.learning_rate to that learning rate
-trainer = Trainer(model, auto_lr_find=True)
+trainer = Trainer(max_epochs=MAX_EPOCHS, auto_lr_find=True)
 
-trainer.tune(model, train_dataloader=train_loader, val_dataloaders=val_loader)
+trainer.tune(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="RweqvpnVPPSh"
 # To use an arbitrary value set it as auto_lr_find
 #
 
 # %% id="4LKI39IfPLJv"
-trainer = Trainer(model, auto_lr_find='my_value')
+trainer = Trainer(max_epochs=MAX_EPOCHS, auto_lr_find='0.01')
 
-trainer.tune(model, train_dataloader=train_loader, val_dataloaders=val_loader)
+trainer.tune(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="9VAhPRKbPX-m"
 # Under the hood, when you call tune it runs the learning rate finder.
@@ -1046,9 +1037,9 @@ trainer.tune(model, train_dataloader=train_loader, val_dataloaders=val_loader)
 # possibly leading to worse runtime performances.
 
 # %% id="dWr-OCBgQCeb"
-trainer = Trainer(gpus=1, benchmark=True)
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=1, benchmark=True)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="qwAvSKYGa24K"
 # # `deterministic`
@@ -1056,14 +1047,16 @@ trainer.fit(model, datamodule=mnist)
 #
 
 # %% [markdown] id="tl5mfmafwmat"
-# PyTorch does not guarantee reproducible results, even when using identical seeds. To guarentee reproducible results, you can remove most of the randomness from your process by setting the `deterministic` flag to True.
+# PyTorch does not guarantee reproducible results, even when using identical seeds.
+# To guarentee reproducible results, you can remove most of the randomness from your process
+# by setting the `deterministic` flag to True.
 #
 # Note that it might make your system slower.
 
 # %% id="Mhv5LZ3HbNCK"
-trainer = Trainer(gpus=1, deterministic=True)
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=1, deterministic=True)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="u_5eJSvTf60f"
 # # Exploding and vanishing gradients
@@ -1077,17 +1070,17 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="2taHUir8rflR"
 # track the 2-norm
-trainer = Trainer(track_grad_norm=2)
+trainer = Trainer(max_epochs=MAX_EPOCHS, track_grad_norm=2)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="3vHKxmruk62f"
 # May be set to ‘inf’ infinity-norm.
 
 # %% id="g7TbD6SxlAjP"
-trainer = Trainer(track_grad_norm='inf')
+trainer = Trainer(max_epochs=MAX_EPOCHS, track_grad_norm='inf')
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="TcMlRe7ywpe6"
 # ## Gradient clipping
@@ -1100,9 +1093,9 @@ trainer.fit(model, datamodule=mnist)
 # [when to use it, what are relevant values]
 
 # %% id="jF9JwmbOgOWF"
-trainer = Trainer(gradient_clip_val=0.1)
+trainer = Trainer(max_epochs=MAX_EPOCHS, gradient_clip_val=0.1)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="ggb4MkkQrr1h"
 # # truncated_bptt_steps
@@ -1137,9 +1130,9 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="WiTF1VMtruMU"
 # backprop every 5 steps in a batch
-trainer = Trainer(truncated_bptt_steps=5)
+trainer = Trainer(max_epochs=MAX_EPOCHS, truncated_bptt_steps=5)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="8XI_kEWkS-nT"
 # To modify how the batch is split, override pytorch_lightning.core.LightningModule.tbptt_split_batch():
@@ -1174,9 +1167,9 @@ trainer.fit(model, datamodule=mnist)
 # ```
 
 # %% id="10AXthXxp311"
-trainer = Trainer(reload_dataloaders_every_epoch=True)
+trainer = Trainer(max_epochs=MAX_EPOCHS, reload_dataloaders_every_epoch=True)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="f513EYl0bmmL"
 # # Callbacks
@@ -1218,9 +1211,9 @@ class PrintCallback(Callback):
 
 # a list of callbacks
 callbacks = [PrintCallback()]
-trainer = Trainer(callbacks=callbacks)
+trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=callbacks)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="cNF74CLYfJJu"
 # # Model checkpointing
@@ -1252,17 +1245,17 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="XGu0JULrg9l7"
 # default used by the Trainer
-trainer = Trainer(default_root_dir=os.getcwd())
+trainer = Trainer(max_epochs=MAX_EPOCHS, default_root_dir=os.getcwd())
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="3s9OjkGuhq1W"
 # To change the checkpoint path pass in **default_root_dir=**
 
 # %% id="DgdxkrIQhvfw"
-trainer = Trainer(default_root_dir='.')
+trainer = Trainer(max_epochs=MAX_EPOCHS, default_root_dir='.')
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="Qyvj_bkWrJiE"
 #
@@ -1286,9 +1279,9 @@ trainer.fit(model, datamodule=mnist)
 # %% id="YzYMivw1rO1O"
 from pytorch_lightning.callbacks import ModelCheckpoint
 
-trainer = Trainer(callbacks=[ModelCheckpoint(monitor='val_loss')])
+trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[ModelCheckpoint(monitor='val_loss')])
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="5hYs_FV8iDMn"
 # You can modify the behavior of checkpointing by creating your own callback, and passing it to the trainer.
@@ -1315,9 +1308,9 @@ checkpoint_callback = ModelCheckpoint(
     prefix='',
 )
 
-trainer = Trainer(callbacks=[checkpoint_callback])
+trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[checkpoint_callback])
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="YKhZ6xRojJcl"
 # You can disable checkpointing it by passing
@@ -1325,7 +1318,7 @@ trainer.fit(model, datamodule=mnist)
 #
 
 # %% id="Yt8zd2ZFjOXX"
-trainer = Trainer(checkpoint_callback=False)
+trainer = Trainer(max_epochs=MAX_EPOCHS, checkpoint_callback=False)
 
 # %% [markdown] id="HcLy8asCjrj9"
 # ### Manual saving
@@ -1389,7 +1382,7 @@ model = LitAutoEncoder.load_from_checkpoint("example.ckpt", in_dim=128, out_dim=
 
 # %% id="9zfhHtyrk3rO"
 model = LitAutoEncoder()
-trainer = Trainer(resume_from_checkpoint="example.ckpt")
+trainer = Trainer(max_epochs=MAX_EPOCHS, resume_from_checkpoint="example.ckpt")
 
 # automatically restores model, epoch, step, LR schedulers, apex, etc...
 trainer.fit(model)
@@ -1402,16 +1395,16 @@ trainer.fit(model)
 
 # %% id="9OwHHFcCsrgT"
 # save to your custom path
-trainer = Trainer(weights_save_path='.')
+trainer = Trainer(max_epochs=MAX_EPOCHS, weights_save_path='.')
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% id="PbNtlJ9Wsscf"
 # if checkpoint callback used, then overrides the weights path
 # **NOTE: this saves weights to some/path NOT my/path
 checkpoint = ModelCheckpoint(filepath='.')
-trainer = Trainer(callbacks=[checkpoint], weights_save_path='.')
-trainer.fit(model, datamodule=mnist)
+trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[checkpoint], weights_save_path='.')
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="uDdxCuyHdWQt"
 # # Early stopping
@@ -1429,9 +1422,9 @@ trainer.fit(model, datamodule=mnist)
 # %% id="lFx976CheH93"
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
-trainer = Trainer(callbacks=[EarlyStopping('val_loss')])
+trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[EarlyStopping('val_loss')])
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="MwpJfTvjeOwF"
 # You can customize the callback using the following params:
@@ -1441,9 +1434,9 @@ trainer.fit(model, datamodule=mnist)
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 early_stop_callback = EarlyStopping(monitor='val_accuracy', min_delta=0.00, patience=3, verbose=False, mode='max')
-trainer = Trainer(callbacks=[early_stop_callback])
+trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[early_stop_callback])
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="7TAIerPYe_Q1"
 # The EarlyStopping callback runs at the end of every validation check, which, under the default configuration,
@@ -1476,9 +1469,9 @@ from pytorch_lightning.loggers import TensorBoardLogger
 
 # default logger used by trainer
 logger = TensorBoardLogger(save_dir=os.getcwd(), version=1, name='lightning_logs')
-trainer = Trainer(logger=logger)
+trainer = Trainer(max_epochs=MAX_EPOCHS, logger=logger)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="jc5oWNpoiuuc"
 # Lightning supports the use of multiple loggers, just pass a list to the Trainer.
@@ -1490,7 +1483,7 @@ from pytorch_lightning.loggers import TensorBoardLogger, TestTubeLogger
 
 logger1 = TensorBoardLogger('tb_logs', name='my_model')
 logger2 = TestTubeLogger('tb_logs', name='my_model')
-trainer = Trainer(logger=[logger1, logger2])
+trainer = Trainer(max_epochs=MAX_EPOCHS, logger=[logger1, logger2])
 
 # %% [markdown] id="a7EyspQPh7iQ"
 # ## flush_logs_every_n_steps
@@ -1498,9 +1491,9 @@ trainer = Trainer(logger=[logger1, logger2])
 # Use this flag to determine when logging to disc should happen.
 
 # %% id="Em_XvsmyiBbk"
-trainer = Trainer(flush_logs_every_n_steps=100)
+trainer = Trainer(max_epochs=MAX_EPOCHS, flush_logs_every_n_steps=100)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="_vDeKE98qsl1"
 # ## log_every_n_steps
@@ -1509,9 +1502,9 @@ trainer.fit(model, datamodule=mnist)
 #
 
 # %% id="HkqD7D_0w1Tt"
-trainer = Trainer(log_every_n_steps=1000)
+trainer = Trainer(max_epochs=MAX_EPOCHS, log_every_n_steps=1000)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="9uw0gfe422CT"
 # # info logging
@@ -1535,15 +1528,15 @@ trainer.fit(model, datamodule=mnist)
 # %% id="KTl6EdwDs6j2"
 
 # print full summary of all modules and submodules
-trainer = Trainer(weights_summary='full')
+trainer = Trainer(max_epochs=MAX_EPOCHS, weights_summary='full')
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% id="R57cSLl9w9ma"
 # don't print a summary
-trainer = Trainer(weights_summary=None)
+trainer = Trainer(max_epochs=MAX_EPOCHS, weights_summary=None)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="bSc2hU5AotAP"
 # # progress bar
@@ -1559,9 +1552,9 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="6ekz8Es8owDn"
 # default used by the Trainer
-trainer = Trainer(process_position=0)
+trainer = Trainer(max_epochs=MAX_EPOCHS, process_position=0)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="itivQFgEphBU"
 # ## progress_bar_refresh_rate
@@ -1571,24 +1564,24 @@ trainer.fit(model, datamodule=mnist)
 
 # %% id="GKe6eVxmplL5"
 # default used by the Trainer
-trainer = Trainer(progress_bar_refresh_rate=1)
+trainer = Trainer(max_epochs=MAX_EPOCHS, progress_bar_refresh_rate=1)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% id="8rDHJOJbxNtf"
 # disable progress bar
-trainer = Trainer(progress_bar_refresh_rate=0)
+trainer = Trainer(max_epochs=MAX_EPOCHS, progress_bar_refresh_rate=0)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="NCNvYLwjpWne"
 # # profiler
 
 # %% id="pRknrG_zpY6M"
 # to profile standard training events
-trainer = Trainer(profiler=True)
+trainer = Trainer(max_epochs=MAX_EPOCHS, profiler=True)
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="Ji6aWpU73kMM"
 # You can also use Lightning AdvancedProfiler if you want more detailed information about time spent in each function
@@ -1600,6 +1593,6 @@ trainer.fit(model, datamodule=mnist)
 # %% id="layG55pt316C"
 from pytorch_lightning.profiler import AdvancedProfiler
 
-trainer = Trainer(profiler=AdvancedProfiler())
+trainer = Trainer(max_epochs=MAX_EPOCHS, profiler=AdvancedProfiler())
 
-trainer.fit(model, datamodule=mnist)
+trainer.fit(LitAutoEncoder(), datamodule=mnist)
