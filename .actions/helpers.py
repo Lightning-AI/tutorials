@@ -184,7 +184,9 @@ class HelperCLI:
         # update all images
         for img in set(imgs):
             url_path = '/'.join([URL_DOWNLOAD, local_dir, img])
-            md = md.replace(img, url_path)
+            # todo: add a rule to replace this paths only i md sections
+            md = md.replace(f'src="{img}"', f'src="{url_path}"')
+            md = md.replace(f']({img})', f']({url_path})')
 
         return [ln + os.linesep for ln in md.split(os.linesep)]
 
