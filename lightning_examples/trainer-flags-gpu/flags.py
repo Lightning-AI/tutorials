@@ -14,7 +14,7 @@
 import os
 
 import torch
-from pytorch_lightning import LightningModule, seed_everything, Trainer, LightningDataModule
+from pytorch_lightning import LightningDataModule, LightningModule, seed_everything, Trainer
 from torch import nn
 from torch.nn import functional as F
 from torch.optim import Adam
