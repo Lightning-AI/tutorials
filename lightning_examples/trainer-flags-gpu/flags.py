@@ -18,7 +18,7 @@ from pytorch_lightning import LightningDataModule, LightningModule, seed_everyth
 from torch import nn
 from torch.nn import functional as F
 from torch.optim import Adam
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, random_split, Subset
 from torchvision import transforms
 from torchvision.datasets.mnist import MNIST
 
@@ -57,7 +57,9 @@ class MNISTDataModule(LightningDataModule):
     def setup(self, stage=None):
         # Assign train/val datasets for use in dataloaders
         mnist_full = MNIST(self.data_dir, train=True, transform=self.transform)
-        self.mnist_train, self.mnist_val = random_split(mnist_full, [15000, 5000])
+        subset_idxs = list(range(len(mnist_full)))[::4]
+        mnist_subset = Subset(mnist_full, subset_idxs)
+        self.mnist_train, self.mnist_val = random_split(mnist_subset, [12000, 3000])
         # Assign test dataset for use in dataloader(s)
         self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
@@ -168,7 +170,7 @@ model = LitAutoEncoder()
 # these 2 flags are explained in the later sections...but for short explanation:
 # - progress_bar_refresh_rate: limits refresh rate of tqdm progress bar so Colab doesn't freak out
 # - max_epochs: only run 2 epochs instead of default of 1000
-trainer = Trainer(max_epochs=MAX_EPOCHS, progress_bar_refresh_rate=20, max_epochs=2)
+trainer = Trainer(max_epochs=MAX_EPOCHS, progress_bar_refresh_rate=20)
 
 #####################
 # 3. Train
