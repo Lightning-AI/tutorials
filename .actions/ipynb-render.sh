@@ -25,7 +25,7 @@ accel=$(python .actions/helpers.py valid-accelerator $1 2>&1)
 if [ $accel == 1 ]
 then
   printf "Processing: $ipynb_file\n"
-  python -m papermill.cli $ipynb_file $pub_file
+  python -m papermill.cli $ipynb_file $pub_file --kernel python
   python .actions/helpers.py update-env-details $1
 else
   printf "WARNING: not valid accelerator so no outputs will be generated.\n"
