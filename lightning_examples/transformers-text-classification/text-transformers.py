@@ -237,7 +237,7 @@ class GLUETransformer(LightningModule):
         self.log_dict(self.metric.compute(predictions=preds, references=labels), prog_bar=True)
         return loss
 
-    def setup(self, stage = None) -> None:
+    def setup(self, stage=None) -> None:
         if stage == 'fit':
             # Get dataloader by calling it - train_dataloader() is called after setup() by default
             train_loader = self.train_dataloader()
@@ -282,20 +282,10 @@ class GLUETransformer(LightningModule):
 # %% colab={} colab_type="code" id="NJnFmtpnPu0Y"
 seed_everything(42)
 
-dm = GLUEDataModule(
-    model_name_or_path='albert-base-v2',
-    task_name='cola'
-)
-model = GLUETransformer(
-    model_name_or_path='albert-base-v2',
-    num_labels=dm.num_labels,
-    eval_splits=dm.eval_splits
-)
+dm = GLUEDataModule(model_name_or_path='albert-base-v2', task_name='cola')
+model = GLUETransformer(model_name_or_path='albert-base-v2', num_labels=dm.num_labels, eval_splits=dm.eval_splits)
 
-trainer = Trainer(
-    max_epochs=3,
-    gpus=min(1, torch.cuda.device_count())
-)
+trainer = Trainer(max_epochs=3, gpus=min(1, torch.cuda.device_count()))
 trainer.fit(model, dm)
 
 # %% [markdown] colab_type="text" id="_MrNsTnqdz4z"
@@ -307,20 +297,12 @@ trainer.fit(model, dm)
 # %% colab={} colab_type="code" id="LBwRxg9Cb3d-"
 seed_everything(42)
 
-dm = GLUEDataModule(
-    model_name_or_path='distilbert-base-cased',
-    task_name='mrpc'
-)
+dm = GLUEDataModule(model_name_or_path='distilbert-base-cased', task_name='mrpc')
 model = GLUETransformer(
-    model_name_or_path='distilbert-base-cased',
-    num_labels=dm.num_labels,
-    eval_splits=dm.eval_splits
+    model_name_or_path='distilbert-base-cased', num_labels=dm.num_labels, eval_splits=dm.eval_splits
 )
 
-trainer = Trainer(
-    max_epochs=3,
-    gpus=min(1, torch.cuda.device_count())
-)
+trainer = Trainer(max_epochs=3, gpus=min(1, torch.cuda.device_count()))
 trainer.fit(model, dm)
 
 # %% [markdown] colab_type="text" id="iZhbn0HzfdCu"
@@ -333,18 +315,10 @@ trainer.fit(model, dm)
 # MRPC dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=mnli)
 
 # %% colab={} colab_type="code" id="AvsZMOggfcWW"
-dm = GLUEDataModule(
-    model_name_or_path='distilbert-base-cased',
-    task_name='mnli'
-)
+dm = GLUEDataModule(model_name_or_path='distilbert-base-cased', task_name='mnli')
 model = GLUETransformer(
-    model_name_or_path='distilbert-base-cased',
-    num_labels=dm.num_labels,
-    eval_splits=dm.eval_splits
+    model_name_or_path='distilbert-base-cased', num_labels=dm.num_labels, eval_splits=dm.eval_splits
 )
 
-trainer = Trainer(
-    gpus=min(1, torch.cuda.device_count()),
-    progress_bar_refresh_rate=20
-)
+trainer = Trainer(gpus=min(1, torch.cuda.device_count()), progress_bar_refresh_rate=20)
 trainer.validate(model, dm.val_dataloader())
