@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
 # %% [markdown]
 # ## Create a Markdown cell
+#
+# NOTE: Please start each file with declaring UTF8 encoding as `# -*- coding: utf-8 -*-`
 #
 # `# %% [markdown]`
 #
