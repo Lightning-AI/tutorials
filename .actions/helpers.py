@@ -22,10 +22,13 @@ PUBLIC_BRANCH = "publication"
 URL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{DEFAULT_BRANCH}"
 ENV_DEVICE = "ACCELERATOR"
 DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, 'cpu').lower()
-TEMPLATE_HEADER = f"""
-# %%%% [markdown] colab_type="text" id="view-in-github"
+TEMPLATE_HEADER = f"""# %%%% [markdown]
 #
 # # %(title)s
+#
+# * **Author:** %(author)s
+# * **License:** %(license)s
+# * **Generated:** %(generated)s
 #
 # %(description)s
 #
@@ -37,8 +40,7 @@ TEMPLATE_HEADER = f"""
 # | Join us [on Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)
 
 """
-TEMPLATE_SETUP = """
-# %%%% [markdown] colab_type="text" id="kg2MKpRmybht"
+TEMPLATE_SETUP = """# %%%% [markdown]
 # ### Setup
 # This notebook requires some packages besides pytorch-lightning.
 
@@ -58,8 +60,6 @@ TEMPLATE_FOOTER = """
 # ### Star [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) on GitHub
 # The easiest way to help our community is just by starring the GitHub repos! This helps raise awareness of the cool
 # tools we're building.
-#
-# * Please, star [Lightning](https://github.com/PyTorchLightning/pytorch-lightning)
 #
 # ### Join our [Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)!
 # The best way to keep up to date on the latest advancements is to join our community! Make sure to introduce yourself
@@ -123,6 +123,7 @@ RUNTIME_VERSIONS = dict(
 class HelperCLI:
 
     DIR_NOTEBOOKS = ".notebooks"
+    META_REQUIRED_FIELDS = ('title', 'author', 'license', 'description')
     SKIP_DIRS = (
         ".actions",
         ".azure-pipelines",
@@ -153,7 +154,13 @@ class HelperCLI:
             py_file = fp.readlines()
         fpath_meta = HelperCLI._meta_file(os.path.dirname(fpath))
         meta = yaml.safe_load(open(fpath_meta))
-        meta.update(dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"))
+        meta_miss = [fl for fl in HelperCLI.META_REQUIRED_FIELDS if fl not in meta]
+        if meta_miss:
+            raise ValueError(f"Meta file '{fpath_meta}' is missing the following fields: {meta_miss}")
+        meta.update(
+            dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"),
+            generated=datetime.now().isoformat(),
+        )
         meta['description'] = meta['description'].replace(os.linesep, f"{os.linesep}# ")
 
         py_file = HelperCLI._replace_images(py_file, os.path.dirname(fpath))
