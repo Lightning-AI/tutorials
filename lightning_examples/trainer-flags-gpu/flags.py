@@ -14,7 +14,7 @@
 import os
 
 import torch
-from pytorch_lightning import LightningModule, seed_everything, Trainer
+from pytorch_lightning import LightningModule, seed_everything, Trainer, LightningDataModule
 from torch import nn
 from torch.nn import functional as F
 from torch.optim import Adam
@@ -27,17 +27,50 @@ from torchvision.datasets.mnist import MNIST
 # data
 # ------------
 seed_everything(1234)
-batch_size = 32
+PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
+AVAIL_GPUS = min(1, torch.cuda.device_count())
+BATCH_SIZE = 256 if AVAIL_GPUS else 64
+NUM_WORKERS = int(os.cpu_count() / 2)
 
 # Init DataLoader from MNIST Dataset
 
-dataset = MNIST(os.getcwd(), train=True, download=True, transform=transforms.ToTensor())
-mnist_test = MNIST(os.getcwd(), train=False, download=True, transform=transforms.ToTensor())
-mnist_train, mnist_val = random_split(dataset, [55000, 5000])
 
-train_loader = DataLoader(mnist_train, batch_size=batch_size)
-val_loader = DataLoader(mnist_val, batch_size=batch_size)
-test_loader = DataLoader(mnist_test, batch_size=batch_size)
+class MNISTDataModule(LightningDataModule):
+
+    def __init__(self, data_dir: str = PATH_DATASETS, batch_size: int = BATCH_SIZE, num_workers: int = NUM_WORKERS):
+        super().__init__()
+        self.data_dir = data_dir
+        self.batch_size = batch_size
+        self.num_workers = num_workers
+
+        self.transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.1307, ), (0.3081, )),
+        ])
+
+    def prepare_data(self):
+        # download
+        MNIST(self.data_dir, train=True, download=True)
+        MNIST(self.data_dir, train=False, download=True)
+
+    def setup(self, stage=None):
+        # Assign train/val datasets for use in dataloaders
+        mnist_full = MNIST(self.data_dir, train=True, transform=self.transform)
+        self.mnist_train, self.mnist_val = random_split(mnist_full, [55000, 5000])
+        # Assign test dataset for use in dataloader(s)
+        self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
+
+    def train_dataloader(self):
+        return DataLoader(self.mnist_train, batch_size=self.batch_size, num_workers=self.num_workers)
+
+    def val_dataloader(self):
+        return DataLoader(self.mnist_val, batch_size=self.batch_size, num_workers=self.num_workers)
+
+    def test_dataloader(self):
+        return DataLoader(self.mnist_test, batch_size=self.batch_size, num_workers=self.num_workers)
+
+
+mnist = MNISTDataModule()
 
 # %% [markdown] id="gEulmrbxwaYL"
 # ### Simple AutoEncoder Model
@@ -139,7 +172,7 @@ trainer = Trainer(progress_bar_refresh_rate=20, max_epochs=2)
 #####################
 # 3. Train
 #####################
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="3meDako-Qa_6"
 # Our model is training just like that, using the Lightning defaults. The beauty of Lightning is that everything
@@ -215,7 +248,7 @@ trainer.fit(model, train_loader, val_loader)
 # run val loop every 10 training epochs
 trainer = Trainer(check_val_every_n_epoch=10)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="UOzZr9S2UcSO"
 # ## val_check_interval
@@ -233,7 +266,7 @@ trainer.fit(model, train_loader, val_loader)
 # check validation set 4 times during a training epoch
 trainer = Trainer(val_check_interval=0.25)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="Onm1gBsKVaw4"
 # When you have iterable data sets, or when streaming data for production use cases,
@@ -246,7 +279,7 @@ trainer.fit(model, train_loader, val_loader)
 # (ie: production cases with streaming data)
 trainer = Trainer(val_check_interval=1000)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="QkoYonrWkb7-"
 # ## num_sanity_val_steps
@@ -268,7 +301,7 @@ trainer.fit(model, train_loader, val_loader)
 # turn it off
 trainer = Trainer(num_sanity_val_steps=0)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="zS0ob1ZmTw56"
 # Set it to -1 to check all validation data before training
@@ -277,7 +310,7 @@ trainer.fit(model, train_loader, val_loader)
 # check all validation data
 trainer = Trainer(num_sanity_val_steps=-1)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="uMB41wq4T3Z2"
 # Or use any arbitrary number of validation steps
@@ -285,7 +318,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="lGP78aQzT7VS"
 trainer = Trainer(num_sanity_val_steps=10)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="H-xaYRtd1rb-"
 # ## Limit train, validation, and test batches
@@ -302,7 +335,7 @@ trainer.fit(model, train_loader, val_loader)
 # run for only 10 batches
 trainer = Trainer(limit_test_batches=10)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="Y4LK0g65RrBm"
 # For example, some metrics need to be computed on the entire validation results, such as AUC ROC.
@@ -310,7 +343,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="8MmeRs2DR3dD"
 trainer = Trainer(limit_val_batches=10)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="xmigcNa1A2Vy"
 # You can use a float to limit the batches be percentage of the set on every epoch
@@ -319,7 +352,7 @@ trainer.fit(model, train_loader, val_loader)
 # run through only 25% of the test set each epoch
 trainer = Trainer(limit_test_batches=0.25)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="YRI8THtUN7_e"
 # # Training on GPUs
@@ -332,7 +365,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="Nnzkf3KaOE27"
 trainer = Trainer(gpus=1)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="cxBg47s5PB1P"
 # to run on 2 or 4 GPUs, set the flag to 2 or 4.
@@ -340,7 +373,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="cSEM4ihLrohT"
 trainer = Trainer(gpus=2)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="ZE6ZgwtNudro"
 # You can also select which GPU devices to run on, using a list of indices like [1, 4]
@@ -353,12 +386,12 @@ trainer.fit(model, train_loader, val_loader)
 # trainer = Trainer(gpus='1, 4') # equivalent
 trainer = Trainer(gpus=[1, 4])
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% id="XghDPad4us74"
 trainer = Trainer(gpus=list(range(4)))
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="6FVkKHpSPMTW"
 # You can use all the GPUs you have available by setting `gpus=-1`
@@ -367,7 +400,7 @@ trainer.fit(model, train_loader, val_loader)
 # trainer = Trainer(gpus='-1') - equivalent
 trainer = Trainer(gpus=-1)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="2C-fNLm3UGCV"
 # Lightning uses the PCI bus_id as the index for ordering GPUs.
@@ -386,7 +419,7 @@ trainer.fit(model, train_loader, val_loader)
 # enable auto selection (will find two available gpus on system)
 trainer = Trainer(gpus=2, auto_select_gpus=True)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="a5JGSBMQhJNp"
 # ## analyzing GPU usage
@@ -409,7 +442,7 @@ trainer.fit(model, train_loader, val_loader)
 # log all the GPUs (on master node only)
 trainer = Trainer(log_gpu_memory='all')
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="-mevgiy_hkip"
 # To avoid the performance decrease you can also set `log_gpu_memory=min_max` to only log the min and max memory on the master node.
@@ -419,7 +452,7 @@ trainer.fit(model, train_loader, val_loader)
 # log only the min and max memory on the master node
 trainer = Trainer(log_gpu_memory='min_max')
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="K82FLLIJVQG3"
 #
@@ -441,7 +474,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="5iKckmDvr8zZ"
 trainer = Trainer(gpus=8, num_nodes=32)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="GgcSbDjjlSTh"
 # ## Accelerators
@@ -468,7 +501,7 @@ trainer.fit(model, train_loader, val_loader)
 # trainer = Trainer(gpus=2, num_nodes=2) equivalent
 trainer = Trainer(gpus=2, num_nodes=2, accelerator='ddp')
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="edxHyttC5J3e"
 # DDP is the fastest and recommended way to distribute your training, but you can pass in other backends
@@ -488,7 +521,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="JM5TKtgLxo37"
 trainer = Trainer(gpus=2, num_nodes=2, accelerator='ddp_spawn')
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="sebhVE3qrhKK"
 # We STRONGLY discourage this use because it has limitations (due to Python and PyTorch):
@@ -560,7 +593,7 @@ trainer.fit(model, train_loader, val_loader)
 # dp = DataParallel
 trainer = Trainer(gpus=2, accelerator='dp')
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="Y7E2eHZKwUn9"
 # ### DDP2
@@ -584,7 +617,7 @@ trainer.fit(model, train_loader, val_loader)
 # ddp2 = DistributedDataParallel + dp
 trainer = Trainer(gpus=2, num_nodes=2, accelerator='ddp2')
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="lhKNCnveeeq5"
 # - The second mode is ddp_spawn. This works like ddp, but instead of calling your script multiple times,
@@ -608,7 +641,7 @@ trainer.fit(model, train_loader, val_loader)
 # Simulate DDP for debugging on your GPU-less laptop
 trainer = Trainer(accelerator="ddp_cpu", num_processes=2)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="ncPvbUVQqKOh"
 # # Advanced distributed training
@@ -665,7 +698,7 @@ trainer = Trainer(gpus=2, num_nodes=2, replace_sampler_ddp=False)
 # %% id="WFBMUR48lM04"
 trainer = Trainer(gpus=2, num_nodes=2, prepare_data_per_node=False)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="FKBwXqo4q-Vp"
 # ## sync_batchnorm
@@ -677,7 +710,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="GhaCLTEZrAQi"
 trainer = Trainer(gpus=4, sync_batchnorm=True)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="XuFA7VTFMY9-"
 # # Debugging flags
@@ -700,7 +733,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="L5vuG7GSmhzK"
 trainer = Trainer(fast_dev_run=True)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="HRP1qQR5nT4p"
 # ## overfit_batches
@@ -714,13 +747,13 @@ trainer.fit(model, train_loader, val_loader)
 # use only 1% of the train set (and use the train set for val and test)
 trainer = Trainer(overfit_batches=0.01)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% id="c0LV0gC3nl1X"
 # overfit on 10 of the same batches
 trainer = Trainer(overfit_batches=10)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="lt3UHU6WgtS_"
 # Or a float to represent percentage of data to run
@@ -729,7 +762,7 @@ trainer.fit(model, train_loader, val_loader)
 # run through only 25% of the test set each epoch
 trainer = Trainer(limit_test_batches=0.25)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="ODN66NeVg_2o"
 # In the case of multiple test dataloaders, the limit applies to each dataloader individually.
@@ -755,7 +788,7 @@ trainer.fit(model, train_loader, val_loader)
 # accumulate every 4 batches (effective batch size is batch*4)
 trainer = Trainer(accumulate_grad_batches=4)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="_Yi-bdTOgINC"
 # You can also pass a dictionary to specify different accumulation per epoch. We can set it to `{5: 3, 10: 20}`
@@ -765,7 +798,7 @@ trainer.fit(model, train_loader, val_loader)
 # no accumulation for epochs 1-4. accumulate 3 for epochs 5-10. accumulate 20 after that
 trainer = Trainer(accumulate_grad_batches={5: 3, 10: 20})
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="myzH8mV4M1_9"
 # # 16 bit precision
@@ -803,7 +836,7 @@ trainer.fit(model, train_loader, val_loader)
 # 16-bit precision
 trainer = Trainer(gpus=1, precision=16)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="VJGj3Jh7oQXU"
 # In earlier version of Lightning, we use NVIDIA Apex for 16-bit precision.
@@ -815,7 +848,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="BDV1trAUPc9h"
 trainer = Trainer(gpus=1, precision=16, amp_backend='apex')
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="HK5c_aVfNV4e"
 # ## amp_level
@@ -832,7 +865,7 @@ trainer.fit(model, train_loader, val_loader)
 # default used by the Trainer
 trainer = Trainer(gpus=1, precision=16, amp_backend='apex', amp_level='O2')
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="y8KEr1YvNgkC"
 # # `auto_scale_batch_size`
@@ -1015,7 +1048,7 @@ trainer.tune(model, train_dataloader=train_loader, val_dataloaders=val_loader)
 # %% id="dWr-OCBgQCeb"
 trainer = Trainer(gpus=1, benchmark=True)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="qwAvSKYGa24K"
 # # `deterministic`
@@ -1030,7 +1063,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="Mhv5LZ3HbNCK"
 trainer = Trainer(gpus=1, deterministic=True)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="u_5eJSvTf60f"
 # # Exploding and vanishing gradients
@@ -1046,7 +1079,7 @@ trainer.fit(model, train_loader, val_loader)
 # track the 2-norm
 trainer = Trainer(track_grad_norm=2)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="3vHKxmruk62f"
 # May be set to ‘inf’ infinity-norm.
@@ -1054,7 +1087,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="g7TbD6SxlAjP"
 trainer = Trainer(track_grad_norm='inf')
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="TcMlRe7ywpe6"
 # ## Gradient clipping
@@ -1069,7 +1102,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="jF9JwmbOgOWF"
 trainer = Trainer(gradient_clip_val=0.1)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="ggb4MkkQrr1h"
 # # truncated_bptt_steps
@@ -1106,7 +1139,7 @@ trainer.fit(model, train_loader, val_loader)
 # backprop every 5 steps in a batch
 trainer = Trainer(truncated_bptt_steps=5)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="8XI_kEWkS-nT"
 # To modify how the batch is split, override pytorch_lightning.core.LightningModule.tbptt_split_batch():
@@ -1143,7 +1176,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="10AXthXxp311"
 trainer = Trainer(reload_dataloaders_every_epoch=True)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="f513EYl0bmmL"
 # # Callbacks
@@ -1187,7 +1220,7 @@ class PrintCallback(Callback):
 callbacks = [PrintCallback()]
 trainer = Trainer(callbacks=callbacks)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="cNF74CLYfJJu"
 # # Model checkpointing
@@ -1221,7 +1254,7 @@ trainer.fit(model, train_loader, val_loader)
 # default used by the Trainer
 trainer = Trainer(default_root_dir=os.getcwd())
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="3s9OjkGuhq1W"
 # To change the checkpoint path pass in **default_root_dir=**
@@ -1229,7 +1262,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="DgdxkrIQhvfw"
 trainer = Trainer(default_root_dir='.')
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="Qyvj_bkWrJiE"
 #
@@ -1255,7 +1288,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 trainer = Trainer(callbacks=[ModelCheckpoint(monitor='val_loss')])
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="5hYs_FV8iDMn"
 # You can modify the behavior of checkpointing by creating your own callback, and passing it to the trainer.
@@ -1284,7 +1317,7 @@ checkpoint_callback = ModelCheckpoint(
 
 trainer = Trainer(callbacks=[checkpoint_callback])
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="YKhZ6xRojJcl"
 # You can disable checkpointing it by passing
@@ -1371,14 +1404,14 @@ trainer.fit(model)
 # save to your custom path
 trainer = Trainer(weights_save_path='.')
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% id="PbNtlJ9Wsscf"
 # if checkpoint callback used, then overrides the weights path
 # **NOTE: this saves weights to some/path NOT my/path
 checkpoint = ModelCheckpoint(filepath='.')
 trainer = Trainer(callbacks=[checkpoint], weights_save_path='.')
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="uDdxCuyHdWQt"
 # # Early stopping
@@ -1398,7 +1431,7 @@ from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 trainer = Trainer(callbacks=[EarlyStopping('val_loss')])
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="MwpJfTvjeOwF"
 # You can customize the callback using the following params:
@@ -1410,7 +1443,7 @@ from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 early_stop_callback = EarlyStopping(monitor='val_accuracy', min_delta=0.00, patience=3, verbose=False, mode='max')
 trainer = Trainer(callbacks=[early_stop_callback])
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="7TAIerPYe_Q1"
 # The EarlyStopping callback runs at the end of every validation check, which, under the default configuration,
@@ -1445,7 +1478,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 logger = TensorBoardLogger(save_dir=os.getcwd(), version=1, name='lightning_logs')
 trainer = Trainer(logger=logger)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="jc5oWNpoiuuc"
 # Lightning supports the use of multiple loggers, just pass a list to the Trainer.
@@ -1467,7 +1500,7 @@ trainer = Trainer(logger=[logger1, logger2])
 # %% id="Em_XvsmyiBbk"
 trainer = Trainer(flush_logs_every_n_steps=100)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="_vDeKE98qsl1"
 # ## log_every_n_steps
@@ -1478,7 +1511,7 @@ trainer.fit(model, train_loader, val_loader)
 # %% id="HkqD7D_0w1Tt"
 trainer = Trainer(log_every_n_steps=1000)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="9uw0gfe422CT"
 # # info logging
@@ -1504,13 +1537,13 @@ trainer.fit(model, train_loader, val_loader)
 # print full summary of all modules and submodules
 trainer = Trainer(weights_summary='full')
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% id="R57cSLl9w9ma"
 # don't print a summary
 trainer = Trainer(weights_summary=None)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="bSc2hU5AotAP"
 # # progress bar
@@ -1528,7 +1561,7 @@ trainer.fit(model, train_loader, val_loader)
 # default used by the Trainer
 trainer = Trainer(process_position=0)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="itivQFgEphBU"
 # ## progress_bar_refresh_rate
@@ -1540,13 +1573,13 @@ trainer.fit(model, train_loader, val_loader)
 # default used by the Trainer
 trainer = Trainer(progress_bar_refresh_rate=1)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% id="8rDHJOJbxNtf"
 # disable progress bar
 trainer = Trainer(progress_bar_refresh_rate=0)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="NCNvYLwjpWne"
 # # profiler
@@ -1555,7 +1588,7 @@ trainer.fit(model, train_loader, val_loader)
 # to profile standard training events
 trainer = Trainer(profiler=True)
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
 
 # %% [markdown] id="Ji6aWpU73kMM"
 # You can also use Lightning AdvancedProfiler if you want more detailed information about time spent in each function
@@ -1569,4 +1602,4 @@ from pytorch_lightning.profiler import AdvancedProfiler
 
 trainer = Trainer(profiler=AdvancedProfiler())
 
-trainer.fit(model, train_loader, val_loader)
+trainer.fit(model, datamodule=mnist)
