@@ -50,9 +50,7 @@ TEMPLATE_SETUP = """# %%%% [markdown]
 """
 TEMPLATE_FOOTER = """
 # %% [markdown]
-# <code style="color:#792ee5;">
-#     <h1> <strong> Congratulations - Time to Join the Community! </strong>  </h1>
-# </code>
+# ## Congratulations - Time to Join the Community!
 #
 # Congratulations on completing this notebook tutorial! If you enjoyed this and would like to join the Lightning
 # movement, you can do so in the following ways!
@@ -165,12 +163,10 @@ class HelperCLI:
 
         py_file = HelperCLI._replace_images(py_file, os.path.dirname(fpath))
 
-        first_empty = min([i for i, ln in enumerate(py_file) if not ln.startswith("#")])
         header = TEMPLATE_HEADER % meta
         requires = set(default_requirements() + meta["requirements"])
         setup = TEMPLATE_SETUP % dict(requirements=" ".join(requires))
-        py_file[first_empty] = header + setup
-        py_file.append(TEMPLATE_FOOTER)
+        py_file = [header + setup] + py_file + [TEMPLATE_FOOTER]
 
         with open(fpath, "w") as fp:
             fp.writelines(py_file)
@@ -191,7 +187,9 @@ class HelperCLI:
         # update all images
         for img in set(imgs):
             url_path = '/'.join([URL_DOWNLOAD, local_dir, img])
-            md = md.replace(img, url_path)
+            # todo: add a rule to replace this paths only i md sections
+            md = md.replace(f'src="{img}"', f'src="{url_path}"')
+            md = md.replace(f']({img})', f']({url_path})')
 
         return [ln + os.linesep for ln in md.split(os.linesep)]
 
