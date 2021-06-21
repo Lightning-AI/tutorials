@@ -283,6 +283,7 @@ class GLUETransformer(LightningModule):
 seed_everything(42)
 
 dm = GLUEDataModule(model_name_or_path='albert-base-v2', task_name='cola')
+dm.setup('fit')
 model = GLUETransformer(model_name_or_path='albert-base-v2', num_labels=dm.num_labels, eval_splits=dm.eval_splits)
 
 trainer = Trainer(max_epochs=3, gpus=min(1, torch.cuda.device_count()))
@@ -298,6 +299,7 @@ trainer.fit(model, dm)
 seed_everything(42)
 
 dm = GLUEDataModule(model_name_or_path='distilbert-base-cased', task_name='mrpc')
+dm.setup('fit')
 model = GLUETransformer(
     model_name_or_path='distilbert-base-cased', num_labels=dm.num_labels, eval_splits=dm.eval_splits
 )
@@ -316,6 +318,7 @@ trainer.fit(model, dm)
 
 # %% colab={} colab_type="code" id="AvsZMOggfcWW"
 dm = GLUEDataModule(model_name_or_path='distilbert-base-cased', task_name='mnli')
+dm.setup('fit')
 model = GLUETransformer(
     model_name_or_path='distilbert-base-cased', num_labels=dm.num_labels, eval_splits=dm.eval_splits
 )
