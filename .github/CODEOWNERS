@@ -5,18 +5,18 @@
 # the repo. Unless a later match takes precedence,
 # @global-owner1 and @global-owner2 will be requested for
 # review when someone opens a pull request.
-* @borda @aribornstein @carmocca @kaushikb11
+* @borda @aribornstein @carmocca @kaushikb11 @SeanNaren @ethanwharris
 
 # CI/CD and configs
-/.actions/          @borda
-/.azure-*/          @borda
-/.github/           @borda
-/requirements/      @borda
-*.yml               @borda
-requirements.txt    @borda
+/.actions/          @borda @ethanwharris
+/.azure-*/          @borda @ethanwharris
+/.github/           @borda @ethanwharris
+/requirements/      @borda @ethanwharris
+*.yml               @borda @ethanwharris
+requirements.txt    @borda @ethanwharris
 
 # Docs
-/docs/                      @borda @aribornstein
+/docs/                      @borda @aribornstein @ethanwharris
 /.github/*.md               @borda @carmocca @aribornstein
 /.github/ISSUE_TEMPLATE/    @borda @carmocca @aribornstein
 
