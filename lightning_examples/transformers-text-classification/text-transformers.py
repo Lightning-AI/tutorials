@@ -14,15 +14,6 @@
 #     name: python3
 # ---
 
-# %% [markdown] colab_type="text" id="fqlsVTj7McZ3"
-# # Training BERT on the GLUE Dataset
-
-# %% [markdown] id="7uQVI-xv9Ddj"
-# ---
-# ## Install & Imports
-
-# %% colab={} colab_type="code" id="OIhHrRL-MnKK"
-# !pip install pytorch-lightning datasets transformers
 
 # %% colab={} colab_type="code" id="6yuQT_ZQMpCg"
 from datetime import datetime
