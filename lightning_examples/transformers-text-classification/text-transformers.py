@@ -244,7 +244,7 @@ class GLUETransformer(LightningModule):
             train_loader = self.train_dataloader()
 
             # Calculate total steps
-            tb_size = self.trainer.train_batch_size * max(1, self.trainer.gpus)
+            tb_size = self.hparams.train_batch_size * max(1, self.trainer.gpus)
             ab_size = self.trainer.accumulate_grad_batches * float(self.trainer.max_epochs)
             self.total_steps = (len(train_loader.dataset) // tb_size) // ab_size
 
