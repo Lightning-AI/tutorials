@@ -14,7 +14,6 @@
 #     name: python3
 # ---
 
-
 # %% colab={} colab_type="code" id="6yuQT_ZQMpCg"
 from datetime import datetime
 from typing import Optional
