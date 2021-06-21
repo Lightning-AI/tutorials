@@ -174,6 +174,7 @@ class GLUETransformer(LightningModule):
         self,
         model_name_or_path: str,
         num_labels: int,
+        task_name: str,
         learning_rate: float = 2e-5,
         adam_epsilon: float = 1e-8,
         warmup_steps: int = 0,
@@ -284,7 +285,9 @@ seed_everything(42)
 
 dm = GLUEDataModule(model_name_or_path='albert-base-v2', task_name='cola')
 dm.setup('fit')
-model = GLUETransformer(model_name_or_path='albert-base-v2', num_labels=dm.num_labels, eval_splits=dm.eval_splits)
+model = GLUETransformer(
+    model_name_or_path='albert-base-v2', num_labels=dm.num_labels, eval_splits=dm.eval_splits, task_name=dm.task_name
+)
 
 trainer = Trainer(max_epochs=3, gpus=min(1, torch.cuda.device_count()))
 trainer.fit(model, dm)
@@ -301,7 +304,10 @@ seed_everything(42)
 dm = GLUEDataModule(model_name_or_path='distilbert-base-cased', task_name='mrpc')
 dm.setup('fit')
 model = GLUETransformer(
-    model_name_or_path='distilbert-base-cased', num_labels=dm.num_labels, eval_splits=dm.eval_splits
+    model_name_or_path='distilbert-base-cased',
+    num_labels=dm.num_labels,
+    eval_splits=dm.eval_splits,
+    task_name=dm.task_name
 )
 
 trainer = Trainer(max_epochs=3, gpus=min(1, torch.cuda.device_count()))
@@ -320,7 +326,10 @@ trainer.fit(model, dm)
 dm = GLUEDataModule(model_name_or_path='distilbert-base-cased', task_name='mnli')
 dm.setup('fit')
 model = GLUETransformer(
-    model_name_or_path='distilbert-base-cased', num_labels=dm.num_labels, eval_splits=dm.eval_splits
+    model_name_or_path='distilbert-base-cased',
+    num_labels=dm.num_labels,
+    eval_splits=dm.eval_splits,
+    task_name=dm.task_name
 )
 
 trainer = Trainer(gpus=min(1, torch.cuda.device_count()), progress_bar_refresh_rate=20)
