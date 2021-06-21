@@ -92,7 +92,7 @@ class GLUEDataModule(LightningDataModule):
         self.num_labels = self.glue_task_num_labels[task_name]
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name_or_path, use_fast=True)
 
-    def setup(self, stage):
+    def setup(self, stage: str):
         self.dataset = datasets.load_dataset('glue', self.task_name)
 
         for split in self.dataset.keys():
