@@ -306,7 +306,7 @@ trainer.fit(model, dm)
 # %% [markdown] colab_type="text" id="iZhbn0HzfdCu"
 # #### MNLI
 #
-#  - The MNLI dataset is huge, so we aren't going to bother trying to train it here.
+#  - The MNLI dataset is huge, so we aren't going to bother trying to train on it here.
 #  - We will skip over training and go straight to validation.
 #
 # See an interactive view of the
