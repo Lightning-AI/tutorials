@@ -21,16 +21,14 @@
 
 # %% id="SNHa7DpmRZ-C"
 import torch
+import torch.nn.functional as F
 from pytorch_lightning import LightningDataModule, Trainer
 from torch import nn
-import torch.nn.functional as F
-from torch.utils.data import random_split, DataLoader
-
+from torch.utils.data import DataLoader, random_split
+from torchmetrics.functional import accuracy
+from torchvision import transforms
 # Note - you must have torchvision installed for this example
 from torchvision.datasets import MNIST
-from torchvision import transforms
-
-from torchmetrics.functional import accuracy
 
 BATCH_SIZE = 1024
 
