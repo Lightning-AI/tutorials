@@ -1,16 +1,18 @@
 # %%
 import os
 
-import kornia as K
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchmetrics
 import torchvision
-from pytorch_lightning import Trainer
+from kornia import image_to_tensor, tensor_to_image
+from kornia.augmentation import ColorJitter, RandomChannelShuffle, RandomHorizontalFlip, RandomThinPlateSpline
+from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.loggers import CSVLogger
+from torch import Tensor
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
@@ -41,15 +43,15 @@ class DataAugmentation(nn.Module):
         self._apply_color_jitter = apply_color_jitter
 
         self.transforms = nn.Sequential(
-            K.augmentation.RandomHorizontalFlip(p=0.75),
-            K.augmentation.RandomChannelShuffle(p=0.75),
-            K.augmentation.RandomThinPlateSpline(p=0.75),
+            RandomHorizontalFlip(p=0.75),
+            RandomChannelShuffle(p=0.75),
+            RandomThinPlateSpline(p=0.75),
         )
 
-        self.jitter = K.augmentation.ColorJitter(0.5, 0.5, 0.5, 0.5)
+        self.jitter = ColorJitter(0.5, 0.5, 0.5, 0.5)
 
     @torch.no_grad()  # disable gradients for effiency
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Tensor) -> Tensor:
         x_out = self.transforms(x)  # BxCxHxW
         if self._apply_color_jitter:
             x_out = self.jitter(x_out)
@@ -60,7 +62,7 @@ class DataAugmentation(nn.Module):
 # ## Define a Pre-processing module
 #
 # In addition to the `DataAugmentation` modudle that will sample random parameters during the training stage,
-# we define a `Preprocess` class to handle the conversion of the image type to properly work with `torch.Tensor`.
+# we define a `Preprocess` class to handle the conversion of the image type to properly work with `Tensor`.
 #
 # For this example we use `torchvision` CIFAR10 which return samples of `PIL.Image`, however,
 # to take all the advantages of PyTorch and Kornia we need to cast the images into tensors.
@@ -73,9 +75,9 @@ class Preprocess(nn.Module):
     """Module to perform pre-process using Kornia on torch tensors."""
 
     @torch.no_grad()  # disable gradients for effiency
-    def forward(self, x) -> torch.Tensor:
+    def forward(self, x) -> Tensor:
         x_tmp: np.ndarray = np.array(x)  # HxWxC
-        x_out: torch.Tensor = K.image_to_tensor(x_tmp, keepdim=True)  # CxHxW
+        x_out: Tensor = image_to_tensor(x_tmp, keepdim=True)  # CxHxW
         return x_out.float() / 255.
 
 
@@ -94,7 +96,7 @@ class Preprocess(nn.Module):
 
 
 # %%
-class CoolSystem(pl.LightningModule):
+class CoolSystem(LightningModule):
 
     def __init__(self):
         super(CoolSystem, self).__init__()
@@ -116,7 +118,7 @@ class CoolSystem(pl.LightningModule):
     def show_batch(self, win_size=(10, 10)):
 
         def _to_vis(data):
-            return K.utils.tensor_to_image(torchvision.utils.make_grid(data, nrow=8))
+            return tensor_to_image(torchvision.utils.make_grid(data, nrow=8))
 
         # get a batch from the training set: try with `val_datlaoader` :)
         imgs, labels = next(iter(self.train_dataloader()))
@@ -182,7 +184,7 @@ trainer = Trainer(
     progress_bar_refresh_rate=20,
     gpus=AVAIL_GPUS,
     max_epochs=10,
-    logger=pl.loggers.CSVLogger(save_dir='logs/', name="cifar10-resnet18")
+    logger=CSVLogger(save_dir='logs/', name="cifar10-resnet18")
 )
 
 # Train the model ⚡

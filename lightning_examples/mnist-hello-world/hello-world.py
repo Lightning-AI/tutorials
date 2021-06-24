@@ -1,8 +1,8 @@
 # %%
 import os
 
-import pytorch_lightning as pl
 import torch
+from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.metrics.functional import accuracy
 from torch import nn
 from torch.nn import functional as F
@@ -23,7 +23,7 @@ BATCH_SIZE = 256 if AVAIL_GPUS else 64
 
 
 # %%
-class MNISTModel(pl.LightningModule):
+class MNISTModel(LightningModule):
 
     def __init__(self):
         super(MNISTModel, self).__init__()
@@ -57,7 +57,7 @@ train_ds = MNIST(PATH_DATASETS, train=True, download=True, transform=transforms.
 train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE)
 
 # Initialize a trainer
-trainer = pl.Trainer(
+trainer = Trainer(
     gpus=AVAIL_GPUS,
     max_epochs=3,
     progress_bar_refresh_rate=20,
@@ -95,7 +95,7 @@ trainer.fit(mnist_model, train_loader)
 
 
 # %%
-class LitMNIST(pl.LightningModule):
+class LitMNIST(LightningModule):
 
     def __init__(self, data_dir=PATH_DATASETS, hidden_size=64, learning_rate=2e-4):
 
@@ -180,7 +180,7 @@ class LitMNIST(pl.LightningModule):
 
 # %%
 model = LitMNIST()
-trainer = pl.Trainer(
+trainer = Trainer(
     gpus=AVAIL_GPUS,
     max_epochs=3,
     progress_bar_refresh_rate=20,

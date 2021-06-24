@@ -6,9 +6,9 @@
 # %%
 import os
 
-import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
+from pytorch_lightning import LightningDataModule, LightningModule, Trainer
 from pytorch_lightning.metrics.functional import accuracy
 from torch import nn
 from torch.utils.data import DataLoader, random_split
@@ -33,7 +33,7 @@ BATCH_SIZE = 256 if AVAIL_GPUS else 64
 
 
 # %%
-class LitMNIST(pl.LightningModule):
+class LitMNIST(LightningModule):
 
     def __init__(self, data_dir=PATH_DATASETS, hidden_size=64, learning_rate=2e-4):
 
@@ -114,7 +114,7 @@ class LitMNIST(pl.LightningModule):
 
 # %%
 model = LitMNIST()
-trainer = pl.Trainer(
+trainer = Trainer(
     max_epochs=2,
     gpus=AVAIL_GPUS,
     progress_bar_refresh_rate=20,
@@ -154,7 +154,7 @@ trainer.fit(model)
 
 
 # %%
-class MNISTDataModule(pl.LightningDataModule):
+class MNISTDataModule(LightningDataModule):
 
     def __init__(self, data_dir: str = PATH_DATASETS):
         super().__init__()
@@ -202,7 +202,7 @@ class MNISTDataModule(pl.LightningDataModule):
 
 
 # %%
-class LitModel(pl.LightningModule):
+class LitModel(LightningModule):
 
     def __init__(self, channels, width, height, num_classes, hidden_size=64, learning_rate=2e-4):
 
@@ -258,7 +258,7 @@ dm = MNISTDataModule()
 # Init model from datamodule's attributes
 model = LitModel(*dm.size(), dm.num_classes)
 # Init trainer
-trainer = pl.Trainer(
+trainer = Trainer(
     max_epochs=3,
     progress_bar_refresh_rate=20,
     gpus=AVAIL_GPUS,
@@ -273,7 +273,7 @@ trainer.fit(model, dm)
 
 
 # %%
-class CIFAR10DataModule(pl.LightningDataModule):
+class CIFAR10DataModule(LightningDataModule):
 
     def __init__(self, data_dir: str = './'):
         super().__init__()
@@ -321,7 +321,7 @@ class CIFAR10DataModule(pl.LightningDataModule):
 # %%
 dm = CIFAR10DataModule()
 model = LitModel(*dm.size(), dm.num_classes, hidden_size=256)
-trainer = pl.Trainer(
+trainer = Trainer(
     max_epochs=5,
     progress_bar_refresh_rate=20,
     gpus=AVAIL_GPUS,
