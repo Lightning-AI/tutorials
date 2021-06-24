@@ -1,20 +1,4 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.11.3
-#   kernelspec:
-#     display_name: Python 3
-#     language: python
-#     name: python3
-# ---
-
-# %% colab={} colab_type="code" id="Z_XTj-y1gYJL"
+# %%
 import os
 
 import kornia as K
@@ -33,7 +17,7 @@ from torchvision.datasets import CIFAR10
 
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 
-# %% [markdown] colab_type="text" id="hA4-AFd6gKo-"
+# %% [markdown]
 # ## Define Data Augmentations module
 #
 # [Kornia.org](https://www.kornia.org) is low level Computer Vision library that provides a dedicated module
@@ -48,7 +32,7 @@ AVAIL_GPUS = min(1, torch.cuda.device_count())
 # Checkout the different augmentation operators in Kornia docs and experiment yourself !
 
 
-# %% colab={} colab_type="code" id="RvdMAbyXgRPh"
+# %%
 class DataAugmentation(nn.Module):
     """Module to perform data augmentation using Kornia on torch tensors."""
 
@@ -72,7 +56,7 @@ class DataAugmentation(nn.Module):
         return x_out
 
 
-# %% [markdown] colab_type="text" id="CQ06HnPtkIlq"
+# %% [markdown]
 # ## Define a Pre-processing module
 #
 # In addition to the `DataAugmentation` modudle that will sample random parameters during the training stage,
@@ -84,7 +68,7 @@ class DataAugmentation(nn.Module):
 # To do that we will use `kornia.image_to_tensor` which casts and permutes the images in the right format.
 
 
-# %% colab={} colab_type="code" id="EjPPQjcXkNT3"
+# %%
 class Preprocess(nn.Module):
     """Module to perform pre-process using Kornia on torch tensors."""
 
@@ -95,7 +79,7 @@ class Preprocess(nn.Module):
         return x_out.float() / 255.
 
 
-# %% [markdown] colab_type="text" id="LXGKqIZuTLMs"
+# %% [markdown]
 # ## Define PyTorch Lightning model
 #
 # The next step is to define our `LightningModule` to have a proper organisation of our training pipeline.
@@ -109,7 +93,7 @@ class Preprocess(nn.Module):
 # This means that our `DataAugmentation` pipeline will automatically executed in the GPU.
 
 
-# %% colab={} colab_type="code" id="aDagOcKyZ_qh"
+# %%
 class CoolSystem(pl.LightningModule):
 
     def __init__(self):
@@ -179,20 +163,20 @@ class CoolSystem(pl.LightningModule):
         return loader
 
 
-# %% [markdown] colab_type="text" id="yyLkgogITNtj"
+# %% [markdown]
 # ## Visualize images
 
-# %% colab={} colab_type="code" id="kr8cql-aaKnC"
+# %%
 # init model
 model = CoolSystem()
 
-# %% colab={} colab_type="code" id="O2Fq4bK4l9sS"
+# %%
 model.show_batch(win_size=(14, 14))
 
-# %% [markdown] colab_type="text" id="baSvOQRNl5iw"
+# %% [markdown]
 # ## Run training
 
-# %% colab={} colab_type="code" id="O_AFCY3WlwKg"
+# %%
 # Initialize a trainer
 trainer = Trainer(
     progress_bar_refresh_rate=20,
@@ -204,10 +188,10 @@ trainer = Trainer(
 # Train the model ⚡
 trainer.fit(model)
 
-# %% [markdown] colab_type="text" id="jrSNajrhx9E_"
+# %% [markdown]
 # ### Visualize the training results
 
-# %% colab={} colab_type="code" id="jXhH_0mbx_ye"
+# %%
 metrics = pd.read_csv(f'{trainer.logger.log_dir}/metrics.csv')
 print(metrics.head())
 
@@ -222,10 +206,10 @@ df_metrics = pd.DataFrame(aggreg_metrics)
 df_metrics[['train_loss', 'valid_loss']].plot(grid=True, legend=True)
 df_metrics[['valid_acc', 'train_acc']].plot(grid=True, legend=True)
 
-# %% [markdown] colab_type="text" id="t65M0xD4lgAh"
+# %% [markdown]
 # ## Tensorboard
 
-# %% colab={} colab_type="code" id="xg3c6UJQt0mw"
+# %%
 # Start tensorboard.
 # # %load_ext tensorboard
 # # %tensorboard --logdir lightning_logs/

@@ -1,20 +1,4 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.11.3
-#   kernelspec:
-#     display_name: Python 3
-#     language: python
-#     name: python3
-# ---
-
-# %% colab={} colab_type="code" id="6yuQT_ZQMpCg"
+# %%
 from datetime import datetime
 from typing import Optional
 
@@ -22,7 +6,7 @@ import datasets
 import torch
 from pytorch_lightning import LightningDataModule, LightningModule, seed_everything, Trainer
 from torch.utils.data import DataLoader
-# %% id="vOR0Q1Yg-HmN"
+# %%
 from transformers import (
     AdamW,
     AutoConfig,
@@ -31,15 +15,15 @@ from transformers import (
     get_linear_schedule_with_warmup,
 )
 
-# %% [markdown] id="7uQVI-xv9Ddj"
+# %% [markdown]
 # ---
 # ## Training BERT with Lightning
 
-# %% [markdown] colab_type="text" id="9ORJfiuiNZ_N"
+# %% [markdown]
 # ### Lightning DataModule for GLUE
 
 
-# %% colab={} colab_type="code" id="jW9xQhZxMz1G"
+# %%
 class GLUEDataModule(LightningDataModule):
 
     task_text_field_map = {
@@ -144,20 +128,20 @@ class GLUEDataModule(LightningDataModule):
         return features
 
 
-# %% [markdown] colab_type="text" id="jQC3a6KuOpX3"
+# %% [markdown]
 # **You could use this datamodule with standalone PyTorch if you wanted...**
 
-# %% colab={} colab_type="code" id="JCMH3IAsNffF"
+# %%
 dm = GLUEDataModule('distilbert-base-uncased')
 dm.prepare_data()
 dm.setup('fit')
 next(iter(dm.train_dataloader()))
 
-# %% [markdown] colab_type="text" id="l9fQ_67BO2Lj"
+# %%
 # ### Transformer LightningModule
 
 
-# %% colab={} colab_type="code" id="gtn5YGKYO65B"
+# %%
 class GLUETransformer(LightningModule):
 
     def __init__(
@@ -261,16 +245,16 @@ class GLUETransformer(LightningModule):
         return [optimizer], [scheduler]
 
 
-# %% [markdown] colab_type="text" id="QSpueK5UPsN7"
+# %% [markdown]
 # ## Training
 
-# %% [markdown] colab_type="text" id="QSpueK5UPsN7"
+# %% [markdown]
 # #### CoLA
 #
 # See an interactive view of the
 # CoLA dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=cola)
 
-# %% colab={} colab_type="code" id="NJnFmtpnPu0Y"
+# %%
 seed_everything(42)
 
 dm = GLUEDataModule(model_name_or_path='albert-base-v2', task_name='cola')
@@ -282,13 +266,13 @@ model = GLUETransformer(
 trainer = Trainer(max_epochs=3, gpus=min(1, torch.cuda.device_count()))
 trainer.fit(model, dm)
 
-# %% [markdown] colab_type="text" id="_MrNsTnqdz4z"
+# %% [markdown]
 # #### MRPC
 #
 # See an interactive view of the
 # MRPC dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=mrpc)
 
-# %% colab={} colab_type="code" id="LBwRxg9Cb3d-"
+# %%
 seed_everything(42)
 
 dm = GLUEDataModule(model_name_or_path='distilbert-base-cased', task_name='mrpc')
@@ -303,7 +287,7 @@ model = GLUETransformer(
 trainer = Trainer(max_epochs=3, gpus=min(1, torch.cuda.device_count()))
 trainer.fit(model, dm)
 
-# %% [markdown] colab_type="text" id="iZhbn0HzfdCu"
+# %% [markdown]
 # #### MNLI
 #
 #  - The MNLI dataset is huge, so we aren't going to bother trying to train on it here.
@@ -312,7 +296,7 @@ trainer.fit(model, dm)
 # See an interactive view of the
 # MRPC dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=mnli)
 
-# %% colab={} colab_type="code" id="AvsZMOggfcWW"
+# %%
 dm = GLUEDataModule(model_name_or_path='distilbert-base-cased', task_name='mnli')
 dm.setup('fit')
 model = GLUETransformer(

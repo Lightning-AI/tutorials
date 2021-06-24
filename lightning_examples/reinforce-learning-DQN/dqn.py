@@ -1,19 +1,3 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.11.2
-#   kernelspec:
-#     display_name: Python 3
-#     language: python
-#     name: python3
-# ---
-
 # %%
 import os
 from collections import deque, namedtuple, OrderedDict
@@ -52,7 +36,7 @@ class DQN(nn.Module):
         return self.net(x.float())
 
 
-# %% [markdown] id="c9clSz7xTFZf"
+# %% [markdown]
 # ### Memory
 
 # %%

@@ -1,20 +1,4 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.11.2
-#   kernelspec:
-#     display_name: Python 3
-#     language: python
-#     name: python3
-# ---
-
-# %% colab={} colab_type="code" id="w4_TYnt_keJi"
+# %%
 import os
 
 import pytorch_lightning as pl
@@ -30,7 +14,7 @@ PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 BATCH_SIZE = 256 if AVAIL_GPUS else 64
 
-# %% [markdown] colab_type="text" id="EHpyMPKFkVbZ"
+# %% [markdown]
 # ## Simplest example
 #
 # Here's the simplest most minimal example with just a training loop (no validation, no testing).
@@ -38,7 +22,7 @@ BATCH_SIZE = 256 if AVAIL_GPUS else 64
 # **Keep in Mind** - A `LightningModule` *is* a PyTorch `nn.Module` - it just has a few more helpful features.
 
 
-# %% colab={} colab_type="code" id="V7ELesz1kVQo"
+# %%
 class MNISTModel(pl.LightningModule):
 
     def __init__(self):
@@ -57,14 +41,14 @@ class MNISTModel(pl.LightningModule):
         return torch.optim.Adam(self.parameters(), lr=0.02)
 
 
-# %% [markdown] colab_type="text" id="hIrtHg-Dv8TJ"
+# %% [markdown]
 # By using the `Trainer` you automatically get:
 # 1. Tensorboard logging
 # 2. Model checkpointing
 # 3. Training and validation loop
 # 4. early-stopping
 
-# %% colab={} colab_type="code" id="4Dk6Ykv8lI7X"
+# %%
 # Init our model
 mnist_model = MNISTModel()
 
@@ -82,7 +66,7 @@ trainer = pl.Trainer(
 # Train the model ⚡
 trainer.fit(mnist_model, train_loader)
 
-# %% [markdown] colab_type="text" id="KNpOoBeIjscS"
+# %% [markdown]
 # ## A more complete MNIST Lightning Module Example
 #
 # That wasn't so hard was it?
@@ -110,7 +94,7 @@ trainer.fit(mnist_model, train_loader)
 #     - `train_dataloader()`, `val_dataloader()`, and `test_dataloader()` all return PyTorch `DataLoader` instances that are created by wrapping their respective datasets that we prepared in `setup()`
 
 
-# %% colab={} colab_type="code" id="4DNItffri95Q"
+# %%
 class LitMNIST(pl.LightningModule):
 
     def __init__(self, data_dir=PATH_DATASETS, hidden_size=64, learning_rate=2e-4):
@@ -194,7 +178,7 @@ class LitMNIST(pl.LightningModule):
         return DataLoader(self.mnist_test, batch_size=BATCH_SIZE)
 
 
-# %% colab={} colab_type="code" id="Mb0U5Rk2kLBy"
+# %%
 model = LitMNIST()
 trainer = pl.Trainer(
     gpus=AVAIL_GPUS,
@@ -203,7 +187,7 @@ trainer = pl.Trainer(
 )
 trainer.fit(model)
 
-# %% [markdown] colab_type="text" id="nht8AvMptY6I"
+# %% [markdown]
 # ### Testing
 #
 # To test a model, call `trainer.test(model)`.
@@ -211,21 +195,21 @@ trainer.fit(model)
 # Or, if you've just trained a model, you can just call `trainer.test()` and Lightning will automatically
 # test using the best saved checkpoint (conditioned on val_loss).
 
-# %% colab={} colab_type="code" id="PA151FkLtprO"
+# %%
 trainer.test()
 
-# %% [markdown] colab_type="text" id="T3-3lbbNtr5T"
+# %% [markdown]
 # ### Bonus Tip
 #
 # You can keep calling `trainer.fit(model)` as many times as you'd like to continue training
 
-# %% colab={} colab_type="code" id="IFBwCbLet2r6"
+# %%
 trainer.fit(model)
 
-# %% [markdown] colab_type="text" id="8TRyS5CCt3n9"
+# %% [markdown]
 # In Colab, you can use the TensorBoard magic function to view the logs that Lightning has created for you!
 
-# %% colab={} colab_type="code" id="wizS-QiLuAYo"
+# %%
 # Start tensorboard.
 # %load_ext tensorboard
 # %tensorboard --logdir lightning_logs/
