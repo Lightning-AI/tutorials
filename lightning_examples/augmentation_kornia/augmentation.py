@@ -9,7 +9,12 @@ import torch.nn as nn
 import torchmetrics
 import torchvision
 from kornia import image_to_tensor, tensor_to_image
-from kornia.augmentation import ColorJitter, RandomChannelShuffle, RandomHorizontalFlip, RandomThinPlateSpline
+from kornia.augmentation import (
+    ColorJitter,
+    RandomChannelShuffle,
+    RandomHorizontalFlip,
+    RandomThinPlateSpline,
+)
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.loggers import CSVLogger
 from torch import Tensor

@@ -30,7 +30,11 @@ class DQN(nn.Module):
             hidden_size: size of hidden layers
         """
         super(DQN, self).__init__()
-        self.net = nn.Sequential(nn.Linear(obs_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, n_actions))
+        self.net = nn.Sequential(
+            nn.Linear(obs_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, n_actions),
+        )
 
     def forward(self, x):
         return self.net(x.float())
@@ -42,7 +46,10 @@ class DQN(nn.Module):
 # %%
 
 # Named tuple for storing experience steps gathered in training
-Experience = namedtuple('Experience', field_names=['state', 'action', 'reward', 'done', 'new_state'])
+Experience = namedtuple(
+    'Experience',
+    field_names=['state', 'action', 'reward', 'done', 'new_state'],
+)
 
 
 # %%
@@ -155,7 +162,12 @@ class Agent:
         return action
 
     @torch.no_grad()
-    def play_step(self, net: nn.Module, epsilon: float = 0.0, device: str = 'cpu') -> Tuple[float, bool]:
+    def play_step(
+        self,
+        net: nn.Module,
+        epsilon: float = 0.0,
+        device: str = 'cpu',
+    ) -> Tuple[float, bool]:
         """Carries out a single interaction step between the agent and the environment
 
         Args:
@@ -296,7 +308,10 @@ class DQNLightning(LightningModule):
             Training loss and log metrics
         """
         device = self.get_device(batch)
-        epsilon = max(self.hparams.eps_end, self.hparams.eps_start - self.global_step + 1 / self.hparams.eps_last_frame)
+        epsilon = max(
+            self.hparams.eps_end,
+            self.hparams.eps_start - self.global_step + 1 / self.hparams.eps_last_frame,
+        )
 
         # step through environment with agent
         reward, done = self.agent.play_step(self.net, epsilon, device)

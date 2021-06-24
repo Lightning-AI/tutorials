@@ -15,6 +15,8 @@ from transformers import (
     get_linear_schedule_with_warmup,
 )
 
+AVAIL_GPUS = min(1, torch.cuda.device_count())
+
 # %% [markdown]
 # ---
 # ## Training BERT with Lightning
@@ -53,7 +55,8 @@ class GLUEDataModule(LightningDataModule):
     }
 
     loader_columns = [
-        'datasets_idx', 'input_ids', 'token_type_ids', 'attention_mask', 'start_positions', 'end_positions', 'labels'
+        'datasets_idx', 'input_ids', 'token_type_ids', 'attention_mask', 'start_positions', 'end_positions',
+        'labels'
     ]
 
     def __init__(
@@ -113,7 +116,9 @@ class GLUEDataModule(LightningDataModule):
 
         # Either encode single sentence or sentence pairs
         if len(self.text_fields) > 1:
-            texts_or_text_pairs = list(zip(example_batch[self.text_fields[0]], example_batch[self.text_fields[1]]))
+            texts_or_text_pairs = list(
+                zip(example_batch[self.text_fields[0]], example_batch[self.text_fields[1]])
+            )
         else:
             texts_or_text_pairs = example_batch[self.text_fields[0]]
 
@@ -163,7 +168,9 @@ class GLUETransformer(LightningModule):
         self.save_hyperparameters()
 
         self.config = AutoConfig.from_pretrained(model_name_or_path, num_labels=num_labels)
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_name_or_path, config=self.config)
+        self.model = AutoModelForSequenceClassification.from_pretrained(
+            model_name_or_path, config=self.config
+        )
         self.metric = datasets.load_metric(
             'glue', self.hparams.task_name, experiment_id=datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
         )
@@ -236,10 +243,14 @@ class GLUETransformer(LightningModule):
                 "weight_decay": 0.0,
             },
         ]
-        optimizer = AdamW(optimizer_grouped_parameters, lr=self.hparams.learning_rate, eps=self.hparams.adam_epsilon)
+        optimizer = AdamW(
+            optimizer_grouped_parameters, lr=self.hparams.learning_rate, eps=self.hparams.adam_epsilon
+        )
 
         scheduler = get_linear_schedule_with_warmup(
-            optimizer, num_warmup_steps=self.hparams.warmup_steps, num_training_steps=self.total_steps
+            optimizer,
+            num_warmup_steps=self.hparams.warmup_steps,
+            num_training_steps=self.total_steps,
         )
         scheduler = {'scheduler': scheduler, 'interval': 'step', 'frequency': 1}
         return [optimizer], [scheduler]
@@ -260,10 +271,13 @@ seed_everything(42)
 dm = GLUEDataModule(model_name_or_path='albert-base-v2', task_name='cola')
 dm.setup('fit')
 model = GLUETransformer(
-    model_name_or_path='albert-base-v2', num_labels=dm.num_labels, eval_splits=dm.eval_splits, task_name=dm.task_name
+    model_name_or_path='albert-base-v2',
+    num_labels=dm.num_labels,
+    eval_splits=dm.eval_splits,
+    task_name=dm.task_name,
 )
 
-trainer = Trainer(max_epochs=3, gpus=min(1, torch.cuda.device_count()))
+trainer = Trainer(max_epochs=3, gpus=AVAIL_GPUS)
 trainer.fit(model, dm)
 
 # %% [markdown]
@@ -275,7 +289,10 @@ trainer.fit(model, dm)
 # %%
 seed_everything(42)
 
-dm = GLUEDataModule(model_name_or_path='distilbert-base-cased', task_name='mrpc')
+dm = GLUEDataModule(
+    model_name_or_path='distilbert-base-cased',
+    task_name='mrpc',
+)
 dm.setup('fit')
 model = GLUETransformer(
     model_name_or_path='distilbert-base-cased',
@@ -284,7 +301,7 @@ model = GLUETransformer(
     task_name=dm.task_name
 )
 
-trainer = Trainer(max_epochs=3, gpus=min(1, torch.cuda.device_count()))
+trainer = Trainer(max_epochs=3, gpus=AVAIL_GPUS)
 trainer.fit(model, dm)
 
 # %% [markdown]
@@ -297,7 +314,10 @@ trainer.fit(model, dm)
 # MRPC dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=mnli)
 
 # %%
-dm = GLUEDataModule(model_name_or_path='distilbert-base-cased', task_name='mnli')
+dm = GLUEDataModule(
+    model_name_or_path='distilbert-base-cased',
+    task_name='mnli',
+)
 dm.setup('fit')
 model = GLUETransformer(
     model_name_or_path='distilbert-base-cased',
@@ -306,5 +326,5 @@ model = GLUETransformer(
     task_name=dm.task_name
 )
 
-trainer = Trainer(gpus=min(1, torch.cuda.device_count()), progress_bar_refresh_rate=20)
+trainer = Trainer(gpus=AVAIL_GPUS, progress_bar_refresh_rate=20)
 trainer.validate(model, dm.val_dataloader())

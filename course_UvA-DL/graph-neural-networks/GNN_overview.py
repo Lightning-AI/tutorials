@@ -343,7 +343,8 @@ class GATLayer(nn.Module):
         # We need to calculate the attention logits for every edge in the adjacency matrix
         # Doing this on all possible combinations of nodes is very expensive
         # => Create a tensor of [W*h_i||W*h_j] with i and j being the indices of all edges
-        edges = adj_matrix.nonzero(as_tuple=False)  # Returns indices where the adjacency matrix is not 0 => edges
+        # Returns indices where the adjacency matrix is not 0 => edges
+        edges = adj_matrix.nonzero(as_tuple=False)
         node_feats_flat = node_feats.view(batch_size * num_nodes, self.num_heads, -1)
         edge_indices_row = edges[:, 0] * num_nodes + edges[:, 1]
         edge_indices_col = edges[:, 0] * num_nodes + edges[:, 2]
@@ -495,7 +496,16 @@ cora_dataset[0]
 # %%
 class GNNModel(nn.Module):
 
-    def __init__(self, c_in, c_hidden, c_out, num_layers=2, layer_name="GCN", dp_rate=0.1, **kwargs):
+    def __init__(
+        self,
+        c_in,
+        c_hidden,
+        c_out,
+        num_layers=2,
+        layer_name="GCN",
+        dp_rate=0.1,
+        **kwargs,
+    ):
         """
         Inputs:
             c_in - Dimension of input features
@@ -816,7 +826,9 @@ test_dataset = tu_dataset[150:]
 
 # %%
 graph_train_loader = geom_data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-graph_val_loader = geom_data.DataLoader(test_dataset, batch_size=BATCH_SIZE)  # Additional loader for a larger datasets
+graph_val_loader = geom_data.DataLoader(
+    test_dataset, batch_size=BATCH_SIZE
+)  # Additional loader for a larger datasets
 graph_test_loader = geom_data.DataLoader(test_dataset, batch_size=BATCH_SIZE)
 
 # %% [markdown]
@@ -974,7 +986,12 @@ def train_graph_classifier(model_name, **model_kwargs):
 
 # %%
 model, result = train_graph_classifier(
-    model_name="GraphConv", c_hidden=256, layer_name="GraphConv", num_layers=3, dp_rate_linear=0.5, dp_rate=0.0
+    model_name="GraphConv",
+    c_hidden=256,
+    layer_name="GraphConv",
+    num_layers=3,
+    dp_rate_linear=0.5,
+    dp_rate=0.0
 )
 
 # %%

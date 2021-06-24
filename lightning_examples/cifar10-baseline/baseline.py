@@ -113,10 +113,20 @@ class LitResnet(LightningModule):
         self.evaluate(batch, 'test')
 
     def configure_optimizers(self):
-        optimizer = torch.optim.SGD(self.parameters(), lr=self.hparams.lr, momentum=0.9, weight_decay=5e-4)
+        optimizer = torch.optim.SGD(
+            self.parameters(),
+            lr=self.hparams.lr,
+            momentum=0.9,
+            weight_decay=5e-4,
+        )
         steps_per_epoch = 45000 // BATCH_SIZE
         scheduler_dict = {
-            'scheduler': OneCycleLR(optimizer, 0.1, epochs=self.trainer.max_epochs, steps_per_epoch=steps_per_epoch),
+            'scheduler': OneCycleLR(
+                optimizer,
+                0.1,
+                epochs=self.trainer.max_epochs,
+                steps_per_epoch=steps_per_epoch,
+            ),
             'interval': 'step',
         }
         return {'optimizer': optimizer, 'lr_scheduler': scheduler_dict}
@@ -173,7 +183,9 @@ class SWAResnet(LitResnet):
         self.log('val_acc', acc, prog_bar=True)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.SGD(self.model.parameters(), lr=self.hparams.lr, momentum=0.9, weight_decay=5e-4)
+        optimizer = torch.optim.SGD(
+            self.model.parameters(), lr=self.hparams.lr, momentum=0.9, weight_decay=5e-4
+        )
         return optimizer
 
     def on_train_end(self):

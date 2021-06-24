@@ -44,15 +44,24 @@ class LitMNIST(LightningModule):
         self.num_classes = 10
         self.dims = (1, 28, 28)
         channels, width, height = self.dims
-        self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307, ), (0.3081, ))])
+        self.transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.1307, ), (0.3081, )),
+        ])
 
         self.hidden_size = hidden_size
         self.learning_rate = learning_rate
 
         # Build model
         self.model = nn.Sequential(
-            nn.Flatten(), nn.Linear(channels * width * height, hidden_size), nn.ReLU(), nn.Dropout(0.1),
-            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Dropout(0.1), nn.Linear(hidden_size, self.num_classes)
+            nn.Flatten(),
+            nn.Linear(channels * width * height, hidden_size),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_size, hidden_size),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_size, self.num_classes),
         )
 
     def forward(self, x):
@@ -159,7 +168,10 @@ class MNISTDataModule(LightningDataModule):
     def __init__(self, data_dir: str = PATH_DATASETS):
         super().__init__()
         self.data_dir = data_dir
-        self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307, ), (0.3081, ))])
+        self.transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.1307, ), (0.3081, )),
+        ])
 
         # self.dims is returned when you call dm.size()
         # Setting default dims here because we know them.
@@ -217,8 +229,14 @@ class LitModel(LightningModule):
         self.learning_rate = learning_rate
 
         self.model = nn.Sequential(
-            nn.Flatten(), nn.Linear(channels * width * height, hidden_size), nn.ReLU(), nn.Dropout(0.1),
-            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Dropout(0.1), nn.Linear(hidden_size, num_classes)
+            nn.Flatten(),
+            nn.Linear(channels * width * height, hidden_size),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_size, hidden_size),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_size, num_classes),
         )
 
     def forward(self, x):
@@ -279,7 +297,8 @@ class CIFAR10DataModule(LightningDataModule):
         super().__init__()
         self.data_dir = data_dir
         self.transform = transforms.Compose([
-            transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
         ])
 
         self.dims = (3, 32, 32)

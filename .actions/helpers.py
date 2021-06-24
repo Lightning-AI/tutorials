@@ -244,11 +244,11 @@ class HelperCLI:
 
         dirs_change = [d for d in dirs_exist if HelperCLI._meta_file(d)]
         with open(fpath_change_folders, "w") as fp:
-            fp.write(os.linesep.join(dirs_change))
+            fp.write(os.linesep.join(sorted(dirs_change)))
 
         dirs_drop = [d for d in dirs if not os.path.isdir(d)]
         with open(fpath_drop_folders, "w") as fp:
-            fp.write(os.linesep.join(dirs_drop))
+            fp.write(os.linesep.join(sorted(dirs_drop)))
 
     @staticmethod
     def parse_requirements(dir_path: str):
