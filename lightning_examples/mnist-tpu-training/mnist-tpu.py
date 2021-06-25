@@ -1,28 +1,13 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.11.2
-#   kernelspec:
-#     display_name: Python 3
-#     name: python3
-# ---
-
-# %% [markdown] id="zepCr1upT4Z3"
+# %% [markdown]
 # ###  Install Colab TPU compatible PyTorch/TPU wheels and dependencies
 
-# %% id="AYGWh10lRaF1"
+# %%
 # ! pip install cloud-tpu-client==0.10 https://storage.googleapis.com/tpu-pytorch/wheels/torch_xla-1.8-cp37-cp37m-linux_x86_64.whl
 
-# %% id="SNHa7DpmRZ-C"
+# %%
 import torch
 import torch.nn.functional as F
-from pytorch_lightning import LightningDataModule, Trainer
+from pytorch_lightning import LightningDataModule, LightningModule, Trainer
 from torch import nn
 from torch.utils.data import DataLoader, random_split
 from torchmetrics.functional import accuracy
@@ -32,14 +17,14 @@ from torchvision.datasets import MNIST
 
 BATCH_SIZE = 1024
 
-# %% [markdown] id="rjo1dqzGUxt6"
+# %% [markdown]
 # ### Defining The `MNISTDataModule`
 #
 # Below we define `MNISTDataModule`. You can learn more about datamodules
 # in [docs](https://pytorch-lightning.readthedocs.io/en/latest/extensions/datamodules.html).
 
 
-# %% id="pkbrm3YgUxlE"
+# %%
 class MNISTDataModule(LightningDataModule):
 
     def __init__(self, data_dir: str = './'):
@@ -81,14 +66,14 @@ class MNISTDataModule(LightningDataModule):
         return DataLoader(self.mnist_test, batch_size=BATCH_SIZE)
 
 
-# %% [markdown] id="nr9AqDWxUxdK"
+# %% [markdown]
 # ### Defining the `LitModel`
 #
 # Below, we define the model `LitMNIST`.
 
 
-# %% id="YKt0KZkOUxVY"
-class LitModel(pl.LightningModule):
+# %%
+class LitModel(LightningModule):
 
     def __init__(self, channels, width, height, num_classes, hidden_size=64, learning_rate=2e-4):
 
@@ -128,7 +113,7 @@ class LitModel(pl.LightningModule):
         return optimizer
 
 
-# %% [markdown] id="Uxl88z06cHyV"
+# %% [markdown]
 # ### TPU Training
 #
 # Lightning supports training on a single TPU core or 8 TPU cores.
@@ -138,10 +123,10 @@ class LitModel(pl.LightningModule):
 # For Single TPU training, Just pass the TPU core ID [1-8] in a list.
 # Setting `tpu_cores=[5]` will train on TPU core ID 5.
 
-# %% [markdown] id="UZ647Xg2gYng"
+# %% [markdown]
 # Train on TPU core ID 5 with `tpu_cores=[5]`.
 
-# %% id="bzhJ8g_vUxN2"
+# %%
 # Init DataModule
 dm = MNISTDataModule()
 # Init model from datamodule's attributes
@@ -151,10 +136,10 @@ trainer = Trainer(max_epochs=3, progress_bar_refresh_rate=20, tpu_cores=[5])
 # Train
 trainer.fit(model, dm)
 
-# %% [markdown] id="slMq_0XBglzC"
+# %% [markdown]
 # Train on single TPU core with `tpu_cores=1`.
 
-# %% id="31N5Scf2RZ61"
+# %%
 # Init DataModule
 dm = MNISTDataModule()
 # Init model from datamodule's attributes
@@ -164,11 +149,11 @@ trainer = Trainer(max_epochs=3, progress_bar_refresh_rate=20, tpu_cores=1)
 # Train
 trainer.fit(model, dm)
 
-# %% [markdown] id="_v8xcU5Sf_Cv"
+# %% [markdown]
 # Train on 8 TPU cores with `tpu_cores=8`.
 # You might have to restart the notebook to run it on 8 TPU cores after training on single TPU core.
 
-# %% id="EFEw7YpLf-gE"
+# %%
 # Init DataModule
 dm = MNISTDataModule()
 # Init model from datamodule's attributes
