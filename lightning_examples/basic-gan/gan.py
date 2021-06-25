@@ -1,20 +1,4 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.11.2
-#   kernelspec:
-#     display_name: Python 3
-#     language: python
-#     name: python3
-# ---
-
-# %% colab={} colab_type="code" id="BjEPuiVLyanw"
+# %%
 import os
 from collections import OrderedDict
 
@@ -33,17 +17,22 @@ AVAIL_GPUS = min(1, torch.cuda.device_count())
 BATCH_SIZE = 256 if AVAIL_GPUS else 64
 NUM_WORKERS = int(os.cpu_count() / 2)
 
-# %% [markdown] colab_type="text" id="OuXJzr4G2uHV"
+# %% [markdown]
 # ### MNIST DataModule
 #
 # Below, we define a DataModule for the MNIST Dataset. To learn more about DataModules, check out our tutorial
 # on them or see the [latest docs](https://pytorch-lightning.readthedocs.io/en/latest/extensions/datamodules.html).
 
 
-# %% colab={} colab_type="code" id="DOY_nHu328g7"
+# %%
 class MNISTDataModule(LightningDataModule):
 
-    def __init__(self, data_dir: str = PATH_DATASETS, batch_size: int = BATCH_SIZE, num_workers: int = NUM_WORKERS):
+    def __init__(
+        self,
+        data_dir: str = PATH_DATASETS,
+        batch_size: int = BATCH_SIZE,
+        num_workers: int = NUM_WORKERS,
+    ):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
@@ -76,7 +65,11 @@ class MNISTDataModule(LightningDataModule):
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def train_dataloader(self):
-        return DataLoader(self.mnist_train, batch_size=self.batch_size, num_workers=self.num_workers)
+        return DataLoader(
+            self.mnist_train,
+            batch_size=self.batch_size,
+            num_workers=self.num_workers,
+        )
 
     def val_dataloader(self):
         return DataLoader(self.mnist_val, batch_size=self.batch_size, num_workers=self.num_workers)
@@ -85,11 +78,11 @@ class MNISTDataModule(LightningDataModule):
         return DataLoader(self.mnist_test, batch_size=self.batch_size, num_workers=self.num_workers)
 
 
-# %% [markdown] colab_type="text" id="tW3c0QrQyF9P"
+# %% [markdown]
 # ### A. Generator
 
 
-# %% colab={} colab_type="code" id="0E2QDjl5yWtz"
+# %%
 class Generator(nn.Module):
 
     def __init__(self, latent_dim, img_shape):
@@ -118,11 +111,11 @@ class Generator(nn.Module):
         return img
 
 
-# %% [markdown] colab_type="text" id="uyrltsGvyaI3"
+# %% [markdown]
 # ### B. Discriminator
 
 
-# %% colab={} colab_type="code" id="Ed3MR3vnyxyW"
+# %%
 class Discriminator(nn.Module):
 
     def __init__(self, img_shape):
@@ -144,7 +137,7 @@ class Discriminator(nn.Module):
         return validity
 
 
-# %% [markdown] colab_type="text" id="BwUMom3ryySK"
+# %% [markdown]
 # ### C. GAN
 #
 # #### A couple of cool features to check out in this example...
@@ -156,7 +149,7 @@ class Discriminator(nn.Module):
 #   - This example shows how to use multiple dataloaders in your `LightningModule`.
 
 
-# %% colab={} colab_type="code" id="3vKszYf6y1Vv"
+# %%
 class GAN(LightningModule):
 
     def __init__(
@@ -258,13 +251,13 @@ class GAN(LightningModule):
         self.logger.experiment.add_image('generated_images', grid, self.current_epoch)
 
 
-# %% colab={} colab_type="code" id="Ey5FmJPnzm_E"
+# %%
 dm = MNISTDataModule()
 model = GAN(*dm.size())
 trainer = Trainer(gpus=AVAIL_GPUS, max_epochs=5, progress_bar_refresh_rate=20)
 trainer.fit(model, dm)
 
-# %% colab={} colab_type="code" id="MlECc7cHzolp"
+# %%
 # Start tensorboard.
 # %load_ext tensorboard
 # %tensorboard --logdir lightning_logs/
