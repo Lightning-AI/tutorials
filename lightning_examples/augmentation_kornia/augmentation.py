@@ -1,39 +1,30 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.11.3
-#   kernelspec:
-#     display_name: Python 3
-#     language: python
-#     name: python3
-# ---
-
-# %% colab={} colab_type="code" id="Z_XTj-y1gYJL"
+# %%
 import os
 
-import kornia as K
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torchmetrics
 import torchvision
-from pytorch_lightning import Trainer
+from kornia import image_to_tensor, tensor_to_image
+from kornia.augmentation import (
+    ColorJitter,
+    RandomChannelShuffle,
+    RandomHorizontalFlip,
+    RandomThinPlateSpline,
+)
+from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.loggers import CSVLogger
+from torch import Tensor
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
 
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 
-# %% [markdown] colab_type="text" id="hA4-AFd6gKo-"
+# %% [markdown]
 # ## Define Data Augmentations module
 #
 # [Kornia.org](https://www.kornia.org) is low level Computer Vision library that provides a dedicated module
@@ -48,7 +39,7 @@ AVAIL_GPUS = min(1, torch.cuda.device_count())
 # Checkout the different augmentation operators in Kornia docs and experiment yourself !
 
 
-# %% colab={} colab_type="code" id="RvdMAbyXgRPh"
+# %%
 class DataAugmentation(nn.Module):
     """Module to perform data augmentation using Kornia on torch tensors."""
 
@@ -57,26 +48,26 @@ class DataAugmentation(nn.Module):
         self._apply_color_jitter = apply_color_jitter
 
         self.transforms = nn.Sequential(
-            K.augmentation.RandomHorizontalFlip(p=0.75),
-            K.augmentation.RandomChannelShuffle(p=0.75),
-            K.augmentation.RandomThinPlateSpline(p=0.75),
+            RandomHorizontalFlip(p=0.75),
+            RandomChannelShuffle(p=0.75),
+            RandomThinPlateSpline(p=0.75),
         )
 
-        self.jitter = K.augmentation.ColorJitter(0.5, 0.5, 0.5, 0.5)
+        self.jitter = ColorJitter(0.5, 0.5, 0.5, 0.5)
 
     @torch.no_grad()  # disable gradients for effiency
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: Tensor) -> Tensor:
         x_out = self.transforms(x)  # BxCxHxW
         if self._apply_color_jitter:
             x_out = self.jitter(x_out)
         return x_out
 
 
-# %% [markdown] colab_type="text" id="CQ06HnPtkIlq"
+# %% [markdown]
 # ## Define a Pre-processing module
 #
 # In addition to the `DataAugmentation` modudle that will sample random parameters during the training stage,
-# we define a `Preprocess` class to handle the conversion of the image type to properly work with `torch.Tensor`.
+# we define a `Preprocess` class to handle the conversion of the image type to properly work with `Tensor`.
 #
 # For this example we use `torchvision` CIFAR10 which return samples of `PIL.Image`, however,
 # to take all the advantages of PyTorch and Kornia we need to cast the images into tensors.
@@ -84,18 +75,18 @@ class DataAugmentation(nn.Module):
 # To do that we will use `kornia.image_to_tensor` which casts and permutes the images in the right format.
 
 
-# %% colab={} colab_type="code" id="EjPPQjcXkNT3"
+# %%
 class Preprocess(nn.Module):
     """Module to perform pre-process using Kornia on torch tensors."""
 
     @torch.no_grad()  # disable gradients for effiency
-    def forward(self, x) -> torch.Tensor:
+    def forward(self, x) -> Tensor:
         x_tmp: np.ndarray = np.array(x)  # HxWxC
-        x_out: torch.Tensor = K.image_to_tensor(x_tmp, keepdim=True)  # CxHxW
+        x_out: Tensor = image_to_tensor(x_tmp, keepdim=True)  # CxHxW
         return x_out.float() / 255.
 
 
-# %% [markdown] colab_type="text" id="LXGKqIZuTLMs"
+# %% [markdown]
 # ## Define PyTorch Lightning model
 #
 # The next step is to define our `LightningModule` to have a proper organisation of our training pipeline.
@@ -109,8 +100,8 @@ class Preprocess(nn.Module):
 # This means that our `DataAugmentation` pipeline will automatically executed in the GPU.
 
 
-# %% colab={} colab_type="code" id="aDagOcKyZ_qh"
-class CoolSystem(pl.LightningModule):
+# %%
+class CoolSystem(LightningModule):
 
     def __init__(self):
         super(CoolSystem, self).__init__()
@@ -132,7 +123,7 @@ class CoolSystem(pl.LightningModule):
     def show_batch(self, win_size=(10, 10)):
 
         def _to_vis(data):
-            return K.utils.tensor_to_image(torchvision.utils.make_grid(data, nrow=8))
+            return tensor_to_image(torchvision.utils.make_grid(data, nrow=8))
 
         # get a batch from the training set: try with `val_datlaoader` :)
         imgs, labels = next(iter(self.train_dataloader()))
@@ -179,35 +170,35 @@ class CoolSystem(pl.LightningModule):
         return loader
 
 
-# %% [markdown] colab_type="text" id="yyLkgogITNtj"
+# %% [markdown]
 # ## Visualize images
 
-# %% colab={} colab_type="code" id="kr8cql-aaKnC"
+# %%
 # init model
 model = CoolSystem()
 
-# %% colab={} colab_type="code" id="O2Fq4bK4l9sS"
+# %%
 model.show_batch(win_size=(14, 14))
 
-# %% [markdown] colab_type="text" id="baSvOQRNl5iw"
+# %% [markdown]
 # ## Run training
 
-# %% colab={} colab_type="code" id="O_AFCY3WlwKg"
+# %%
 # Initialize a trainer
 trainer = Trainer(
     progress_bar_refresh_rate=20,
     gpus=AVAIL_GPUS,
     max_epochs=10,
-    logger=pl.loggers.CSVLogger(save_dir='logs/', name="cifar10-resnet18")
+    logger=CSVLogger(save_dir='logs/', name="cifar10-resnet18")
 )
 
 # Train the model ⚡
 trainer.fit(model)
 
-# %% [markdown] colab_type="text" id="jrSNajrhx9E_"
+# %% [markdown]
 # ### Visualize the training results
 
-# %% colab={} colab_type="code" id="jXhH_0mbx_ye"
+# %%
 metrics = pd.read_csv(f'{trainer.logger.log_dir}/metrics.csv')
 print(metrics.head())
 
@@ -222,10 +213,10 @@ df_metrics = pd.DataFrame(aggreg_metrics)
 df_metrics[['train_loss', 'valid_loss']].plot(grid=True, legend=True)
 df_metrics[['valid_acc', 'train_acc']].plot(grid=True, legend=True)
 
-# %% [markdown] colab_type="text" id="t65M0xD4lgAh"
+# %% [markdown]
 # ## Tensorboard
 
-# %% colab={} colab_type="code" id="xg3c6UJQt0mw"
+# %%
 # Start tensorboard.
 # # %load_ext tensorboard
 # # %tensorboard --logdir lightning_logs/

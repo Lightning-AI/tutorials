@@ -1,23 +1,8 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.11.2
-#   kernelspec:
-#     display_name: Python 3
-#     name: python3
-# ---
-
-# %% id="L-W_Gq2FORoU"
+# %%
 # Run this if you intend to use TPUs
 # # !pip install cloud-tpu-client==0.10 https://storage.googleapis.com/tpu-pytorch/wheels/torch_xla-1.8-cp37-cp37m-linux_x86_64.whl
 
-# %% id="wjov-2N_TgeS"
+# %%
 import os
 
 import torch
@@ -31,7 +16,6 @@ from pytorch_lightning.callbacks import LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.optim.lr_scheduler import OneCycleLR
 from torch.optim.swa_utils import AveragedModel, update_bn
-# %% id="54JMU1N-0y0g"
 from torchmetrics.functional import accuracy
 
 seed_everything(7)
@@ -41,12 +25,12 @@ AVAIL_GPUS = min(1, torch.cuda.device_count())
 BATCH_SIZE = 256 if AVAIL_GPUS else 64
 NUM_WORKERS = int(os.cpu_count() / 2)
 
-# %% [markdown] id="FA90qwFcqIXR"
+# %% [markdown]
 # ### CIFAR10 Data Module
 #
 # Import the existing data module from `bolts` and modify the train and test transforms.
 
-# %% id="S9e-W8CSa8nH"
+# %%
 
 train_transforms = torchvision.transforms.Compose([
     torchvision.transforms.RandomCrop(32, padding=4),
@@ -69,13 +53,13 @@ cifar10_dm = CIFAR10DataModule(
     val_transforms=test_transforms,
 )
 
-# %% [markdown] id="SfCsutp3qUMc"
+# %% [markdown]
 # ### Resnet
 # Modify the pre-existing Resnet architecture from TorchVision. The pre-existing architecture is based on ImageNet
 # images (224x224) as input. So we need to modify it for CIFAR10 images (32x32).
 
 
-# %% id="GNSeJgwvhHp-"
+# %%
 def create_model():
     model = torchvision.models.resnet18(pretrained=False, num_classes=10)
     model.conv1 = nn.Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
@@ -83,7 +67,7 @@ def create_model():
     return model
 
 
-# %% [markdown] id="HUCj5TKsqty1"
+# %% [markdown]
 # ### Lightning Module
 # Check out the [`configure_optimizers`](https://pytorch-lightning.readthedocs.io/en/stable/common/lightning_module.html#configure-optimizers)
 # method to use custom Learning Rate schedulers. The OneCycleLR with SGD will get you to around 92-93% accuracy
@@ -91,7 +75,7 @@ def create_model():
 # LR schedules from https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
 
 
-# %% id="03OMrBa5iGtT"
+# %%
 class LitResnet(LightningModule):
 
     def __init__(self, lr=0.05):
@@ -129,16 +113,26 @@ class LitResnet(LightningModule):
         self.evaluate(batch, 'test')
 
     def configure_optimizers(self):
-        optimizer = torch.optim.SGD(self.parameters(), lr=self.hparams.lr, momentum=0.9, weight_decay=5e-4)
+        optimizer = torch.optim.SGD(
+            self.parameters(),
+            lr=self.hparams.lr,
+            momentum=0.9,
+            weight_decay=5e-4,
+        )
         steps_per_epoch = 45000 // BATCH_SIZE
         scheduler_dict = {
-            'scheduler': OneCycleLR(optimizer, 0.1, epochs=self.trainer.max_epochs, steps_per_epoch=steps_per_epoch),
+            'scheduler': OneCycleLR(
+                optimizer,
+                0.1,
+                epochs=self.trainer.max_epochs,
+                steps_per_epoch=steps_per_epoch,
+            ),
             'interval': 'step',
         }
         return {'optimizer': optimizer, 'lr_scheduler': scheduler_dict}
 
 
-# %% id="3FFPgpAFi9KU"
+# %%
 model = LitResnet(lr=0.05)
 model.datamodule = cifar10_dm
 
@@ -153,7 +147,7 @@ trainer = Trainer(
 trainer.fit(model, cifar10_dm)
 trainer.test(model, datamodule=cifar10_dm)
 
-# %% [markdown] id="lWL_WpeVIXWQ"
+# %% [markdown]
 # ### Bonus: Use [Stochastic Weight Averaging](https://arxiv.org/abs/1803.05407) to get a boost on performance
 #
 # Use SWA from torch.optim to get a quick performance boost. Also shows a couple of cool features from Lightning:
@@ -161,7 +155,7 @@ trainer.test(model, datamodule=cifar10_dm)
 # - Use a pretrained model directly with this wrapper for SWA
 
 
-# %% id="bsSwqKv0t9uY"
+# %%
 class SWAResnet(LitResnet):
 
     def __init__(self, trained_model, lr=0.01):
@@ -189,14 +183,16 @@ class SWAResnet(LitResnet):
         self.log('val_acc', acc, prog_bar=True)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.SGD(self.model.parameters(), lr=self.hparams.lr, momentum=0.9, weight_decay=5e-4)
+        optimizer = torch.optim.SGD(
+            self.model.parameters(), lr=self.hparams.lr, momentum=0.9, weight_decay=5e-4
+        )
         return optimizer
 
     def on_train_end(self):
         update_bn(self.datamodule.train_dataloader(), self.swa_model, device=self.device)
 
 
-# %% id="cA6ZG7C74rjL"
+# %%
 swa_model = SWAResnet(model.model, lr=0.01)
 swa_model.datamodule = cifar10_dm
 
@@ -210,7 +206,7 @@ swa_trainer = Trainer(
 swa_trainer.fit(swa_model, cifar10_dm)
 swa_trainer.test(swa_model, datamodule=cifar10_dm)
 
-# %% id="RRHMfGiDpZ2M"
+# %%
 # Start tensorboard.
 # %reload_ext tensorboard
 # %tensorboard --logdir lightning_logs/
