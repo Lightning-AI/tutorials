@@ -6,7 +6,6 @@ import datasets
 import torch
 from pytorch_lightning import LightningDataModule, LightningModule, seed_everything, Trainer
 from torch.utils.data import DataLoader
-# %%
 from transformers import (
     AdamW,
     AutoConfig,
@@ -18,7 +17,6 @@ from transformers import (
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 
 # %% [markdown]
-# ---
 # ## Training BERT with Lightning
 
 # %% [markdown]
@@ -142,7 +140,7 @@ dm.prepare_data()
 dm.setup('fit')
 next(iter(dm.train_dataloader()))
 
-# %%
+# %% [markdown]
 # ### Transformer LightningModule
 
 
@@ -220,14 +218,15 @@ class GLUETransformer(LightningModule):
         return loss
 
     def setup(self, stage=None) -> None:
-        if stage == 'fit':
-            # Get dataloader by calling it - train_dataloader() is called after setup() by default
-            train_loader = self.train_dataloader()
+        if stage != 'fit':
+            return
+        # Get dataloader by calling it - train_dataloader() is called after setup() by default
+        train_loader = self.train_dataloader()
 
-            # Calculate total steps
-            tb_size = self.hparams.train_batch_size * max(1, self.trainer.gpus)
-            ab_size = self.trainer.accumulate_grad_batches * float(self.trainer.max_epochs)
-            self.total_steps = (len(train_loader.dataset) // tb_size) // ab_size
+        # Calculate total steps
+        tb_size = self.hparams.train_batch_size * max(1, self.trainer.gpus)
+        ab_size = self.trainer.accumulate_grad_batches * float(self.trainer.max_epochs)
+        self.total_steps = (len(train_loader.dataset) // tb_size) // ab_size
 
     def configure_optimizers(self):
         """Prepare optimizer and schedule (linear warmup and decay)"""
