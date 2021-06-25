@@ -107,7 +107,7 @@ class LitModel(pl.LightningModule):
         x, y = batch
         logits = self(x)
         loss = F.nll_loss(logits, y)
-        self.log('train_loss', loss, prog_bar=False)
+        self.log('train_loss', loss)
         return loss
 
     def validation_step(self, batch, batch_idx):
