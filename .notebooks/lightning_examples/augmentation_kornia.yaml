@@ -3,6 +3,7 @@ author: PL/Kornia team
 created: 2021-06-11
 updated: 2021-06-16
 license: CC BY-SA
+build: 0
 description: 'In this tutorial we will show how to combine both Kornia.org and PyTorch
   Lightning
 
@@ -23,11 +24,11 @@ accelerator:
 - CPU
 - GPU
 environment:
-- pytorch-lightning==1.3.7.post0
-- torchvision==0.8.2
 - pandas==1.2.5
-- torch==1.7.1
-- kornia==0.5.4
 - matplotlib==3.4.2
-- torchmetrics==0.3.2
-published: '2021-06-25T09:51:22.815016'
+- torchmetrics==0.4.0rc1
+- pytorch-lightning==1.3.7.post0
+- kornia==0.5.5
+- torch==1.7.1
+- torchvision==0.8.2
+published: '2021-06-28T09:40:37.914033'
