@@ -165,7 +165,7 @@ class HelperCLI:
 
         header = TEMPLATE_HEADER % meta
         requires = set(default_requirements() + meta["requirements"])
-        setup = TEMPLATE_SETUP % dict(requirements=" ".join(requires))
+        setup = TEMPLATE_SETUP % dict(requirements=" ".join([f'"{req}"' for req in requires]))
         py_file = [header + setup] + py_file + [TEMPLATE_FOOTER]
 
         with open(fpath, "w") as fp:

@@ -25,19 +25,13 @@ repos:
     rev: 5.9.1
     hooks:
       - id: isort
-        name: imports
-        require_serial: false
 
   - repo: https://github.com/pre-commit/mirrors-yapf
     rev: v0.31.0
     hooks:
       - id: yapf
-        name: formatting
-        language: python
-        require_serial: false
 
   - repo: https://github.com/PyCQA/flake8
     rev: 3.9.2
     hooks:
       - id: flake8
-        name: PEP8
