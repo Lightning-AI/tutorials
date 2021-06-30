@@ -1,15 +1,15 @@
 trigger: none
 pr:
-  - main
-
-#stages:
-#- stage: testing
+  branches:
+    include: [ main ]
+  autoCancel: true
+  drafts: true
 
 jobs:
 
   - job: nbval
     # how long to run the job before automatically cancelling
-    timeoutInMinutes: 45
+    timeoutInMinutes: 55
     # how much time to give 'run always even if cancelled tasks' before stopping them
     cancelTimeoutInMinutes: 2
 
@@ -46,25 +46,28 @@ jobs:
 
     - bash: |
         head=$(git rev-parse origin/main)
-        git diff --name-only $head --output=master-diff.txt
-        python .actions/helpers.py group-folders master-diff.txt
-        echo "Changed folder:"
+        printf "Head: $head\n"
+        git diff --name-only $head --output=target-diff.txt
+        python .actions/helpers.py group-folders target-diff.txt
+        printf "Changed folders:\n"
         cat changed-folders.txt
       displayName: 'Process folders'
 
     - script: |
         COUNT=$(python -c "lines = open('changed-folders.txt').readlines() ; print(len(lines))")
-        echo "Chnaged folders: $COUNT"
+        printf "Changed folders: $COUNT\n"
         echo "##vso[task.setvariable variable=folders;isOutput=true]$COUNT"
       name: changed
 
-    - script: |
-        echo $(PATH_DATASETS)
-        mkdir $(PATH_DATASETS)
-        cd $(PATH_DATASETS)
-        wget www.di.ens.fr/~lelarge/MNIST.tar.gz --progress=bar:force:noscroll
-        tar -zxvf MNIST.tar.gz
-        ls -l
+    - task: Cache@2
+      inputs:
+        key: data | .actions/data-download.sh
+        restoreKeys: data
+        path: $(PATH_DATASETS)
+        cacheHitVar: DATA_RESTORED
+
+    - script: bash .actions/data-download.sh $(PATH_DATASETS)
+      condition: ne(variables.DATA_RESTORED, 'true')
       displayName: 'Pull datasets'
 
     - bash: |
