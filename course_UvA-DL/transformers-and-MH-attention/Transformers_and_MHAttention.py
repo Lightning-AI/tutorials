@@ -27,26 +27,28 @@
 # Standard libraries
 from urllib.error import HTTPError
 import urllib.request
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint
 import pytorch_lightning as pl
+# Torchvision for image datasets
 from torchvision import transforms
 from torchvision.datasets import CIFAR100
 import torchvision
+# PyTorch
 import torch.optim as optim
 import torch.utils.data as data
 import torch.nn.functional as F
 import torch.nn as nn
 import torch
+# tqdm for progress bars
 from tqdm.notebook import tqdm
+# Plotting libraries
 import seaborn as sns
 import matplotlib
-from matplotlib.colors import to_rgb
 from IPython.display import set_matplotlib_formats
+# Other standard libraries
 import os
 import numpy as np
-import random
 import math
-import json
 from functools import partial
 
 # Imports for plotting
@@ -56,14 +58,6 @@ plt.set_cmap('cividis')
 set_matplotlib_formats('svg', 'pdf')  # For export
 matplotlib.rcParams['lines.linewidth'] = 2.0
 sns.reset_orig()
-
-# tqdm for loading bars
-
-# PyTorch
-
-# Torchvision
-
-# PyTorch Lightning
 
 # Path to the folder where the datasets are/should be downloaded (e.g. CIFAR10)
 DATASET_PATH = os.environ.get('PATH_DATASETS', "data/")
@@ -456,16 +450,16 @@ class TransformerEncoder(nn.Module):
         self.layers = nn.ModuleList([EncoderBlock(**block_args) for _ in range(num_layers)])
 
     def forward(self, x, mask=None):
-        for l in self.layers:
-            x = l(x, mask=mask)
+        for layer in self.layers:
+            x = layer(x, mask=mask)
         return x
 
     def get_attention_maps(self, x, mask=None):
         attention_maps = []
-        for l in self.layers:
-            _, attn_map = l.self_attn(x, mask=mask, return_attention=True)
+        for layer in self.layers:
+            _, attn_map = layer.self_attn(x, mask=mask, return_attention=True)
             attention_maps.append(attn_map)
-            x = l(x)
+            x = layer(x)
         return attention_maps
 
 
