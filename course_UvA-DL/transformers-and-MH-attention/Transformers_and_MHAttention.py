@@ -23,16 +23,15 @@
 #
 # Below, we import our standard libraries.
 
+# %%
+# Standard libraries
 import math
 import os
 import urllib.request
 from functools import partial
-# %%
-# Standard libraries
 from urllib.error import HTTPError
 
 import matplotlib
-# Imports for plotting
 import matplotlib.pyplot as plt
 import numpy as np
 import pytorch_lightning as pl
