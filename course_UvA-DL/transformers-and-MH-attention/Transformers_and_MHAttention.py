@@ -23,34 +23,35 @@
 #
 # Below, we import our standard libraries.
 
+import json
+import math
+import os
+import random
+import urllib.request
+from functools import partial
 # %%
 # Standard libraries
 from urllib.error import HTTPError
-import urllib.request
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
-import pytorch_lightning as pl
-from torchvision import transforms
-from torchvision.datasets import CIFAR100
-import torchvision
-import torch.optim as optim
-import torch.utils.data as data
-import torch.nn.functional as F
-import torch.nn as nn
-import torch
-from tqdm.notebook import tqdm
-import seaborn as sns
-import matplotlib
-from matplotlib.colors import to_rgb
-from IPython.display import set_matplotlib_formats
-import os
-import numpy as np
-import random
-import math
-import json
-from functools import partial
 
+import matplotlib
 # Imports for plotting
 import matplotlib.pyplot as plt
+import numpy as np
+import pytorch_lightning as pl
+import seaborn as sns
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+import torch.utils.data as data
+import torchvision
+from IPython.display import set_matplotlib_formats
+from matplotlib.colors import to_rgb
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from torchvision import transforms
+from torchvision.datasets import CIFAR100
+from tqdm.notebook import tqdm
+
 plt.set_cmap('cividis')
 # %matplotlib inline
 set_matplotlib_formats('svg', 'pdf')  # For export
@@ -104,8 +105,10 @@ for file_name in pretrained_files:
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
-            print("Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n", e)
-
+            print(
+                "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
+                e
+            )
 
 # %% [markdown]
 # ## The Transformer architecture
@@ -210,6 +213,7 @@ for file_name in pretrained_files:
 #
 # After we have discussed the details of the scaled dot product attention block, we can write a function below which computes the output features given the triple of queries, keys, and values:
 
+
 # %%
 def scaled_dot_product(q, k, v, mask=None):
     d_k = q.size()[-1]
@@ -238,7 +242,6 @@ print("K\n", k)
 print("V\n", v)
 print("Values\n", values)
 print("Attention\n", attention)
-
 
 # %% [markdown]
 # Before continuing, make sure you can follow the calculation of the specific values here, and also check it by hand.
@@ -270,6 +273,7 @@ print("Attention\n", attention)
 # Looking at the computation graph above, a simple but effective implementation is to set the current feature map in a NN, $X\in\mathbb{R}^{B\times T\times d_{\text{model}}}$, as $Q$, $K$ and $V$ ($B$ being the batch size, $T$ the sequence length, $d_{\text{model}}$ the hidden dimensionality of $X$).
 # The consecutive weight matrices $W^{Q}$, $W^{K}$, and $W^{V}$ can transform $X$ to the corresponding feature vectors that represent the queries, keys, and values of the input.
 # Using this approach, we can implement the Multi-Head Attention module below.
+
 
 # %%
 class MultiheadAttention(nn.Module):
@@ -398,6 +402,7 @@ class MultiheadAttention(nn.Module):
 # We first start by implementing a single encoder block.
 # Additionally to the layers described above, we will add dropout layers in the MLP and on the output of the MLP and Multi-Head Attention for regularization.
 
+
 # %%
 class EncoderBlock(nn.Module):
 
@@ -416,9 +421,7 @@ class EncoderBlock(nn.Module):
 
         # Two-layer MLP
         self.linear_net = nn.Sequential(
-            nn.Linear(input_dim, dim_feedforward),
-            nn.Dropout(dropout),
-            nn.ReLU(inplace=True),
+            nn.Linear(input_dim, dim_feedforward), nn.Dropout(dropout), nn.ReLU(inplace=True),
             nn.Linear(dim_feedforward, input_dim)
         )
 
@@ -447,6 +450,7 @@ class EncoderBlock(nn.Module):
 # The idea of this function is to return the attention probabilities for all Multi-Head Attention blocks in the encoder.
 # This helps us in understanding, and in a sense, explaining the model.
 # However, the attention probabilities should be interpreted with a grain of salt as it does not necessarily reflect the true interpretation of the model (there is a series of papers about this, including [Attention is not Explanation](https://arxiv.org/abs/1902.10186) and [Attention is not not Explanation](https://arxiv.org/abs/1908.04626)).
+
 
 # %%
 class TransformerEncoder(nn.Module):
@@ -495,6 +499,7 @@ class TransformerEncoder(nn.Module):
 #
 # The positional encoding is implemented below.
 # The code is taken from the [PyTorch tutorial](https://pytorch.org/tutorials/beginner/transformer_tutorial.html#define-the-model) about Transformers on NLP and adjusted for our purposes.
+
 
 # %%
 class PositionalEncoding(nn.Module):
@@ -555,7 +560,9 @@ sns.set_theme()
 fig, ax = plt.subplots(2, 2, figsize=(12, 4))
 ax = [a for a_list in ax for a in a_list]
 for i in range(len(ax)):
-    ax[i].plot(np.arange(1, 17), pe[i, :16], color='C%i' % i, marker="o", markersize=6, markeredgecolor="black")
+    ax[i].plot(
+        np.arange(1, 17), pe[i, :16], color='C%i' % i, marker="o", markersize=6, markeredgecolor="black"
+    )
     ax[i].set_title("Encoding in hidden dimension %i" % (i + 1))
     ax[i].set_xlabel("Position in sequence", fontsize=10)
     ax[i].set_ylabel("Positional encoding", fontsize=10)
@@ -566,7 +573,6 @@ for i in range(len(ax)):
 fig.subplots_adjust(hspace=0.8)
 sns.reset_orig()
 plt.show()
-
 
 # %% [markdown]
 # As we can see, the patterns between the hidden dimension $1$ and $2$ only differ in the starting angle.
@@ -597,6 +603,7 @@ plt.show()
 # For instance, the original Transformer paper used an exponential decay scheduler with a warm-up.
 # However, the currently most popular scheduler is the cosine warm-up scheduler, which combines warm-up with a cosine-shaped learning rate decay.
 # We can implement it below, and visualize the learning rate factor over epochs.
+
 
 # %%
 class CosineWarmupScheduler(optim.lr_scheduler._LRScheduler):
@@ -634,7 +641,6 @@ plt.title("Cosine Warm-up Learning Rate Scheduler")
 plt.show()
 sns.reset_orig()
 
-
 # %% [markdown]
 # In the first 100 iterations, we increase the learning rate factor from 0 to 1, whereas for all later iterations, we decay it using the cosine wave.
 # Pre-implementations of this scheduler can be found in the popular NLP Transformer library [huggingface](https://huggingface.co/transformers/main_classes/optimizer_schedules.html?highlight=cosine#transformers.get_cosine_schedule_with_warmup).
@@ -654,10 +660,23 @@ sns.reset_orig()
 # This is needed for the warmup and the smooth cosine decay.
 # The training, validation, and test step is left empty for now and will be filled for our task-specific models.
 
+
 # %%
 class TransformerPredictor(pl.LightningModule):
 
-    def __init__(self, input_dim, model_dim, num_classes, num_heads, num_layers, lr, warmup, max_iters, dropout=0.0, input_dropout=0.0):
+    def __init__(
+        self,
+        input_dim,
+        model_dim,
+        num_classes,
+        num_heads,
+        num_layers,
+        lr,
+        warmup,
+        max_iters,
+        dropout=0.0,
+        input_dropout=0.0
+    ):
         """
         Inputs:
             input_dim - Hidden dimensionality of the input
@@ -678,23 +697,22 @@ class TransformerPredictor(pl.LightningModule):
     def _create_model(self):
         # Input dim -> Model dim
         self.input_net = nn.Sequential(
-            nn.Dropout(self.hparams.input_dropout),
-            nn.Linear(self.hparams.input_dim, self.hparams.model_dim)
+            nn.Dropout(self.hparams.input_dropout), nn.Linear(self.hparams.input_dim, self.hparams.model_dim)
         )
         # Positional encoding for sequences
         self.positional_encoding = PositionalEncoding(d_model=self.hparams.model_dim)
         # Transformer
-        self.transformer = TransformerEncoder(num_layers=self.hparams.num_layers,
-                                              input_dim=self.hparams.model_dim,
-                                              dim_feedforward=2 * self.hparams.model_dim,
-                                              num_heads=self.hparams.num_heads,
-                                              dropout=self.hparams.dropout)
+        self.transformer = TransformerEncoder(
+            num_layers=self.hparams.num_layers,
+            input_dim=self.hparams.model_dim,
+            dim_feedforward=2 * self.hparams.model_dim,
+            num_heads=self.hparams.num_heads,
+            dropout=self.hparams.dropout
+        )
         # Output classifier per sequence lement
         self.output_net = nn.Sequential(
-            nn.Linear(self.hparams.model_dim, self.hparams.model_dim),
-            nn.LayerNorm(self.hparams.model_dim),
-            nn.ReLU(inplace=True),
-            nn.Dropout(self.hparams.dropout),
+            nn.Linear(self.hparams.model_dim, self.hparams.model_dim), nn.LayerNorm(self.hparams.model_dim),
+            nn.ReLU(inplace=True), nn.Dropout(self.hparams.dropout),
             nn.Linear(self.hparams.model_dim, self.hparams.num_classes)
         )
 
@@ -729,9 +747,9 @@ class TransformerPredictor(pl.LightningModule):
         optimizer = optim.Adam(self.parameters(), lr=self.hparams.lr)
 
         # We don't return the lr scheduler because we need to apply it per iteration, not per epoch
-        self.lr_scheduler = CosineWarmupScheduler(optimizer,
-                                                  warmup=self.hparams.warmup,
-                                                  max_iters=self.hparams.max_iters)
+        self.lr_scheduler = CosineWarmupScheduler(
+            optimizer, warmup=self.hparams.warmup, max_iters=self.hparams.max_iters
+        )
         return optimizer
 
     def optimizer_step(self, *args, **kwargs):
@@ -768,6 +786,7 @@ class TransformerPredictor(pl.LightningModule):
 #
 # First, let's create a dataset class below.
 
+
 # %%
 class ReverseDataset(data.Dataset):
 
@@ -784,14 +803,14 @@ class ReverseDataset(data.Dataset):
 
     def __getitem__(self, idx):
         inp_data = self.data[idx]
-        labels = torch.flip(inp_data, dims=(0,))
+        labels = torch.flip(inp_data, dims=(0, ))
         return inp_data, labels
+
 
 # %% [markdown]
 # We create an arbitrary number of random sequences of numbers between 0 and `num_categories-1`.
 # The label is simply the tensor flipped over the sequence dimension.
 # We can create the corresponding data loaders below.
-
 
 # %%
 dataset = partial(ReverseDataset, 10, 16)
@@ -807,7 +826,6 @@ inp_data, labels = train_loader.dataset[0]
 print("Input data:", inp_data)
 print("Labels:    ", labels)
 
-
 # %% [markdown]
 # During training, we pass the input sequence through the Transformer encoder and predict the output for each input token.
 # We use the standard Cross-Entropy loss to perform this.
@@ -817,6 +835,7 @@ print("Labels:    ", labels)
 # However, using a one-hot vector with an additional linear layer as in our case has the same effect as an embedding layer (`self.input_net` maps one-hot vector to a dense vector, where each row of the weight matrix represents the embedding for a specific category).
 #
 # To implement the training dynamic, we create a new class inheriting from `TransformerPredictor` and overwriting the training, validation and test step functions.
+
 
 # %%
 class ReversePredictor(TransformerPredictor):
@@ -858,17 +877,20 @@ class ReversePredictor(TransformerPredictor):
 # The clip value is usually between 0.5 and 10, depending on how harsh you want to clip large gradients.
 # After having explained this, let's implement the training function:
 
+
 # %%
 def train_reverse(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     root_dir = os.path.join(CHECKPOINT_PATH, "ReverseTask")
     os.makedirs(root_dir, exist_ok=True)
-    trainer = pl.Trainer(default_root_dir=root_dir,
-                         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-                         gpus=1 if str(device).startswith("cuda") else 0,
-                         max_epochs=10,
-                         gradient_clip_val=5,
-                         progress_bar_refresh_rate=1)
+    trainer = pl.Trainer(
+        default_root_dir=root_dir,
+        callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
+        gpus=1 if str(device).startswith("cuda") else 0,
+        max_epochs=10,
+        gradient_clip_val=5,
+        progress_bar_refresh_rate=1
+    )
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
     # Check whether pretrained model exists. If yes, load it and skip training
@@ -895,14 +917,16 @@ def train_reverse(**kwargs):
 # This is chosen because of the simplicity of the task, and in this case, the attention can actually be interpreted as an "explanation" of the predictions (compared to the other papers above dealing with deep Transformers).
 
 # %%
-reverse_model, reverse_result = train_reverse(input_dim=train_loader.dataset.num_categories,
-                                              model_dim=32,
-                                              num_heads=1,
-                                              num_classes=train_loader.dataset.num_categories,
-                                              num_layers=1,
-                                              dropout=0.0,
-                                              lr=5e-4,
-                                              warmup=50)
+reverse_model, reverse_result = train_reverse(
+    input_dim=train_loader.dataset.num_categories,
+    model_dim=32,
+    num_heads=1,
+    num_classes=train_loader.dataset.num_categories,
+    num_layers=1,
+    dropout=0.0,
+    lr=5e-4,
+    warmup=50
+)
 
 # %% [markdown]
 # The warning of PyTorch Lightning regarding the number of workers can be ignored for now.
@@ -931,11 +955,11 @@ attention_maps = reverse_model.get_attention_maps(inp_data)
 # %%
 attention_maps[0].shape
 
-
 # %% [markdown]
 # Next, we will write a plotting function that takes as input the sequences, attention maps, and an index indicating for which batch element we want to visualize the attention map.
 # We will create a plot where over rows, we have different layers, while over columns, we show the different heads.
 # Remember that the softmax has been applied for each row separately.
+
 
 # %%
 def plot_attention_maps(input_data, attn_maps, idx=0):
@@ -1020,10 +1044,11 @@ TORCH_DATA_MEANS = torch.from_numpy(DATA_MEANS).view(1, 3, 1, 1)
 TORCH_DATA_STD = torch.from_numpy(DATA_STD).view(1, 3, 1, 1)
 
 # Resize to 224x224, and normalize to ImageNet statistic
-transform = transforms.Compose([transforms.Resize((224, 224)),
-                                transforms.ToTensor(),
-                                transforms.Normalize(DATA_MEANS, DATA_STD)
-                                ])
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(DATA_MEANS, DATA_STD)
+])
 # Loading the training dataset.
 train_set = CIFAR100(root=DATASET_PATH, train=True, transform=transform, download=True)
 
@@ -1054,7 +1079,6 @@ pretrained_model.eval()
 for p in pretrained_model.parameters():
     p.requires_grad = False
 
-
 # %% [markdown]
 # We will now write a extraction function for the features below.
 # This cell requires access to a GPU, as the model is rather deep and the images relatively large.
@@ -1063,6 +1087,7 @@ for p in pretrained_model.parameters():
 # However, this requires >150MB free disk space.
 # So it is recommended to run this only on a local computer if you have enough free disk and a GPU (GoogleColab is fine for this).
 # If you do not have a GPU, you can download the features from the [GoogleDrive folder](https://drive.google.com/drive/folders/1DF7POc6j03pRiWQPWSl5QJX5iY-xK0sV?usp=sharing).
+
 
 # %%
 @torch.no_grad()
@@ -1127,7 +1152,6 @@ train_indices = sorted_indices[:, num_val_exmps:].reshape(-1)
 train_feats, train_labels = train_set_feats[train_indices], labels[train_indices]
 val_feats, val_labels = train_set_feats[val_indices], labels[val_indices]
 
-
 # %% [markdown]
 # Now we can prepare a dataset class for the set anomaly task.
 # We define an epoch to be the sequence in which each image has been exactly once as an "anomaly".
@@ -1139,6 +1163,7 @@ val_feats, val_labels = train_set_feats[val_indices], labels[val_indices]
 # However, we can't use the same strategy for the test set as we want the test dataset to be the same every time we iterate over it.
 # Hence, we sample the sets in the `__init__` method, and return those in `__getitem__`.
 # The code below implements exactly this dynamic.
+
 
 # %%
 class SetAnomalyDataset(data.Dataset):
@@ -1175,7 +1200,7 @@ class SetAnomalyDataset(data.Dataset):
 
     def sample_img_set(self, anomaly_label):
         """
-        Samples a new set of images, given the label of the anomaly. 
+        Samples a new set of images, given the label of the anomaly.
         The sampled images come from a different class than anomaly_label
         """
         # Sample class from 0,...,num_classes-1 while skipping anomaly_label as class
@@ -1206,11 +1231,11 @@ class SetAnomalyDataset(data.Dataset):
         # We return the indices of the images for visualization purpose. "Label" is the index of the anomaly
         return img_set, indices, label
 
+
 # %% [markdown]
 # Next, we can setup our datasets and data loaders below.
 # Here, we will use a set size of 10, i.e. 9 images from one category + 1 anomaly.
 # Feel free to change it if you want to experiment with the sizes.
-
 
 # %%
 SET_SIZE = 10
@@ -1220,15 +1245,20 @@ train_anom_dataset = SetAnomalyDataset(train_feats, train_labels, set_size=SET_S
 val_anom_dataset = SetAnomalyDataset(val_feats, val_labels, set_size=SET_SIZE, train=False)
 test_anom_dataset = SetAnomalyDataset(test_feats, test_labels, set_size=SET_SIZE, train=False)
 
-train_anom_loader = data.DataLoader(train_anom_dataset, batch_size=64, shuffle=True,
-                                    drop_last=True, num_workers=4, pin_memory=True)
-val_anom_loader = data.DataLoader(val_anom_dataset, batch_size=64, shuffle=False, drop_last=False, num_workers=4)
-test_anom_loader = data.DataLoader(test_anom_dataset, batch_size=64, shuffle=False, drop_last=False, num_workers=4)
-
+train_anom_loader = data.DataLoader(
+    train_anom_dataset, batch_size=64, shuffle=True, drop_last=True, num_workers=4, pin_memory=True
+)
+val_anom_loader = data.DataLoader(
+    val_anom_dataset, batch_size=64, shuffle=False, drop_last=False, num_workers=4
+)
+test_anom_loader = data.DataLoader(
+    test_anom_dataset, batch_size=64, shuffle=False, drop_last=False, num_workers=4
+)
 
 # %% [markdown]
 # To understand the dataset a little better, we can plot below a few sets from the test dataset.
 # Each row shows a different input set, where the first 9 are from the same class.
+
 
 # %%
 def visualize_exmp(indices, orig_dataset):
@@ -1250,7 +1280,6 @@ def visualize_exmp(indices, orig_dataset):
 _, indices, _ = next(iter(test_anom_loader))
 visualize_exmp(indices[:4], test_set)
 
-
 # %% [markdown]
 # We can already see that for some sets the task might be easier than for others.
 # Difficulties can especially arise if the anomaly is in a different, but yet visually similar class (e.g. train vs bus, flour vs worm, etc.
@@ -1264,6 +1293,7 @@ visualize_exmp(indices[:4], test_set)
 # However, if we swap two images in their position, we effectively swap their position in the output softmax.
 # Hence, the prediction is equivariant with respect to the input.
 # We implement this idea below in the subclass of the Transformer Lightning module.
+
 
 # %%
 class AnomalyPredictor(TransformerPredictor):
@@ -1294,17 +1324,20 @@ class AnomalyPredictor(TransformerPredictor):
 # Finally, we write our train function below.
 # It has the exact same structure as the reverse task one, hence not much of an explanation is needed here.
 
+
 # %%
 def train_anomaly(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     root_dir = os.path.join(CHECKPOINT_PATH, "SetAnomalyTask")
     os.makedirs(root_dir, exist_ok=True)
-    trainer = pl.Trainer(default_root_dir=root_dir,
-                         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-                         gpus=1 if str(device).startswith("cuda") else 0,
-                         max_epochs=100,
-                         gradient_clip_val=2,
-                         progress_bar_refresh_rate=1)
+    trainer = pl.Trainer(
+        default_root_dir=root_dir,
+        callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
+        gpus=1 if str(device).startswith("cuda") else 0,
+        max_epochs=100,
+        gradient_clip_val=2,
+        progress_bar_refresh_rate=1
+    )
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
     # Check whether pretrained model exists. If yes, load it and skip training
@@ -1321,8 +1354,11 @@ def train_anomaly(**kwargs):
     train_result = trainer.test(model, test_dataloaders=train_anom_loader, verbose=False)
     val_result = trainer.test(model, test_dataloaders=val_anom_loader, verbose=False)
     test_result = trainer.test(model, test_dataloaders=test_anom_loader, verbose=False)
-    result = {"test_acc": test_result[0]["test_acc"], "val_acc": val_result[0]
-              ["test_acc"], "train_acc": train_result[0]["test_acc"]}
+    result = {
+        "test_acc": test_result[0]["test_acc"],
+        "val_acc": val_result[0]["test_acc"],
+        "train_acc": train_result[0]["test_acc"]
+    }
 
     model = model.to(device)
     return model, result
@@ -1336,15 +1372,17 @@ def train_anomaly(**kwargs):
 # Again, we use warmup to slowly start our model training.
 
 # %%
-anomaly_model, anomaly_result = train_anomaly(input_dim=train_anom_dataset.img_feats.shape[-1],
-                                              model_dim=256,
-                                              num_heads=4,
-                                              num_classes=1,
-                                              num_layers=4,
-                                              dropout=0.1,
-                                              input_dropout=0.1,
-                                              lr=5e-4,
-                                              warmup=100)
+anomaly_model, anomaly_result = train_anomaly(
+    input_dim=train_anom_dataset.img_feats.shape[-1],
+    model_dim=256,
+    num_heads=4,
+    num_classes=1,
+    num_layers=4,
+    dropout=0.1,
+    input_dropout=0.1,
+    lr=5e-4,
+    warmup=100
+)
 
 # %% [markdown]
 # We can print the achieved accuracy below.
@@ -1394,10 +1432,10 @@ print("Permuted preds\n", perm_preds[0].cpu().numpy())
 attention_maps = anomaly_model.get_attention_maps(inp_data, add_positional_encoding=False)
 predictions = preds.argmax(dim=-1)
 
-
 # %% [markdown]
 # Below we write a plot function which plots the images in the input set, the prediction of the model, and the attention maps of the different heads on layers of the transformer.
 # Feel free to explore the attention maps for different input examples as well.
+
 
 # %%
 def visualize_prediction(idx):
