@@ -12,6 +12,8 @@ description: |
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 requirements:
   - torchvision
+  - matplotlib
+  - seaborn
 accelerator:
   - CPU
   - GPU
