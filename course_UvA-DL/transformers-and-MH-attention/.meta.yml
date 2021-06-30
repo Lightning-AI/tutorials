@@ -11,7 +11,7 @@ description: |
   This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 requirements:
-pip__find-link:
+  - torchvision
 accelerator:
   - CPU
   - GPU
