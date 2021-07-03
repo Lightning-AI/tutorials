@@ -1,0 +1,13 @@
+title: Distributed Training with PyTorch Lightning
+author: PL team
+created: 2021-07-05
+updated: 2021-07-05
+license: CC BY-SA
+description:
+  This tutorial covers several plugins for multi-GPU and distributed training and will walk you through
+  the differences between these backends, when to use one over the other, and best practices in writing
+  hardware- and plugin-agnostic code.
+requirements:
+  - torchvision
+accelerator:
+  - GPU
