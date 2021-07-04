@@ -99,7 +99,9 @@ class DDPAllGatherDemoModule(TutorialModule):
         # gather all predictions into all processes
         all_preds = self.all_gather(preds)
         print(f"{process_id=} all-gathered {all_preds.shape[0]} x {all_preds.shape[1]} outputs")
+
         # do something will all outputs
+        # ...
 
 
 if __name__ == "__main__":
