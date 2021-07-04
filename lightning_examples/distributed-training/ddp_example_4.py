@@ -93,7 +93,8 @@ class DDPDataDemoModule(TutorialModule):
 
     def training_epoch_end(self, outputs):
         process_id = self.global_rank
-        all_losses = torch.cat([output["loss"] for output in outputs])
+        all_losses = torch.stack([output["loss"] for output in outputs])
+        print(all_losses.shape)
         print(f"{process_id=} saw {len(all_losses)} samples total")
 
     def on_train_end(self):
