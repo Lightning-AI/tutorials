@@ -93,12 +93,11 @@ class DDPAllGatherDemoModule(TutorialModule):
 
     def test_epoch_end(self, outputs):
         process_id = self.global_rank
-        preds = torch.stack(outputs)
-        print(f"{process_id=} saw {len(preds)} test_step outputs")
+        preds = torch.cat(outputs)
+        print(f"{process_id=} saw {len(outputs)} test_step outputs, made {len(preds)} predictions")
 
         # gather all predictions into all processes
         all_preds = self.all_gather(preds)
-        print(all_preds.shape)
         print(f"{process_id=} all-gathered {all_preds.shape[0]} x {all_preds.shape[1]} outputs")
         # do something will all outputs
 
