@@ -113,4 +113,4 @@ if __name__ == "__main__":
         accelerator="ddp",
         max_epochs=1,
     )
-    trainer.fit(model, datamodule=datamodule)
+    trainer.test(model, datamodule=datamodule)
