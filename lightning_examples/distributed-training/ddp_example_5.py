@@ -89,8 +89,12 @@ class DDPAllGatherDemoModule(TutorialModule):
         # gather all results into all processes
         process_id = self.global_rank
         print(f"{process_id=} saw {len(outputs)} training_step outputs")
-        all_outputs = self.all_gather(outputs)
-        print(f"{process_id=} all-gathered {len(all_outputs)} outputs")
+        y_hats = torch.stack([output["y_hat"] for output in outputs])
+        print(y_hats.shape)
+
+        all_y_hats = self.all_gather(y_hats)
+        print(all_y_hats.shape)
+        print(f"{process_id=} all-gathered {len(all_y_hats)} outputs")
         # do something will all outputs
 
 
