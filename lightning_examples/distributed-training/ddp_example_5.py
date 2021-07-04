@@ -91,7 +91,7 @@ class DDPAllGatherDemoModule(TutorialModule):
         pred = torch.argmax(prob, dim=1)
         return pred
 
-    def validation_epoch_end(self, outputs):
+    def test_epoch_end(self, outputs):
         process_id = self.global_rank
         preds = torch.stack(outputs)
         print(f"{process_id=} saw {len(preds)} test_step outputs")
