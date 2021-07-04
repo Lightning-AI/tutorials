@@ -105,7 +105,7 @@ if __name__ == "__main__":
     datamodule = MNISTDataModule(batch_size=1)
 
     trainer = Trainer(
-        gpus=4,
+        gpus=3,
         accelerator="ddp",
         max_epochs=1,
     )
