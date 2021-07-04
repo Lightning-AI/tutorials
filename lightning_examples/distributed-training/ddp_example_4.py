@@ -98,7 +98,7 @@ class DDPDataDemoModule(TutorialModule):
         print(f"{process_id=} saw {len(all_losses)} samples total")
 
     def on_train_end(self):
-        print(f"training set contains {len(self.datamodule.mnist_train)} samples")
+        print(f"training set contains {len(self.trainer.datamodule.mnist_train)} samples")
 
 
 if __name__ == "__main__":
