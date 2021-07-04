@@ -93,9 +93,7 @@ class DDPDataDemoModule(TutorialModule):
 
     def training_epoch_end(self, outputs):
         process_id = self.global_rank
-        all_outputs = torch.cat([output["y_hat"] for output in outputs])
-        print(all_outputs.shape)
-        print(f"{process_id=} saw {len(all_outputs)} samples total")
+        print(f"{process_id=} saw {len(outputs)} samples total")
 
     def on_train_end(self):
         print(f"training set contains {len(self.trainer.datamodule.mnist_train)} samples")
@@ -104,7 +102,7 @@ class DDPDataDemoModule(TutorialModule):
 if __name__ == "__main__":
     seed_everything(1)
     model = DDPDataDemoModule()
-    datamodule = MNISTDataModule()
+    datamodule = MNISTDataModule(batch_size=1)
 
     trainer = Trainer(
         gpus=4,
