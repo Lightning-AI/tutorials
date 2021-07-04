@@ -83,7 +83,7 @@ class TutorialModule(LightningModule):
         return torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
 
 
-class DDPDataDemoModule(LightningModule):
+class DDPDataDemoModule(TutorialModule):
 
     def training_step(self, batch, batch_idx):
         x, y = batch
