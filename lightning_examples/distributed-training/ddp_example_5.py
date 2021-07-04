@@ -83,23 +83,24 @@ class TutorialModule(LightningModule):
         return torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
 
 
-class DDPDataDemoModule(TutorialModule):
+class DDPAllGatherDemoModule(TutorialModule):
 
     def training_epoch_end(self, outputs):
+        # gather all results into all processes
         process_id = self.global_rank
-        print(f"{process_id=} saw {len(outputs)} samples total")
-
-    def on_train_end(self):
-        print(f"training set contains {len(self.trainer.datamodule.mnist_train)} samples")
+        print(f"{process_id=} saw {len(outputs)} training_step outputs")
+        all_outputs = self.all_gather(outputs)
+        print(f"{process_id=} all-gathered {len(all_outputs)} outputs")
+        # do something will all outputs
 
 
 if __name__ == "__main__":
     seed_everything(1)
-    model = DDPDataDemoModule()
-    datamodule = MNISTDataModule(batch_size=1)
+    model = DDPAllGatherDemoModule()
+    datamodule = MNISTDataModule()
 
     trainer = Trainer(
-        gpus=3,
+        gpus=4,
         accelerator="ddp",
         max_epochs=1,
     )
