@@ -85,23 +85,21 @@ class TutorialModule(LightningModule):
 
 class DDPAllGatherDemoModule(TutorialModule):
 
-    def validation_step(self, batch, batch_idx):
+    def test_step(self, batch, batch_idx):
         x, y = batch
         prob = F.softmax(self(x), dim=1)
         pred = torch.argmax(prob, dim=1)
         return pred
 
     def validation_epoch_end(self, outputs):
-        print(len(outputs))
-        # gather all results into all processes
         process_id = self.global_rank
-        print(f"{process_id=} saw {len(outputs)} validation_step outputs")
-        y_hats = torch.cat(outputs)
-        print(y_hats.shape)
+        preds = torch.stack(outputs)
+        print(f"{process_id=} saw {len(preds)} test_step outputs")
 
-        all_y_hats = self.all_gather(y_hats)
-        print(all_y_hats.shape)
-        print(f"{process_id=} all-gathered {len(all_y_hats)} outputs")
+        # gather all predictions into all processes
+        all_preds = self.all_gather(preds)
+        print(all_preds.shape)
+        print(f"{process_id=} all-gathered {all_preds.shape[0]} x {all_preds.shape[1]} outputs")
         # do something will all outputs
 
 
