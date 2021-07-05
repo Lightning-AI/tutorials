@@ -1,3 +1,5 @@
+import gc
+
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, random_split
@@ -96,6 +98,9 @@ if __name__ == "__main__":
     trainer.fit(model, datamodule=datamodule)
     ddp_max_mem = torch.cuda.max_memory_allocated() / 1000
 
+    torch.cuda.empty_cache()
+    del trainer
+    gc.collect()
     torch.cuda.reset_max_memory_allocated()
 
     trainer = Trainer(
