@@ -96,8 +96,9 @@ if __name__ == "__main__":
         max_epochs=1,
     )
     trainer.fit(model, datamodule=datamodule)
-    ddp_max_mem = torch.cuda.max_memory_allocated() / 1000
+    ddp_max_mem = torch.cuda.max_memory_allocated(trainer.local_rank) / 1000
 
+    torch.cuda.reset_max_memory_allocated(trainer.local_rank)
     model.cpu()
     del trainer
     torch.cuda.empty_cache()
@@ -110,7 +111,7 @@ if __name__ == "__main__":
         max_epochs=1,
     )
     trainer.fit(model, datamodule=datamodule)
-    sdp_max_mem = torch.cuda.max_memory_allocated() / 1000
+    sdp_max_mem = torch.cuda.max_memory_allocated(trainer.local_rank) / 1000
 
-    print(f"Process {trainer.global_rank} max memory using DDP: {ddp_max_mem} MB")
-    print(f"Process {trainer.global_rank} max memory using SDP: {sdp_max_mem} MB")
+    print(f"GPU {trainer.local_rank} max memory using DDP: {ddp_max_mem} MB")
+    print(f"GPU {trainer.local_rank} max memory using SDP: {sdp_max_mem} MB")
