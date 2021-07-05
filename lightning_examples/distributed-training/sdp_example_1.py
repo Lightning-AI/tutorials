@@ -113,5 +113,5 @@ if __name__ == "__main__":
     trainer.fit(model, datamodule=datamodule)
     sdp_max_mem = torch.cuda.max_memory_allocated(trainer.local_rank) / 1000
 
-    print(f"GPU {trainer.local_rank} max memory using DDP: {ddp_max_mem} MB")
-    print(f"GPU {trainer.local_rank} max memory using SDP: {sdp_max_mem} MB")
+    print(f"GPU {trainer.local_rank} max memory using DDP: {ddp_max_mem:.2f} MB")
+    print(f"GPU {trainer.local_rank} max memory using SDP: {sdp_max_mem:.2f} MB")
