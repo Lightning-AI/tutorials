@@ -98,8 +98,9 @@ if __name__ == "__main__":
     trainer.fit(model, datamodule=datamodule)
     ddp_max_mem = torch.cuda.max_memory_allocated() / 1000
 
-    torch.cuda.empty_cache()
+    model.cpu()
     del trainer
+    torch.cuda.empty_cache()
     gc.collect()
     torch.cuda.reset_max_memory_allocated()
 
