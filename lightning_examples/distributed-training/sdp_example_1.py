@@ -99,11 +99,6 @@ if __name__ == "__main__":
     ddp_max_mem = torch.cuda.max_memory_allocated(trainer.local_rank) / 1000
 
     torch.cuda.reset_max_memory_allocated(trainer.local_rank)
-    model.cpu()
-    del trainer
-    torch.cuda.empty_cache()
-    gc.collect()
-    torch.cuda.reset_max_memory_allocated()
 
     trainer = Trainer(
         gpus=2,
