@@ -107,4 +107,4 @@ if __name__ == "__main__":
     sdp_max_mem = torch.cuda.max_memory_allocated()
 
     print(f"Process {trainer.global_rank} max memory using DDP: {ddp_max_mem}")
-    print(f"Process {trainer.global_rank} max memory using SDP: {ddp_max_mem}")
+    print(f"Process {trainer.global_rank} max memory using SDP: {sdp_max_mem}")
