@@ -89,9 +89,22 @@ if __name__ == "__main__":
     datamodule = MNISTDataModule()
 
     trainer = Trainer(
-        gpus=4,
+        gpus=2,
+        accelerator="ddp",
+        max_epochs=1,
+    )
+    trainer.fit(model, datamodule=datamodule)
+    ddp_max_mem = torch.cuda.max_memory_allocated()
+
+    torch.cuda.reset_max_memory_allocated()
+
+    trainer = Trainer(
+        gpus=2,
         accelerator="ddp_sharded",
         max_epochs=1,
     )
     trainer.fit(model, datamodule=datamodule)
-    trainer.test(model, datamodule=datamodule)
+    sdp_max_mem = torch.cuda.max_memory_allocated()
+
+    print(f"Process {trainer.global_rank} max memory using DDP: {ddp_max_mem}")
+    print(f"Process {trainer.global_rank} max memory using SDP: {ddp_max_mem}")
