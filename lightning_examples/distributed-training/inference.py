@@ -94,6 +94,10 @@ class DDPInferenceModel(TutorialModule):
 
 class DDPInferenceDataModule(MNISTDataModule):
 
+    def setup(self, stage=None):
+        if stage in ('test', 'predict') or stage is None:
+            self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
+
     def predict_dataloader(self):
         return self.test_dataloader()
 
