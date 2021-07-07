@@ -101,7 +101,7 @@ def run_train():
         accelerator="ddp",
         max_epochs=1,
     )
-    trainer.fit(model, datamodule=datamodule)
+    trainer.fit(model, train_dataloaders=datamodule.train_dataloader())
     best_path = trainer.checkpoint_callback.best_model_path
     print(f"Best model: {best_path}")
     return best_path
