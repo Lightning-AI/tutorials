@@ -185,6 +185,7 @@ trainer = Trainer(
     accelerator="ddp",
 )
 
+
 # %% [markdown]
 # The Distributed Data-Parallel (DDP) plugin in Lightning is orchestrating training in several processes. There are as many processes as devices are involved and these processes can either be launched directly by Lightning (default) or an external launch utilitiy like ``torch.distributed.launch``. The DDP plugin is the recommended choice by Lightning because it scales linearly (with a constant overhead) in the number of GPUs and has very few limitations for the average use case.
 #
@@ -215,15 +216,15 @@ trainer = Trainer(
 # %% [markdown]
 # **Example 1:** No code changes are required to run with DDP. Simply set the Trainer argument for the accelerator:
 
-# %%
-model = TutorialModule()
-datamodule = MNISTDataModule()
-trainer = Trainer(
-    gpus=4,
-    accelerator="ddp",
-)
-
-# ATTENTION: only run this outside the Jupyter notebook:
+# %% magic_args="echo Skipping cell. Run this code in a script instead!" language="script"
+#
+# model = TutorialModule()
+# datamodule = MNISTDataModule()
+#
+# trainer = Trainer(
+#     gpus=4,
+#     accelerator="ddp",
+# )
 # trainer.fit(model, datamodule=datamodule)
 
 # %% [markdown]
@@ -254,6 +255,7 @@ class PreprocessExampleDataModule(MNISTDataModule):
 # %%
 model = TutorialModule()
 datamodule = MNISTDataModule()
+
 trainer = Trainer(
     gpus=4,
     num_nodes=2,
@@ -288,18 +290,17 @@ class DDPDataDemoModule(TutorialModule):
 
 
 
-# %%
-seed_everything(1)
-model = DDPDataDemoModule()
-datamodule = MNISTDataModule(batch_size=1)
-
-trainer = Trainer(
-    gpus=4,
-    accelerator="ddp",
-    max_epochs=1,
-)
-
-# ATTENTION: only run this outside the Jupyter notebook:
+# %% magic_args="echo Skipping cell. Run this code in a script instead!" language="script"
+#
+# seed_everything(1)
+# model = DDPDataDemoModule()
+# datamodule = MNISTDataModule(batch_size=1)
+#
+# trainer = Trainer(
+#     gpus=4,
+#     accelerator="ddp",
+#     max_epochs=1,
+# )
 # trainer.fit(model, datamodule=datamodule)
 
 # %% [markdown]
@@ -315,15 +316,14 @@ trainer = Trainer(
 # ```
 # As we can see, each GPU gets 55000 / 4 = 137500 data samples. However, what happens if we set the number of GPUs to 3, which does not divide 55000?
 
-# %%
-trainer = Trainer(
-    # NOTICE: does not divide dataset size evenly
-    gpus=3,
-    accelerator="ddp",
-    max_epochs=1,
-)
-
-# ATTENTION: only run this outside the Jupyter notebook:
+# %% magic_args="echo Skipping cell. Run this code in a script instead!" language="script"
+#
+# trainer = Trainer(
+#     # NOTICE: does not divide dataset size evenly
+#     gpus=3,
+#     accelerator="ddp",
+#     max_epochs=1,
+# )
 # trainer.fit(model, datamodule=datamodule)
 
 # %% [markdown]
@@ -361,17 +361,16 @@ class DDPAllGatherDemoModule(TutorialModule):
         # ...
 
 
-# %%
-model = DDPAllGatherDemoModule()
-datamodule = MNISTDataModule()
-
-trainer = Trainer(
-    gpus=4,
-    accelerator="ddp",
-    max_epochs=1,
-)
-    
-# ATTENTION: only run this outside the Jupyter notebook:
+# %% magic_args="echo Skipping cell. Run this code in a script instead!" language="script"
+#
+# model = DDPAllGatherDemoModule()
+# datamodule = MNISTDataModule()
+#
+# trainer = Trainer(
+#     gpus=4,
+#     accelerator="ddp",
+#     max_epochs=1,
+# )
 # trainer.test(model, datamodule=datamodule)
 
 # %% [markdown]
@@ -609,6 +608,7 @@ trainer = Trainer(
     accelerator="ddp_sharded", 
 )
 
+
 # %% [markdown]
 # Sharded Data Parallel (SDP) offers significant memory savings for very large models (above 500M parameters). It enables one to train models that would normally not fit onto a single GPU, or allows for an increased batch- or input size.
 #
@@ -618,22 +618,21 @@ trainer = Trainer(
 #
 # First we measure the memory footprint when training with ``accelerator="ddp"``.
 
-# %%
-seed_everything(1)
-model = TutorialModule()
-datamodule = MNISTDataModule()
-
-trainer = Trainer(
-    gpus=2,
-    accelerator="ddp",
-    max_epochs=1,
-)
-
-# ATTENTION: only run this outside the Jupyter notebook:
+# %% magic_args="echo Skipping cell. Run this code in a script instead!" language="script"
+#
+# seed_everything(1)
+# model = TutorialModule()
+# datamodule = MNISTDataModule()
+#
+# trainer = Trainer(
+#     gpus=2,
+#     accelerator="ddp",
+#     max_epochs=1,
+# )
 # trainer.fit(model, datamodule=datamodule)
-
-ddp_max_mem = torch.cuda.max_memory_allocated(trainer.local_rank) / 1000
-print(f"GPU {trainer.local_rank} max memory using DDP: {ddp_max_mem:.2f} MB")
+#
+# ddp_max_mem = torch.cuda.max_memory_allocated(trainer.local_rank) / 1000
+# print(f"GPU {trainer.local_rank} max memory using DDP: {ddp_max_mem:.2f} MB")
 
 # %% [markdown]
 # Output:
@@ -645,23 +644,21 @@ print(f"GPU {trainer.local_rank} max memory using DDP: {ddp_max_mem:.2f} MB")
 #
 # Next, we switch to ``accelerator="ddp_sharded"``:
 
-# %%
-seed_everything(1)
-model = TutorialModule()
-datamodule = MNISTDataModule()
-
-trainer = Trainer(
-    gpus=2,
-    accelerator="ddp_sharded",
-    max_epochs=1,
-)
-
-# ATTENTION: only run this outside the Jupyter notebook:
+# %% magic_args="echo Skipping cell. Run this code in a script instead!" language="script"
+#
+# seed_everything(1)
+# model = TutorialModule()
+# datamodule = MNISTDataModule()
+#
+# trainer = Trainer(
+#     gpus=2,
+#     accelerator="ddp_sharded",
+#     max_epochs=1,
+# )
 # trainer.fit(model, datamodule=datamodule)
-
-sdp_max_mem = torch.cuda.max_memory_allocated(trainer.local_rank) / 1000
-print(f"GPU {trainer.local_rank} max memory using SDP: {sdp_max_mem:.2f} MB")
-
+#
+# sdp_max_mem = torch.cuda.max_memory_allocated(trainer.local_rank) / 1000
+# print(f"GPU {trainer.local_rank} max memory using SDP: {sdp_max_mem:.2f} MB")
 
 # %% [markdown]
 # Output:
@@ -684,6 +681,15 @@ print(f"GPU {trainer.local_rank} max memory using SDP: {sdp_max_mem:.2f} MB")
 #
 #
 # ## Distributed Inference
+
+# %% [markdown]
+# There are mainly two ways Lightning offers distributed inference:
+#
+# 1. The model produces outputs in each process/GPU and at the end all predictions get *all-gathered* into each GPU. This requires that all predictions must fit into the memory of a GPU.
+#
+# 2. If approach 1 is not feasible due to memory limitations, Lightning offers a `BasePredictionWriter` Callback that can be extended with a save function. The callback will receive the predictions and save them to disk (or upload to a remote filesystem) with the user provided save function. Later on, the predictions can be loaded into CPU memory for further processing.
+#
+#
 
 # %%
 class DDPInferenceDataModule(MNISTDataModule):
@@ -709,20 +715,6 @@ class DDPInferenceModel(TutorialModule):
 
 
 
-# %%
-from pytorch_lightning.callbacks import BasePredictionWriter
-
-class PredictionWriter(BasePredictionWriter):
-
-    def __init__(self, output_dir: str):
-        super().__init__(write_interval="epoch")
-        self.output_dir = output_dir
-        os.makedirs(output_dir, exist_ok=True)
-
-    def write_on_epoch_end(self, trainer, pl_module: 'LightningModule', predictions, batch_indices):
-        predictions = torch.cat(predictions[0]).cpu()
-        torch.save(predictions, os.path.join(self.output_dir, f"predictions-{trainer.global_rank}.pt"))
-
 # %% magic_args="echo Skipping cell. Run this code in a script instead!" language="script"
 #
 # seed_everything(1)
@@ -740,6 +732,9 @@ class PredictionWriter(BasePredictionWriter):
 #
 # best_path = trainer.checkpoint_callback.best_model_path
 # print(f"Best model: {best_path}")
+
+# %% [markdown]
+# **Example 1**: Saving predictions to GPU memory.
 
 # %% magic_args="echo Skipping cell. Run this code in a script instead!" language="script"
 #
@@ -760,6 +755,31 @@ class PredictionWriter(BasePredictionWriter):
 #
 # if trainer.global_rank == 0:
 #     print(f"All predictions gathered in GPU memory: {all_predictions}")
+
+# %% [markdown]
+# The output of this script is:
+# ```
+# All predictions gathered in GPU memory: tensor([[7, 9, 1, 0], [0, 3, 9, 1]], device='cuda:0')
+# ```
+#
+# There are four outputs per GPU because we set `Trainer(limit_predict_batches=4)` for this example.
+
+# %% [markdown]
+# **Example 2:** Writing predictions to disk and loading them into CPU memory.
+
+# %%
+from pytorch_lightning.callbacks import BasePredictionWriter
+
+class PredictionWriter(BasePredictionWriter):
+
+    def __init__(self, output_dir: str):
+        super().__init__(write_interval="epoch")
+        self.output_dir = output_dir
+        os.makedirs(output_dir, exist_ok=True)
+
+    def write_on_epoch_end(self, trainer, pl_module: 'LightningModule', predictions, batch_indices):
+        predictions = torch.cat(predictions[0]).cpu()
+        torch.save(predictions, os.path.join(self.output_dir, f"predictions-{trainer.global_rank}.pt"))
 
 # %% magic_args="echo Skipping cell. Run this code in a script instead!" language="script"
 #
@@ -783,5 +803,14 @@ class PredictionWriter(BasePredictionWriter):
 #
 #     all_predictions = torch.cat(all_predictions)
 #     print(f"All predictions gathered from disk: {all_predictions}")
+
+# %% [markdown]
+# The output of this script is:
+#
+# ```
+# All predictions gathered from disk: tensor([7, 9, 1, 0, 0, 3, 9, 1])
+# ```
+#
+# As we can see, there were four predictions made per GPU, i.e., in total we collect 8 predictions.
 
 # %%
