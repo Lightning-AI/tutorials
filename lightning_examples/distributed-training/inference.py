@@ -175,4 +175,5 @@ def run_predict_1(best_path):
 
 if __name__ == "__main__":
     best_path = run_train()
+    run_predict_0(best_path)
     run_predict_1(best_path)
