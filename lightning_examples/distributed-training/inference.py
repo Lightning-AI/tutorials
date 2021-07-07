@@ -1,6 +1,9 @@
+import os
+
 import torch
 import torch.nn.functional as F
 from pytorch_lightning import LightningDataModule, LightningModule, seed_everything, Trainer
+from pytorch_lightning.callbacks import BasePredictionWriter
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchmetrics import Accuracy
 from torchvision import transforms
@@ -103,6 +106,21 @@ class DDPInferenceDataModule(MNISTDataModule):
         return DataLoader(self.mnist_predict, batch_size=self.batch_size)
 
 
+class CustomWriter(BasePredictionWriter):
+
+    def __init__(self, output_dir: str, write_interval: str):
+        super().__init__(write_interval)
+        self.output_dir = output_dir
+
+    def write_on_batch_end(
+        self, trainer, pl_module, prediction, batch_indices, batch, batch_idx, dataloader_idx
+    ):
+        torch.save(prediction, os.path.join(self.output_dir, f"{batch_idx}.pt"))
+
+    def write_on_epoch_end(self, trainer, pl_module: 'LightningModule', predictions, batch_indices):
+        torch.save(predictions, os.path.join(self.output_dir, "predictions.pt"))
+
+
 def run_train():
     model = TutorialModule()
     datamodule = MNISTDataModule()
@@ -117,7 +135,7 @@ def run_train():
     return best_path
 
 
-def run_predict(best_path):
+def run_predict_0(best_path):
     model = DDPInferenceModel()
     datamodule = DDPInferenceDataModule(batch_size=1)
     trainer = Trainer(
@@ -131,6 +149,18 @@ def run_predict(best_path):
     print(all_predictions)
 
 
+def run_predict_1(best_path):
+    model = DDPInferenceModel()
+    datamodule = DDPInferenceDataModule(batch_size=1)
+    trainer = Trainer(
+        gpus=2,
+        accelerator="ddp",
+        limit_predict_batches=4,
+        callbacks=[CustomWriter("./predictions/", write_interval="epoch")]
+    )
+    trainer.predict(model, datamodule=datamodule, ckpt_path=best_path, return_predictions=False)
+
+
 if __name__ == "__main__":
     best_path = run_train()
-    run_predict(best_path)
+    run_predict_1(best_path)
