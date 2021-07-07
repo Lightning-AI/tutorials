@@ -119,7 +119,7 @@ def run_train():
 
 def run_predict(best_path):
     model = DDPInferenceModel()
-    datamodule = DDPInferenceDataModule()
+    datamodule = DDPInferenceDataModule(batch_size=1)
     trainer = Trainer(
         gpus=2,
         accelerator="ddp",
