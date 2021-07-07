@@ -161,6 +161,11 @@ def run_predict_1(best_path):
     )
     trainer.predict(model, datamodule=datamodule, ckpt_path=best_path, return_predictions=False)
 
+    predictions0 = torch.load("./predictions/predictions-0.pt")
+    predictions1 = torch.load("./predictions/predictions-1.pt")
+    print(predictions0)
+    print(predictions1)
+
 
 if __name__ == "__main__":
     best_path = run_train()
