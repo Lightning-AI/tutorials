@@ -120,9 +120,7 @@ def run_predict(best_path):
         accelerator="ddp",
         limit_predict_batches=4,
     )
-    predictions = trainer.predict(
-        model, datamodule=datamodule, ckpt_path=best_path, return_predictions=True
-    )
+    predictions = trainer.predict(model, datamodule=datamodule, ckpt_path=best_path, return_predictions=True)
     print(predictions)
 
 
