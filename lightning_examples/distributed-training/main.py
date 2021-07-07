@@ -15,6 +15,14 @@
 
 # %%
 import prepare_notebook
+# %%
+import torch
+import torch.nn.functional as F
+from pytorch_lightning import LightningDataModule, LightningModule, seed_everything, Trainer
+from torch.utils.data import DataLoader, Dataset, random_split
+from torchmetrics import Accuracy
+from torchvision import transforms
+from torchvision.datasets import MNIST
 
 # %% [markdown]
 # # Distributed Training with PyTorch Lightning
@@ -66,15 +74,6 @@ import prepare_notebook
 #
 # **IMPORTANT NOTE:** This notebook is not meant to be executed in full. Some cells will produce an output but most of the backends presented here will NOT run in a Jupyter environment.
 
-# %%
-import torch
-import torch.nn.functional as F
-from torch.utils.data import DataLoader, Dataset, random_split
-from torchvision import transforms
-from torchvision.datasets import MNIST
-from torchmetrics import Accuracy
-from pytorch_lightning import LightningModule, LightningDataModule, Trainer, seed_everything
-
 
 class MNISTDataModule(LightningDataModule):
 
@@ -108,8 +107,8 @@ class MNISTDataModule(LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(self.mnist_test, batch_size=self.batch_size)
-    
-    
+
+
 class TutorialModule(LightningModule):
 
     def __init__(
@@ -170,7 +169,7 @@ trainer.test(model, datamodule=datamodule)
 #
 # ## DDP: Distributed Data-Parallel
 #
-# **Use when:** 
+# **Use when:**
 # - you want to scale your training to as many GPUs as you want;
 # - you want to perform multi-node training.
 #
@@ -181,7 +180,7 @@ trainer.test(model, datamodule=datamodule)
 
 # %%
 trainer = Trainer(
-    gpus=2, 
+    gpus=2,
     accelerator="ddp",
 )
 
@@ -227,7 +226,8 @@ trainer = Trainer(
 # trainer.fit(model, datamodule=datamodule)
 
 # %% [markdown]
-# **Example 2:** If there is data to download, extract and preprocess before training, it is important to do this only once and only in one process. Otherwise, each process will write to the same files at the same time. In Lightning, we split this logic into two separate hooks: ``prepare_data()`` and ``setup()``. 
+# **Example 2:** If there is data to download, extract and preprocess before training, it is important to do this only once and only in one process. Otherwise, each process will write to the same files at the same time. In Lightning, we split this logic into two separate hooks: ``prepare_data()`` and ``setup()``.
+
 
 # %%
 class PreprocessExampleDataModule(MNISTDataModule):
@@ -263,7 +263,6 @@ trainer = Trainer(
     prepare_data_per_node=False,
 )
 
-
 # %% [markdown]
 # Notice the ``prepare_data_per_node`` Trainer argument. The setting of this boolean depends on what we are doing in the ``prepare_data`` hook: In our example here we are downloading data, and we don't want to do that on every node if the filesystem is a shared across the servers.
 #
@@ -274,7 +273,8 @@ trainer = Trainer(
 #
 # 1. If the dataset is not evenly divisible by the number of GPUs, then the distributed sampler will append enough "fake" samples such that all GPUs see the same number of samples. These samples are fake in the sense that they are copies of existing data and thus data distribution is slightly biased. It is necessary due to the way PyTorch synchronizes the processes and cannot be avoided.
 #
-# 2. The `training_epoch_end`, `validation_epoch_end` and `test_epoch_end` hooks will receive ONLY the outputs of the step method in the respective process, NOT all outputs from all processes/GPUs. 
+# 2. The `training_epoch_end`, `validation_epoch_end` and `test_epoch_end` hooks will receive ONLY the outputs of the step method in the respective process, NOT all outputs from all processes/GPUs.
+
 
 # %%
 class DDPDataDemoModule(TutorialModule):
@@ -285,7 +285,6 @@ class DDPDataDemoModule(TutorialModule):
 
     def on_train_end(self):
         print(f"training set contains {len(self.trainer.datamodule.mnist_train)} samples")
-
 
 
 # %%
@@ -304,7 +303,7 @@ trainer = Trainer(
 
 # %% [markdown]
 # In the terminal output we see the following:
-#     
+#
 # ```
 # process_id=0 saw 13750 samples total
 # process_id=1 saw 13750 samples total
@@ -339,6 +338,7 @@ trainer = Trainer(
 # %% [markdown]
 # **Example 5:** As we have seen in the previous example, the ``*_epoch_end`` hooks collect only the outputs for the current process. What if we want all outputs? It can be achieved by calling the ``LightningModule.all_gather`` method:
 
+
 # %%
 class DDPAllGatherDemoModule(TutorialModule):
 
@@ -370,7 +370,7 @@ trainer = Trainer(
     accelerator="ddp",
     max_epochs=1,
 )
-    
+
 # ATTENTION: only run this outside the Jupyter notebook:
 # trainer.test(model, datamodule=datamodule)
 
@@ -391,7 +391,7 @@ trainer = Trainer(
 # ```
 
 # %% [markdown]
-# **Example 6:** Effective batch size, learning rate, number of workers. 
+# **Example 6:** Effective batch size, learning rate, number of workers.
 #
 # The batching happens independently in each process, i.e., the ``batch_size`` argument set in the data loader is local to the current process. The effective batch size can be computed like so:
 
@@ -432,7 +432,7 @@ model = TutorialModule(learning_rate=world_learning_rate)
 # ## DDP-spawn: Distributed Data-Parallel Spawn
 #
 #
-# **Use when:** 
+# **Use when:**
 # - you want to get the benefits of DDP / distributed data-parallel, but
 # - you want to run DDP inside a Jupyter notebook.
 #
@@ -445,7 +445,7 @@ model = TutorialModule(learning_rate=world_learning_rate)
 
 # %%
 trainer = Trainer(
-    gpus=4, 
+    gpus=4,
     accelerator="ddp_spawn",  # this is already the default in Lightning!
 )
 
@@ -467,7 +467,7 @@ trainer = Trainer(
 # - The forking is expensive, especially when many dataloader workers (``num_workers``) are involved.
 # - Every object needs to be picklable.
 #
-# In light of these limitations, [DDP](#ddp) offers a much better user experience overall. However, DDP-spawn and [DP](#dp) are the only accelerators that work in a Jupyter notebook (Google Colab, Kaggle, etc.). 
+# In light of these limitations, [DDP](#ddp) offers a much better user experience overall. However, DDP-spawn and [DP](#dp) are the only accelerators that work in a Jupyter notebook (Google Colab, Kaggle, etc.).
 #
 # **Examples:** All examples and instructions in the [DDP](#ddp) section apply for DDP-spawn as well! All you have to do is change ``accelerator="ddp"`` to ``accelerator="ddp_spawn"``.
 
@@ -476,7 +476,7 @@ trainer = Trainer(
 #
 # ## DP: Data-Parallel
 #
-# **Use when:** 
+# **Use when:**
 # - you want to port an existing PyTorch model written with DataParallel and want to maintain 100% parity;
 # - your optimization needs the full aggregated batch of outputs/losses from all GPUs;
 # - you need to run multi-GPU in a Jupyter notebook cell, and cannot convert to a script;
@@ -492,14 +492,13 @@ trainer = Trainer(
 # %%
 # data-parallel with 2 GPUs
 trainer = Trainer(
-    gpus=2, 
+    gpus=2,
     accelerator="dp",
 )
 
-
 # %% [markdown]
 # Data-Parallel initially moves all model parameters, buffers and data tensors to the root GPU. In Lighting, this is GPU 0. The following steps take place in _every_ training step:
-# 1. The model gets replicated to every device, i.e., parameters and buffers get copied from the root device to all other devices. 
+# 1. The model gets replicated to every device, i.e., parameters and buffers get copied from the root device to all other devices.
 # 2. The data batch that initially resides on GPU 0 gets split into N sub-batches along dimension 0 (batch dimension). Each GPU receives one of these batch splits and they are passed to the ``training_step`` hook.
 # 3. The output of ``training_step`` in each device will be transferred back to the root device and averaged.
 #
@@ -508,15 +507,16 @@ trainer = Trainer(
 # %% [markdown]
 # **Example 1:**
 
+
 # %%
 class DPModule(TutorialModule):
-    
+
     # *_step() happens on the replica of the model (each GPU runs this)
     def validation_step(self, batch, batch_idx):
         x, y = batch
         # total batch size = 16, 2 GPUs -> each GPU sees batch of size 8
-        # the last batch may still be smaller, the dataset may not be evenly divisible by the batch size 
-        assert x.shape[0] <= 8 
+        # the last batch may still be smaller, the dataset may not be evenly divisible by the batch size
+        assert x.shape[0] <= 8
         prob = F.softmax(self(x), dim=1)
         pred = torch.argmax(prob, dim=1)
         return pred, y
@@ -536,42 +536,41 @@ model = DPModule()
 
 datamodule = MNISTDataModule()
 trainer = Trainer(
-    gpus=2, 
-    accelerator="dp", 
+    gpus=2,
+    accelerator="dp",
     max_epochs=1,
 )
 
 trainer.fit(model, datamodule=datamodule)
 
-
 # %% [markdown]
 # **Example 2: Custom reduction**
 
+
 # %%
 class DPModule(TutorialModule):
-    
+
     def training_step_end(self, outputs):
         # outputs is a dict
         # it is the result of merging all dicts returned by training_step() on each device
-        
+
         # the loss from each GPU, 2 GPUs are used here
         losses = outputs["loss"]
         assert losses.shape[0] == 2
-        
+
         # each GPU returned 8 predictions
         y_hats = outputs["y_hat"]
         assert y_hats.shape[0] == 2 * 8
-        
+
         probs = F.softmax(y_hats, dim=1)
         preds = torch.argmax(probs, dim=1)
         loss = torch.mean(losses)
         return {"loss": loss, "pred": preds}
-    
+
     def training_epoch_end(self, outputs):
         # we can receive all outputs from all training steps and concatenate them
         all_predictions = torch.cat([out["pred"] for out in outputs])
         print(all_predictions)
-
 
 
 # %%
@@ -579,8 +578,8 @@ model = DPModule()
 datamodule = MNISTDataModule()
 
 trainer = Trainer(
-    gpus=2, 
-    accelerator="dp", 
+    gpus=2,
+    accelerator="dp",
     max_steps=4,
     limit_val_batches=0,
 )
@@ -593,7 +592,7 @@ trainer.fit(model, datamodule=datamodule)
 # ## SDP: Sharded Data-Parallel
 
 # %% [markdown]
-# **Use when:** 
+# **Use when:**
 # - memory is a concern because model parameters + optimizer + gradients do not fit on a GPU;
 # - your model has >= 500 million parameters;
 # - you are using very large batch sizes or inputs.
@@ -605,8 +604,8 @@ trainer.fit(model, datamodule=datamodule)
 
 # %%
 trainer = Trainer(
-    gpus=4, 
-    accelerator="ddp_sharded", 
+    gpus=4,
+    accelerator="ddp_sharded",
 )
 
 # %% [markdown]
