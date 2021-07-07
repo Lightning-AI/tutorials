@@ -148,7 +148,9 @@ def run_predict_0(best_path):
     predictions = trainer.predict(model, datamodule=datamodule, ckpt_path=best_path, return_predictions=True)
     all_predictions = torch.cat(predictions)
     all_predictions = trainer.accelerator.all_gather(all_predictions)
-    print(all_predictions)
+
+    if trainer.global_rank == 0:
+        print(f"All predictions gathered in GPU memory: {all_predictions}")
 
 
 def run_predict_1(best_path):
@@ -168,9 +170,10 @@ def run_predict_1(best_path):
             all_predictions.append(torch.load(f"./predictions/predictions-{i}.pt"))
 
         all_predictions = torch.cat(all_predictions)
-        print(all_predictions)
+        print(f"All predictions gathered from disk: {all_predictions}")
 
 
 if __name__ == "__main__":
     best_path = run_train()
+    run_predict_0(best_path)
     run_predict_1(best_path)
