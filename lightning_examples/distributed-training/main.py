@@ -34,7 +34,6 @@ import prepare_notebook
 # 6. [SDP: Sharded Data-Parallel](#sdp)
 # 7. [FSDP: Fully Sharded Data-Parallel](#fsdp)
 # 8. [Distributed Inference](#inference)
-# 9. [Best practices](#best-practice)
 
 # %% [markdown]
 # <a id='multi-gpu'></a>
@@ -674,7 +673,9 @@ trainer = Trainer(
 #
 # ## FSDP: Fully Sharded Data-Parallel (COMING SOON)
 
-# %%
+# %% [markdown]
+# We will add more examples for FSDP soon. 
+# Read about fully sharded in our [documentation](https://pytorch-lightning.readthedocs.io/en/latest/advanced/advanced_gpu.html#fully-sharded-training).
 
 # %% [markdown]
 # <a id='inference'></a>
@@ -689,7 +690,33 @@ trainer = Trainer(
 #
 # 2. If approach 1 is not feasible due to memory limitations, Lightning offers a `BasePredictionWriter` Callback that can be extended with a save function. The callback will receive the predictions and save them to disk (or upload to a remote filesystem) with the user provided save function. Later on, the predictions can be loaded into CPU memory for further processing.
 #
+# In the following examples, we will explain both approaches.
 #
+# In order to make predictions, we first train our model using 2 GPUs (you can choose any accelerator you want):
+
+# %% magic_args="echo Skipping cell. Run this code in a script instead!" language="script"
+#
+# from pytorch_lightning.callbacks import ModelCheckpoint
+#
+# seed_everything(1)
+#
+# model = TutorialModule()
+# datamodule = MNISTDataModule()
+#
+# trainer = Trainer(
+#     gpus=2,
+#     accelerator="ddp",
+#     max_epochs=1,
+#     callbacks=[ModelCheckpoint(monitor="val_acc", mode="max", save_top_k=1)]
+# )
+#
+# trainer.fit(model, datamodule=datamodule)
+#
+# best_path = trainer.checkpoint_callback.best_model_path
+# print(f"Best model: {best_path}")
+
+# %% [markdown]
+# This returns us a path to the best checkpoint according to our validation accuracy. We can later use this checkpoint to load the model weights for prediction. Next, define a prediction dataloader either on the `LightningModule` or like here, in the `LightningDataModule`:
 
 # %%
 class DDPInferenceDataModule(MNISTDataModule):
@@ -704,6 +731,9 @@ class DDPInferenceDataModule(MNISTDataModule):
 
 
 
+# %% [markdown]
+# We also need to define a `predict_step` in the `LightningModule`. This does almost exactly the same as the already defined `forward()` method, but additionally computes the label with the highest probability.
+
 # %%
 class DDPInferenceModel(TutorialModule):
 
@@ -715,26 +745,8 @@ class DDPInferenceModel(TutorialModule):
 
 
 
-# %% magic_args="echo Skipping cell. Run this code in a script instead!" language="script"
-#
-# seed_everything(1)
-#
-# model = TutorialModule()
-# datamodule = MNISTDataModule()
-#
-# trainer = Trainer(
-#     gpus=2,
-#     accelerator="ddp",
-#     max_epochs=1,
-# )
-#
-# trainer.fit(model, datamodule=datamodule)
-#
-# best_path = trainer.checkpoint_callback.best_model_path
-# print(f"Best model: {best_path}")
-
 # %% [markdown]
-# **Example 1**: Saving predictions to GPU memory.
+# **Example 1**: Saving predictions to GPU memory. This approach is the easiest and requirest the least amount of preparation. The requirement is that all outputs must fit into GPU memory. If that's not possible for your use-case, we recommend approach 2 in the next example.
 
 # %% magic_args="echo Skipping cell. Run this code in a script instead!" language="script"
 #
@@ -765,7 +777,11 @@ class DDPInferenceModel(TutorialModule):
 # There are four outputs per GPU because we set `Trainer(limit_predict_batches=4)` for this example.
 
 # %% [markdown]
-# **Example 2:** Writing predictions to disk and loading them into CPU memory.
+# **Example 2:** Writing predictions to disk and loading them into CPU memory. This is the best strategy for distributed inference when many predictions need to be computed at once and memory usage is high. 
+#
+# Three steps are needed:
+#
+# Step 1: Define a `PredictionWriter` (inherit from `pytorch_lightning.callbacks.BasePredictionWriter`):
 
 # %%
 from pytorch_lightning.callbacks import BasePredictionWriter
@@ -781,6 +797,9 @@ class PredictionWriter(BasePredictionWriter):
         predictions = torch.cat(predictions[0]).cpu()
         torch.save(predictions, os.path.join(self.output_dir, f"predictions-{trainer.global_rank}.pt"))
 
+# %% [markdown]
+# Step 2: Add the callback to the `Trainer` and run `Trainer.predict()`:
+
 # %% magic_args="echo Skipping cell. Run this code in a script instead!" language="script"
 #
 # seed_everything(1)
@@ -795,6 +814,11 @@ class PredictionWriter(BasePredictionWriter):
 #     callbacks=[CustomWriter("./predictions/", write_interval="epoch")]
 # )
 # trainer.predict(model, datamodule=datamodule, ckpt_path=best_path, return_predictions=False)
+
+# %% [markdown]
+# Step 3: Load the predictions from disk, either in the same script or in a new one for post processing:
+
+# %% magic_args="echo Skipping cell. Run this code in a script instead!" language="script"
 #
 # if trainer.global_rank == 0:
 #     all_predictions = []
