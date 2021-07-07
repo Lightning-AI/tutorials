@@ -124,6 +124,7 @@ class CustomWriter(BasePredictionWriter):
 
 
 def run_train():
+    seed_everything(1)
     model = TutorialModule()
     datamodule = MNISTDataModule()
     trainer = Trainer(
@@ -138,6 +139,7 @@ def run_train():
 
 
 def run_predict_0(best_path):
+    seed_everything(1)
     model = DDPInferenceModel()
     datamodule = DDPInferenceDataModule(batch_size=1)
     trainer = Trainer(
@@ -154,6 +156,7 @@ def run_predict_0(best_path):
 
 
 def run_predict_1(best_path):
+    seed_everything(1)
     model = DDPInferenceModel()
     datamodule = DDPInferenceDataModule(batch_size=1)
     trainer = Trainer(
