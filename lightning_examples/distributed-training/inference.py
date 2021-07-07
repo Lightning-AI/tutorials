@@ -92,6 +92,12 @@ class DDPInferenceModel(TutorialModule):
         return pred
 
 
+class DDPInferenceDataModule(MNISTDataModule):
+
+    def predict_dataloader(self):
+        return self.test_dataloader()
+
+
 def run_train():
     model = TutorialModule()
     datamodule = MNISTDataModule()
@@ -115,7 +121,7 @@ def run_predict(best_path):
         limit_predict_batches=4,
     )
     predictions = trainer.predict(
-        model, dataloaders=datamodule.test_dataloader(), ckpt_path=best_path, return_predictions=True
+        model, datamodule=datamodule, ckpt_path=best_path, return_predictions=True
     )
     print(predictions)
 
