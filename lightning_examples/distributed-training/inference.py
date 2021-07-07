@@ -3,12 +3,11 @@ import os
 import torch
 import torch.nn.functional as F
 from pytorch_lightning import LightningDataModule, LightningModule, seed_everything, Trainer
+from pytorch_lightning.callbacks import BasePredictionWriter
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchmetrics import Accuracy
 from torchvision import transforms
 from torchvision.datasets import MNIST
-import torch
-from pytorch_lightning.callbacks import BasePredictionWriter
 
 
 class MNISTDataModule(LightningDataModule):
@@ -107,15 +106,15 @@ class DDPInferenceDataModule(MNISTDataModule):
         return DataLoader(self.mnist_predict, batch_size=self.batch_size)
 
 
-
-
 class CustomWriter(BasePredictionWriter):
 
     def __init__(self, output_dir: str, write_interval: str):
         super().__init__(write_interval)
         self.output_dir = output_dir
 
-    def write_on_batch_end(self, trainer, pl_module, prediction, batch_indices, batch, batch_idx, dataloader_idx):
+    def write_on_batch_end(
+        self, trainer, pl_module, prediction, batch_indices, batch, batch_idx, dataloader_idx
+    ):
         torch.save(prediction, os.path.join(self.output_dir, f"{batch_idx}.pt"))
 
     def write_on_epoch_end(self, trainer, pl_module: 'LightningModule', predictions, batch_indices):
