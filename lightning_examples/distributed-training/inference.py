@@ -1,10 +1,10 @@
 import torch
 import torch.nn.functional as F
+from pytorch_lightning import LightningDataModule, LightningModule, seed_everything, Trainer
 from torch.utils.data import DataLoader, Dataset, random_split
+from torchmetrics import Accuracy
 from torchvision import transforms
 from torchvision.datasets import MNIST
-from torchmetrics import Accuracy
-from pytorch_lightning import LightningModule, LightningDataModule, Trainer, seed_everything
 
 
 class MNISTDataModule(LightningDataModule):
@@ -14,7 +14,7 @@ class MNISTDataModule(LightningDataModule):
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.transform = transforms.Compose([
-            transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))
+            transforms.ToTensor(), transforms.Normalize((0.1307, ), (0.3081, ))
         ])
         self.dims = (1, 28, 28)
         self.num_classes = 10
@@ -44,9 +44,9 @@ class MNISTDataModule(LightningDataModule):
 class TutorialModule(LightningModule):
 
     def __init__(
-            self,
-            hidden_dim: int = 128,
-            learning_rate: float = 0.0001,
+        self,
+        hidden_dim: int = 128,
+        learning_rate: float = 0.0001,
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -83,7 +83,6 @@ class TutorialModule(LightningModule):
         return torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
 
 
-
 class DDPInferenceModel(TutorialModule):
 
     def predict_step(self, batch, batch_idx):
@@ -115,7 +114,9 @@ def run_predict(best_path):
         accelerator="ddp",
         limit_predict_batches=4,
     )
-    predictions = trainer.predict(model, dataloaders=datamodule.test_dataloader(), ckpt_path=best_path, return_predictions=True)
+    predictions = trainer.predict(
+        model, dataloaders=datamodule.test_dataloader(), ckpt_path=best_path, return_predictions=True
+    )
     print(predictions)
 
 
