@@ -95,12 +95,13 @@ class DDPInferenceModel(TutorialModule):
 
 def run_train():
     model = TutorialModule()
+    datamodule = MNISTDataModule()
     trainer = Trainer(
         gpus=2,
         accelerator="ddp",
         max_epochs=1,
     )
-    trainer.fit(model)
+    trainer.fit(model, datamodule=datamodule)
     best_path = trainer.checkpoint_callback.best_model_path
     print(f"Best model: {best_path}")
     return best_path
