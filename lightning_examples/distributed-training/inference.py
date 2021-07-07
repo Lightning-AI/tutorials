@@ -162,10 +162,13 @@ def run_predict_1(best_path):
     )
     trainer.predict(model, datamodule=datamodule, ckpt_path=best_path, return_predictions=False)
 
-    predictions0 = torch.load("./predictions/predictions-0.pt")
-    predictions1 = torch.load("./predictions/predictions-1.pt")
-    print(predictions0)
-    print(predictions1)
+    if trainer.global_rank == 0:
+        all_predictions = []
+        for i in range(trainer.world_size):
+            all_predictions.append(torch.load(f"./predictions/predictions-{i}.pt"))
+
+        all_predictions = torch.cat(all_predictions)
+        print(all_predictions)
 
 
 if __name__ == "__main__":
