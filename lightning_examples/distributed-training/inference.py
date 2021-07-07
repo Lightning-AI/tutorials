@@ -126,7 +126,9 @@ def run_predict(best_path):
         limit_predict_batches=4,
     )
     predictions = trainer.predict(model, datamodule=datamodule, ckpt_path=best_path, return_predictions=True)
-    print(predictions)
+    all_predictions = torch.cat(predictions)
+    all_predictions = trainer.accelerator.all_gather(all_predictions)
+    print(all_predictions)
 
 
 if __name__ == "__main__":
