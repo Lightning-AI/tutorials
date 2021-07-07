@@ -119,7 +119,7 @@ class CustomWriter(BasePredictionWriter):
         torch.save(prediction, os.path.join(self.output_dir, f"{batch_idx}.pt"))
 
     def write_on_epoch_end(self, trainer, pl_module: 'LightningModule', predictions, batch_indices):
-        predictions = torch.cat(predictions).cpu()
+        predictions = torch.cat(predictions[0]).cpu()
         torch.save(predictions, os.path.join(self.output_dir, f"predictions-{trainer.global_rank}.pt"))
 
 
