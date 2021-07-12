@@ -17,26 +17,30 @@
 # Standard libraries
 import math
 import os
-import urllib.request
 from functools import partial
+import urllib.request
 from urllib.error import HTTPError
-
-import matplotlib
-import matplotlib.pyplot as plt
+from tqdm.notebook import tqdm
 import numpy as np
+
+# PyTorch Lightning
 import pytorch_lightning as pl
-import seaborn as sns
+from pytorch_lightning.callbacks import ModelCheckpoint
+# PyTorch
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
+# Torchvision
 import torchvision
-from IPython.display import set_matplotlib_formats
-from pytorch_lightning.callbacks import ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR100
-from tqdm.notebook import tqdm
+# Plotting
+import matplotlib
+import matplotlib.pyplot as plt
+import seaborn as sns
+from IPython.display import set_matplotlib_formats
 
 plt.set_cmap('cividis')
 # %matplotlib inline
@@ -84,7 +88,7 @@ for file_name in pretrained_files:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
             print(
-                "Something went wrong. Please try to download the file from the GDrive folder,"
+                "Something went wrong. Please try to download the file manually,"
                 " or contact the author with the full output including the following error:\n", e
             )
 
