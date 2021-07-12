@@ -289,7 +289,7 @@ def show_center_recep_field(img, out):
     # Plot receptive field
     img = img_grads.squeeze().cpu().numpy()
     fig, ax = plt.subplots(1, 2)
-    pos = ax[0].imshow(img)
+    _ = ax[0].imshow(img)
     ax[1].imshow(img > 0)
     # Mark the center pixel in red if it doesn't have any gradients (should be
     # the case for standard autoregressive models)
