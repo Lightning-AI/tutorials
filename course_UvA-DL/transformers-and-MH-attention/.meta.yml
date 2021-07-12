@@ -17,5 +17,4 @@ requirements:
   - matplotlib
   - seaborn
 accelerator:
-  - CPU
   - GPU
