@@ -90,7 +90,7 @@ class LitResnet(LightningModule):
 
     def training_step(self, batch, batch_idx):
         x, y = batch
-        logits = F.log_softmax(self.model(x), dim=1)
+        logits = self(x)
         loss = F.nll_loss(logits, y)
         self.log('train_loss', loss)
         return loss
