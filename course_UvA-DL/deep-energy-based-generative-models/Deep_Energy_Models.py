@@ -1,31 +1,33 @@
 # %% [markdown]
 # First, let's import our standard libraries below.
 
+# Other standard libraries
+import os
+import random
+import urllib.request
 # %%
 # Standard libraries
 from urllib.error import HTTPError
-import urllib.request
+
+# Plotting
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+# PyTorch Lightning
+import pytorch_lightning as pl
 # PyTorch
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data as data
-# PyTorch Lightning
-import pytorch_lightning as pl
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 # Torchvision
 import torchvision
-from torchvision import transforms
-from torchvision.datasets import MNIST
-# Other standard libraries
-import os
-import numpy as np
-import random
-# Plotting
-import matplotlib
-import matplotlib.pyplot as plt
 # %matplotlib inline
 from IPython.display import set_matplotlib_formats
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from torchvision import transforms
+from torchvision.datasets import MNIST
+
 set_matplotlib_formats('svg', 'pdf')  # For export
 matplotlib.rcParams['lines.linewidth'] = 2.0
 
@@ -66,7 +68,10 @@ for file_name in pretrained_files:
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
-            print("Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n", e)
+            print(
+                "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
+                e
+            )
 
 # %% [markdown]
 # ## Energy Models
@@ -196,9 +201,7 @@ for file_name in pretrained_files:
 
 # %%
 # Transformations applied on each image => make them a tensor and normalize between -1 and 1
-transform = transforms.Compose([transforms.ToTensor(),
-                                transforms.Normalize((0.5,), (0.5,))
-                                ])
+transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, ), (0.5, ))])
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_set = MNIST(root=DATASET_PATH, train=True, transform=transform, download=True)
@@ -209,9 +212,10 @@ test_set = MNIST(root=DATASET_PATH, train=False, transform=transform, download=T
 # We define a set of data loaders that we can use for various purposes later.
 # Note that for actually training a model, we will use different data loaders
 # with a lower batch size.
-train_loader = data.DataLoader(train_set, batch_size=128, shuffle=True, drop_last=True, num_workers=4, pin_memory=True)
+train_loader = data.DataLoader(
+    train_set, batch_size=128, shuffle=True, drop_last=True, num_workers=4, pin_memory=True
+)
 test_loader = data.DataLoader(test_set, batch_size=256, shuffle=False, drop_last=False, num_workers=4)
-
 
 # %% [markdown]
 # ### CNN Model
@@ -223,6 +227,7 @@ test_loader = data.DataLoader(test_set, batch_size=256, shuffle=False, drop_last
 #
 # It is a good practice to use a smooth activation function like Swish instead of ReLU in the energy model.
 # This is because we will rely on the gradients we get back with respect to the input image, which should not be sparse.
+
 
 # %%
 class CNNModel(nn.Module):
@@ -236,7 +241,8 @@ class CNNModel(nn.Module):
 
         # Series of convolutions and Swish activation functions
         self.cnn_layers = nn.Sequential(
-            nn.Conv2d(1, c_hid1, kernel_size=5, stride=2, padding=4),  # [16x16] - Larger padding to get 32x32 image
+            nn.Conv2d(1, c_hid1, kernel_size=5, stride=2,
+                      padding=4),  # [16x16] - Larger padding to get 32x32 image
             nn.SiLU(),
             nn.Conv2d(c_hid1, c_hid2, kernel_size=3, stride=2, padding=1),  # [8x8]
             nn.SiLU(),
@@ -280,6 +286,7 @@ class CNNModel(nn.Module):
 # In the function `generate_samples`, we implemented the MCMC for images.
 # Note that the hyperparameters of `step_size`, `steps`, the noise standard deviation $\sigma$ are specifically set for MNIST, and need to be finetuned for a different dataset if you want to use such.
 
+
 # %%
 class Sampler:
 
@@ -296,7 +303,7 @@ class Sampler:
         self.img_shape = img_shape
         self.sample_size = sample_size
         self.max_len = max_len
-        self.examples = [(torch.rand((1,) + img_shape) * 2 - 1) for _ in range(self.sample_size)]
+        self.examples = [(torch.rand((1, ) + img_shape) * 2 - 1) for _ in range(self.sample_size)]
 
     def sample_new_exmps(self, steps=60, step_size=10):
         """
@@ -307,7 +314,7 @@ class Sampler:
         """
         # Choose 95% of the batch from the buffer, 5% generate from scratch
         n_new = np.random.binomial(self.sample_size, 0.05)
-        rand_imgs = torch.rand((n_new,) + self.img_shape) * 2 - 1
+        rand_imgs = torch.rand((n_new, ) + self.img_shape) * 2 - 1
         old_imgs = torch.cat(random.choices(self.examples, k=self.sample_size - n_new), dim=0)
         inp_imgs = torch.cat([rand_imgs, old_imgs], dim=0).detach().to(device)
 
@@ -322,7 +329,7 @@ class Sampler:
     @staticmethod
     def generate_samples(model, inp_imgs, steps=60, step_size=10, return_img_per_step=False):
         """
-        Function for sampling images for a given model. 
+        Function for sampling images for a given model.
         Inputs:
             model - Neural network to use for modeling E_theta
             inp_imgs - Images to start from for sampling. If you want to generate new images, enter noise between -1 and 1.
@@ -399,6 +406,7 @@ class Sampler:
 #
 # Below, we put this training dynamic into a PyTorch Lightning module:
 
+
 # %%
 class DeepEnergyModel(pl.LightningModule):
 
@@ -435,7 +443,7 @@ class DeepEnergyModel(pl.LightningModule):
         real_out, fake_out = self.cnn(inp_imgs).chunk(2, dim=0)
 
         # Calculate losses
-        reg_loss = self.hparams.alpha * (real_out ** 2 + fake_out ** 2).mean()
+        reg_loss = self.hparams.alpha * (real_out**2 + fake_out**2).mean()
         cdiv_loss = fake_out.mean() - real_out.mean()
         loss = reg_loss + cdiv_loss
 
@@ -478,14 +486,15 @@ class DeepEnergyModel(pl.LightningModule):
 # Compared to the training that used 60 iterations, we use 256 here because (1) we only have to do it once compared to the training that has to do it every iteration, and (2) we do not start from a buffer here, but from scratch.
 # It is implemented as follows:
 
+
 # %%
 class GenerateCallback(pl.Callback):
 
     def __init__(self, batch_size=8, vis_steps=8, num_steps=256, every_n_epochs=5):
         super().__init__()
-        self.batch_size = batch_size         # Number of images to generate
-        self.vis_steps = vis_steps           # Number of steps within generation to visualize
-        self.num_steps = num_steps           # Number of steps to take during generation
+        self.batch_size = batch_size  # Number of images to generate
+        self.vis_steps = vis_steps  # Number of steps within generation to visualize
+        self.num_steps = num_steps  # Number of steps to take during generation
         # Only save those images every N epochs (otherwise tensorboard gets quite large)
         self.every_n_epochs = every_n_epochs
 
@@ -499,15 +508,19 @@ class GenerateCallback(pl.Callback):
                 step_size = self.num_steps // self.vis_steps
                 imgs_to_plot = imgs_per_step[step_size - 1::step_size, i]
                 grid = torchvision.utils.make_grid(
-                    imgs_to_plot, nrow=imgs_to_plot.shape[0], normalize=True, value_range=(-1, 1))
-                trainer.logger.experiment.add_image("generation_%i" % i, grid, global_step=trainer.current_epoch)
+                    imgs_to_plot, nrow=imgs_to_plot.shape[0], normalize=True, value_range=(-1, 1)
+                )
+                trainer.logger.experiment.add_image(
+                    "generation_%i" % i, grid, global_step=trainer.current_epoch
+                )
 
     def generate_imgs(self, pl_module):
         pl_module.eval()
-        start_imgs = torch.rand((self.batch_size,) + pl_module.hparams["img_shape"]).to(pl_module.device)
+        start_imgs = torch.rand((self.batch_size, ) + pl_module.hparams["img_shape"]).to(pl_module.device)
         start_imgs = start_imgs * 2 - 1
         imgs_per_step = Sampler.generate_samples(
-            pl_module.cnn, start_imgs, steps=self.num_steps, step_size=10, return_img_per_step=True)
+            pl_module.cnn, start_imgs, steps=self.num_steps, step_size=10, return_img_per_step=True
+        )
         pl_module.train()
         return imgs_per_step
 
@@ -516,12 +529,13 @@ class GenerateCallback(pl.Callback):
 # The second callback is called `SamplerCallback`, and simply adds a randomly picked subset of images in the sampling buffer to the TensorBoard.
 # This helps to understand what images are currently shown to the model as "fake".
 
+
 # %%
 class SamplerCallback(pl.Callback):
 
     def __init__(self, num_imgs=32, every_n_epochs=5):
         super().__init__()
-        self.num_imgs = num_imgs             # Number of images to plot
+        self.num_imgs = num_imgs  # Number of images to plot
         # Only save those images every N epochs (otherwise tensorboard gets quite large)
         self.every_n_epochs = every_n_epochs
 
@@ -537,6 +551,7 @@ class SamplerCallback(pl.Callback):
 # This callback evaluates the model by recording the (negative) energy assigned to random noise.
 # While our training loss is almost constant across iterations, this score is likely showing the progress of the model to detect "outliers".
 
+
 # %%
 class OutlierCallback(pl.Callback):
 
@@ -547,7 +562,7 @@ class OutlierCallback(pl.Callback):
     def on_epoch_end(self, trainer, pl_module):
         with torch.no_grad():
             pl_module.eval()
-            rand_imgs = torch.rand((self.batch_size,) + pl_module.hparams["img_shape"]).to(pl_module.device)
+            rand_imgs = torch.rand((self.batch_size, ) + pl_module.hparams["img_shape"]).to(pl_module.device)
             rand_imgs = rand_imgs * 2 - 1.0
             rand_out = pl_module.cnn(rand_imgs).mean()
             pl_module.train()
@@ -562,20 +577,24 @@ class OutlierCallback(pl.Callback):
 # The function is very similar to any other PyTorch Lightning training function we have seen so far.
 # However, there is the small difference of that we do not test the model on a test set because we will analyse the model afterward by checking its prediction and ability to perform outlier detection.
 
+
 # %%
 def train_model(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
-    trainer = pl.Trainer(default_root_dir=os.path.join(CHECKPOINT_PATH, "MNIST"),
-                         gpus=1,
-                         max_epochs=60,
-                         gradient_clip_val=0.1,
-                         callbacks=[ModelCheckpoint(save_weights_only=True, mode="min", monitor='val_contrastive_divergence'),
-                                    GenerateCallback(every_n_epochs=5),
-                                    SamplerCallback(every_n_epochs=5),
-                                    OutlierCallback(),
-                                    LearningRateMonitor("epoch")
-                                    ],
-                         progress_bar_refresh_rate=1)
+    trainer = pl.Trainer(
+        default_root_dir=os.path.join(CHECKPOINT_PATH, "MNIST"),
+        gpus=1,
+        max_epochs=60,
+        gradient_clip_val=0.1,
+        callbacks=[
+            ModelCheckpoint(save_weights_only=True, mode="min", monitor='val_contrastive_divergence'),
+            GenerateCallback(every_n_epochs=5),
+            SamplerCallback(every_n_epochs=5),
+            OutlierCallback(),
+            LearningRateMonitor("epoch")
+        ],
+        progress_bar_refresh_rate=1
+    )
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, "MNIST.ckpt")
     if os.path.isfile(pretrained_filename):
@@ -591,10 +610,7 @@ def train_model(**kwargs):
 
 
 # %%
-model = train_model(img_shape=(1, 28, 28),
-                    batch_size=train_loader.batch_size,
-                    lr=1e-4,
-                    beta1=0.0)
+model = train_model(img_shape=(1, 28, 28), batch_size=train_loader.batch_size, lr=1e-4, beta1=0.0)
 
 # %% [markdown]
 # ## Analysis
@@ -646,7 +662,13 @@ for i in range(imgs_per_step.shape[1]):
     imgs_to_plot = imgs_per_step[step_size - 1::step_size, i]
     imgs_to_plot = torch.cat([imgs_per_step[0:1, i], imgs_to_plot], dim=0)
     grid = torchvision.utils.make_grid(
-        imgs_to_plot, nrow=imgs_to_plot.shape[0], normalize=True, value_range=(-1, 1), pad_value=0.5, padding=2)
+        imgs_to_plot,
+        nrow=imgs_to_plot.shape[0],
+        normalize=True,
+        value_range=(-1, 1),
+        pad_value=0.5,
+        padding=2
+    )
     grid = grid.permute(1, 2, 0)
     plt.figure(figsize=(8, 8))
     plt.imshow(grid)
@@ -681,7 +703,7 @@ for i in range(imgs_per_step.shape[1]):
 
 # %%
 with torch.no_grad():
-    rand_imgs = torch.rand((128,) + model.hparams.img_shape).to(model.device)
+    rand_imgs = torch.rand((128, ) + model.hparams.img_shape).to(model.device)
     rand_imgs = rand_imgs * 2 - 1.0
     rand_out = model.cnn(rand_imgs).mean()
     print("Average score for random images: %4.2f" % (rand_out.item()))
@@ -697,19 +719,23 @@ with torch.no_grad():
     train_out = model.cnn(train_imgs).mean()
     print("Average score for training images: %4.2f" % (train_out.item()))
 
-
 # %% [markdown]
 # The scores are close to 0 because of the regularization objective that was added to the training.
 # So clearly, the model can distinguish between noise and real digits.
 # However, what happens if we change the training images a little, and see which ones gets a very low score?
+
 
 # %%
 @torch.no_grad()
 def compare_images(img1, img2):
     imgs = torch.stack([img1, img2], dim=0).to(model.device)
     score1, score2 = model.cnn(imgs).cpu().chunk(2, dim=0)
-    grid = torchvision.utils.make_grid([img1.cpu(), img2.cpu()], nrow=2,
-                                       normalize=True, value_range=(-1, 1), pad_value=0.5, padding=2)
+    grid = torchvision.utils.make_grid([img1.cpu(), img2.cpu()],
+                                       nrow=2,
+                                       normalize=True,
+                                       value_range=(-1, 1),
+                                       pad_value=0.5,
+                                       padding=2)
     grid = grid.permute(1, 2, 0)
     plt.figure(figsize=(4, 4))
     plt.imshow(grid)
