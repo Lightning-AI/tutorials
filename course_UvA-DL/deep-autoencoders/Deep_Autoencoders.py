@@ -9,16 +9,13 @@
 # First of all, we again import most of our standard libraries.
 # We will use [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/latest/) to reduce the training code overhead.
 
-import json
-import math
+# %%
 import os
 import urllib.request
 from urllib.error import HTTPError
 
 import matplotlib
-# Imports for plotting
 import matplotlib.pyplot as plt
-import numpy as np
 import pytorch_lightning as pl
 import seaborn as sns
 import torch
@@ -27,35 +24,26 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-# %matplotlib inline
 from IPython.display import set_matplotlib_formats
-from matplotlib.colors import to_rgb
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
-# %%
-# Standard libraries
 from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
 from tqdm.notebook import tqdm
 
+# %matplotlib inline
 set_matplotlib_formats('svg', 'pdf')  # For export
 matplotlib.rcParams['lines.linewidth'] = 2.0
 sns.reset_orig()
 sns.set()
 
-# Progress bar
-
-# PyTorch
-# Torchvision
-# PyTorch Lightning
-
 # Tensorboard extension (for visualization purposes later)
 # %load_ext tensorboard
 
 # Path to the folder where the datasets are/should be downloaded (e.g. CIFAR10)
-DATASET_PATH = "../data"
+DATASET_PATH = os.environ.get('PATH_DATASETS', 'data')
 # Path to the folder where the pretrained models are saved
-CHECKPOINT_PATH = "../saved_models/tutorial9"
+CHECKPOINT_PATH = os.environ.get('PATH_CHECKPOINT', 'saved_models/tutorial9')
 
 # Setting the seed
 pl.seed_everything(42)
