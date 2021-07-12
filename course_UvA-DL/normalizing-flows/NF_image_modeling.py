@@ -905,7 +905,7 @@ def train_flow(flow, model_name="MNISTFlow"):
     pretrained_filename = os.path.join(CHECKPOINT_PATH, model_name + ".ckpt")
     if os.path.isfile(pretrained_filename):
         print("Found pretrained model, loading...")
-        ckpt = torch.load(pretrained_filename)
+        ckpt = torch.load(pretrained_filename, map_location=device)
         flow.load_state_dict(ckpt['state_dict'])
         result = ckpt.get("result", None)
     else:
