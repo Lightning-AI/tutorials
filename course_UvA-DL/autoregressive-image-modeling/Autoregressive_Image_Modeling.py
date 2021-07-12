@@ -650,7 +650,7 @@ del inp, out, test_model
 def train_model(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     trainer = pl.Trainer(default_root_dir=os.path.join(CHECKPOINT_PATH, "PixelCNN"),
-                         gpus=1,
+                         gpus=1 if str(device).startswith("cuda") else 0,
                          max_epochs=150,
                          callbacks=[ModelCheckpoint(save_weights_only=True, mode="min", monitor="val_bpd"),
                                     LearningRateMonitor("epoch")])
@@ -660,7 +660,7 @@ def train_model(**kwargs):
     if os.path.isfile(pretrained_filename):
         print("Found pretrained model, loading...")
         model = PixelCNN.load_from_checkpoint(pretrained_filename)
-        ckpt = torch.load(pretrained_filename)
+        ckpt = torch.load(pretrained_filename, map_location=device)
         result = ckpt.get("result", None)
     else:
         model = PixelCNN(**kwargs)
