@@ -17,15 +17,17 @@
 # Standard libraries
 import math
 import os
-from functools import partial
 import urllib.request
+from functools import partial
 from urllib.error import HTTPError
-from tqdm.notebook import tqdm
-import numpy as np
 
+# Plotting
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
 # PyTorch Lightning
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint
+import seaborn as sns
 # PyTorch
 import torch
 import torch.nn as nn
@@ -34,13 +36,11 @@ import torch.optim as optim
 import torch.utils.data as data
 # Torchvision
 import torchvision
+from IPython.display import set_matplotlib_formats
+from pytorch_lightning.callbacks import ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR100
-# Plotting
-import matplotlib
-import matplotlib.pyplot as plt
-import seaborn as sns
-from IPython.display import set_matplotlib_formats
+from tqdm.notebook import tqdm
 
 plt.set_cmap('cividis')
 # %matplotlib inline
