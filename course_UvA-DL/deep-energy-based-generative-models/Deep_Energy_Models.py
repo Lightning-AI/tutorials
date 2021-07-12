@@ -1,12 +1,11 @@
 # %% [markdown]
 # First, let's import our standard libraries below.
 
-# Other standard libraries
+# %%
+# Standard libraries
 import os
 import random
 import urllib.request
-# %%
-# Standard libraries
 from urllib.error import HTTPError
 
 # Plotting
