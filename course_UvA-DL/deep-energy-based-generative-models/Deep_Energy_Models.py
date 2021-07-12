@@ -180,7 +180,7 @@ for file_name in pretrained_files:
 # Similarly, a popular application of energy-based models is denoising of images.
 # Given an image $X$ with a lot of noise, we try to minimize the energy by finding the true input image $Y$.
 #
-# <center width="100%"><img src="energy_models_application.svg" width="600px"></center>
+# <center width="100%"><img src="energy_models_application.png" width="600px"></center>
 #
 # Nonetheless, we will focus on generative modeling here as in the next couple of lectures, we will discuss more generative deep learning approaches.
 
