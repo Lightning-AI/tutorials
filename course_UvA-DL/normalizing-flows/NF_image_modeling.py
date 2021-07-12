@@ -2,6 +2,7 @@
 # Throughout this notebook, we make use of [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/latest/).
 # The first cell imports our usual libraries.
 
+# %%
 import math
 import os
 import time
@@ -20,9 +21,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-# %matplotlib inline
-# %%
-# Standard libraries
 from IPython.display import display, HTML, set_matplotlib_formats
 from matplotlib.colors import to_rgb
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
@@ -30,6 +28,7 @@ from torchvision import transforms
 from torchvision.datasets import MNIST
 from tqdm.notebook import tqdm
 
+# %matplotlib inline
 set_matplotlib_formats('svg', 'pdf')  # For export
 matplotlib.rcParams['lines.linewidth'] = 2.0
 sns.reset_orig()
