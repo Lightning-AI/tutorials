@@ -657,11 +657,15 @@ del inp, out, test_model
 # %%
 def train_model(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
-    trainer = pl.Trainer(default_root_dir=os.path.join(CHECKPOINT_PATH, "PixelCNN"),
-                         gpus=1 if str(device).startswith("cuda") else 0,
-                         max_epochs=150,
-                         callbacks=[ModelCheckpoint(save_weights_only=True, mode="min", monitor="val_bpd"),
-                                    LearningRateMonitor("epoch")])
+    trainer = pl.Trainer(
+        default_root_dir=os.path.join(CHECKPOINT_PATH, "PixelCNN"),
+        gpus=1 if str(device).startswith("cuda") else 0,
+        max_epochs=150,
+        callbacks=[
+            ModelCheckpoint(save_weights_only=True, mode="min", monitor="val_bpd"),
+            LearningRateMonitor("epoch")
+        ]
+    )
     result = None
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, "PixelCNN.ckpt")
