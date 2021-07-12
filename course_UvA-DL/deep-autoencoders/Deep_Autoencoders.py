@@ -52,6 +52,9 @@ pl.seed_everything(42)
 torch.backends.cudnn.determinstic = True
 torch.backends.cudnn.benchmark = False
 
+device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+print("Device:", device)
+
 # %% [markdown]
 # We have 4 pretrained models that we have to download.
 # Remember the adjust the variables `DATASET_PATH` and `CHECKPOINT_PATH` if needed.
