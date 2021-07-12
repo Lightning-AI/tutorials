@@ -10,7 +10,6 @@ python -c "import os, glob ; dirs = [p for p in glob.glob('*/**') if os.path.isd
 cat "dirs-$b1.txt"
 
 head=$(git rev-parse origin/$2)
-# todo: still missing past names for rename/modified
 git diff --name-only $head --output=target-diff.txt
 printf "\nRaw changes:\n"
 cat target-diff.txt
@@ -19,7 +18,13 @@ git checkout $2
 b2="${2//'/'/'_'}"
 printf "Branch alias: $b2\n"
 # list all dirs in target branch
-python -c "import os, glob ; dirs = [p for p in glob.glob('*/**') if os.path.isdir(p)] ; print(os.linesep.join(dirs))" > "dirs-$b2.txt"
+python -c "
+import os
+from glob import glob
+from os.path import sep, splitext
+ipynbs = glob('.notebooks/*.ipynb') + glob('.notebooks/**/*.ipynb')
+ipynbs = [splitext(sep.join(p.split(sep)[1:]))[0] for p in ipynbs]
+print(os.linesep.join(ipynbs))" > "dirs-$b2.txt"
 cat "dirs-$b2.txt"
 
 git merge -s resolve origin/$1
