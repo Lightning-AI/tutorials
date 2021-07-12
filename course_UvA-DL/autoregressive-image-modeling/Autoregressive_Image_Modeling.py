@@ -25,28 +25,29 @@
 
 # %%
 
-import pytorch_lightning as pl
-from urllib.error import HTTPError
-import urllib.request
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
-from torchvision import transforms
-from torchvision.datasets import MNIST
-import torchvision
-import torch.optim as optim
-import torch.utils.data as data
-import torch.nn.functional as F
-import torch.nn as nn
-import torch
-from tqdm.notebook import tqdm
-import seaborn as sns
-from matplotlib.colors import to_rgb
-from IPython.display import set_matplotlib_formats
-import os
 import math
-import numpy as np
+import os
+import urllib.request
+from urllib.error import HTTPError
 
 # Imports for plotting
 import matplotlib.pyplot as plt
+import numpy as np
+import pytorch_lightning as pl
+import seaborn as sns
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+import torch.utils.data as data
+import torchvision
+from IPython.display import set_matplotlib_formats
+from matplotlib.colors import to_rgb
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from torchvision import transforms
+from torchvision.datasets import MNIST
+from tqdm.notebook import tqdm
+
 plt.set_cmap('cividis')
 # %matplotlib inline
 set_matplotlib_formats('svg', 'pdf')  # For export
@@ -87,13 +88,16 @@ for file_name in pretrained_files:
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
-            print("Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n", e)
-
+            print(
+                "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
+                e
+            )
 
 # %% [markdown]
 # Similar to the Normalizing Flows in Tutorial 11, we will work on the
 # MNIST dataset and use 8-bits per pixel (values between 0 and 255). The
 # dataset is loaded below:
+
 
 # %%
 # Convert images from 0-1 to 0-255 (integers). We use the long datatype as we will use the images as labels as well
@@ -102,8 +106,7 @@ def discretize(sample):
 
 
 # Transformations applied on each image => only make them a tensor
-transform = transforms.Compose([transforms.ToTensor(),
-                                discretize])
+transform = transforms.Compose([transforms.ToTensor(), discretize])
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_dataset = MNIST(root=DATASET_PATH, train=True, transform=transform, download=True)
@@ -114,13 +117,15 @@ train_set, val_set = torch.utils.data.random_split(train_dataset, [50000, 10000]
 test_set = MNIST(root=DATASET_PATH, train=False, transform=transform, download=True)
 
 # We define a set of data loaders that we can use for various purposes later.
-train_loader = data.DataLoader(train_set, batch_size=128, shuffle=True, drop_last=True, pin_memory=True, num_workers=4)
+train_loader = data.DataLoader(
+    train_set, batch_size=128, shuffle=True, drop_last=True, pin_memory=True, num_workers=4
+)
 val_loader = data.DataLoader(val_set, batch_size=128, shuffle=False, drop_last=False, num_workers=4)
 test_loader = data.DataLoader(test_set, batch_size=128, shuffle=False, drop_last=False, num_workers=4)
 
-
 # %% [markdown]
 # A good practice is to always visualize some data examples to get an intuition of the data:
+
 
 # %%
 def show_imgs(imgs):
@@ -138,7 +143,6 @@ def show_imgs(imgs):
 
 
 show_imgs([train_set[i][0] for i in range(8)])
-
 
 # %% [markdown]
 # ## Masked autoregressive convolutions
@@ -166,6 +170,7 @@ show_imgs([train_set[i][0] for i in range(8)])
 # Before looking into the application of masked convolutions in PixelCNN
 # in detail, let's first implement a module that allows us to apply an
 # arbitrary mask to a convolution:
+
 
 # %%
 class MaskedConvolution(nn.Module):
@@ -216,6 +221,7 @@ class MaskedConvolution(nn.Module):
 # The two convolutions are also shown in the figure above.
 #
 # Let us implement them here as follows:
+
 
 # %%
 class VerticalStackConvolution(MaskedConvolution):
@@ -295,8 +301,9 @@ def show_center_recep_field(img, out):
     # the case for standard autoregressive models)
     show_center = (img[img.shape[0] // 2, img.shape[1] // 2] == 0)
     if show_center:
-        center_pixel = np.zeros(img.shape + (4,))
-        center_pixel[center_pixel.shape[0] // 2, center_pixel.shape[1] // 2, :] = np.array([1.0, 0.0, 0.0, 1.0])
+        center_pixel = np.zeros(img.shape + (4, ))
+        center_pixel[center_pixel.shape[0] // 2,
+                     center_pixel.shape[1] // 2, :] = np.array([1.0, 0.0, 0.0, 1.0])
     for i in range(2):
         ax[i].axis('off')
         if show_center:
@@ -411,7 +418,6 @@ show_center_recep_field(inp_img, vert_img)
 # %%
 del inp_img, horiz_conv, vert_conv
 
-
 # %% [markdown]
 # ## Gated PixelCNN
 #
@@ -446,6 +452,7 @@ del inp_img, horiz_conv, vert_conv
 #
 # The implementation in PyTorch is fairly straight forward for this block,
 # because the visualization above gives us a computation graph to follow:
+
 
 # %%
 class GatedMaskedConv(nn.Module):
@@ -504,6 +511,7 @@ class GatedMaskedConv(nn.Module):
 # horizontal stack, and apply the $1\times 1$ convolution for
 # classification. We use the bits per dimension metric for the likelihood,
 # similarly to Tutorial 11 and assignment 3.
+
 
 # %%
 class PixelCNN(pl.LightningModule):
@@ -626,7 +634,6 @@ out = test_model(inp)
 show_center_recep_field(inp, out.squeeze(dim=2))
 del inp, out, test_model
 
-
 # %% [markdown]
 # The visualization shows that for predicting any pixel, we can take almost half of the image into account.
 # However, keep in mind that this is the "theoretical" receptive field and not necessarily the [effective receptive field](https://arxiv.org/pdf/1701.04128.pdf), which is usually much smaller.
@@ -646,14 +653,19 @@ del inp, out, test_model
 # the computational cost, we have saved the validation and test score in
 # the checkpoint already:
 
+
 # %%
 def train_model(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
-    trainer = pl.Trainer(default_root_dir=os.path.join(CHECKPOINT_PATH, "PixelCNN"),
-                         gpus=1,
-                         max_epochs=150,
-                         callbacks=[ModelCheckpoint(save_weights_only=True, mode="min", monitor="val_bpd"),
-                                    LearningRateMonitor("epoch")])
+    trainer = pl.Trainer(
+        default_root_dir=os.path.join(CHECKPOINT_PATH, "PixelCNN"),
+        gpus=1,
+        max_epochs=150,
+        callbacks=[
+            ModelCheckpoint(save_weights_only=True, mode="min", monitor="val_bpd"),
+            LearningRateMonitor("epoch")
+        ]
+    )
     result = None
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, "PixelCNN.ckpt")
@@ -685,8 +697,10 @@ def train_model(**kwargs):
 # %%
 model, result = train_model(c_in=1, c_hidden=64)
 test_res = result["test"][0]
-print("Test bits per dimension: %4.3fbpd" %
-      (test_res["test_loss"] if "test_loss" in test_res else test_res["test_bpd"]))
+print(
+    "Test bits per dimension: %4.3fbpd" %
+    (test_res["test_loss"] if "test_loss" in test_res else test_res["test_bpd"])
+)
 
 # %% [markdown]
 # With a test performance of 0.809bpd, the PixelCNN significantly outperforms the normalizing flows we have seen in Tutorial 11.
@@ -740,7 +754,6 @@ pl.seed_everything(1)
 samples = model.sample(img_shape=(8, 1, 64, 64))
 show_imgs(samples.cpu())
 
-
 # %% [markdown]
 # The larger images show that changing the size of the image during testing confuses the model and generates abstract figures (you can sometimes spot a digit in the upper left corner).
 # In addition, sampling for images of 64x64 pixels take more than a minute on a GPU.
@@ -763,6 +776,7 @@ show_imgs(samples.cpu())
 # the training set, mask about the lower half of the image, and let the
 # model autocomplete it. To see the diversity of samples, we do this 12
 # times for each image:
+
 
 # %%
 def autocomplete_image(img):
@@ -817,7 +831,7 @@ with torch.no_grad():
 
 # %%
 sns.set()
-plot_args = {"color": to_rgb("C0") + (0.5,), "edgecolor": "C0", "linewidth": 0.5, "width": 1.0}
+plot_args = {"color": to_rgb("C0") + (0.5, ), "edgecolor": "C0", "linewidth": 0.5, "width": 1.0}
 plt.hist(imgs.view(-1).cpu().numpy(), bins=256, density=True, **plot_args)
 plt.yscale("log")
 plt.xticks([0, 64, 128, 192, 256])
