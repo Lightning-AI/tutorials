@@ -2,33 +2,34 @@
 # Throughout this notebook, we make use of [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/latest/).
 # The first cell imports our usual libraries.
 
-# %%
-# Standard libraries
-from IPython.display import display, HTML
-import tabulate
-from urllib.error import HTTPError
+import math
+import os
+import time
 import urllib.request
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from urllib.error import HTTPError
+
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
 import pytorch_lightning as pl
-from torchvision import transforms
-from torchvision.datasets import MNIST
-import torchvision
+import seaborn as sns
+import tabulate
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
-import torch.nn.functional as F
-import torch.nn as nn
-import torch
-from tqdm.notebook import tqdm
-import seaborn as sns
-import matplotlib
-from matplotlib.colors import to_rgb
-import os
-import math
-import time
-import numpy as np
-import matplotlib.pyplot as plt
+import torchvision
 # %matplotlib inline
-from IPython.display import set_matplotlib_formats
+# %%
+# Standard libraries
+from IPython.display import display, HTML, set_matplotlib_formats
+from matplotlib.colors import to_rgb
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from torchvision import transforms
+from torchvision.datasets import MNIST
+from tqdm.notebook import tqdm
+
 set_matplotlib_formats('svg', 'pdf')  # For export
 matplotlib.rcParams['lines.linewidth'] = 2.0
 sns.reset_orig()
@@ -69,8 +70,10 @@ for file_name in pretrained_files:
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
-            print("Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n", e)
-
+            print(
+                "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
+                e
+            )
 
 # %% [markdown]
 # We will use the MNIST dataset in this notebook.
@@ -80,6 +83,7 @@ for file_name in pretrained_files:
 # To deal better with the discrete nature of the images, we transform them
 # from a range of 0-1 to a range of 0-255 as integers.
 
+
 # %%
 # Convert images from 0-1 to 0-255 (integers)
 def discretize(sample):
@@ -87,8 +91,7 @@ def discretize(sample):
 
 
 # Transformations applied on each image => make them a tensor and discretize
-transform = transforms.Compose([transforms.ToTensor(),
-                                discretize])
+transform = transforms.Compose([transforms.ToTensor(), discretize])
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_dataset = MNIST(root=DATASET_PATH, train=True, transform=transform, download=True)
@@ -105,10 +108,10 @@ train_loader = data.DataLoader(train_set, batch_size=256, shuffle=False, drop_la
 val_loader = data.DataLoader(val_set, batch_size=64, shuffle=False, drop_last=False, num_workers=4)
 test_loader = data.DataLoader(test_set, batch_size=64, shuffle=False, drop_last=False, num_workers=4)
 
-
 # %% [markdown]
 # In addition, we will define below a function to simplify the visualization of images/samples.
 # Some training examples of the MNIST dataset is shown below.
+
 
 # %%
 def show_imgs(imgs, title=None, row_size=4):
@@ -130,7 +133,6 @@ def show_imgs(imgs, title=None, row_size=4):
 
 
 show_imgs([train_set[i][0] for i in range(8)])
-
 
 # %% [markdown]
 # ## Normalizing Flows as generative model
@@ -229,6 +231,7 @@ show_imgs([train_set[i][0] for i in range(8)])
 # In the original image space, MNIST examples have a bits per dimension
 # score of 8 (we need 8 bits to encode each pixel as there are 256
 # possible values).
+
 
 # %%
 class ImageFlow(pl.LightningModule):
@@ -371,6 +374,7 @@ class ImageFlow(pl.LightningModule):
 #
 # Overall, we can implement dequantization as follows:
 
+
 # %%
 class Dequantization(nn.Module):
 
@@ -426,7 +430,7 @@ class Dequantization(nn.Module):
 # Testing invertibility of dequantization layer
 pl.seed_everything(42)
 orig_img = train_set[0][0].unsqueeze(dim=0)
-ldj = torch.zeros(1,)
+ldj = torch.zeros(1, )
 dequant_module = Dequantization()
 deq_img, ldj = dequant_module(orig_img, ldj, reverse=False)
 reconst_img, ldj = dequant_module(deq_img, ldj, reverse=True)
@@ -464,7 +468,8 @@ def visualize_dequantization(quants, prior=None):
     # Prior over discrete values. If not given, a uniform is assumed
     if prior is None:
         prior = np.ones(quants, dtype=np.float32) / quants
-    prior = prior / prior.sum() * quants  # In the following, we assume 1 for each value means uniform distribution
+    prior = prior / prior.sum(
+    ) * quants  # In the following, we assume 1 for each value means uniform distribution
 
     inp = torch.arange(-4, 4, 0.01).view(-1, 1, 1, 1)  # Possible continuous values we want to consider
     ldj = torch.zeros(inp.shape[0])
@@ -481,7 +486,9 @@ def visualize_dequantization(quants, prior=None):
     for v in np.unique(out):
         indices = np.where(out == v)
         color = to_rgb("C%i" % v)
-        plt.fill_between(inp[indices], prob[indices], np.zeros(indices[0].shape[0]), color=color + (0.5,), label=str(v))
+        plt.fill_between(
+            inp[indices], prob[indices], np.zeros(indices[0].shape[0]), color=color + (0.5, ), label=str(v)
+        )
         plt.plot([inp[indices[0][0]]] * 2, [0, prob[indices[0][0]]], color=color)
         plt.plot([inp[indices[0][-1]]] * 2, [0, prob[indices[0][-1]]], color=color)
         x_ticks.append(inp[indices[0][0]])
@@ -539,7 +546,6 @@ visualize_dequantization(quants=8)
 # %%
 visualize_dequantization(quants=8, prior=np.array([0.075, 0.2, 0.4, 0.2, 0.075, 0.025, 0.0125, 0.0125]))
 
-
 # %% [markdown]
 # Transforming such a probability into a Gaussian is a difficult task, especially with such hard borders.
 # Dequantization has therefore been extended to more sophisticated, learnable distributions beyond uniform in a variational framework.
@@ -551,6 +557,7 @@ visualize_dequantization(quants=8, prior=np.array([0.075, 0.2, 0.4, 0.2, 0.075, 
 # To ensure a support over $[0,1)^D$, we can apply a sigmoid activation function as final flow transformation.
 #
 # Inheriting the original dequantization class, we can implement variational dequantization as follows:
+
 
 # %%
 class VariationalDequantization(Dequantization):
@@ -614,6 +621,7 @@ class VariationalDequantization(Dequantization):
 # The variables to be transformed, $z_{j+1:d}$, are masked when passing $z$ to the shared network to predict the transformation parameters.
 # When applying the transformation, we mask the parameters for $z_{1:j}$
 # so that we have an identity operation for those variables:
+
 
 # %%
 class CouplingLayer(nn.Module):
@@ -696,7 +704,6 @@ with torch.no_grad():
     sns.reset_orig()
     plt.show()
 
-
 # %% [markdown]
 # Coupling layers generalize to any masking technique we could think of.
 # However, the most common approach for images is to split the input $z$ in half, using a checkerboard mask or channel mask.
@@ -706,6 +713,7 @@ with torch.no_grad():
 # Note that when we apply multiple coupling layers, we invert the masking for each other layer so that each variable is transformed a similar amount of times.
 #
 # Let's implement a function that creates a checkerboard mask and a channel mask for us:
+
 
 # %%
 def create_checkerboard_mask(h, w, invert=False):
@@ -719,8 +727,10 @@ def create_checkerboard_mask(h, w, invert=False):
 
 
 def create_channel_mask(c_in, invert=False):
-    mask = torch.cat([torch.ones(c_in // 2, dtype=torch.float32),
-                      torch.zeros(c_in - c_in // 2, dtype=torch.float32)])
+    mask = torch.cat([
+        torch.ones(c_in // 2, dtype=torch.float32),
+        torch.zeros(c_in - c_in // 2, dtype=torch.float32)
+    ])
     mask = mask.view(1, c_in, 1, 1)
     if invert:
         mask = 1 - mask
@@ -737,7 +747,6 @@ channel_mask = create_channel_mask(c_in=2).expand(-1, -1, 8, 8)
 show_imgs(checkerboard_mask.transpose(0, 1), "Checkerboard mask")
 show_imgs(channel_mask.transpose(0, 1), "Channel mask")
 
-
 # %% [markdown]
 # As a last aspect of coupling layers, we need to decide for the deep neural network we want to apply in the coupling layers.
 # The input to the layers is an image, and hence we stick with a CNN.
@@ -746,6 +755,7 @@ show_imgs(channel_mask.transpose(0, 1), "Channel mask")
 # The details are not necessarily important here, and the network is
 # strongly inspired from Flow++ [3] in case you are interested in building
 # even stronger models.
+
 
 # %%
 class ConcatELU(nn.Module):
@@ -787,8 +797,7 @@ class GatedConv(nn.Module):
         """
         super().__init__()
         self.net = nn.Sequential(
-            nn.Conv2d(c_in, c_hidden, kernel_size=3, padding=1),
-            ConcatELU(),
+            nn.Conv2d(c_in, c_hidden, kernel_size=3, padding=1), ConcatELU(),
             nn.Conv2d(2 * c_hidden, 2 * c_in, kernel_size=1)
         )
 
@@ -814,10 +823,8 @@ class GatedConvNet(nn.Module):
         layers = []
         layers += [nn.Conv2d(c_in, c_hidden, kernel_size=3, padding=1)]
         for layer_index in range(num_layers):
-            layers += [GatedConv(c_hidden, c_hidden),
-                       LayerNormChannels(c_hidden)]
-        layers += [ConcatELU(),
-                   nn.Conv2d(2 * c_hidden, c_out, kernel_size=3, padding=1)]
+            layers += [GatedConv(c_hidden, c_hidden), LayerNormChannels(c_hidden)]
+        layers += [ConcatELU(), nn.Conv2d(2 * c_hidden, c_out, kernel_size=3, padding=1)]
         self.nn = nn.Sequential(*layers)
 
         self.nn[-1].weight.data.zero_()
@@ -838,21 +845,30 @@ class GatedConvNet(nn.Module):
 #
 # <center width="100%" style="padding: 20px"><img src="vanilla_flow.svg" width="900px"></center>
 
+
 # %%
 def create_simple_flow(use_vardeq=True):
     flow_layers = []
     if use_vardeq:
-        vardeq_layers = [CouplingLayer(network=GatedConvNet(c_in=2, c_out=2, c_hidden=16),
-                                       mask=create_checkerboard_mask(h=28, w=28, invert=(i % 2 == 1)),
-                                       c_in=1) for i in range(4)]
+        vardeq_layers = [
+            CouplingLayer(
+                network=GatedConvNet(c_in=2, c_out=2, c_hidden=16),
+                mask=create_checkerboard_mask(h=28, w=28, invert=(i % 2 == 1)),
+                c_in=1
+            ) for i in range(4)
+        ]
         flow_layers += [VariationalDequantization(var_flows=vardeq_layers)]
     else:
         flow_layers += [Dequantization()]
 
     for i in range(8):
-        flow_layers += [CouplingLayer(network=GatedConvNet(c_in=1, c_hidden=32),
-                                      mask=create_checkerboard_mask(h=28, w=28, invert=(i % 2 == 1)),
-                                      c_in=1)]
+        flow_layers += [
+            CouplingLayer(
+                network=GatedConvNet(c_in=1, c_hidden=32),
+                mask=create_checkerboard_mask(h=28, w=28, invert=(i % 2 == 1)),
+                c_in=1
+            )
+        ]
 
     flow_model = ImageFlow(flow_layers).to(device)
     return flow_model
@@ -864,20 +880,26 @@ def create_simple_flow(use_vardeq=True):
 # Note that we again provide pre-trained models (see later on in the notebook) as normalizing flows are particularly expensive to train.
 # We have also run validation and testing as this can take some time as well with the added importance sampling.
 
+
 # %%
 def train_flow(flow, model_name="MNISTFlow"):
     # Create a PyTorch Lightning trainer
-    trainer = pl.Trainer(default_root_dir=os.path.join(CHECKPOINT_PATH, model_name),
-                         gpus=1 if torch.cuda.is_available() else 0,
-                         max_epochs=200,
-                         gradient_clip_val=1.0,
-                         callbacks=[ModelCheckpoint(save_weights_only=True, mode="min", monitor="val_bpd"),
-                                    LearningRateMonitor("epoch")])
+    trainer = pl.Trainer(
+        default_root_dir=os.path.join(CHECKPOINT_PATH, model_name),
+        gpus=1 if torch.cuda.is_available() else 0,
+        max_epochs=200,
+        gradient_clip_val=1.0,
+        callbacks=[
+            ModelCheckpoint(save_weights_only=True, mode="min", monitor="val_bpd"),
+            LearningRateMonitor("epoch")
+        ]
+    )
     trainer.logger._log_graph = True
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
-    train_data_loader = data.DataLoader(train_set, batch_size=128, shuffle=True,
-                                        drop_last=True, pin_memory=True, num_workers=8)
+    train_data_loader = data.DataLoader(
+        train_set, batch_size=128, shuffle=True, drop_last=True, pin_memory=True, num_workers=8
+    )
     result = None
 
     # Check whether pretrained model exists. If yes, load it and skip training
@@ -898,7 +920,11 @@ def train_flow(flow, model_name="MNISTFlow"):
         start_time = time.time()
         test_result = trainer.test(flow, test_dataloaders=test_loader, verbose=False)
         duration = time.time() - start_time
-        result = {"test": test_result, "val": val_result, "time": duration / len(test_loader) / flow.import_samples}
+        result = {
+            "test": test_result,
+            "val": val_result,
+            "time": duration / len(test_loader) / flow.import_samples
+        }
 
     return flow, result
 
@@ -931,6 +957,7 @@ def train_flow(flow, model_name="MNISTFlow"):
 # The input of $4\times 4\times 1$ is scaled to $2\times 2\times 4$ following the idea of grouping the pixels in $2\times 2\times 1$ subsquares.
 # Next, let's try to implement this layer:
 
+
 # %%
 class SqueezeFlow(nn.Module):
 
@@ -961,12 +988,12 @@ print("\nImage (forward)\n", forward_img.permute(0, 2, 3, 1))  # Permute for rea
 reconst_img, _ = sq_flow(forward_img, ldj=None, reverse=True)
 print("\nImage (reverse)\n", reconst_img)
 
-
 # %% [markdown]
 # The split operation divides the input into two parts, and evaluates one part directly on the prior.
 # So that our flow operation fits to the implementation of the previous layers, we will return the prior probability of the first part as the log determinant jacobian of the layer.
 # It has the same effect as if we would combine all variable splits at the
 # end of the flow, and evaluate them together on the prior.
+
 
 # %%
 class SplitFlow(nn.Module):
@@ -1009,29 +1036,45 @@ class SplitFlow(nn.Module):
 # three scales respectively to keep the number of parameters reasonable
 # and show the efficiency of multi-scale architectures.
 
+
 # %%
 def create_multiscale_flow():
     flow_layers = []
 
-    vardeq_layers = [CouplingLayer(network=GatedConvNet(c_in=2, c_out=2, c_hidden=16),
-                                   mask=create_checkerboard_mask(h=28, w=28, invert=(i % 2 == 1)),
-                                   c_in=1) for i in range(4)]
+    vardeq_layers = [
+        CouplingLayer(
+            network=GatedConvNet(c_in=2, c_out=2, c_hidden=16),
+            mask=create_checkerboard_mask(h=28, w=28, invert=(i % 2 == 1)),
+            c_in=1
+        ) for i in range(4)
+    ]
     flow_layers += [VariationalDequantization(vardeq_layers)]
 
-    flow_layers += [CouplingLayer(network=GatedConvNet(c_in=1, c_hidden=32),
-                                  mask=create_checkerboard_mask(h=28, w=28, invert=(i % 2 == 1)),
-                                  c_in=1) for i in range(2)]
+    flow_layers += [
+        CouplingLayer(
+            network=GatedConvNet(c_in=1, c_hidden=32),
+            mask=create_checkerboard_mask(h=28, w=28, invert=(i % 2 == 1)),
+            c_in=1
+        ) for i in range(2)
+    ]
     flow_layers += [SqueezeFlow()]
     for i in range(2):
-        flow_layers += [CouplingLayer(network=GatedConvNet(c_in=4, c_hidden=48),
-                                      mask=create_channel_mask(c_in=4, invert=(i % 2 == 1)),
-                                      c_in=4)]
-    flow_layers += [SplitFlow(),
-                    SqueezeFlow()]
+        flow_layers += [
+            CouplingLayer(
+                network=GatedConvNet(c_in=4, c_hidden=48),
+                mask=create_channel_mask(c_in=4, invert=(i % 2 == 1)),
+                c_in=4
+            )
+        ]
+    flow_layers += [SplitFlow(), SqueezeFlow()]
     for i in range(4):
-        flow_layers += [CouplingLayer(network=GatedConvNet(c_in=8, c_hidden=64),
-                                      mask=create_channel_mask(c_in=8, invert=(i % 2 == 1)),
-                                      c_in=8)]
+        flow_layers += [
+            CouplingLayer(
+                network=GatedConvNet(c_in=8, c_hidden=64),
+                mask=create_channel_mask(c_in=8, invert=(i % 2 == 1)),
+                c_in=8
+            )
+        ]
 
     flow_model = ImageFlow(flow_layers).to(device)
     return flow_model
@@ -1039,6 +1082,7 @@ def create_multiscale_flow():
 
 # %% [markdown]
 # We can show the difference in number of parameters below:
+
 
 # %%
 def print_num_params(model):
@@ -1069,11 +1113,14 @@ print_num_params(create_multiscale_flow())
 # %%
 flow_dict = {"simple": {}, "vardeq": {}, "multiscale": {}}
 flow_dict["simple"]["model"], flow_dict["simple"]["result"] = train_flow(
-    create_simple_flow(use_vardeq=False), model_name="MNISTFlow_simple")
+    create_simple_flow(use_vardeq=False), model_name="MNISTFlow_simple"
+)
 flow_dict["vardeq"]["model"], flow_dict["vardeq"]["result"] = train_flow(
-    create_simple_flow(use_vardeq=True), model_name="MNISTFlow_vardeq")
+    create_simple_flow(use_vardeq=True), model_name="MNISTFlow_vardeq"
+)
 flow_dict["multiscale"]["model"], flow_dict["multiscale"]["result"] = train_flow(
-    create_multiscale_flow(), model_name="MNISTFlow_multiscale")
+    create_multiscale_flow(), model_name="MNISTFlow_multiscale"
+)
 
 # %% [markdown]
 # ### Density modeling and sampling
@@ -1093,15 +1140,25 @@ flow_dict["multiscale"]["model"], flow_dict["multiscale"]["result"] = train_flow
 
 # %%
 
-table = [[key,
-          "%4.3f bpd" % flow_dict[key]["result"]["val"][0]["test_bpd"],
-          "%4.3f bpd" % flow_dict[key]["result"]["test"][0]["test_bpd"],
-          "%2.0f ms" % (1000 * flow_dict[key]["result"]["time"]),
-          "%2.0f ms" % (1000 * flow_dict[key]["result"].get("samp_time", 0)),
-          "{:,}".format(sum([np.prod(p.shape) for p in flow_dict[key]["model"].parameters()]))]
-         for key in flow_dict]
-display(HTML(tabulate.tabulate(table, tablefmt='html', headers=[
-        "Model", "Validation Bpd", "Test Bpd", "Inference time", "Sampling time", "Num Parameters"])))
+table = [[
+    key,
+    "%4.3f bpd" % flow_dict[key]["result"]["val"][0]["test_bpd"],
+    "%4.3f bpd" % flow_dict[key]["result"]["test"][0]["test_bpd"],
+    "%2.0f ms" % (1000 * flow_dict[key]["result"]["time"]),
+    "%2.0f ms" % (1000 * flow_dict[key]["result"].get("samp_time", 0)),
+    "{:,}".format(sum([np.prod(p.shape) for p in flow_dict[key]["model"].parameters()]))
+] for key in flow_dict]
+display(
+    HTML(
+        tabulate.tabulate(
+            table,
+            tablefmt='html',
+            headers=[
+                "Model", "Validation Bpd", "Test Bpd", "Inference time", "Sampling time", "Num Parameters"
+            ]
+        )
+    )
+)
 
 # %% [markdown]
 # As we have intially expected, using variational dequantization improves upon standard dequantization in terms of bits per dimension.
@@ -1128,7 +1185,6 @@ pl.seed_everything(44)
 samples = flow_dict["multiscale"]["model"].sample(img_shape=[16, 8, 7, 7])
 show_imgs(samples.cpu())
 
-
 # %% [markdown]
 # From the few samples, we can see a clear difference between the simple and the multi-scale model.
 # The single-scale model has only learned local, small correlations while the multi-scale model was able to learn full, global relations that form digits.
@@ -1142,6 +1198,7 @@ show_imgs(samples.cpu())
 # Another popular test for the smoothness of the latent space of generative models is to interpolate between two training examples.
 # As normalizing flows are strictly invertible, we can guarantee that any image is represented in the latent space.
 # We again compare the variational dequantization model with the multi-scale model below.
+
 
 # %%
 @torch.no_grad()
@@ -1193,7 +1250,6 @@ for _ in range(3):
     samples = flow_dict["multiscale"]["model"].sample(img_shape=z_init.shape, z_init=z_init)
     show_imgs(samples.cpu())
 
-
 # %% [markdown]
 # We see that the early split variables indeed have a smaller effect on the image.
 # Still, small differences can be spot when we look carefully at the borders of the digits.
@@ -1211,6 +1267,7 @@ for _ in range(3):
 # variational dequantization module have learned, we can plot a histogram
 # of output values from the dequantization and variational dequantization
 # module.
+
 
 # %%
 def visualize_dequant_distribution(model: ImageFlow, imgs: torch.Tensor, title: str = None):
@@ -1230,7 +1287,7 @@ def visualize_dequant_distribution(model: ImageFlow, imgs: torch.Tensor, title: 
     dequant_vals = dequant_vals.view(-1).cpu().numpy()
     sns.set()
     plt.figure(figsize=(10, 3))
-    plt.hist(dequant_vals, bins=256, color=to_rgb("C0") + (0.5,), edgecolor="C0", density=True)
+    plt.hist(dequant_vals, bins=256, color=to_rgb("C0") + (0.5, ), edgecolor="C0", density=True)
     if title is not None:
         plt.title(title)
     plt.show()
