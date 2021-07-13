@@ -1,15 +1,3 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.11.2
-# ---
-
 # %% id="zaVUShmQ5n8Y"
 import os
 
@@ -38,7 +26,9 @@ MAX_EPOCHS = 3
 
 class MNISTDataModule(LightningDataModule):
 
-    def __init__(self, data_dir: str = PATH_DATASETS, batch_size: int = BATCH_SIZE, num_workers: int = NUM_WORKERS):
+    def __init__(
+        self, data_dir: str = PATH_DATASETS, batch_size: int = BATCH_SIZE, num_workers: int = NUM_WORKERS
+    ):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
@@ -78,12 +68,12 @@ mnist = MNISTDataModule()
 # %% [markdown] id="gEulmrbxwaYL"
 # ### Simple AutoEncoder Model
 #
-# Were gonna define a simple Lightning model so we can play with all the settings of the Lightning Trainer.
+# We're gonna define a simple Lightning model so we can play with all the settings of the Lightning Trainer.
 #
-# LightningModule is simply pure Pytorch reorganized into hooks, that represents all the steps in the training process.
+# LightningModule is simply pure Pytorch reorganized into hooks that represent all the steps in the training process.
 #
-# You can use LightningModule hooks to control every part of your model, but for the purpose of this video
-# we will use a very simple MNIST classifier, a model that takes 28*28 grayscale images of hand written images,
+# You can use LightningModule hooks to control every part of your model. For the purpose of this tutorial
+# we will use a very simple MNIST classifier. Our model takes 28*28 grayscale images of hand written images
 # and can predict the digit between 0-9.
 #
 # The LightningModule can encompass a single model, like an image classifier, or a deep learning system
@@ -1435,7 +1425,9 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 # %% id="V6I9h6HteK2U"
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
-early_stop_callback = EarlyStopping(monitor='val_accuracy', min_delta=0.00, patience=3, verbose=False, mode='max')
+early_stop_callback = EarlyStopping(
+    monitor='val_accuracy', min_delta=0.00, patience=3, verbose=False, mode='max'
+)
 trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[early_stop_callback])
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
