@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import base64
 import os
 import re
 import shutil
@@ -7,6 +8,7 @@ from pprint import pprint
 from typing import Sequence
 
 import fire
+import requests
 import tqdm
 import yaml
 from pip._internal.operations import freeze
@@ -75,7 +77,7 @@ TEMPLATE_FOOTER = """
 #
 # ### Great thanks from the entire Pytorch Lightning Team for your interest !
 #
-# ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png?raw=true){height="60px" height="60px" width="240px"}
+# ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png){height="60px" width="240px"}
 
 """
 
@@ -161,12 +163,12 @@ class HelperCLI:
         )
         meta['description'] = meta['description'].replace(os.linesep, f"{os.linesep}# ")
 
-        py_file = HelperCLI._replace_images(py_file, os.path.dirname(fpath))
-
         header = TEMPLATE_HEADER % meta
         requires = set(default_requirements() + meta["requirements"])
         setup = TEMPLATE_SETUP % dict(requirements=" ".join([f'"{req}"' for req in requires]))
         py_file = [header + setup] + py_file + [TEMPLATE_FOOTER]
+
+        py_file = HelperCLI._replace_images(py_file, os.path.dirname(fpath))
 
         with open(fpath, "w") as fp:
             fp.writelines(py_file)
@@ -179,17 +181,26 @@ class HelperCLI:
             local_dir: relative path to the folder with script
         """
         md = os.linesep.join([ln.rstrip() for ln in lines])
-        imgs = []
+        p_imgs = []
+        # todo: add a rule to replace this paths only i md sections
         # because * is a greedy quantifier, trying to match as much as it can. Make it *?
-        imgs += re.findall(r"src=\"(.*?)\"", md)
-        imgs += re.findall(r"!\[.*?\]\((.*?)\)", md)
+        p_imgs += re.findall(r"src=\"(.*?)\"", md)
+        p_imgs += re.findall(r"!\[.*?\]\((.*?)\)", md)
 
         # update all images
-        for img in set(imgs):
-            url_path = '/'.join([URL_DOWNLOAD, local_dir, img])
-            # todo: add a rule to replace this paths only i md sections
-            md = md.replace(f'src="{img}"', f'src="{url_path}"')
-            md = md.replace(f']({img})', f']({url_path})')
+        for p_img in set(p_imgs):
+            if p_img.startswith("http://") or p_img.startswith("https://"):
+                url_path = p_img
+                im = requests.get(p_img, stream=True).raw.read()
+            else:
+                url_path = '/'.join([URL_DOWNLOAD, local_dir, p_img])
+                p_local_img = os.path.join(local_dir, p_img)
+                with open(p_local_img, "rb") as fp:
+                    im = fp.read()
+            im_base64 = base64.b64encode(im).decode("utf-8")
+            _, ext = os.path.splitext(p_img)
+            md = md.replace(f'src="{p_img}"', f'src="{url_path}"')
+            md = md.replace(f']({p_img})', f'](data:image/{ext[1:]};base64,{im_base64})')
 
         return [ln + os.linesep for ln in md.split(os.linesep)]
 
