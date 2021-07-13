@@ -250,19 +250,14 @@ class HelperCLI:
         dirs_exist = [d for d in dirs if os.path.isdir(d)]
         dirs_invalid = [d for d in dirs_exist if not HelperCLI._meta_file(d)]
         if strict and dirs_invalid:
-            warn(
-                f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}`:"
-                f" \n {os.linesep.join(dirs_invalid)}"
-            )
+            msg = f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}`"
+            warn(f"{msg}: \n {os.linesep.join(dirs_invalid)}")
             # check if there is other valid folder in its tree
             dirs_invalid = [
                 pd for pd in dirs_invalid if not any(p.startswith(pd + os.path.sep) for p in dirs_exist)
             ]
             if dirs_invalid:
-                raise FileNotFoundError(
-                    f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}` nor sub-folder:"
-                    f" \n {os.linesep.join(dirs_invalid)}"
-                )
+                raise FileNotFoundError(f"{msg} nor sub-folder: \n {os.linesep.join(dirs_invalid)}")
 
         dirs_change = [d for d in dirs_exist if HelperCLI._meta_file(d)]
         with open(fpath_change_folders, "w") as fp:
