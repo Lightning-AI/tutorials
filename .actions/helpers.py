@@ -207,12 +207,20 @@ class HelperCLI:
         return [ln + os.linesep for ln in md.split(os.linesep)]
 
     @staticmethod
+    def _is_ipynb_parent_dir(dir_path: str) -> bool:
+        if HelperCLI._meta_file(dir_path):
+            return True
+        sub_dirs = [d for d in glob.glob(os.path.join(dir_path, '*')) if os.path.isdir(d)]
+        return any(HelperCLI._is_ipynb_parent_dir(d) for d in sub_dirs)
+
+    @staticmethod
     def group_folders(
         fpath_gitdiff: str,
         fpath_change_folders: str = "changed-folders.txt",
         fpath_drop_folders: str = "dropped-folders.txt",
         fpaths_actual_dirs: Sequence[str] = tuple(),
         strict: bool = True,
+        root_path: str = "",
     ) -> None:
         """Group changes by folders
         Args:
@@ -226,6 +234,7 @@ class HelperCLI:
             fpath_drop_folders: output file with deleted folders
             fpaths_actual_dirs: files with listed all folder in particular stat
             strict: raise error if some folder outside skipped does not have valid meta file
+            root_path: path to the root tobe added for all local folder paths in files
 
         Example:
             >> python helpers.py group-folders ../target-diff.txt --fpaths_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
@@ -243,6 +252,8 @@ class HelperCLI:
             # get only different
             dirs += list(set.union(*dir_sets) - set.intersection(*dir_sets))
 
+        if root_path:
+            dirs = [os.path.join(root_path, d) for d in dirs]
         # unique folders
         dirs = set(dirs)
         # drop folder with skip folder
@@ -254,9 +265,7 @@ class HelperCLI:
             msg = f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}`"
             warn(f"{msg}: \n {os.linesep.join(dirs_invalid)}")
             # check if there is other valid folder in its tree
-            dirs_invalid = [
-                pd for pd in dirs_invalid if not any(p.startswith(pd + os.path.sep) for p in dirs_exist)
-            ]
+            dirs_invalid = [pd for pd in dirs_invalid if not HelperCLI._is_ipynb_parent_dir(pd)]
             if dirs_invalid:
                 raise FileNotFoundError(f"{msg} nor sub-folder: \n {os.linesep.join(dirs_invalid)}")
 
