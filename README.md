@@ -45,9 +45,9 @@ The addition has to formed as new folder
 
 ### Suggestions
 
-- for inserting images into text cells use MarkDown formatting, so we can insert inline images to the notebooks directly and drop eventual dependency on internet connection -> generated notebooks could be better shared offline
-- if your images need special sizes, use `![Cation](my-image.png){height="60px" width="240px"}`
-- if your notebook is computational or any other resource (CPU/RAM) demanding use only GPU accelerator option in meta config
+- For inserting images into text cells use MarkDown formatting, so we can insert inline images to the notebooks directly and drop eventual dependency on internet connection -> generated notebooks could be better shared offline
+- If your images need special sizes, use `![Cation](my-image.png){height="60px" width="240px"}`
+- If your notebook is computational or any other resource (CPU/RAM) demanding use only GPU accelerator option in meta config
 
 ### Known limitations
 
