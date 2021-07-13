@@ -131,6 +131,7 @@ class HelperCLI:
         ".datasets",
         ".github",
         "docs",
+        "_TEMP",
         "requirements",
         DIR_NOTEBOOKS,
     )
