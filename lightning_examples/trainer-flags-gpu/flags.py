@@ -38,7 +38,9 @@ MAX_EPOCHS = 3
 
 class MNISTDataModule(LightningDataModule):
 
-    def __init__(self, data_dir: str = PATH_DATASETS, batch_size: int = BATCH_SIZE, num_workers: int = NUM_WORKERS):
+    def __init__(
+        self, data_dir: str = PATH_DATASETS, batch_size: int = BATCH_SIZE, num_workers: int = NUM_WORKERS
+    ):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
@@ -1435,7 +1437,9 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 # %% id="V6I9h6HteK2U"
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
-early_stop_callback = EarlyStopping(monitor='val_accuracy', min_delta=0.00, patience=3, verbose=False, mode='max')
+early_stop_callback = EarlyStopping(
+    monitor='val_accuracy', min_delta=0.00, patience=3, verbose=False, mode='max'
+)
 trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[early_stop_callback])
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
