@@ -1,8 +1,7 @@
 trigger:
   batch: true
   branches:
-    # fixme
-    include: [ main, "cd/delete" ]
+    include: [ main ]
 pr: none
 #stages:
 #- stage: testing
@@ -115,8 +114,7 @@ jobs:
       condition: gt(variables['dropped.folders'], 0)
       displayName: 'Prune notebook'
 
-# fixme
-#    - bash: |
-#        git status
-#        git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
-#      displayName: 'Finish push'
+    - bash: |
+        git status
+        git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
+      displayName: 'Finish push'
