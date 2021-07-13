@@ -1,15 +1,3 @@
-# -*- coding: utf-8 -*-
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.11.2
-# ---
-
 # %% id="zaVUShmQ5n8Y"
 import os
 
@@ -80,12 +68,12 @@ mnist = MNISTDataModule()
 # %% [markdown] id="gEulmrbxwaYL"
 # ### Simple AutoEncoder Model
 #
-# Were gonna define a simple Lightning model so we can play with all the settings of the Lightning Trainer.
+# We're gonna define a simple Lightning model so we can play with all the settings of the Lightning Trainer.
 #
-# LightningModule is simply pure Pytorch reorganized into hooks, that represents all the steps in the training process.
+# LightningModule is simply pure Pytorch reorganized into hooks that represent all the steps in the training process.
 #
-# You can use LightningModule hooks to control every part of your model, but for the purpose of this video
-# we will use a very simple MNIST classifier, a model that takes 28*28 grayscale images of hand written images,
+# You can use LightningModule hooks to control every part of your model. For the purpose of this tutorial
+# we will use a very simple MNIST classifier. Our model takes 28*28 grayscale images of hand written images
 # and can predict the digit between 0-9.
 #
 # The LightningModule can encompass a single model, like an image classifier, or a deep learning system

@@ -6,7 +6,7 @@ license: CC
 description: >
   In this notebook, we'll go over the flags available in the `Trainer` object.
   Note that not everything will work in the Colab environment (multi-gpu, etc).
-  This notebook accompanies the Trainer videos we'll be putting out.
+  This notebook accompanies our Trainer videos.
 requirements:
   - torchvision
 accelerator:
