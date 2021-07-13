@@ -77,7 +77,7 @@ TEMPLATE_FOOTER = """
 #
 # ### Great thanks from the entire Pytorch Lightning Team for your interest !
 #
-# ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png?raw=true){height="60px" height="60px" width="240px"}
+# ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png){height="60px" width="240px"}
 
 """
 
@@ -182,6 +182,7 @@ class HelperCLI:
         """
         md = os.linesep.join([ln.rstrip() for ln in lines])
         p_imgs = []
+        # todo: add a rule to replace this paths only i md sections
         # because * is a greedy quantifier, trying to match as much as it can. Make it *?
         p_imgs += re.findall(r"src=\"(.*?)\"", md)
         p_imgs += re.findall(r"!\[.*?\]\((.*?)\)", md)
@@ -198,7 +199,6 @@ class HelperCLI:
                     im = fp.read()
             im_base64 = base64.b64encode(im).decode("utf-8")
             _, ext = os.path.splitext(p_img)
-            # todo: add a rule to replace this paths only i md sections
             md = md.replace(f'src="{p_img}"', f'src="{url_path}"')
             md = md.replace(f']({p_img})', f'](data:image/{ext[1:]};base64,{im_base64})')
 
