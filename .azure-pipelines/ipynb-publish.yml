@@ -1,7 +1,7 @@
 trigger:
   batch: true
   branches:
-    include: [ main ]
+    include: [ main, "ci/accel" ]
 pr: none
 #stages:
 #- stage: testing
@@ -114,7 +114,7 @@ jobs:
       condition: gt(variables['dropped.folders'], 0)
       displayName: 'Prune notebook'
 
-    - bash: |
-        git status
-        git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
-      displayName: 'Finish push'
+#    - bash: |
+#        git status
+#        git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
+#      displayName: 'Finish push'
