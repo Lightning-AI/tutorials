@@ -11,3 +11,4 @@ requirements:
 accelerator:
   - CPU
   - GPU
+  - TPU
