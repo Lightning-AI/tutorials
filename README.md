@@ -11,6 +11,8 @@ The key features/highlights:
 * all scripts/notebooks are tested to be **fully executable**
 * fully **reproducible** by saving runtime env. details
 
+For more details read our blogpost - [Best Practices for Publishing PyTorch Lightning Tutorial Notebooks](https://devblog.pytorchlightning.ai/publishing-lightning-tutorials-cbea3eaa4b2c)
+
 ## Adding/Editing notebooks
 
 This repo in main branch contain only python scripts with markdown extensions, and notebooks are generated in special publication branch, so no raw notebooks are accepted as PR.
@@ -41,9 +43,15 @@ The addition has to formed as new folder
       - CPU
     ```
 
+### Suggestions
+
+- For inserting images into text cells use MarkDown formatting, so we can insert inline images to the notebooks directly and drop eventual dependency on internet connection -> generated notebooks could be better shared offline
+- If your images need special sizes, use `![Cation](my-image.png){height="60px" width="240px"}`
+- If your notebook is computational or any other resource (CPU/RAM) demanding use only GPU accelerator option in meta config
+
 ### Known limitations
 
-When you want to rename folder/notebooks, it has to be split as add new and remove in two separate PRs.
+- Nothing major at this moment
 
 ## Meantime notes
 
