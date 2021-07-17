@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
+import base64
 import os
 import re
 import shutil
 from datetime import datetime
 from pprint import pprint
 from typing import Sequence
+from warnings import warn
 
 import fire
+import requests
 import tqdm
 import yaml
 from pip._internal.operations import freeze
@@ -75,7 +78,7 @@ TEMPLATE_FOOTER = """
 #
 # ### Great thanks from the entire Pytorch Lightning Team for your interest !
 #
-# ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png?raw=true){height="60px" height="60px" width="240px"}
+# ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png){height="60px" width="240px"}
 
 """
 
@@ -128,6 +131,7 @@ class HelperCLI:
         ".datasets",
         ".github",
         "docs",
+        "_TEMP",
         "requirements",
         DIR_NOTEBOOKS,
     )
@@ -161,12 +165,12 @@ class HelperCLI:
         )
         meta['description'] = meta['description'].replace(os.linesep, f"{os.linesep}# ")
 
-        py_file = HelperCLI._replace_images(py_file, os.path.dirname(fpath))
-
         header = TEMPLATE_HEADER % meta
         requires = set(default_requirements() + meta["requirements"])
         setup = TEMPLATE_SETUP % dict(requirements=" ".join([f'"{req}"' for req in requires]))
         py_file = [header + setup] + py_file + [TEMPLATE_FOOTER]
+
+        py_file = HelperCLI._replace_images(py_file, os.path.dirname(fpath))
 
         with open(fpath, "w") as fp:
             fp.writelines(py_file)
@@ -179,19 +183,35 @@ class HelperCLI:
             local_dir: relative path to the folder with script
         """
         md = os.linesep.join([ln.rstrip() for ln in lines])
-        imgs = []
+        p_imgs = []
+        # todo: add a rule to replace this paths only i md sections
         # because * is a greedy quantifier, trying to match as much as it can. Make it *?
-        imgs += re.findall(r"src=\"(.*?)\"", md)
-        imgs += re.findall(r"!\[.*?\]\((.*?)\)", md)
+        p_imgs += re.findall(r"src=\"(.*?)\"", md)
+        p_imgs += re.findall(r"!\[.*?\]\((.*?)\)", md)
 
         # update all images
-        for img in set(imgs):
-            url_path = '/'.join([URL_DOWNLOAD, local_dir, img])
-            # todo: add a rule to replace this paths only i md sections
-            md = md.replace(f'src="{img}"', f'src="{url_path}"')
-            md = md.replace(f']({img})', f']({url_path})')
+        for p_img in set(p_imgs):
+            if p_img.startswith("http://") or p_img.startswith("https://"):
+                url_path = p_img
+                im = requests.get(p_img, stream=True).raw.read()
+            else:
+                url_path = '/'.join([URL_DOWNLOAD, local_dir, p_img])
+                p_local_img = os.path.join(local_dir, p_img)
+                with open(p_local_img, "rb") as fp:
+                    im = fp.read()
+            im_base64 = base64.b64encode(im).decode("utf-8")
+            _, ext = os.path.splitext(p_img)
+            md = md.replace(f'src="{p_img}"', f'src="{url_path}"')
+            md = md.replace(f']({p_img})', f'](data:image/{ext[1:]};base64,{im_base64})')
 
         return [ln + os.linesep for ln in md.split(os.linesep)]
+
+    @staticmethod
+    def _is_ipynb_parent_dir(dir_path: str) -> bool:
+        if HelperCLI._meta_file(dir_path):
+            return True
+        sub_dirs = [d for d in glob.glob(os.path.join(dir_path, '*')) if os.path.isdir(d)]
+        return any(HelperCLI._is_ipynb_parent_dir(d) for d in sub_dirs)
 
     @staticmethod
     def group_folders(
@@ -200,6 +220,7 @@ class HelperCLI:
         fpath_drop_folders: str = "dropped-folders.txt",
         fpaths_actual_dirs: Sequence[str] = tuple(),
         strict: bool = True,
+        root_path: str = "",
     ) -> None:
         """Group changes by folders
         Args:
@@ -213,6 +234,7 @@ class HelperCLI:
             fpath_drop_folders: output file with deleted folders
             fpaths_actual_dirs: files with listed all folder in particular stat
             strict: raise error if some folder outside skipped does not have valid meta file
+            root_path: path to the root tobe added for all local folder paths in files
 
         Example:
             >> python helpers.py group-folders ../target-diff.txt --fpaths_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
@@ -230,6 +252,8 @@ class HelperCLI:
             # get only different
             dirs += list(set.union(*dir_sets) - set.intersection(*dir_sets))
 
+        if root_path:
+            dirs = [os.path.join(root_path, d) for d in dirs]
         # unique folders
         dirs = set(dirs)
         # drop folder with skip folder
@@ -238,9 +262,12 @@ class HelperCLI:
         dirs_exist = [d for d in dirs if os.path.isdir(d)]
         dirs_invalid = [d for d in dirs_exist if not HelperCLI._meta_file(d)]
         if strict and dirs_invalid:
-            raise FileNotFoundError(
-                f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}` \n {os.linesep.join(dirs_invalid)}"
-            )
+            msg = f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}`"
+            warn(f"{msg}: \n {os.linesep.join(dirs_invalid)}")
+            # check if there is other valid folder in its tree
+            dirs_invalid = [pd for pd in dirs_invalid if not HelperCLI._is_ipynb_parent_dir(pd)]
+            if dirs_invalid:
+                raise FileNotFoundError(f"{msg} nor sub-folder: \n {os.linesep.join(dirs_invalid)}")
 
         dirs_change = [d for d in dirs_exist if HelperCLI._meta_file(d)]
         with open(fpath_change_folders, "w") as fp:
