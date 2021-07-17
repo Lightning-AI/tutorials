@@ -28,7 +28,7 @@ print(os.linesep.join(ipynbs))" > "dirs-$b2.txt"
 cat "dirs-$b2.txt"
 
 printf "\n\n"
-git merge -s resolve origin/$1
+git merge --ff -s resolve origin/$1
 
 python .actions/helpers.py group-folders target-diff.txt --fpaths_actual_dirs "['dirs-$b1.txt', 'dirs-$b2.txt']"
 printf "\n\nChanged folders:\n"

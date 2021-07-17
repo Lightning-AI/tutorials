@@ -1,7 +1,7 @@
 title: TPU training with PyTorch Lightning
 author: PL team
 created: 2020-12-21
-updated: 2021-06-23
+updated: 2021-06-25
 license: CC BY-SA
 description: In this notebook, we'll train a model on TPUs. Updating one Trainer flag is all you need for that.
   The most up to documentation related to TPU training can be found
