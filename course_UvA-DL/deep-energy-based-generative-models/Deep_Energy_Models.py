@@ -69,8 +69,7 @@ for file_name in pretrained_files:
         except HTTPError as e:
             print(
                 "Something went wrong. Please try to download the files manually,"
-                " or contact the author with the full output including the following error:\n",
-                e
+                " or contact the author with the full output including the following error:\n", e
             )
 
 # %% [markdown]
