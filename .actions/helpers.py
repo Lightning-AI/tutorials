@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import base64
 import os
 import re
@@ -84,7 +83,7 @@ TEMPLATE_FOOTER = """
 
 
 def default_requirements(path_req: str = PATH_REQ_DEFAULT) -> list:
-    with open(path_req, 'r') as fp:
+    with open(path_req) as fp:
         req = fp.readlines()
     req = [r[:r.index("#")] if "#" in r else r for r in req]
     req = [r.strip() for r in req]
@@ -152,7 +151,7 @@ class HelperCLI:
         Args:
             fpath: path to python script
         """
-        with open(fpath, "r") as fp:
+        with open(fpath) as fp:
             py_file = fp.readlines()
         fpath_meta = HelperCLI._meta_file(os.path.dirname(fpath))
         meta = yaml.safe_load(open(fpath_meta))
@@ -239,7 +238,7 @@ class HelperCLI:
         Example:
             >> python helpers.py group-folders ../target-diff.txt --fpaths_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
         """
-        with open(fpath_gitdiff, "r") as fp:
+        with open(fpath_gitdiff) as fp:
             changed = [ln.strip() for ln in fp.readlines()]
         dirs = [os.path.dirname(ln) for ln in changed]
         # not empty paths
@@ -248,7 +247,7 @@ class HelperCLI:
         if fpaths_actual_dirs:
             assert isinstance(fpaths_actual_dirs, list)
             assert all(os.path.isfile(p) for p in fpaths_actual_dirs)
-            dir_sets = [set([ln.strip() for ln in open(fp).readlines()]) for fp in fpaths_actual_dirs]
+            dir_sets = [{ln.strip() for ln in open(fp).readlines()} for fp in fpaths_actual_dirs]
             # get only different
             dirs += list(set.union(*dir_sets) - set.intersection(*dir_sets))
 
@@ -365,11 +364,11 @@ class HelperCLI:
         def _parse(pkg: str, keys: str = " <=>") -> str:
             """Parsing just the package name"""
             if any(c in pkg for c in keys):
-                ix = min([pkg.index(c) for c in keys if c in pkg])
+                ix = min(pkg.index(c) for c in keys if c in pkg)
                 pkg = pkg[:ix]
             return pkg
 
-        require = set([_parse(r) for r in req if r])
+        require = {_parse(r) for r in req if r}
         env = {_parse(p): p for p in freeze.freeze()}
         meta['environment'] = [env[r] for r in require]
         meta['published'] = datetime.now().isoformat()
