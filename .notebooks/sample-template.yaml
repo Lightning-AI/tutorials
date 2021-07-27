@@ -14,8 +14,8 @@ accelerator:
 - GPU
 - TPU
 environment:
-- pytorch-lightning==1.4.0
-- torch==1.8.1
 - matplotlib==3.4.2
+- torch==1.8.1
+- pytorch-lightning==1.4.0
 - torchmetrics==0.4.1
-published: '2021-07-27T21:14:13.136964'
+published: '2021-07-27T21:16:02.956346'
