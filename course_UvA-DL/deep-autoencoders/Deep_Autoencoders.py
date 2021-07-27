@@ -67,8 +67,7 @@ for file_name in pretrained_files:
         except HTTPError as e:
             print(
                 "Something went wrong. Please try to download the files manually,"
-                " or contact the author with the full output including the following error:\n",
-                e
+                " or contact the author with the full output including the following error:\n", e
             )
 
 # %% [markdown]
@@ -335,7 +334,7 @@ def compare_imgs(img1, img2, title_prefix=""):
     )
     grid = grid.permute(1, 2, 0)
     plt.figure(figsize=(4, 2))
-    plt.title("%s Loss: %4.2f" % (title_prefix, loss.item()))
+    plt.title(f"{title_prefix} Loss: {loss.item():4.2f}")
     plt.imshow(grid)
     plt.axis('off')
     plt.show()
@@ -449,7 +448,7 @@ for latent_dim in [64, 128, 256, 384]:
 # how these two properties are correlated:
 
 # %%
-latent_dims = sorted([k for k in model_dict])
+latent_dims = sorted(k for k in model_dict)
 val_scores = [model_dict[k]["result"]["val"][0]["test_loss"] for k in latent_dims]
 
 fig = plt.figure(figsize=(6, 4))
