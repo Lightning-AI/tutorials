@@ -32,7 +32,6 @@ jobs:
       PATH_DATASETS: "$(Build.Repository.LocalPath)/.datasets"
       COMMIT_MSG: $(echo "$(Build.SourceVersionMessage)" | head -n 1)
       COMMIT_HASH: "$(Build.SourceVersion)"
-      # PYTHON_VERSION: 3.8
 
     steps:
     - bash: |
