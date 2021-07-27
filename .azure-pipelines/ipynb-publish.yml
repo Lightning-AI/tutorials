@@ -51,6 +51,7 @@ jobs:
     - bash: |
         git config --global user.email "pipelines@azure.com"
         git config --global user.name "Azure Pipelines"
+        printf "$(COMMIT_MSG)"
       displayName: 'Set Git user'
 
     - bash: |
@@ -66,7 +67,6 @@ jobs:
       displayName: 'Sanity check'
 
     - bash: |
-        printf "$(COMMIT_MSG)"
         current_branch=$(cut -d '/' -f3- <<< $(Build.SourceBranch))
         printf $current_branch
         bash .actions/git-diff-sync.sh $current_branch $(PUB_BRANCH)
