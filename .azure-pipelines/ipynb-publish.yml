@@ -29,8 +29,8 @@ jobs:
       ACCELERATOR: CPU,GPU
       PUB_BRANCH: publication
       PATH_DATASETS: "$(Build.Repository.LocalPath)/.datasets"
-      COMMIT_MSG: $(Build.SourceVersionMessage)
-      # PYTHON_VERSION: 3.8
+      COMMIT_MSG: $(echo "$(Build.SourceVersionMessage)" | head -n 1)
+      COMMIT_HASH: "$(Build.SourceVersion)"
 
     steps:
     - bash: |
@@ -50,6 +50,8 @@ jobs:
     - bash: |
         git config --global user.email "pipelines@azure.com"
         git config --global user.name "Azure Pipelines"
+        printf "commit hash:\n $(COMMIT_HASH)\n"
+        printf "commit message:\n $(COMMIT_MSG)\n"
       displayName: 'Set Git user'
 
     - bash: |
@@ -66,7 +68,7 @@ jobs:
 
     - bash: |
         current_branch=$(cut -d '/' -f3- <<< $(Build.SourceBranch))
-        printf $current_branch
+        printf "$current_branch\n"
         bash .actions/git-diff-sync.sh $current_branch $(PUB_BRANCH)
       displayName: 'Compare changes & sync'
 

@@ -27,10 +27,10 @@ then
   printf "Processing: $ipynb_file\n"
   python -m papermill.cli $ipynb_file $pub_file --kernel python
   python .actions/helpers.py update-env-details $1
+  git add ".notebooks/$1.yaml"
 else
   printf "WARNING: not valid accelerator so no outputs will be generated.\n"
   cp $ipynb_file $pub_file
 fi
 
-git add ".notebooks/$1.yaml"
 git add $pub_file
