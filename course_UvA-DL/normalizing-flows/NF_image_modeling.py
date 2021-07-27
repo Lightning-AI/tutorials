@@ -1132,8 +1132,8 @@ def create_multiscale_flow():
 
 # %%
 def print_num_params(model):
-    num_params = sum([np.prod(p.shape) for p in model.parameters()])
-    print("Number of parameters: {:,}".format(num_params))
+    num_params = sum(np.prod(p.shape) for p in model.parameters())
+    print(f"Number of parameters: {num_params:,}")
 
 
 print_num_params(create_simple_flow(use_vardeq=False))
@@ -1194,7 +1194,7 @@ table = [[
     "%4.3f bpd" % flow_dict[key]["result"]["test"][0]["test_bpd"],
     "%2.0f ms" % (1000 * flow_dict[key]["result"]["time"]),
     "%2.0f ms" % (1000 * flow_dict[key]["result"].get("samp_time", 0)),
-    "{:,}".format(sum([np.prod(p.shape) for p in flow_dict[key]["model"].parameters()]))
+    "{:,}".format(sum(np.prod(p.shape) for p in flow_dict[key]["model"].parameters()))
 ] for key in flow_dict]
 display(
     HTML(
