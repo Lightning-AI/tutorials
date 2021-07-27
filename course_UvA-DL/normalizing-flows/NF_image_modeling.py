@@ -77,7 +77,8 @@ for file_name in pretrained_files:
 # %% [markdown]
 # We will use the MNIST dataset in this notebook.
 # MNIST constitutes, despite its simplicity, a challenge for small generative models as it requires the global understanding of an image.
-# At the same time, we can easily judge whether generated images come from the same distribution as the dataset (i.e. represent real digits), or not.
+# At the same time, we can easily judge whether generated images come from the same distribution as the dataset
+# (i.e. represent real digits), or not.
 #
 # To deal better with the discrete nature of the images, we transform them
 # from a range of 0-1 to a range of 0-255 as integers.
@@ -136,25 +137,30 @@ show_imgs([train_set[i][0] for i in range(8)])
 # %% [markdown]
 # ## Normalizing Flows as generative model
 #
-# In the previous lectures, we have seen Energy-based models, Variational Autoencoders (VAEs) and Generative Adversarial Networks (GANs) as example of generative models.
+# In the previous lectures, we have seen Energy-based models, Variational Autoencoders (VAEs)
+# and Generative Adversarial Networks (GANs) as example of generative models.
 # However, none of them explicitly learn the probability density function $p(x)$ of the real input data.
 # While VAEs model a lower bound, energy-based models only implicitly learn the probability density.
 # GANs on the other hand provide us a sampling mechanism for generating new data, without offering a likelihood estimate.
-# The generative model we will look at here, called Normalizing Flows, actually models the true data distribution $p(x)$ and provides us with an exact likelihood estimate.
+# The generative model we will look at here, called Normalizing Flows, actually models the true data distribution
+# $p(x)$ and provides us with an exact likelihood estimate.
 # Below, we can visually compare VAEs, GANs and Flows
 # (figure credit - [Lilian Weng](https://lilianweng.github.io/lil-log/2018/10/13/flow-based-deep-generative-models.html)):
 #
 # <center width="100%"><img src="comparison_GAN_VAE_NF.png" width="600px"></center>
 #
-# The major difference compared to VAEs is that flows use *invertible* functions $f$ to map the input data $x$ to a latent representation $z$.
+# The major difference compared to VAEs is that flows use *invertible* functions $f$
+# to map the input data $x$ to a latent representation $z$.
 # To realize this, $z$ must be of the same shape as $x$.
 # This is in contrast to VAEs where $z$ is usually much lower dimensional than the original input data.
-# However, an invertible mapping also means that for every data point $x$, we have a corresponding latent representation $z$ which allows us to perform lossless reconstruction ($z$ to $x$).
+# However, an invertible mapping also means that for every data point $x$, we have a corresponding latent representation
+# $z$ which allows us to perform lossless reconstruction ($z$ to $x$).
 # In the visualization above, this means that $x=x'$ for flows, no matter what invertible function $f$ and input $x$ we choose.
 #
 # Nonetheless, how are normalizing flows modeling a probability density with an invertible function?
 # The answer to this question is the rule for change of variables.
-# Specifically, given a prior density $p_z(z)$ (e.g. Gaussian) and an invertible function $f$, we can determine $p_x(x)$ as follows:
+# Specifically, given a prior density $p_z(z)$ (e.g. Gaussian) and an invertible function $f$,
+# we can determine $p_x(x)$ as follows:
 #
 # $$
 # \begin{split}
@@ -163,7 +169,8 @@ show_imgs([train_set[i][0] for i in range(8)])
 # \end{split}
 # $$
 #
-# Hence, in order to determine the probability of $x$, we only need to determine its probability in latent space, and get the derivate of $f$.
+# Hence, in order to determine the probability of $x$, we only need to determine its probability in latent space,
+# and get the derivate of $f$.
 # Note that this is for a univariate distribution, and $f$ is required to be invertible and smooth.
 # For a multivariate case, the derivative becomes a Jacobian of which we need to take the determinant.
 # As we usually use the log-likelihood as objective, we write the multivariate term with logarithms below:
@@ -175,28 +182,38 @@ show_imgs([train_set[i][0] for i in range(8)])
 # Although we now know how a normalizing flow obtains its likelihood, it might not be clear what a normalizing flow does intuitively.
 # For this, we should look from the inverse perspective of the flow starting with the prior probability density $p_z(z)$.
 # If we apply an invertible function on it, we effectively "transform" its probability density.
-# For instance, if $f^{-1}(z)=z+1$, we shift the density by one while still remaining a valid probability distribution, and being invertible.
+# For instance, if $f^{-1}(z)=z+1$, we shift the density by one while still remaining a valid probability distribution,
+# and being invertible.
 # We can also apply more complex transformations, like scaling: $f^{-1}(z)=2z+1$, but there you might see a difference.
-# When you scale, you also change the volume of the probability density, as for example on uniform distributions (figure credit - [Eric Jang](https://blog.evjang.com/2018/01/nf1.html)):
+# When you scale, you also change the volume of the probability density, as for example on uniform distributions
+# (figure credit - [Eric Jang](https://blog.evjang.com/2018/01/nf1.html)):
 #
 # <center width="100%"><img src="uniform_flow.png" width="300px"></center>
 #
 # You can see that the height of $p(y)$ should be lower than $p(x)$ after scaling.
-# This change in volume represents $\left|\frac{df(x)}{dx}\right|$ in our equation above, and ensures that even after scaling, we still have a valid probability distribution.
+# This change in volume represents $\left|\frac{df(x)}{dx}\right|$ in our equation above,
+# and ensures that even after scaling, we still have a valid probability distribution.
 # We can go on with making our function $f$ more complex.
-# However, the more complex $f$ becomes, the harder it will be to find the inverse $f^{-1}$ of it, and to calculate the log-determinant of the Jacobian $\log{} \left|\det \frac{df(\mathbf{x})}{d\mathbf{x}}\right|$.
-# An easier trick to stack multiple invertible functions $f_{1,...,K}$ after each other, as all together, they still represent a single, invertible function.
-# Using multiple, learnable invertible functions, a normalizing flow attempts to transform $p_z(z)$ slowly into a more complex distribution which should finally be $p_x(x)$.
+# However, the more complex $f$ becomes, the harder it will be to find the inverse $f^{-1}$ of it,
+# and to calculate the log-determinant of the Jacobian $\log{} \left|\det \frac{df(\mathbf{x})}{d\mathbf{x}}\right|$.
+# An easier trick to stack multiple invertible functions $f_{1,...,K}$ after each other, as all together,
+# they still represent a single, invertible function.
+# Using multiple, learnable invertible functions, a normalizing flow attempts to transform
+# $p_z(z)$ slowly into a more complex distribution which should finally be $p_x(x)$.
 # We visualize the idea below
 # (figure credit - [Lilian Weng](https://lilianweng.github.io/lil-log/2018/10/13/flow-based-deep-generative-models.html)):
 #
 # <center width="100%"><img src="normalizing_flow_layout.png" width="700px"></center>
 #
-# Starting from $z_0$, which follows the prior Gaussian distribution, we sequentially apply the invertible functions $f_1,f_2,...,f_K$, until $z_K$ represents $x$.
-# Note that in the figure above, the functions $f$ represent the inverted function from $f$ we had above (here: $f:Z\to X$, above: $f:X\to Z$).
+# Starting from $z_0$, which follows the prior Gaussian distribution, we sequentially apply the invertible
+# functions $f_1,f_2,...,f_K$, until $z_K$ represents $x$.
+# Note that in the figure above, the functions $f$ represent the inverted function from $f$ we had above
+# (here: $f:Z\to X$, above: $f:X\to Z$).
 # This is just a different notation and has no impact on the actual flow design because all $f$ need to be invertible anyways.
-# When we estimate the log likelihood of a data point $x$ as in the equations above, we run the flows in the opposite direction than visualized above.
-# Multiple flow layers have been proposed that use a neural network as learnable parameters, such as the planar and radial flow.
+# When we estimate the log likelihood of a data point $x$ as in the equations above,
+# we run the flows in the opposite direction than visualized above.
+# Multiple flow layers have been proposed that use a neural network as learnable parameters,
+# such as the planar and radial flow.
 # However, we will focus here on flows that are commonly used in image
 # modeling, and will discuss them in the rest of the notebook along with
 # the details of how to train a normalizing flow.
@@ -204,16 +221,20 @@ show_imgs([train_set[i][0] for i in range(8)])
 # %% [markdown]
 # ## Normalizing Flows on images
 #
-# To become familiar with normalizing flows, especially for the application of image modeling, it is best to discuss the different elements in a flow along with the implementation.
+# To become familiar with normalizing flows, especially for the application of image modeling,
+# it is best to discuss the different elements in a flow along with the implementation.
 # As a general concept, we want to build a normalizing flow that maps an input image (here MNIST) to an equally sized latent space:
 #
 # <center width="100%" style="padding: 10px"><img src="image_to_gaussian.svg" width="450px"></center>
 #
 # As a first step, we will implement a template of a normalizing flow in PyTorch Lightning.
 # During training and validation, a normalizing flow performs density estimation in the forward direction.
-# For this, we apply a series of flow transformations on the input $x$ and estimate the probability of the input by determining the probability of the transformed point $z$ given a prior, and the change of volume caused by the transformations.
+# For this, we apply a series of flow transformations on the input $x$ and estimate the probability
+# of the input by determining the probability of the transformed point $z$ given a prior,
+# and the change of volume caused by the transformations.
 # During inference, we can do both density estimation and sampling new points by inverting the flow transformations.
-# Therefore, we define a function `_get_likelihood` which performs density estimation, and `sample` to generate new examples.
+# Therefore, we define a function `_get_likelihood` which performs density estimation,
+# and `sample` to generate new examples.
 # The functions `training_step`, `validation_step` and `test_step` all make use of `_get_likelihood`.
 #
 # The standard metric used in generative models, and in particular normalizing flows, is bits per dimensions (bpd).
@@ -346,7 +367,8 @@ class ImageFlow(pl.LightningModule):
 # Otherwise, we don't model a probability distribution anymore.
 # However, the discrete points $x=0,1,2,3$ represent delta peaks with no width in continuous space.
 # This is why the flow can place an infinite high likelihood on these few points while still representing a distribution in continuous space.
-# Nonetheless, the learned density does not tell us anything about the distribution among the discrete points, as in discrete space, the likelihoods of those four points would have to sum to 1, not to infinity.
+# Nonetheless, the learned density does not tell us anything about the distribution among the discrete points,
+# as in discrete space, the likelihoods of those four points would have to sum to 1, not to infinity.
 #
 # To prevent such degenerated solutions, a common solution is to add a small amount of noise to each discrete value, which is also referred to as dequantization.
 # Considering $x$ as an integer (as it is the case for images), the dequantized representation $v$ can be formulated as $v=x+u$ where $u\in[0,1)^D$.
@@ -451,7 +473,8 @@ else:
 # However, this is no reason to doubt our implementation here as only one single value is not equal to the original.
 # This is caused due to numerical inaccuracies in the sigmoid invert.
 # While the input space to the inverted sigmoid is scaled between 0 and 1, the output space is between $-\infty$ and $\infty$.
-# And as we use 32 bits to represent the numbers (in addition to applying logs over and over again), such inaccuries can occur and should not be worrisome.
+# And as we use 32 bits to represent the numbers (in addition to applying logs over and over again),
+# such inaccuries can occur and should not be worrisome.
 # Nevertheless, it is good to be aware of them, and can be improved by using a double tensor (float64).
 #
 # Finally, we can take our dequantization and actually visualize the
@@ -511,7 +534,8 @@ visualize_dequantization(quants=8)
 # The visualized distribution show the sub-volumes that are assigned to the different discrete values.
 # The value $0$ has its volume between $[-\infty, -1.9)$, the value $1$ is represented by the interval $[-1.9, -1.1)$, etc.
 # The volume for each discrete value has the same probability mass.
-# That's why the volumes close to the center (e.g. 3 and 4) have a smaller area on the z-axis as others ($z$ is being used to denote the output of the whole dequantization flow).
+# That's why the volumes close to the center (e.g. 3 and 4) have a smaller area on the z-axis as others
+# ($z$ is being used to denote the output of the whole dequantization flow).
 #
 # Effectively, the consecutive normalizing flow models discrete images by the following objective:
 #
@@ -525,7 +549,9 @@ visualize_dequantization(quants=8)
 #
 # $$\log p(x) = \log \mathbb{E}_{u\sim q(u|x)}\left[\frac{p(x+u)}{q(u|x)} \right] \geq \mathbb{E}_{u}\left[\log \frac{1}{M} \sum_{m=1}^{M} \frac{p(x+u_m)}{q(u_m|x)} \right] \geq \mathbb{E}_{u}\left[\log \frac{p(x+u)}{q(u|x)} \right]$$
 #
-# The importance sampling $\frac{1}{M} \sum_{m=1}^{M} \frac{p(x+u_m)}{q(u_m|x)}$ becomes $\mathbb{E}_{u\sim q(u|x)}\left[\frac{p(x+u)}{q(u|x)} \right]$ if $M\to \infty$, so that the more samples we use, the tighter the bound is.
+# The importance sampling $\frac{1}{M} \sum_{m=1}^{M} \frac{p(x+u_m)}{q(u_m|x)}$ becomes
+# $\mathbb{E}_{u\sim q(u|x)}\left[\frac{p(x+u)}{q(u|x)} \right]$ if $M\to \infty$,
+# so that the more samples we use, the tighter the bound is.
 # During testing, we can make use of this property and have it implemented in `test_step` in `ImageFlow`.
 # In theory, we could also use this tighter bound during training.
 # However, related work has shown that this does not necessarily lead to
@@ -535,7 +561,8 @@ visualize_dequantization(quants=8)
 # %% [markdown]
 # ### Variational Dequantization
 #
-# Dequantization uses a uniform distribution for the noise $u$ which effectively leads to images being represented as hypercubes (cube in high dimensions) with sharp borders.
+# Dequantization uses a uniform distribution for the noise $u$ which effectively leads to images being represented as hypercubes
+# (cube in high dimensions) with sharp borders.
 # However, modeling such sharp borders is not easy for a flow as it uses smooth transformations to convert it into a Gaussian distribution.
 #
 # Another way of looking at it is if we change the prior distribution in the previous visualization.
@@ -548,7 +575,9 @@ visualize_dequantization(quants=8, prior=np.array([0.075, 0.2, 0.4, 0.2, 0.075, 
 # %% [markdown]
 # Transforming such a probability into a Gaussian is a difficult task, especially with such hard borders.
 # Dequantization has therefore been extended to more sophisticated, learnable distributions beyond uniform in a variational framework.
-# In particular, if we remember the learning objective $\log p(x) = \log \mathbb{E}_{u}\left[\frac{p(x+u)}{q(u|x)} \right]$, the uniform distribution can be replaced by a learned distribution $q_{\theta}(u|x)$ with support over $u\in[0,1)^D$.
+# In particular, if we remember the learning objective
+# $\log p(x) = \log \mathbb{E}_{u}\left[\frac{p(x+u)}{q(u|x)} \right]$,
+# the uniform distribution can be replaced by a learned distribution $q_{\theta}(u|x)$ with support over $u\in[0,1)^D$.
 # This approach is called Variational Dequantization and has been proposed by Ho et al.
 # [3].
 # How can we learn such a distribution?
@@ -596,7 +625,8 @@ class VariationalDequantization(Dequantization):
 # ### Coupling layers
 #
 # Next, we look at possible transformations to apply inside the flow.
-# A recent popular flow layer, which works well in combination with deep neural networks, is the coupling layer introduced by Dinh et al.
+# A recent popular flow layer, which works well in combination with deep neural networks,
+# is the coupling layer introduced by Dinh et al.
 # [1].
 # The input $z$ is arbitrarily split into two parts, $z_{1:j}$ and $z_{j+1:d}$, of which the first remains unchanged by the flow.
 # Yet, $z_{1:j}$ is used to parameterize the transformation for the second part, $z_{j+1:d}$.
@@ -606,13 +636,15 @@ class VariationalDequantization(Dequantization):
 #
 # $$z'_{j+1:d} = \mu_{\theta}(z_{1:j}) + \sigma_{\theta}(z_{1:j}) \odot z_{j+1:d}$$
 #
-# The functions $\mu$ and $\sigma$ are implemented as a shared neural network, and the sum and multiplication are performed element-wise.
+# The functions $\mu$ and $\sigma$ are implemented as a shared neural network,
+# and the sum and multiplication are performed element-wise.
 # The LDJ is thereby the sum of the logs of the scaling factors: $\sum_i \left[\log \sigma_{\theta}(z_{1:j})\right]_i$.
 # Inverting the layer can as simply be done as subtracting the bias and dividing by the scale:
 #
 # $$z_{j+1:d} = \left(z'_{j+1:d} - \mu_{\theta}(z_{1:j})\right) / \sigma_{\theta}(z_{1:j})$$
 #
-# We can also visualize the coupling layer in form of a computation graph, where $z_1$ represents $z_{1:j}$, and $z_2$ represents $z_{j+1:d}$:
+# We can also visualize the coupling layer in form of a computation graph,
+# where $z_1$ represents $z_{1:j}$, and $z_2$ represents $z_{j+1:d}$:
 #
 # <center width="100%" style="padding: 10px"><img src="coupling_flow.svg" width="450px"></center>
 #
@@ -684,7 +716,8 @@ class CouplingLayer(nn.Module):
 # %% [markdown]
 # For stabilization purposes, we apply a $\tanh$ activation function on the scaling output.
 # This prevents sudden large output values for the scaling that can destabilize training.
-# To still allow scaling factors smaller or larger than -1 and 1 respectively, we have a learnable parameter per dimension, called `scaling_factor`.
+# To still allow scaling factors smaller or larger than -1 and 1 respectively,
+# we have a learnable parameter per dimension, called `scaling_factor`.
 # This scales the tanh to different limits.
 # Below, we visualize the effect of the scaling factor on the output activation of the scaling terms:
 
@@ -749,8 +782,11 @@ show_imgs(channel_mask.transpose(0, 1), "Channel mask")
 # %% [markdown]
 # As a last aspect of coupling layers, we need to decide for the deep neural network we want to apply in the coupling layers.
 # The input to the layers is an image, and hence we stick with a CNN.
-# Because the input to a transformation depends on all transformations before, it is crucial to ensure a good gradient flow through the CNN back to the input, which can be optimally achieved by a ResNet-like architecture.
-# Specifically, we use a Gated ResNet that adds a $\sigma$-gate to the skip connection, similarly to the input gate in LSTMs.
+# Because the input to a transformation depends on all transformations before,
+# it is crucial to ensure a good gradient flow through the CNN back to the input,
+# which can be optimally achieved by a ResNet-like architecture.
+# Specifically, we use a Gated ResNet that adds a $\sigma$-gate to the skip connection,
+# similarly to the input gate in LSTMs.
 # The details are not necessarily important here, and the network is
 # strongly inspired from Flow++ [3] in case you are interested in building
 # even stronger models.
@@ -838,7 +874,8 @@ class GatedConvNet(nn.Module):
 #
 # Finally, we can add Dequantization, Variational Dequantization and Coupling Layers together to build our full normalizing flow on MNIST images.
 # We apply 8 coupling layers in the main flow, and 4 for variational dequantization if applied.
-# We apply a checkerboard mask throughout the network as with a single channel (black-white images), we cannot apply channel mask.
+# We apply a checkerboard mask throughout the network as with a single channel (black-white images),
+# we cannot apply channel mask.
 # The overall architecture is visualized below.
 #
 #
@@ -875,8 +912,10 @@ def create_simple_flow(use_vardeq=True):
 
 # %% [markdown]
 # For implementing the training loop, we use the framework of PyTorch Lightning and reduce the code overhead.
-# If interested, you can take a look at the generated tensorboard file, in particularly the graph to see an overview of flow transformations that are applied.
-# Note that we again provide pre-trained models (see later on in the notebook) as normalizing flows are particularly expensive to train.
+# If interested, you can take a look at the generated tensorboard file,
+# in particularly the graph to see an overview of flow transformations that are applied.
+# Note that we again provide pre-trained models (see later on in the notebook)
+# as normalizing flows are particularly expensive to train.
 # We have also run validation and testing as this can take some time as well with the added importance sampling.
 
 
@@ -933,19 +972,23 @@ def train_flow(flow, model_name="MNISTFlow"):
 #
 # One disadvantage of normalizing flows is that they operate on the exact same dimensions as the input.
 # If the input is high-dimensional, so is the latent space, which requires larger computational cost to learn suitable transformations.
-# However, particularly in the image domain, many pixels contain less information in the sense that we could remove them without loosing the semantical information of the image.
+# However, particularly in the image domain, many pixels contain less information in the sense
+# that we could remove them without loosing the semantical information of the image.
 #
 # Based on this intuition, deep normalizing flows on images commonly apply a multi-scale architecture [1].
 # After the first $N$ flow transformations, we split off half of the latent dimensions and directly evaluate them on the prior.
-# The other half is run through $N$ more flow transformations, and depending on the size of the input, we split it again in half or stop overall at this position.
+# The other half is run through $N$ more flow transformations, and depending on the size of the input,
+# we split it again in half or stop overall at this position.
 # The two operations involved in this setup is `Squeeze` and `Split` which
 # we will review more closely and implement below.
 
 # %% [markdown]
 # ### Squeeze and Split
 #
-# When we want to remove half of the pixels in an image, we have the problem of deciding which variables to cut, and how to rearrange the image.
-# Thus, the squeezing operation is commonly used before split, which divides the image into subsquares of shape $2\times 2\times C$, and reshapes them into $1\times 1\times 4C$ blocks.
+# When we want to remove half of the pixels in an image, we have the problem of deciding which variables to cut,
+# and how to rearrange the image.
+# Thus, the squeezing operation is commonly used before split, which divides the image into subsquares
+# of shape $2\times 2\times C$, and reshapes them into $1\times 1\times 4C$ blocks.
 # Effectively, we reduce the height and width of the image by a factor of 2 while scaling the number of channels by 4.
 # Afterwards, we can perform the split operation over channels without the need of rearranging the pixels.
 # The smaller scale also makes the overall architecture more efficient.
@@ -953,7 +996,8 @@ def train_flow(flow, model_name="MNISTFlow"):
 #
 # <center><img src="Squeeze_operation.svg" width="40%"/></center>
 #
-# The input of $4\times 4\times 1$ is scaled to $2\times 2\times 4$ following the idea of grouping the pixels in $2\times 2\times 1$ subsquares.
+# The input of $4\times 4\times 1$ is scaled to $2\times 2\times 4$ following
+# the idea of grouping the pixels in $2\times 2\times 1$ subsquares.
 # Next, let's try to implement this layer:
 
 
@@ -989,7 +1033,8 @@ print("\nImage (reverse)\n", reconst_img)
 
 # %% [markdown]
 # The split operation divides the input into two parts, and evaluates one part directly on the prior.
-# So that our flow operation fits to the implementation of the previous layers, we will return the prior probability of the first part as the log determinant jacobian of the layer.
+# So that our flow operation fits to the implementation of the previous layers,
+# we will return the prior probability of the first part as the log determinant jacobian of the layer.
 # It has the same effect as if we would combine all variable splits at the
 # end of the flow, and evaluate them together on the prior.
 
@@ -1018,7 +1063,8 @@ class SplitFlow(nn.Module):
 # After defining the squeeze and split operation, we are finally able to build our own multi-scale flow.
 # Deep normalizing flows such as Glow and Flow++ [2,3] often apply a split operation directly after squeezing.
 # However, with shallow flows, we need to be more thoughtful about where to place the split operation as we need at least a minimum amount of transformations on each variable.
-# Our setup is inspired by the original RealNVP architecture [1] which is shallower than other, more recent state-of-the-art architectures.
+# Our setup is inspired by the original RealNVP architecture [1] which is shallower than other,
+# more recent state-of-the-art architectures.
 #
 # Hence, for the MNIST dataset, we will apply the first squeeze operation after two coupling layers, but don't apply a split operation yet.
 # Because we have only used two coupling layers and each the variable has been only transformed once, a split operation would be too early.
@@ -1028,7 +1074,8 @@ class SplitFlow(nn.Module):
 #
 # <center width="100%" style="padding: 20px"><img src="multiscale_flow.svg" width="1100px"></center>
 #
-# Note that while the feature maps inside the coupling layers reduce with the height and width of the input, the increased number of channels is not directly considered.
+# Note that while the feature maps inside the coupling layers reduce with the height and width of the input,
+# the increased number of channels is not directly considered.
 # To counteract this, we increase the hidden dimensions for the coupling layers on the squeezed input.
 # The dimensions are often scaled by 2 as this approximately increases the computation cost by 4 canceling with the squeezing operation.
 # However, we will choose the hidden dimensionalities $32, 48, 64$ for the
@@ -1094,13 +1141,15 @@ print_num_params(create_simple_flow(use_vardeq=True))
 print_num_params(create_multiscale_flow())
 
 # %% [markdown]
-# Although the multi-scale flow has almost 3 times the parameters of the single scale flow, it is not necessarily more computationally expensive than its counterpart.
+# Although the multi-scale flow has almost 3 times the parameters of the single scale flow,
+# it is not necessarily more computationally expensive than its counterpart.
 # We will compare the runtime in the following experiments as well.
 
 # %% [markdown]
 # ## Analysing the flows
 #
-# In the last part of the notebook, we will train all the models we have implemented above, and try to analyze the effect of the multi-scale architecture and variational dequantization.
+# In the last part of the notebook, we will train all the models we have implemented above,
+# and try to analyze the effect of the multi-scale architecture and variational dequantization.
 #
 # ### Training flow variants
 #
@@ -1161,8 +1210,10 @@ display(
 
 # %% [markdown]
 # As we have intially expected, using variational dequantization improves upon standard dequantization in terms of bits per dimension.
-# Although the difference with 0.04bpd doesn't seem impressive first, it is a considerably step for generative models (most state-of-the-art models improve upon previous models in a range of 0.02-0.1bpd on CIFAR with three times as high bpd).
-# While it takes longer to evaluate the probability of an image due to the variational dequantization, which also leads to a longer training time, it does not have an effect on the sampling time.
+# Although the difference with 0.04bpd doesn't seem impressive first, it is a considerably step for generative models
+# (most state-of-the-art models improve upon previous models in a range of 0.02-0.1bpd on CIFAR with three times as high bpd).
+# While it takes longer to evaluate the probability of an image due to the variational dequantization,
+# which also leads to a longer training time, it does not have an effect on the sampling time.
 # This is because inverting variational dequantization is the same as dequantization: finding the next lower integer.
 #
 # When we compare the two models to multi-scale architecture, we can see that the bits per dimension score again dropped by about 0.04bpd.
@@ -1170,7 +1221,8 @@ display(
 # Thus, we see that the multi-scale flow is not only stronger for density modeling, but also more efficient.
 #
 # Next, we can test the sampling quality of the models.
-# We should note that the samples for variational dequantization and standard dequantization are very similar, and hence we visualize here only the ones for variational dequantization and the multi-scale model.
+# We should note that the samples for variational dequantization and standard dequantization are very similar,
+# and hence we visualize here only the ones for variational dequantization and the multi-scale model.
 # However, feel free to also test out the `"simple"` model.
 # The seeds are set to obtain reproducable generations and are not cherry picked.
 
@@ -1186,9 +1238,11 @@ show_imgs(samples.cpu())
 
 # %% [markdown]
 # From the few samples, we can see a clear difference between the simple and the multi-scale model.
-# The single-scale model has only learned local, small correlations while the multi-scale model was able to learn full, global relations that form digits.
+# The single-scale model has only learned local, small correlations while the multi-scale model was able to learn full,
+# global relations that form digits.
 # This show-cases another benefit of the multi-scale model.
-# In contrast to VAEs, the outputs are sharp as normalizing flows can naturally model complex, multi-modal distributions while VAEs have the independent decoder output noise.
+# In contrast to VAEs, the outputs are sharp as normalizing flows can naturally model complex,
+# multi-modal distributions while VAEs have the independent decoder output noise.
 # Nevertheless, the samples from this flow are far from perfect as not all samples show true digits.
 
 # %% [markdown]
@@ -1229,16 +1283,21 @@ for i in range(2):
     interpolate(flow_dict["multiscale"]["model"], exmp_imgs[2 * i], exmp_imgs[2 * i + 1])
 
 # %% [markdown]
-# The interpolations of the multi-scale model result in more realistic digits (first row $7\leftrightarrow 8\leftrightarrow 6$, second row $9\leftrightarrow 4\leftrightarrow 6$), while the variational dequantization model focuses on local patterns that globally do not form a digit.
-# For the multi-scale model, we actually did not do the "true" interpolation between the two images as we did not consider the variables that were split along the flow (they have been sampled randomly for all samples).
+# The interpolations of the multi-scale model result in more realistic digits
+# (first row $7\leftrightarrow 8\leftrightarrow 6$, second row $9\leftrightarrow 4\leftrightarrow 6$),
+# while the variational dequantization model focuses on local patterns that globally do not form a digit.
+# For the multi-scale model, we actually did not do the "true" interpolation between the two images
+# as we did not consider the variables that were split along the flow (they have been sampled randomly for all samples).
 # However, as we will see in the next experiment, the early variables do not effect the overall image much.
 
 # %% [markdown]
 # ### Visualization of latents in different levels of multi-scale
 #
 # In the following we will focus more on the multi-scale flow.
-# We want to analyse what information is being stored in the variables split at early layers, and what information for the final variables.
-# For this, we sample 8 images where each of them share the same final latent variables, but differ in the other part of the latent variables.
+# We want to analyse what information is being stored in the variables split at early layers,
+# and what information for the final variables.
+# For this, we sample 8 images where each of them share the same final latent variables,
+# but differ in the other part of the latent variables.
 # Below we visualize three examples of this:
 
 # %%
@@ -1261,7 +1320,8 @@ for _ in range(3):
 # ### Visualizing Dequantization
 #
 # As a final part of this notebook, we will look at the effect of variational dequantization.
-# We have motivated variational dequantization by the issue of sharp edges/boarders being difficult to model, and a flow would rather prefer smooth, prior-like distributions.
+# We have motivated variational dequantization by the issue of sharp edges/boarders being difficult to model,
+# and a flow would rather prefer smooth, prior-like distributions.
 # To check how what noise distribution $q(u|x)$ the flows in the
 # variational dequantization module have learned, we can plot a histogram
 # of output values from the dequantization and variational dequantization
@@ -1302,7 +1362,8 @@ visualize_dequant_distribution(flow_dict["simple"]["model"], sample_imgs, title=
 visualize_dequant_distribution(flow_dict["vardeq"]["model"], sample_imgs, title="Variational dequantization")
 
 # %% [markdown]
-# The dequantization distribution in the first plot shows that the MNIST images have a strong bias towards 0 (black), and the distribution of them have a sharp border as mentioned before.
+# The dequantization distribution in the first plot shows that the MNIST images have a strong bias towards 0 (black),
+# and the distribution of them have a sharp border as mentioned before.
 # The variational dequantization module has indeed learned a much smoother distribution with a Gaussian-like curve which can be modeled much better.
 # For the other values, we would need to visualize the distribution $q(u|x)$ on a deeper level, depending on $x$.
 # However, as all $u$'s interact and depend on each other, we would need
@@ -1318,9 +1379,12 @@ visualize_dequant_distribution(flow_dict["vardeq"]["model"], sample_imgs, title=
 # This allows us to obtain a lower bits per dimension score, while not affecting the sampling speed.
 # The most common flow element, the coupling layer, is simple to implement, and yet effective.
 # Furthermore, multi-scale architectures help to capture the global image context while allowing us to efficiently scale up the flow.
-# Normalizing flows are an interesting alternative to VAEs as they allow an exact likelihood estimate in continuous space, and we have the guarantee that every possible input $x$ has a corresponding latent vector $z$.
-# However, even beyond continuous inputs and images, flows can be applied and allow us to exploit the data structure in latent space, as e.g. on graphs for the task of molecule generation [6].
-# Recent advances in [Neural ODEs](https://arxiv.org/pdf/1806.07366.pdf) allow a flow with infinite number of layers, called Continuous Normalizing Flows, whose potential is yet to fully explore.
+# Normalizing flows are an interesting alternative to VAEs as they allow an exact likelihood estimate in continuous space,
+# and we have the guarantee that every possible input $x$ has a corresponding latent vector $z$.
+# However, even beyond continuous inputs and images, flows can be applied and allow us to exploit
+# the data structure in latent space, as e.g. on graphs for the task of molecule generation [6].
+# Recent advances in [Neural ODEs](https://arxiv.org/pdf/1806.07366.pdf) allow a flow with infinite number of layers,
+# called Continuous Normalizing Flows, whose potential is yet to fully explore.
 # Overall, normalizing flows are an exciting research area which will continue over the next couple of years.
 
 # %% [markdown]
@@ -1337,7 +1401,8 @@ visualize_dequant_distribution(flow_dict["vardeq"]["model"], sample_imgs, title=
 # [Link](http://papers.nips.cc/paper/8224-glow-generative-flow-with-invertible-1x1-convolutions.pdf)
 #
 # [3] Ho, J., Chen, X., Srinivas, A., Duan, Y., and Abbeel, P. (2019).
-# “Flow++: Improving Flow-Based Generative Models with Variational Dequantization and Architecture Design,” in Proceedings of the 36th International Conference on Machine Learning, vol.
+# “Flow++: Improving Flow-Based Generative Models with Variational Dequantization and Architecture Design,”
+# in Proceedings of the 36th International Conference on Machine Learning, vol.
 # 97, pp.
 # 2722–2730.
 # [Link](https://arxiv.org/abs/1902.00275)
@@ -1352,5 +1417,6 @@ visualize_dequant_distribution(flow_dict["vardeq"]["model"], sample_imgs, title=
 # [Link](https://arxiv.org/abs/2001.11235)
 #
 # [6] Lippe, P., and Gavves, E. (2021).
-# “Categorical Normalizing Flows via Continuous Transformations,” In: International Conference on Learning Representations, ICLR 2021.
+# “Categorical Normalizing Flows via Continuous Transformations,”
+# In: International Conference on Learning Representations, ICLR 2021.
 # [Link](https://openreview.net/pdf?id=-GLNZeVDuik)
