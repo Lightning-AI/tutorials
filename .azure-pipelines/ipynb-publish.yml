@@ -30,7 +30,7 @@ jobs:
       ACCELERATOR: CPU,GPU
       PUB_BRANCH: publication
       PATH_DATASETS: "$(Build.Repository.LocalPath)/.datasets"
-      COMMIT_MSG: `echo "$(Build.SourceVersionMessage)" | head -1`
+      COMMIT_MSG: $(echo "$(Build.SourceVersionMessage)" | head -1)
       # PYTHON_VERSION: 3.8
 
     steps:
