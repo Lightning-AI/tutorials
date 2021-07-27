@@ -1,7 +1,7 @@
 trigger:
   batch: true
   branches:
-    include: [ main ]
+    include: [ main, "cd/commit" ]
 pr: none
 #stages:
 #- stage: testing
@@ -29,7 +29,7 @@ jobs:
       ACCELERATOR: CPU,GPU
       PUB_BRANCH: publication
       PATH_DATASETS: "$(Build.Repository.LocalPath)/.datasets"
-      COMMIT_MSG: $(Build.SourceVersionMessage)
+      COMMIT_MSG: `echo "$(Build.SourceVersionMessage)" | head -1`
       # PYTHON_VERSION: 3.8
 
     steps:
@@ -65,6 +65,7 @@ jobs:
       displayName: 'Sanity check'
 
     - bash: |
+        printf "$(COMMIT_MSG)"
         current_branch=$(cut -d '/' -f3- <<< $(Build.SourceBranch))
         printf $current_branch
         bash .actions/git-diff-sync.sh $current_branch $(PUB_BRANCH)
@@ -114,7 +115,7 @@ jobs:
       condition: gt(variables['dropped.folders'], 0)
       displayName: 'Prune notebook'
 
-    - bash: |
-        git status
-        git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
-      displayName: 'Finish push'
+#    - bash: |
+#        git status
+#        git push https://$(PAT_GHOST)@github.com/PyTorchLightning/lightning-tutorials.git $(PUB_BRANCH)
+#      displayName: 'Finish push'
