@@ -386,6 +386,10 @@ class Sampler:
             p.requires_grad = False
         inp_imgs.requires_grad = True
 
+        # Enable gradient calculation if not already the case
+        had_gradients_enabled = torch.is_grad_enabled()
+        torch.set_grad_enabled(True)
+
         # We use a buffer tensor in which we generate noise each loop iteration.
         # More efficient than creating a new tensor every iteration.
         noise = torch.randn(inp_imgs.shape, device=inp_imgs.device)
@@ -418,6 +422,9 @@ class Sampler:
         for p in model.parameters():
             p.requires_grad = True
         model.train(is_training)
+
+        # Reset gradient calculation to setting before this function
+        torch.set_grad_enabled(had_gradients_enabled)
 
         if return_img_per_step:
             return torch.stack(imgs_per_step, dim=0)
