@@ -104,7 +104,7 @@ class Preprocess(nn.Module):
 class CoolSystem(LightningModule):
 
     def __init__(self):
-        super(CoolSystem, self).__init__()
+        super().__init__()
         # not the best model: expereiment yourself
         self.model = torchvision.models.resnet18(pretrained=True)
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.
 #
@@ -22,7 +21,7 @@ _PATH_ROOT = os.path.realpath(os.path.join(_PATH_HERE, "..", ".."))
 sys.path.insert(0, os.path.abspath(_PATH_ROOT))
 sys.path.append(os.path.join(_PATH_ROOT, '.actions'))
 
-from helpers import HelperCLI  # noqa: E401 E402
+from helpers import HelperCLI  # noqa: E402
 
 # -- Project information -----------------------------------------------------
 
