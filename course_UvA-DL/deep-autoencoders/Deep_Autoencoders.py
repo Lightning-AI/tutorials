@@ -1,14 +1,3 @@
-# %% [markdown]
-# In this tutorial, we will take a closer look at autoencoders (AE).
-# Autoencoders are trained on encoding input data such as images into a smaller feature vector, and afterward, reconstruct it by a second neural network, called a decoder.
-# The feature vector is called the "bottleneck" of the network as we aim to compress the input data into a smaller amount of features.
-# This property is useful in many applications, in particular in compressing data or comparing images on a metric beyond pixel-level comparisons.
-# Besides learning about the autoencoder framework, we will also see the "deconvolution" (or transposed convolution) operator in action for scaling up feature maps in height and width.
-# Such deconvolution networks are necessary wherever we start from a small feature vector and need to output an image of full size (e.g. in VAE, GANs, or super-resolution applications).
-#
-# First of all, we again import most of our standard libraries.
-# We will use [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/latest/) to reduce the training code overhead.
-
 # %%
 import os
 import urllib.request
@@ -77,17 +66,23 @@ for file_name in pretrained_files:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
             print(
-                "Something went wrong. Please try to download the files manually, or contact the author with the full output including the following error:\n",
+                "Something went wrong. Please try to download the files manually,"
+                " or contact the author with the full output including the following error:\n",
                 e
             )
 
 # %% [markdown]
 # In this tutorial, we work with the CIFAR10 dataset.
 # In CIFAR10, each image has 3 color channels and is 32x32 pixels large.
-# As autoencoders do not have the constrain of modeling images probabilistic, we can work on more complex image data (i.e. 3 color channels instead of black-and-white) much easier than for VAEs.
-# In case you have downloaded CIFAR10 already in a different directory, make sure to set DATASET_PATH accordingly to prevent another download.
+# As autoencoders do not have the constrain of modeling images probabilistic, we can work on more complex image data
+# (i.e. 3 color channels instead of black-and-white) much easier than for VAEs.
+# In case you have downloaded CIFAR10 already in a different directory, make sure to set DATASET_PATH
+# accordingly to prevent another download.
 #
-# In contrast to previous tutorials on CIFAR10 like [Tutorial 5](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial5/Inception_ResNet_DenseNet.html) (CNN classification), we do not normalize the data explicitly with a mean of 0 and std of 1, but roughly estimate it scaling the data between -1 and 1.
+# In contrast to previous tutorials on CIFAR10 like
+# [Tutorial 5](https://uvadlc-notebooks.readthedocs.io/en/latest/tutorial_notebooks/tutorial5/Inception_ResNet_DenseNet.html)
+# (CNN classification), we do not normalize the data explicitly with a mean of 0 and std of 1,
+# but roughly estimate it scaling the data between -1 and 1.
 # This is because limiting the range will make our task of predicting/reconstructing images easier.
 
 # %%
@@ -117,7 +112,8 @@ def get_train_images(num):
 # %% [markdown]
 # ## Building the autoencoder
 #
-# In general, an autoencoder consists of an **encoder** that maps the input $x$ to a lower-dimensional feature vector $z$, and a **decoder** that reconstructs the input $\hat{x}$ from $z$.
+# In general, an autoencoder consists of an **encoder** that maps the input $x$ to a lower-dimensional feature vector $z$,
+# and a **decoder** that reconstructs the input $\hat{x}$ from $z$.
 # We train the model by comparing $x$ to $\hat{x}$ and optimizing the parameters to increase the similarity between $x$ and $\hat{x}$.
 # See below for a small illustration of the autoencoder framework.
 
@@ -175,14 +171,18 @@ class Encoder(nn.Module):
 
 # %% [markdown]
 # The decoder is a mirrored, flipped version of the encoder.
-# The only difference is that we replace strided convolutions by transposed convolutions (i.e. deconvolutions) to upscale the features.
-# Transposed convolutions can be imagined as adding the stride to the input instead of the output, and can thus upscale the input.
-# For an illustration of a `nn.ConvTranspose2d` layer with kernel size 3, stride 2, and padding 1, see below (figure credit - [Vincent Dumoulin and Francesco Visin](https://arxiv.org/abs/1603.07285)):
+# The only difference is that we replace strided convolutions by transposed convolutions
+# (i.e. deconvolutions) to upscale the features.
+# Transposed convolutions can be imagined as adding the stride to the input instead of the output,
+# and can thus upscale the input.
+# For an illustration of a `nn.ConvTranspose2d` layer with kernel size 3, stride 2, and padding 1,
+# see below (figure credit - [Vincent Dumoulin and Francesco Visin](https://arxiv.org/abs/1603.07285)):
 #
 # <center width="100%"><img src="deconvolution.gif" width="250px"></center>
 #
 # You see that for an input of size $3\times3$, we obtain an output of $5\times5$.
-# However, to truly have a reverse operation of the convolution, we need to ensure that the layer scales the input shape by a factor of 2 (e.g. $4\times4\to8\times8$).
+# However, to truly have a reverse operation of the convolution,
+# we need to ensure that the layer scales the input shape by a factor of 2 (e.g. $4\times4\to8\times8$).
 # For this, we can specify the parameter `output_padding` which adds additional values to the output shape.
 # Note that we do not perform zero-padding with this, but rather increase the output shape for calculation.
 #
@@ -233,7 +233,9 @@ class Decoder(nn.Module):
 # %% [markdown]
 # The encoder and decoder networks we chose here are relatively simple.
 # Usually, more complex networks are applied, especially when using a ResNet-based architecture.
-# For example, see [VQ-VAE](https://arxiv.org/abs/1711.00937) and [NVAE](https://arxiv.org/abs/2007.03898) (although the papers discuss architectures for VAEs, they can equally be applied to standard autoencoders).
+# For example, see [VQ-VAE](https://arxiv.org/abs/1711.00937) and
+# [NVAE](https://arxiv.org/abs/2007.03898) (although the papers discuss architectures for VAEs,
+# they can equally be applied to standard autoencoders).
 #
 # In a final step, we add the encoder and decoder together into the autoencoder architecture.
 # We define the autoencoder as PyTorch Lightning Module to simplify the needed training code:
@@ -308,15 +310,19 @@ class Autoencoder(pl.LightningModule):
 # Predicting 127 instead of 128 is not important when reconstructing, but confusing 0 with 128 is much worse.
 # Note that in contrast to VAEs, we do not predict the probability per pixel value, but instead use a distance measure.
 # This saves a lot of parameters and simplifies training.
-# To get a better intuition per pixel, we report the summed squared error averaged over the batch dimension (any other mean/sum leads to the same result/parameters).
+# To get a better intuition per pixel, we report the summed squared error averaged over the batch dimension
+# (any other mean/sum leads to the same result/parameters).
 #
 # However, MSE has also some considerable disadvantages.
 # Usually, MSE leads to blurry images where small noise/high-frequent patterns are removed as those cause a very low error.
-# To ensure realistic images to be reconstructed, one could combine Generative Adversarial Networks (lecture 10) with autoencoders as done in several works (e.g. see [here](https://arxiv.org/abs/1704.02304), [here](https://arxiv.org/abs/1511.05644) or these [slides](http://elarosca.net/slides/iccv_autoencoder_gans.pdf)).
+# To ensure realistic images to be reconstructed, one could combine Generative Adversarial Networks
+# (lecture 10) with autoencoders as done in several works (e.g. see [here](https://arxiv.org/abs/1704.02304),
+# [here](https://arxiv.org/abs/1511.05644) or these [slides](http://elarosca.net/slides/iccv_autoencoder_gans.pdf)).
 # Additionally, comparing two images using MSE does not necessarily reflect their visual similarity.
 # For instance, suppose the autoencoder reconstructs an image shifted by one pixel to the right and bottom.
 # Although the images are almost identical, we can get a higher loss than predicting a constant pixel value for half of the image (see code below).
-# An example solution for this issue includes using a separate, pre-trained CNN, and use a distance of visual features in lower layers as a distance measure instead of the original pixel-level comparison.
+# An example solution for this issue includes using a separate, pre-trained CNN,
+# and use a distance of visual features in lower layers as a distance measure instead of the original pixel-level comparison.
 
 
 # %%
@@ -384,7 +390,8 @@ class GenerateCallback(pl.Callback):
 
 
 # %% [markdown]
-# We will now write a training function that allows us to train the autoencoder with different latent dimensionality and returns both the test and validation score.
+# We will now write a training function that allows us to train the autoencoder with different latent dimensionality
+# and returns both the test and validation score.
 # We provide pre-trained models and recommend you using those, especially when you work on a computer without GPU.
 # Of course, feel free to train your own models on Lisa.
 
@@ -438,7 +445,8 @@ for latent_dim in [64, 128, 256, 384]:
     model_dict[latent_dim] = {"model": model_ld, "result": result_ld}
 
 # %% [markdown]
-# After training the models, we can plot the reconstruction loss over the latent dimensionality to get an intuition how these two properties are correlated:
+# After training the models, we can plot the reconstruction loss over the latent dimensionality to get an intuition
+# how these two properties are correlated:
 
 # %%
 latent_dims = sorted([k for k in model_dict])
@@ -495,20 +503,24 @@ for latent_dim in model_dict:
     visualize_reconstructions(model_dict[latent_dim]["model"], input_imgs)
 
 # %% [markdown]
-# Clearly, the smallest latent dimensionality can only save information about the rough shape and color of the object, but the reconstructed image is extremely blurry and it is hard to recognize the original object in the reconstruction.
+# Clearly, the smallest latent dimensionality can only save information about the rough shape and color of the object,
+# but the reconstructed image is extremely blurry and it is hard to recognize the original object in the reconstruction.
 # With 128 features, we can recognize some shapes again although the picture remains blurry.
 # The models with the highest two dimensionalities reconstruct the images quite well.
-# The difference between 256 and 384 is marginal at first sight but can be noticed when comparing, for instance, the backgrounds of the first image (the 384 features model more of the pattern than 256).
+# The difference between 256 and 384 is marginal at first sight but can be noticed when comparing, for instance,
+# the backgrounds of the first image (the 384 features model more of the pattern than 256).
 
 # %% [markdown]
 # ### Out-of-distribution images
 #
 # Before continuing with the applications of autoencoder, we can actually explore some limitations of our autoencoder.
 # For example, what happens if we try to reconstruct an image that is clearly out of the distribution of our dataset?
-# We expect the decoder to have learned some common patterns in the dataset, and thus might in particular fail to reconstruct images that do not follow these patterns.
+# We expect the decoder to have learned some common patterns in the dataset,
+# and thus might in particular fail to reconstruct images that do not follow these patterns.
 #
 # The first experiment we can try is to reconstruct noise.
-# We, therefore, create two images whose pixels are randomly sampled from a uniform distribution over pixel values, and visualize the reconstruction of the model (feel free to test different latent dimensionalities):
+# We, therefore, create two images whose pixels are randomly sampled from a uniform distribution over pixel values,
+# and visualize the reconstruction of the model (feel free to test different latent dimensionalities):
 
 # %%
 rand_imgs = torch.rand(2, 3, 32, 32) * 2 - 1
@@ -537,9 +549,11 @@ visualize_reconstructions(model_dict[256]["model"], plain_imgs)
 
 # %% [markdown]
 # The plain, constant images are reconstructed relatively good although the single color channel contains some noticeable noise.
-# The hard borders of the checkboard pattern are not as sharp as intended, as well as the color progression, both because such patterns never occur in the real-world pictures of CIFAR.
+# The hard borders of the checkboard pattern are not as sharp as intended, as well as the color progression,
+# both because such patterns never occur in the real-world pictures of CIFAR.
 #
-# In general, autoencoders tend to fail reconstructing high-frequent noise (i.e. sudden, big changes across few pixels) due to the choice of MSE as loss function (see our previous discussion about loss functions in autoencoders).
+# In general, autoencoders tend to fail reconstructing high-frequent noise (i.e. sudden, big changes across few pixels)
+# due to the choice of MSE as loss function (see our previous discussion about loss functions in autoencoders).
 # Small misalignments in the decoder can lead to huge losses so that the model settles for the expected value/mean in these regions.
 # For low-frequent noise, a misalignment of a few pixels does not result in a big difference to the original image.
 # However, the larger the latent dimensionality becomes, the more of this high-frequent noise can be accurately reconstructed.
@@ -568,7 +582,8 @@ plt.show()
 
 # %% [markdown]
 # As we can see, the generated images more look like art than realistic images.
-# As the autoencoder was allowed to structure the latent space in whichever way it suits the reconstruction best, there is no incentive to map every possible latent vector to realistic images.
+# As the autoencoder was allowed to structure the latent space in whichever way it suits the reconstruction best,
+# there is no incentive to map every possible latent vector to realistic images.
 # Furthermore, the distribution in latent space is unknown to us and doesn't necessarily follow a multivariate normal distribution.
 # Thus, we can conclude that vanilla autoencoders are indeed not generative.
 
@@ -580,7 +595,9 @@ plt.show()
 # The first step to such a search engine is to encode all images into $z$.
 # In the following, we will use the training set as a search corpus, and the test set as queries to the system.
 #
-# <span style="color: #880000">(Warning: the following cells can be computationally heavy for a weak CPU-only system. If you do not have a strong computer and are not on Google Colab, you might want to skip the execution of the following cells and rely on the results shown in the filled notebook)</span>
+# <span style="color: #880000">(Warning: the following cells can be computationally heavy for a weak CPU-only system.
+# If you do not have a strong computer and are not on Google Colab,
+# you might want to skip the execution of the following cells and rely on the results shown in the filled notebook)</span>
 
 # %%
 # We use the following model throughout this section.
@@ -631,9 +648,12 @@ for i in range(8):
 
 # %% [markdown]
 # Based on our autoencoder, we see that we are able to retrieve many similar images to the test input.
-# In particular, in row 4, we can spot that some test images might not be that different from the training set as we thought (same poster, just different scaling/color scaling).
-# We also see that although we haven't given the model any labels, it can cluster different classes in different parts of the latent space (airplane + ship, animals, etc.).
-# This is why autoencoders can also be used as a pre-training strategy for deep networks, especially when we have a large set of unlabeled images (often the case).
+# In particular, in row 4, we can spot that some test images might not be that different
+# from the training set as we thought (same poster, just different scaling/color scaling).
+# We also see that although we haven't given the model any labels,
+# it can cluster different classes in different parts of the latent space (airplane + ship, animals, etc.).
+# This is why autoencoders can also be used as a pre-training strategy for deep networks,
+# especially when we have a large set of unlabeled images (often the case).
 # However, it should be noted that the background still plays a big role in autoencoders while it doesn't for classification.
 # Hence, we don't get "perfect" clusters and need to finetune such models for classification.
 
@@ -654,7 +674,8 @@ writer = SummaryWriter("tensorboard/")
 
 # %% [markdown]
 # The function `add_embedding` allows us to add high-dimensional feature vectors to TensorBoard on which we can perform clustering.
-# What we have to provide in the function are the feature vectors, additional metadata such as the labels, and the original images so that we can identify a specific image in the clustering.
+# What we have to provide in the function are the feature vectors, additional metadata such as the labels,
+# and the original images so that we can identify a specific image in the clustering.
 
 # %%
 # In case you obtain the following error in the next cell, execute the import statements and last line in this cell
@@ -690,7 +711,8 @@ writer.add_embedding(
 #
 # Overall, we can see that the model indeed clustered images together that are visually similar.
 # Especially the background color seems to be a crucial factor in the encoding.
-# This correlates to the chosen loss function, here Mean Squared Error on pixel-level because the background is responsible for more than half of the pixels in an average image.
+# This correlates to the chosen loss function, here Mean Squared Error on pixel-level
+# because the background is responsible for more than half of the pixels in an average image.
 # Hence, the model learns to focus on it.
 # Nevertheless, we can see that the encodings also separate a couple of classes in the latent space although it hasn't seen any labels.
 # This shows again that autoencoding can also be used as a "pre-training"/transfer learning task before classification.
@@ -706,5 +728,6 @@ writer.close()
 # In contrast to variational autoencoders, vanilla AEs are not generative and can work on MSE loss functions.
 # This makes them often easier to train.
 # Both versions of AE can be used for dimensionality reduction, as we have seen for finding visually similar images beyond pixel distances.
-# Despite autoencoders gaining less interest in the research community due to their more "theoretically" challenging counterpart of VAEs, autoencoders still find usage in a lot of applications like denoising and compression.
+# Despite autoencoders gaining less interest in the research community due to their more "theoretically"
+# challenging counterpart of VAEs, autoencoders still find usage in a lot of applications like denoising and compression.
 # Hence, AEs are an essential tool that every Deep Learning engineer/researcher should be familiar with.
