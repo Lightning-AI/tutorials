@@ -30,7 +30,8 @@ jobs:
       ACCELERATOR: CPU,GPU
       PUB_BRANCH: publication
       PATH_DATASETS: "$(Build.Repository.LocalPath)/.datasets"
-      COMMIT_MSG: $(echo "$(Build.SourceVersionMessage)" | head -1)
+      COMMIT_MSG: $(head -n 1 "$(Build.SourceVersionMessage)")
+      COMMIT_HASH: "$(Build.SourceVersion)"
       # PYTHON_VERSION: 3.8
 
     steps:
@@ -51,7 +52,8 @@ jobs:
     - bash: |
         git config --global user.email "pipelines@azure.com"
         git config --global user.name "Azure Pipelines"
-        printf "commit message:\n $(COMMIT_MSG)"
+        printf "commit hash:\n $(COMMIT_HASH)\n"
+        printf "commit message:\n $(COMMIT_MSG)\n"
       displayName: 'Set Git user'
 
     - bash: |
