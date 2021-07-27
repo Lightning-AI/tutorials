@@ -1,6 +1,7 @@
 # %% [markdown]
 # Similar to the language generation you have seen in assignment 2, autoregressive models work on images by modeling the likelihood of a pixel given all previous ones.
-# For instance, in the picture below, we model the pixel $x_i$ as a conditional probability distribution based on all previous (here blue) pixels (figure credit - [Aaron van den Oord et al. ](https://arxiv.org/abs/1601.06759)):
+# For instance, in the picture below, we model the pixel $x_i$ as a conditional probability distribution
+# based on all previous (here blue) pixels (figure credit - [Aaron van den Oord et al. ](https://arxiv.org/abs/1601.06759)):
 #
 # <center width="100%" style="padding: 10px"><img src="autoregressive_image_modeling.svg" width="200px"></center>
 #
@@ -9,13 +10,16 @@
 # $$p(\mathbf{x})=p(x_1, ..., x_n)=\prod_{i=1}^{n} p(x_i|x_1,...,x_{i-1})$$
 #
 # Learning these conditionals is often much simpler than learning the joint distribution $p(\mathbf{x})$ all together.
-# However, disadvantages of autoregressive models include slow sampling, especially for large images, as we need height-times-width forward passes through the model.
+# However, disadvantages of autoregressive models include slow sampling, especially for large images,
+# as we need height-times-width forward passes through the model.
 # In addition, for some applications, we require a latent space as modeled in VAEs and Normalizing Flows.
 # For instance, in autoregressive models, we cannot interpolate between two images because of the lack of a latent representation.
 # We will explore and discuss these benefits and drawbacks alongside with our implementation.
 #
 # Our implementation will focus on the [PixelCNN](https://arxiv.org/pdf/1606.05328.pdf) [2] model which has been discussed in detail in the lecture.
-# Most current SOTA models use PixelCNN as their fundamental architecture, and various additions have been proposed to improve the performance (e.g. [PixelCNN++](https://arxiv.org/pdf/1701.05517.pdf) and [PixelSNAIL](http://proceedings.mlr.press/v80/chen18h/chen18h.pdf)).
+# Most current SOTA models use PixelCNN as their fundamental architecture,
+# and various additions have been proposed to improve the performance
+# (e.g. [PixelCNN++](https://arxiv.org/pdf/1701.05517.pdf) and [PixelSNAIL](http://proceedings.mlr.press/v80/chen18h/chen18h.pdf)).
 # Hence, implementing PixelCNN is a good starting point for our short tutorial.
 #
 # First of all, we need to import our standard libraries. Similarly as in
@@ -158,10 +162,14 @@ show_imgs([train_set[i][0] for i in range(8)])
 # Thus, we need to ensure that the prediction for a specific pixel can only be influenced by its predecessors and not by its own value or any "future" pixels.
 # For this, we apply convolutions with a mask.
 #
-# Which mask we use depends on the ordering of pixels we decide on, i.e. which is the first pixel we predict, which is the second one, etc.
-# The most commonly used ordering is to denote the upper left pixel as the start pixel, and sort the pixels row by row, as shown in the visualization at the top of the tutorial.
-# Thus, the second pixel is on the right of the first one (first row, second column), and once we reach the end of the row, we start in the second row, first column.
-# If we now want to apply this to our convolutions, we need to ensure that the prediction of pixel 1 is not influenced by its own "true" input, and all pixels on its right and in any lower row.
+# Which mask we use depends on the ordering of pixels we decide on, i.e. which is the first pixel we predict,
+# which is the second one, etc.
+# The most commonly used ordering is to denote the upper left pixel as the start pixel,
+# and sort the pixels row by row, as shown in the visualization at the top of the tutorial.
+# Thus, the second pixel is on the right of the first one (first row, second column),
+# and once we reach the end of the row, we start in the second row, first column.
+# If we now want to apply this to our convolutions, we need to ensure that the prediction of pixel 1
+# is not influenced by its own "true" input, and all pixels on its right and in any lower row.
 # In convolutions, this means that we want to set those entries of the weight matrix to zero that take pixels on the right and below into account.
 # As an example for a 5x5 kernel, see a mask below (figure credit - [Aaron van den Oord](https://arxiv.org/pdf/1606.05328.pdf)):
 #
@@ -206,13 +214,18 @@ class MaskedConvolution(nn.Module):
 # ### Vertical and horizontal convolution stacks
 #
 # To build our own autoregressive image model, we could simply stack a few masked convolutions on top of each other.
-# This was actually the case for the original PixelCNN model, discussed in the paper [Pixel Recurrent Neural Networks](https://arxiv.org/pdf/1601.06759.pdf), but this leads to a considerable issue.
-# When sequentially applying a couple of masked convolutions, the receptive field of a pixel show to have a "blind spot" on the right upper side, as shown in the figure below (figure credit - [Aaron van den Oord et al. ](https://arxiv.org/pdf/1606.05328.pdf)):
+# This was actually the case for the original PixelCNN model, discussed in the paper
+# [Pixel Recurrent Neural Networks](https://arxiv.org/pdf/1601.06759.pdf), but this leads to a considerable issue.
+# When sequentially applying a couple of masked convolutions, the receptive field of a pixel
+# show to have a "blind spot" on the right upper side, as shown in the figure below
+# (figure credit - [Aaron van den Oord et al. ](https://arxiv.org/pdf/1606.05328.pdf)):
 #
 # <center width="100%" style="padding: 10px"><img src="pixelcnn_blind_spot.svg" width="275px"></center>
 #
-# Although a pixel should be able to take into account all other pixels above and left of it, a stack of masked convolutions does not allow us to look to the upper pixels on the right.
-# This is because the features of the pixels above, which we use for convolution, do not contain any information of the pixels on the right of the same row.
+# Although a pixel should be able to take into account all other pixels above and left of it,
+# a stack of masked convolutions does not allow us to look to the upper pixels on the right.
+# This is because the features of the pixels above, which we use for convolution,
+# do not contain any information of the pixels on the right of the same row.
 # If they would, we would be "cheating" and actually looking into the future.
 # To overcome this issue, van den Oord et.
 # al [2] proposed to split the convolutions into a vertical and a horizontal stack.
@@ -431,12 +444,15 @@ del inp_img, horiz_conv, vert_conv
 #
 # For visualizing the receptive field, we assumed a very simplified stack of vertical and horizontal convolutions.
 # Obviously, there are more sophisticated ways of doing it, and PixelCNN uses gated convolutions for this.
-# Specifically, the Gated Convolution block in PixelCNN looks as follows (figure credit - [Aaron van den Oord et al. ](https://arxiv.org/pdf/1606.05328.pdf)):
+# Specifically, the Gated Convolution block in PixelCNN looks as follows
+# (figure credit - [Aaron van den Oord et al. ](https://arxiv.org/pdf/1606.05328.pdf)):
 #
 # <center width="100%"><img src="PixelCNN_GatedConv.svg" width="700px" style="padding: 15px"/></center>
 #
-# The left path is the vertical stack (the $N\times N$ convolution is masked correspondingly), and the right path is the horizontal stack.
-# Gated convolutions are implemented by having a twice as large output channel size, and combine them by a element-wise multiplication of $\tanh$ and a sigmoid.
+# The left path is the vertical stack (the $N\times N$ convolution is masked correspondingly),
+# and the right path is the horizontal stack.
+# Gated convolutions are implemented by having a twice as large output channel size,
+# and combine them by a element-wise multiplication of $\tanh$ and a sigmoid.
 # For a linear layer, we can express a gated activation unit as follows:
 #
 # $$\mathbf{y} = \tanh\left(\mathbf{W}_{f}\mathbf{x}\right)\odot\sigma\left(\mathbf{W}_{g}\mathbf{x}\right)$$
@@ -448,7 +464,9 @@ del inp_img, horiz_conv, vert_conv
 #
 # Besides the gated convolutions, we also see that the horizontal stack uses a residual connection while the vertical stack does not.
 # This is because we use the output of the horizontal stack for prediction.
-# Each convolution in the vertical stack also receives a strong gradient signal as it is only two $1\times 1$ convolutions away from the residual connection, and does not require another residual connection to all its earleri layers.
+# Each convolution in the vertical stack also receives a strong gradient signal
+# as it is only two $1\times 1$ convolutions away from the residual connection,
+# and does not require another residual connection to all its earleri layers.
 #
 # The implementation in PyTorch is fairly straight forward for this block,
 # because the visualization above gives us a computation graph to follow:
@@ -490,7 +508,8 @@ class GatedMaskedConv(nn.Module):
 # Using the gated convolutions, we can now build our PixelCNN model.
 # The architecture consists of multiple stacked GatedMaskedConv blocks, where we add an additional dilation factor to a few convolutions.
 # This is used to increase the receptive field of the model and allows to take a larger context into accout during generation.
-# As a reminder, dilation on a convolution works looks as follows (figure credit - [Vincent Dumoulin and Francesco Visin](https://arxiv.org/pdf/1603.07285.pdf)):
+# As a reminder, dilation on a convolution works looks as follows
+# (figure credit - [Vincent Dumoulin and Francesco Visin](https://arxiv.org/pdf/1603.07285.pdf)):
 #
 # <center width="100%"><img src="https://raw.githubusercontent.com/vdumoulin/conv_arithmetic/master/gif/dilation.gif" width="250px"></center>
 #
@@ -621,7 +640,8 @@ class PixelCNN(pl.LightningModule):
 # Hence, we can cut the image in height without changing the prediction while increasing efficiency.
 # Nevertheless, all the loops in the sampling function already show that it will take us quite some time to sample.
 # A lot of computation could be reused across loop iterations as those the features on the already predicted pixels will not change over iterations.
-# Nevertheless, this takes quite some effort to implement, and is often not done in implementations because in the end, autoregressive sampling remains sequential and slow.
+# Nevertheless, this takes quite some effort to implement, and is often not done in implementations because in the end,
+# autoregressive sampling remains sequential and slow.
 # Hence, we settle with the default implementation here.
 #
 # Before training the model, we can check the full receptive field of the model on an MNIST image of size $28\times 28$:
@@ -636,7 +656,8 @@ del inp, out, test_model
 
 # %% [markdown]
 # The visualization shows that for predicting any pixel, we can take almost half of the image into account.
-# However, keep in mind that this is the "theoretical" receptive field and not necessarily the [effective receptive field](https://arxiv.org/pdf/1701.04128.pdf), which is usually much smaller.
+# However, keep in mind that this is the "theoretical" receptive field and not necessarily
+# the [effective receptive field](https://arxiv.org/pdf/1701.04128.pdf), which is usually much smaller.
 # For a stronger model, we should therefore try to increase the receptive
 # field even further. Especially, for the pixel on the bottom right, the
 # very last pixel, we would be allowed to take into account the whole
@@ -704,8 +725,10 @@ print(
 
 # %% [markdown]
 # With a test performance of 0.809bpd, the PixelCNN significantly outperforms the normalizing flows we have seen in Tutorial 11.
-# Considering image modeling as an autoregressive problem simplifies the learning process as predicting one pixel given the ground truth of all others is much easier than predicting all pixels at once.
-# In addition, PixelCNN can explicitly predict the pixel values by a discrete softmax while Normalizing Flows have to learn transformations in continuous latent space.
+# Considering image modeling as an autoregressive problem simplifies the learning process as predicting
+# one pixel given the ground truth of all others is much easier than predicting all pixels at once.
+# In addition, PixelCNN can explicitly predict the pixel values by a discrete softmax while
+# Normalizing Flows have to learn transformations in continuous latent space.
 # These two aspects allow the PixelCNN to achieve a notably better performance.
 #
 # To fully compare the models, let's also measure the number of parameters of the PixelCNN:
@@ -737,11 +760,14 @@ show_imgs(samples.cpu())
 # %% [markdown]
 # Most of the samples can be identified as digits, and overall we achieve a better quality than we had in normalizing flows.
 # This goes along with the lower likelihood we achieved with autoregressive models.
-# Nevertheless, we also see that there is still place for improvement as a considerable amount of samples cannot be identified (for example the first row).
-# Deeper autoregressive models are expected to achieve better quality, as they can take more context into account for generating the pixels.
+# Nevertheless, we also see that there is still place for improvement
+# as a considerable amount of samples cannot be identified (for example the first row).
+# Deeper autoregressive models are expected to achieve better quality,
+# as they can take more context into account for generating the pixels.
 #
 # Note that on Google Colab, you might see different results, specifically with a white line at the top.
-# After some debugging, it seemed that the difference occurs inside the dilated convolution, as it gives different results for different batch sizes.
+# After some debugging, it seemed that the difference occurs inside the dilated convolution,
+# as it gives different results for different batch sizes.
 # However, it is hard to debug this further as it might be a bug of the installed PyTorch version on Google Colab.
 #
 # The trained model itself is not restricted to any specific image size.
@@ -755,7 +781,8 @@ samples = model.sample(img_shape=(8, 1, 64, 64))
 show_imgs(samples.cpu())
 
 # %% [markdown]
-# The larger images show that changing the size of the image during testing confuses the model and generates abstract figures (you can sometimes spot a digit in the upper left corner).
+# The larger images show that changing the size of the image during testing confuses the model
+# and generates abstract figures (you can sometimes spot a digit in the upper left corner).
 # In addition, sampling for images of 64x64 pixels take more than a minute on a GPU.
 # Clearly, autoregressive models cannot be scaled to large images without changing the sampling procedure such as with [forecasting](https://arxiv.org/abs/2002.09928).
 # Our implementation is also not the most efficient as many computations can be stored and reused throughout the sampling process.
@@ -842,7 +869,9 @@ plt.close()
 # As we would expect from the seen images, the pixel value 0 (black) is the dominant value, followed by a batch of values between 250 and 255.
 # Note that we use a log scale on the y-axis due to the big imbalance in the dataset.
 # Interestingly, the pixel values 64, 128 and 191 also stand out which is likely due to the quantization used during the creation of the dataset.
-# For RGB images, we would also see two peaks around 0 and 255, but the values in between would be much more frequent than in MNIST (see Figure 1 in the [PixelCNN++](https://arxiv.org/pdf/1701.05517.pdf) for a visualization on CIFAR10).
+# For RGB images, we would also see two peaks around 0 and 255,
+# but the values in between would be much more frequent than in MNIST
+# (see Figure 1 in the [PixelCNN++](https://arxiv.org/pdf/1701.05517.pdf) for a visualization on CIFAR10).
 #
 # Next, we can visualize the distribution our model predicts (in average):
 
