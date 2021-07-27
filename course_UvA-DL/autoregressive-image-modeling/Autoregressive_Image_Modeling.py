@@ -197,7 +197,7 @@ class MaskedConvolution(nn.Module):
         # For simplicity: calculate padding automatically
         kernel_size = (mask.shape[0], mask.shape[1])
         dilation = 1 if "dilation" not in kwargs else kwargs["dilation"]
-        padding = tuple([dilation * (kernel_size[i] - 1) // 2 for i in range(2)])
+        padding = tuple(dilation * (kernel_size[i] - 1) // 2 for i in range(2))
         # Actual convolution
         self.conv = nn.Conv2d(c_in, c_out, kernel_size, padding=padding, **kwargs)
 
@@ -734,8 +734,8 @@ print(
 # To fully compare the models, let's also measure the number of parameters of the PixelCNN:
 
 # %%
-num_params = sum([np.prod(param.shape) for param in model.parameters()])
-print("Number of parameters: {:,}".format(num_params))
+num_params = sum(np.prod(param.shape) for param in model.parameters())
+print(f"Number of parameters: {num_params:,}")
 
 # %% [markdown]
 # Compared to the multi-scale normalizing flows, the PixelCNN has considerably less parameters.
