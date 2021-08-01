@@ -11,6 +11,8 @@ The key features/highlights:
 * all scripts/notebooks are tested to be **fully executable**
 * fully **reproducible** by saving runtime env. details
 
+Find the generated notebooks within [PyTorch Lightning docs](https://pytorch-lightning.readthedocs.io/en/latest/notebooks/lightning_examples/augmentation_kornia.html)
+
 For more details read our blogpost - [Best Practices for Publishing PyTorch Lightning Tutorial Notebooks](https://devblog.pytorchlightning.ai/publishing-lightning-tutorials-cbea3eaa4b2c)
 
 ## Adding/Editing notebooks
