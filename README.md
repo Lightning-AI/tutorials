@@ -7,9 +7,10 @@
 
 This is the Lightning Library - collection of Lightning related notebooks which are pulled back to the main repo as submodule and rendered inside the main documentations.
 The key features/highlights:
-* we keep the repo **light-weighted** - notebooks are stored in rich script format
-* all scripts/notebooks are tested to be **fully executable**
-* fully **reproducible** by saving runtime env. details
+
+- we keep the repo **light-weighted** - notebooks are stored in rich script format
+- all scripts/notebooks are tested to be **fully executable**
+- fully **reproducible** by saving runtime env. details
 
 For more details read our blogpost - [Best Practices for Publishing PyTorch Lightning Tutorial Notebooks](https://devblog.pytorchlightning.ai/publishing-lightning-tutorials-cbea3eaa4b2c)
 
@@ -17,6 +18,7 @@ For more details read our blogpost - [Best Practices for Publishing PyTorch Ligh
 
 This repo in main branch contain only python scripts with markdown extensions, and notebooks are generated in special publication branch, so no raw notebooks are accepted as PR.
 On the other hand we highly recommend creating a notebooks and convert it script with [jupytext](https://jupytext.readthedocs.io/en/latest/) as
+
 ```bash
 jupytext --set-formats ipynb,py:percent my-notebook.ipynb
 ```
@@ -24,24 +26,25 @@ jupytext --set-formats ipynb,py:percent my-notebook.ipynb
 ### Contribution structure
 
 The addition has to formed as new folder
+
 - the folder name is used for the future notebooks
 - single python scripts with converted notebooks (name does not matter)
 - metadata named `.meta.yaml` including following info:
-    ```yaml
-    title: Sample notebooks
-    author: [User](contact)
-    created: YYYY-MM-DD
-    updated: YYYY-MM-DD
-    license: CC BY-SA
-    # multi-line
-    description: |
-      This notebook will walk you through ...
-    requirements:
-      - package  # with version if needed
-    # define supported - CPU|GPU|TPU
-    accelerator:
-      - CPU
-    ```
+  ```yaml
+  title: Sample notebooks
+  author: [User](contact)
+  created: YYYY-MM-DD
+  updated: YYYY-MM-DD
+  license: CC BY-SA
+  # multi-line
+  description: |
+    This notebook will walk you through ...
+  requirements:
+    - package  # with version if needed
+  # define supported - CPU|GPU|TPU
+  accelerator:
+    - CPU
+  ```
 
 ### Suggestions
 
@@ -56,6 +59,7 @@ The addition has to formed as new folder
 ## Meantime notes
 
 On the back side of publishing workflow you can find in principle these three steps
+
 ```bash
 # 1) convert script to notebooks
 jupytext --set-formats ipynb,py:percent notebook.py
