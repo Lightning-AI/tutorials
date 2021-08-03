@@ -22,8 +22,8 @@ accelerator:
 - CPU
 - GPU
 environment:
-- pytorch-lightning==1.3.8
-- torch==1.8.1
 - torchmetrics==0.4.1
+- pytorch-lightning==1.4.1
 - gym==0.18.3
-published: '2021-07-26T23:27:43.332516'
+- torch==1.8.1
+published: '2021-08-03T23:13:17.060031'

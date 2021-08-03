@@ -42,10 +42,10 @@ accelerator:
 - CPU
 - GPU
 environment:
-- pytorch-lightning==1.4.0
-- matplotlib==3.4.2
-- tensorboard==2.4.1
-- torch==1.8.1
+- pytorch-lightning==1.4.1
 - torchvision==0.9.1
+- matplotlib==3.4.2
+- torch==1.8.1
+- tensorboard==2.4.1
 - torchmetrics==0.4.1
-published: '2021-07-27T22:37:39.255862'
+published: '2021-08-03T23:09:40.535918'

@@ -29,10 +29,10 @@ requirements:
 accelerator:
 - GPU
 environment:
-- pytorch-lightning==1.4.0
+- torchmetrics==0.4.1
+- torch==1.8.1
+- pytorch-lightning==1.4.1
 - seaborn==0.11.1
 - torchvision==0.9.1
-- torchmetrics==0.4.1
 - matplotlib==3.4.2
-- torch==1.8.1
-published: '2021-07-27T22:25:47.266712'
+published: '2021-08-03T23:08:20.038270'
