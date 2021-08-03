@@ -263,17 +263,13 @@ class Autoencoder(pl.LightningModule):
         self.example_input_array = torch.zeros(2, num_input_channels, width, height)
 
     def forward(self, x):
-        """
-        The forward function takes in an image and returns the reconstructed image
-        """
+        """The forward function takes in an image and returns the reconstructed image."""
         z = self.encoder(x)
         x_hat = self.decoder(z)
         return x_hat
 
     def _get_reconstruction_loss(self, batch):
-        """
-        Given a batch of images, this function returns the reconstruction loss (MSE in our case)
-        """
+        """Given a batch of images, this function returns the reconstruction loss (MSE in our case)"""
         x, _ = batch  # We do not need the labels
         x_hat = self.forward(x)
         loss = F.mse_loss(x, x_hat, reduction="none")

@@ -282,10 +282,10 @@ class ImageFlow(pl.LightningModule):
         return z, ldj
 
     def _get_likelihood(self, imgs, return_ll=False):
-        """
-        Given a batch of images, return the likelihood of those.
-        If return_ll is True, this function returns the log likelihood of the input.
-        Otherwise, the ouptut metric is bits per dimension (scaled negative log likelihood)
+        """Given a batch of images, return the likelihood of those.
+
+        If return_ll is True, this function returns the log likelihood of the input. Otherwise, the ouptut metric is
+        bits per dimension (scaled negative log likelihood)
         """
         z, ldj = self.encode(imgs)
         log_pz = self.prior.log_prob(z).sum(dim=[1, 2, 3])
@@ -297,9 +297,7 @@ class ImageFlow(pl.LightningModule):
 
     @torch.no_grad()
     def sample(self, img_shape, z_init=None):
-        """
-        Sample a batch of images from the flow.
-        """
+        """Sample a batch of images from the flow."""
         # Sample latent representation from prior
         if z_init is None:
             z = self.prior.sample(sample_shape=img_shape).to(device)
@@ -484,9 +482,7 @@ else:
 
 
 def visualize_dequantization(quants, prior=None):
-    """
-    Function for visualizing the dequantization values of discrete values in continuous space
-    """
+    """Function for visualizing the dequantization values of discrete values in continuous space."""
     # Prior over discrete values. If not given, a uniform is assumed
     if prior is None:
         prior = np.ones(quants, dtype=np.float32) / quants
@@ -658,8 +654,8 @@ class VariationalDequantization(Dequantization):
 class CouplingLayer(nn.Module):
 
     def __init__(self, network, mask, c_in):
-        """
-        Coupling layer inside a normalizing flow.
+        """Coupling layer inside a normalizing flow.
+
         Args:
             network: A PyTorch nn.Module constituting the deep neural network for mu and sigma.
                       Output shape should be twice the channel size as the input.
@@ -794,8 +790,8 @@ show_imgs(channel_mask.transpose(0, 1), "Channel mask")
 
 # %%
 class ConcatELU(nn.Module):
-    """
-    Activation function that applies ELU in both direction (inverted and plain).
+    """Activation function that applies ELU in both direction (inverted and plain).
+
     Allows non-linearity while providing strong gradients for any input (important for final convolution)
     """
 
@@ -806,8 +802,9 @@ class ConcatELU(nn.Module):
 class LayerNormChannels(nn.Module):
 
     def __init__(self, c_in):
-        """
-        This module applies layer norm across channels in an image. Has been shown to work well with ResNet connections.
+        """This module applies layer norm across channels in an image.
+
+        Has been shown to work well with ResNet connections.
         Args:
             c_in: Number of channels of the input
         """
@@ -845,8 +842,8 @@ class GatedConv(nn.Module):
 class GatedConvNet(nn.Module):
 
     def __init__(self, c_in, c_hidden=32, c_out=-1, num_layers=3):
-        """
-        Module that summarizes the previous blocks to a full convolutional neural network.
+        """Module that summarizes the previous blocks to a full convolutional neural network.
+
         Args:
             c_in: Number of input channels
             c_hidden: Number of hidden dimensions to use within the network

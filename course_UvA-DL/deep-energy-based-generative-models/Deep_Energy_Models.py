@@ -347,8 +347,8 @@ class Sampler:
         self.examples = [(torch.rand((1, ) + img_shape) * 2 - 1) for _ in range(self.sample_size)]
 
     def sample_new_exmps(self, steps=60, step_size=10):
-        """
-        Function for getting a new batch of "fake" images.
+        """Function for getting a new batch of "fake" images.
+
         Args:
             steps: Number of iterations in the MCMC algorithm
             step_size: Learning rate nu in the algorithm above
@@ -369,8 +369,8 @@ class Sampler:
 
     @staticmethod
     def generate_samples(model, inp_imgs, steps=60, step_size=10, return_img_per_step=False):
-        """
-        Function for sampling images for a given model.
+        """Function for sampling images for a given model.
+
         Args:
             model: Neural network to use for modeling E_theta
             inp_imgs: Images to start from for sampling. If you want to generate new images, enter noise between -1 and 1.

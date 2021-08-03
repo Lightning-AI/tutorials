@@ -814,8 +814,8 @@ class TransformerPredictor(pl.LightningModule):
 
     @torch.no_grad()
     def get_attention_maps(self, x, mask=None, add_positional_encoding=True):
-        """
-        Function for extracting the attention matrices of the whole Transformer for a single batch.
+        """Function for extracting the attention matrices of the whole Transformer for a single batch.
+
         Input arguments same as the forward pass.
         """
         x = self.input_net(x)
@@ -1309,8 +1309,8 @@ class SetAnomalyDataset(data.Dataset):
         return test_sets
 
     def sample_img_set(self, anomaly_label):
-        """
-        Samples a new set of images, given the label of the anomaly.
+        """Samples a new set of images, given the label of the anomaly.
+
         The sampled images come from a different class than anomaly_label
         """
         # Sample class from 0,...,num_classes-1 while skipping anomaly_label as class
