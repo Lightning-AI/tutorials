@@ -186,12 +186,12 @@ class MaskedConvolution(nn.Module):
     def __init__(self, c_in, c_out, mask, **kwargs):
         """
         Implements a convolution with mask applied on its weights.
-        Inputs:
-            c_in - Number of input channels
-            c_out - Number of output channels
-            mask - Tensor of shape [kernel_size_H, kernel_size_W] with 0s where
+        Args:
+            c_in: Number of input channels
+            c_out: Number of output channels
+            mask: Tensor of shape [kernel_size_H, kernel_size_W] with 0s where
                    the convolution should be masked, and 1s otherwise.
-            kwargs - Additional arguments for the convolution
+            kwargs: Additional arguments for the convolution
         """
         super().__init__()
         # For simplicity: calculate padding automatically
@@ -293,9 +293,9 @@ def show_center_recep_field(img, out):
     """
     Calculates the gradients of the input with respect to the output center pixel,
     and visualizes the overall receptive field.
-    Inputs:
-        img - Input image for which we want to calculate the receptive field on.
-        out - Output features/loss which is used for backpropagation, and should be
+    Args:
+        img: Input image for which we want to calculate the receptive field on.
+        out: Output features/loss which is used for backpropagation, and should be
               the output of the network/computation graph.
     """
     # Determine gradients
@@ -560,8 +560,8 @@ class PixelCNN(pl.LightningModule):
     def forward(self, x):
         """
         Forward image through model and return logits for each pixel.
-        Inputs:
-            x - Image tensor with integer values between 0 and 255.
+        Args:
+            x: Image tensor with integer values between 0 and 255.
         """
         # Scale input from 0 to 255 back to -1 to 1
         x = (x.float() / 255.0) * 2 - 1
@@ -591,9 +591,9 @@ class PixelCNN(pl.LightningModule):
     def sample(self, img_shape, img=None):
         """
         Sampling function for the autoregressive model.
-        Inputs:
-            img_shape - Shape of the image to generate (B,C,H,W)
-            img (optional) - If given, this tensor will be used as
+        Args:
+            img_shape: Shape of the image to generate (B,C,H,W)
+            img (optional): If given, this tensor will be used as
                              a starting image. The pixels to fill
                              should be -1 in the input tensor.
         """

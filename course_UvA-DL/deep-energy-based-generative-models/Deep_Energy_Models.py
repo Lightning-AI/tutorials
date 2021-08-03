@@ -333,11 +333,11 @@ class Sampler:
 
     def __init__(self, model, img_shape, sample_size, max_len=8192):
         """
-        Inputs:
-            model - Neural network to use for modeling E_theta
-            img_shape - Shape of the images to model
-            sample_size - Batch size of the samples
-            max_len - Maximum number of data points to keep in the buffer
+        Args:
+            model: Neural network to use for modeling E_theta
+            img_shape: Shape of the images to model
+            sample_size: Batch size of the samples
+            max_len: Maximum number of data points to keep in the buffer
         """
         super().__init__()
         self.model = model
@@ -349,9 +349,9 @@ class Sampler:
     def sample_new_exmps(self, steps=60, step_size=10):
         """
         Function for getting a new batch of "fake" images.
-        Inputs:
-            steps - Number of iterations in the MCMC algorithm
-            step_size - Learning rate nu in the algorithm above
+        Args:
+            steps: Number of iterations in the MCMC algorithm
+            step_size: Learning rate nu in the algorithm above
         """
         # Choose 95% of the batch from the buffer, 5% generate from scratch
         n_new = np.random.binomial(self.sample_size, 0.05)
@@ -371,12 +371,12 @@ class Sampler:
     def generate_samples(model, inp_imgs, steps=60, step_size=10, return_img_per_step=False):
         """
         Function for sampling images for a given model.
-        Inputs:
-            model - Neural network to use for modeling E_theta
-            inp_imgs - Images to start from for sampling. If you want to generate new images, enter noise between -1 and 1.
-            steps - Number of iterations in the MCMC algorithm.
-            step_size - Learning rate nu in the algorithm above
-            return_img_per_step - If True, we return the sample at every iteration of the MCMC
+        Args:
+            model: Neural network to use for modeling E_theta
+            inp_imgs: Images to start from for sampling. If you want to generate new images, enter noise between -1 and 1.
+            steps: Number of iterations in the MCMC algorithm.
+            step_size: Learning rate nu in the algorithm above
+            return_img_per_step: If True, we return the sample at every iteration of the MCMC
         """
         # Before MCMC: set model parameters to "required_grad=False"
         # because we are only interested in the gradients of the input.

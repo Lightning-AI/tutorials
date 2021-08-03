@@ -258,9 +258,9 @@ class ImageFlow(pl.LightningModule):
 
     def __init__(self, flows, import_samples=8):
         """
-        Inputs:
-            flows - A list of flows (each a nn.Module) that should be applied on the images.
-            import_samples - Number of importance samples to use during testing (see explanation below). Can be changed at any time
+        Args:
+            flows: A list of flows (each a nn.Module) that should be applied on the images.
+            import_samples: Number of importance samples to use during testing (see explanation below). Can be changed at any time
         """
         super().__init__()
         self.flows = nn.ModuleList(flows)
@@ -401,10 +401,10 @@ class Dequantization(nn.Module):
 
     def __init__(self, alpha=1e-5, quants=256):
         """
-        Inputs:
-            alpha - small constant that is used to scale the original input.
+        Args:
+            alpha: small constant that is used to scale the original input.
                     Prevents dealing with values very close to 0 and 1 when inverting the sigmoid
-            quants - Number of possible discrete values (usually 256 for 8-bit image)
+            quants: Number of possible discrete values (usually 256 for 8-bit image)
         """
         super().__init__()
         self.alpha = alpha
@@ -592,9 +592,9 @@ class VariationalDequantization(Dequantization):
 
     def __init__(self, var_flows, alpha=1e-5):
         """
-        Inputs:
-            var_flows - A list of flow transformations to use for modeling q(u|x)
-            alpha - Small constant, see Dequantization for details
+        Args:
+            var_flows: A list of flow transformations to use for modeling q(u|x)
+            alpha: Small constant, see Dequantization for details
         """
         super().__init__(alpha=alpha)
         self.flows = nn.ModuleList(var_flows)
@@ -660,12 +660,12 @@ class CouplingLayer(nn.Module):
     def __init__(self, network, mask, c_in):
         """
         Coupling layer inside a normalizing flow.
-        Inputs:
-            network - A PyTorch nn.Module constituting the deep neural network for mu and sigma.
+        Args:
+            network: A PyTorch nn.Module constituting the deep neural network for mu and sigma.
                       Output shape should be twice the channel size as the input.
-            mask - Binary mask (0 or 1) where 0 denotes that the element should be transformed,
+            mask: Binary mask (0 or 1) where 0 denotes that the element should be transformed,
                    while 1 means the latent will be used as input to the NN.
-            c_in - Number of input channels
+            c_in: Number of input channels
         """
         super().__init__()
         self.network = network
@@ -676,12 +676,12 @@ class CouplingLayer(nn.Module):
 
     def forward(self, z, ldj, reverse=False, orig_img=None):
         """
-        Inputs:
-            z - Latent input to the flow
-            ldj - The current ldj of the previous flows.
+        Args:
+            z: Latent input to the flow
+            ldj: The current ldj of the previous flows.
                   The ldj of this layer will be added to this tensor.
-            reverse - If True, we apply the inverse of the layer.
-            orig_img (optional) - Only needed in VarDeq. Allows external
+            reverse: If True, we apply the inverse of the layer.
+            orig_img (optional): Only needed in VarDeq. Allows external
                                   input to condition the flow on (e.g. original image)
         """
         # Apply network to masked input
@@ -808,8 +808,8 @@ class LayerNormChannels(nn.Module):
     def __init__(self, c_in):
         """
         This module applies layer norm across channels in an image. Has been shown to work well with ResNet connections.
-        Inputs:
-            c_in - Number of channels of the input
+        Args:
+            c_in: Number of channels of the input
         """
         super().__init__()
         self.layer_norm = nn.LayerNorm(c_in)
@@ -826,9 +826,9 @@ class GatedConv(nn.Module):
     def __init__(self, c_in, c_hidden):
         """
         This module applies a two-layer convolutional ResNet block with input gate
-        Inputs:
-            c_in - Number of channels of the input
-            c_hidden - Number of hidden dimensions we want to model (usually similar to c_in)
+        Args:
+            c_in: Number of channels of the input
+            c_hidden: Number of hidden dimensions we want to model (usually similar to c_in)
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -847,11 +847,11 @@ class GatedConvNet(nn.Module):
     def __init__(self, c_in, c_hidden=32, c_out=-1, num_layers=3):
         """
         Module that summarizes the previous blocks to a full convolutional neural network.
-        Inputs:
-            c_in - Number of input channels
-            c_hidden - Number of hidden dimensions to use within the network
-            c_out - Number of output channels. If -1, 2 times the input channels are used (affine coupling)
-            num_layers - Number of gated ResNet blocks to apply
+        Args:
+            c_in: Number of input channels
+            c_hidden: Number of hidden dimensions to use within the network
+            c_out: Number of output channels. If -1, 2 times the input channels are used (affine coupling)
+            num_layers: Number of gated ResNet blocks to apply
         """
         super().__init__()
         c_out = c_out if c_out > 0 else 2 * c_in
@@ -1257,10 +1257,10 @@ show_imgs(samples.cpu())
 @torch.no_grad()
 def interpolate(model, img1, img2, num_steps=8):
     """
-    Inputs:
-        model - object of ImageFlow class that represents the (trained) flow model
-        img1, img2 - Image tensors of shape [1, 28, 28]. Images between which should be interpolated.
-        num_steps - Number of interpolation steps. 8 interpolation steps mean 6 intermediate pictures besides img1 and img2
+    Args:
+        model: object of ImageFlow class that represents the (trained) flow model
+        img1, img2: Image tensors of shape [1, 28, 28]. Images between which should be interpolated.
+        num_steps: Number of interpolation steps. 8 interpolation steps mean 6 intermediate pictures besides img1 and img2
     """
     imgs = torch.stack([img1, img2], dim=0).to(model.device)
     z, _ = model.encode(imgs)
@@ -1331,9 +1331,9 @@ for _ in range(3):
 # %%
 def visualize_dequant_distribution(model: ImageFlow, imgs: torch.Tensor, title: str = None):
     """
-    Inputs:
-        model - The flow of which we want to visualize the dequantization distribution
-        imgs - Example training images of which we want to visualize the dequantization distribution
+    Args:
+        model: The flow of which we want to visualize the dequantization distribution
+        imgs: Example training images of which we want to visualize the dequantization distribution
     """
     imgs = imgs.to(device)
     ldj = torch.zeros(imgs.shape[0], dtype=torch.float32).to(device)
