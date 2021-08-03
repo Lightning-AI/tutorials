@@ -148,6 +148,7 @@ class HelperCLI:
     @staticmethod
     def augment_script(fpath: str):
         """Add template header and footer to the python base script.
+
         Args:
             fpath: path to python script
         """
@@ -313,6 +314,7 @@ class HelperCLI:
     @staticmethod
     def copy_notebooks(path_root: str, path_docs_ipynb: str = "docs/source/notebooks"):
         """Copy all notebooks from a folder to doc folder.
+
         Args:
             path_root: source path to the project root in this tutorials
             path_docs_ipynb: destination path to the notebooks location
@@ -362,7 +364,7 @@ class HelperCLI:
         req = [r.strip() for r in req]
 
         def _parse(pkg: str, keys: str = " <=>") -> str:
-            """Parsing just the package name"""
+            """Parsing just the package name."""
             if any(c in pkg for c in keys):
                 ix = min(pkg.index(c) for c in keys if c in pkg)
                 pkg = pkg[:ix]
