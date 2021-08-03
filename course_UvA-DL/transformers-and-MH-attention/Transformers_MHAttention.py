@@ -459,11 +459,11 @@ class EncoderBlock(nn.Module):
 
     def __init__(self, input_dim, num_heads, dim_feedforward, dropout=0.0):
         """
-        Inputs:
-            input_dim - Dimensionality of the input
-            num_heads - Number of heads to use in the attention block
-            dim_feedforward - Dimensionality of the hidden layer in the MLP
-            dropout - Dropout probability to use in the dropout layers
+        Args:
+            input_dim: Dimensionality of the input
+            num_heads: Number of heads to use in the attention block
+            dim_feedforward: Dimensionality of the hidden layer in the MLP
+            dropout: Dropout probability to use in the dropout layers
         """
         super().__init__()
 
@@ -568,9 +568,9 @@ class PositionalEncoding(nn.Module):
 
     def __init__(self, d_model, max_len=5000):
         """
-        Inputs
-            d_model - Hidden dimensionality of the input.
-            max_len - Maximum length of a sequence to expect.
+        Args
+            d_model: Hidden dimensionality of the input.
+            max_len: Maximum length of a sequence to expect.
         """
         super().__init__()
 
@@ -759,17 +759,17 @@ class TransformerPredictor(pl.LightningModule):
         input_dropout=0.0
     ):
         """
-        Inputs:
-            input_dim - Hidden dimensionality of the input
-            model_dim - Hidden dimensionality to use inside the Transformer
-            num_classes - Number of classes to predict per sequence element
-            num_heads - Number of heads to use in the Multi-Head Attention blocks
-            num_layers - Number of encoder blocks to use.
-            lr - Learning rate in the optimizer
-            warmup - Number of warmup steps. Usually between 50 and 500
-            max_iters - Number of maximum iterations the model is trained for. This is needed for the CosineWarmup scheduler
-            dropout - Dropout to apply inside the model
-            input_dropout - Dropout to apply on the input features
+        Args:
+            input_dim: Hidden dimensionality of the input
+            model_dim: Hidden dimensionality to use inside the Transformer
+            num_classes: Number of classes to predict per sequence element
+            num_heads: Number of heads to use in the Multi-Head Attention blocks
+            num_layers: Number of encoder blocks to use.
+            lr: Learning rate in the optimizer
+            warmup: Number of warmup steps. Usually between 50 and 500
+            max_iters: Number of maximum iterations the model is trained for. This is needed for the CosineWarmup scheduler
+            dropout: Dropout to apply inside the model
+            input_dropout: Dropout to apply on the input features
         """
         super().__init__()
         self.save_hyperparameters()
@@ -799,10 +799,10 @@ class TransformerPredictor(pl.LightningModule):
 
     def forward(self, x, mask=None, add_positional_encoding=True):
         """
-        Inputs:
-            x - Input features of shape [Batch, SeqLen, input_dim]
-            mask - Mask to apply on the attention outputs (optional)
-            add_positional_encoding - If True, we add the positional encoding to the input.
+        Args:
+            x: Input features of shape [Batch, SeqLen, input_dim]
+            mask: Mask to apply on the attention outputs (optional)
+            add_positional_encoding: If True, we add the positional encoding to the input.
                                       Might not be desired for some tasks.
         """
         x = self.input_net(x)
@@ -814,8 +814,8 @@ class TransformerPredictor(pl.LightningModule):
 
     @torch.no_grad()
     def get_attention_maps(self, x, mask=None, add_positional_encoding=True):
-        """
-        Function for extracting the attention matrices of the whole Transformer for a single batch.
+        """Function for extracting the attention matrices of the whole Transformer for a single batch.
+
         Input arguments same as the forward pass.
         """
         x = self.input_net(x)
@@ -1280,11 +1280,11 @@ class SetAnomalyDataset(data.Dataset):
 
     def __init__(self, img_feats, labels, set_size=10, train=True):
         """
-        Inputs:
-            img_feats - Tensor of shape [num_imgs, img_dim]. Represents the high-level features.
-            labels - Tensor of shape [num_imgs], containing the class labels for the images
-            set_size - Number of elements in a set. N-1 are sampled from one class, and one from another one.
-            train - If True, a new set will be sampled every time __getitem__ is called.
+        Args:
+            img_feats: Tensor of shape [num_imgs, img_dim]. Represents the high-level features.
+            labels: Tensor of shape [num_imgs], containing the class labels for the images
+            set_size: Number of elements in a set. N-1 are sampled from one class, and one from another one.
+            train: If True, a new set will be sampled every time __getitem__ is called.
         """
         super().__init__()
         self.img_feats = img_feats
@@ -1309,8 +1309,8 @@ class SetAnomalyDataset(data.Dataset):
         return test_sets
 
     def sample_img_set(self, anomaly_label):
-        """
-        Samples a new set of images, given the label of the anomaly.
+        """Samples a new set of images, given the label of the anomaly.
+
         The sampled images come from a different class than anomaly_label
         """
         # Sample class from 0,...,num_classes-1 while skipping anomaly_label as class
