@@ -7,6 +7,7 @@ import gym
 import numpy as np
 import torch
 from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.utilities import DistributedType
 from torch import nn, Tensor
 from torch.optim import Adam, Optimizer
 from torch.utils.data import DataLoader
@@ -320,7 +321,7 @@ class DQNLightning(LightningModule):
         # calculates training loss
         loss = self.dqn_mse_loss(batch)
 
-        if self.trainer.use_dp or self.trainer.use_ddp2:
+        if self.trainer._distrib_type in {DistributedType.DP, DistributedType.DDP2}:
             loss = loss.unsqueeze(0)
 
         if done:
