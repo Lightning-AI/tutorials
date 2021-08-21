@@ -29,18 +29,10 @@ import torch.utils.data as data
 import torch.nn.functional as F
 import torch.nn as nn
 import torch
-from tqdm.notebook import tqdm
 import seaborn as sns
 import matplotlib
-from matplotlib.colors import to_rgb
 from IPython.display import set_matplotlib_formats
 import os
-import numpy as np
-import random
-import math
-import json
-from functools import partial
-from PIL import Image
 
 import matplotlib.pyplot as plt
 plt.set_cmap('cividis')
@@ -96,7 +88,9 @@ for file_name in pretrained_files:
 # %% [markdown]
 # We load the CIFAR10 dataset below.
 # We use the same setup of the datasets and data augmentations as for the CNNs in Tutorial 5 to keep a fair comparison.
-# The constants in the `transforms.Normalize` correspond to the values that scale and shift the data to a zero mean and standard deviation of one.
+# The constants in the `transforms.Normalize` correspond to the values
+# that scale and shift the data to a zero mean and standard deviation of
+# one.
 
 # %%
 test_transform = transforms.Compose([transforms.ToTensor(),
@@ -222,7 +216,7 @@ class AttentionBlock(nn.Module):
         """
         Inputs:
             embed_dim - Dimensionality of input and attention feature vectors
-            hidden_dim - Dimensionality of hidden layer in feed-forward network 
+            hidden_dim - Dimensionality of hidden layer in feed-forward network
                          (usually 2-4x larger than embed_dim)
             num_heads - Number of heads to use in the Multi-Head Attention block
             dropout - Amount of dropout to apply in the feed-forward network
@@ -266,7 +260,8 @@ class AttentionBlock(nn.Module):
 # %%
 class VisionTransformer(nn.Module):
 
-    def __init__(self, embed_dim, hidden_dim, num_channels, num_heads, num_layers, num_classes, patch_size, num_patches, dropout=0.0):
+    def __init__(self, embed_dim, hidden_dim, num_channels, num_heads,
+                 num_layers, num_classes, patch_size, num_patches, dropout=0.0):
         """
         Inputs:
             embed_dim - Dimensionality of the input feature vectors to the Transformer
@@ -278,7 +273,7 @@ class VisionTransformer(nn.Module):
             num_classes - Number of classes to predict
             patch_size - Number of pixels that the patches have per dimension
             num_patches - Maximum number of patches an image can have
-            dropout - Amount of dropout to apply in the feed-forward network and 
+            dropout - Amount of dropout to apply in the feed-forward network and
                       on the input encoding
         """
         super().__init__()
@@ -371,7 +366,8 @@ class ViT(pl.LightningModule):
 # Commonly, Vision Transformers are applied to large-scale image classification benchmarks such as ImageNet to leverage their full potential.
 # However, here we take a step back and ask: can Vision Transformer also succeed on classical, small benchmarks such as CIFAR10?
 # To find this out, we train a Vision Transformer from scratch on the CIFAR10 dataset.
-# Let's first create a training function for our PyTorch Lightning module which also loads the pre-trained model if you have downloaded it above.
+# Let's first create a training function for our PyTorch Lightning module
+# which also loads the pre-trained model if you have downloaded it above.
 
 # %%
 def train_model(**kwargs):
@@ -433,7 +429,8 @@ def train_model(**kwargs):
 # Remember that we also use small image augmentations as regularization during training.
 #
 # Feel free to explore the hyperparameters yourself by changing the values below.
-# In general, the Vision Transformer did not show to be too sensitive to the hyperparameter choices on the CIFAR10 dataset.
+# In general, the Vision Transformer did not show to be too sensitive to
+# the hyperparameter choices on the CIFAR10 dataset.
 
 # %%
 model, results = train_model(model_kwargs={
@@ -483,7 +480,9 @@ print("ViT results", results)
 # This is a huge disadvantage when we have a small dataset since such information is crucial for generalizing to an unseen test dataset.
 # With large enough datasets and/or good pre-training, a Transformer can learn this information without the need of inductive biases, and instead is more flexible than a CNN.
 # Especially long-distance relations between local patterns can be difficult to process in CNNs, while in Transformers, all patches have the distance of one.
-# This is why Vision Transformers are so strong on large-scale datasets such as ImageNet, but underperform a lot when being applied to a small dataset such as CIFAR10.
+# This is why Vision Transformers are so strong on large-scale datasets
+# such as ImageNet, but underperform a lot when being applied to a small
+# dataset such as CIFAR10.
 
 # %% [markdown]
 # ## Conclusion
