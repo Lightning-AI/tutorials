@@ -10,7 +10,7 @@ description: |
   This is crucial ability since in real-world application, it is rarely the case that the data stays static and does not change over time.
   For example, an object detection system for mobile phones trained on data from 2000 will have troubles detecting today's common mobile phones, and thus, needs to adapt to new data without excessive label effort.
   The optimization techniques we have discussed so far struggle with this because they only aim at obtaining a good performance on a test set that had similar data.
-  However, what if the test set has classes that we do not have in the training set? 
+  However, what if the test set has classes that we do not have in the training set?
   Or what if we want to test the model on a completely different task?
   We will discuss and implement three common Meta-Learning algorithms for such situations.
   This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
