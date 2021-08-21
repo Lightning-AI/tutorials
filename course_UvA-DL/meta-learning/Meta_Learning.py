@@ -132,7 +132,8 @@ CIFAR_test_set = CIFAR100(root=DATASET_PATH, train=False, download=True, transfo
 NUM_IMAGES = 12
 CIFAR_images = torch.stack([
     CIFAR_train_set[np.random.randint(len(CIFAR_train_set))][0] for idx in range(NUM_IMAGES)
-], dim=0)
+],
+                           dim=0)
 img_grid = torchvision.utils.make_grid(CIFAR_images, nrow=6, normalize=True, pad_value=0.9)
 img_grid = img_grid.permute(1, 2, 0)
 
@@ -270,7 +271,7 @@ test_set = dataset_from_labels(
 
 
 # %%
-class FewShotBatchSampler(object):
+class FewShotBatchSampler:
 
     def __init__(self, dataset_targets, N_way, K_shot, include_query=False, shuffle=True, shuffle_once=False):
         """
@@ -496,10 +497,10 @@ def get_convnet(output_size):
 class ProtoNet(pl.LightningModule):
 
     def __init__(self, proto_dim, lr):
-        """
-        Inputs
-            proto_dim - Dimensionality of prototype feature space
-            lr - Learning rate of Adam optimizer
+        """Inputs.
+
+        proto_dim - Dimensionality of prototype feature space
+        lr - Learning rate of Adam optimizer
         """
         super().__init__()
         self.save_hyperparameters()
@@ -646,15 +647,15 @@ protonet_model = train_model(
 # %%
 @torch.no_grad()
 def test_proto_net(model, dataset, data_feats=None, k_shot=4):
-    """
-    Inputs
-        model - Pretrained ProtoNet model
-        dataset - The dataset on which the test should be performed.
-                  Should be instance of ImageDataset
-        data_feats - The encoded features of all images in the dataset.
-                     If None, they will be newly calculated, and returned
-                     for later usage.
-        k_shot - Number of examples per class in the support set.
+    """Inputs.
+
+    model - Pretrained ProtoNet model
+    dataset - The dataset on which the test should be performed.
+              Should be instance of ImageDataset
+    data_feats - The encoded features of all images in the dataset.
+                 If None, they will be newly calculated, and returned
+                 for later usage.
+    k_shot - Number of examples per class in the support set.
     """
     model = model.to(device)
     model.eval()
@@ -691,14 +692,19 @@ def test_proto_net(model, dataset, data_feats=None, k_shot=4):
         range(0, img_features.shape[0], k_shot), "Evaluating prototype classification", leave=False
     ):
         # Select support set and calculate prototypes
-        k_img_feats, k_targets = img_features[k_idx:k_idx + k_shot].flatten(0, 1), img_targets[k_idx:k_idx + k_shot].flatten(0, 1)
+        k_img_feats, k_targets = img_features[k_idx:k_idx
+                                              + k_shot].flatten(0, 1), img_targets[k_idx:k_idx
+                                                                                   + k_shot].flatten(0, 1)
         prototypes, proto_classes = model.calculate_prototypes(k_img_feats, k_targets)
         # Evaluate accuracy on the rest of the dataset
         batch_acc = 0
         for e_idx in range(0, img_features.shape[0], k_shot):
             if k_idx == e_idx:  # Do not evaluate on the support set examples
                 continue
-            e_img_feats, e_targets = img_features[e_idx:e_idx + k_shot].flatten(0, 1), img_targets[e_idx:e_idx + k_shot].flatten(0, 1)
+            e_img_feats, e_targets = img_features[e_idx:e_idx
+                                                  + k_shot].flatten(0,
+                                                                    1), img_targets[e_idx:e_idx
+                                                                                    + k_shot].flatten(0, 1)
             _, _, acc = model.classify_feats(prototypes, proto_classes, e_img_feats, e_targets)
             batch_acc += acc.item()
         batch_acc /= img_features.shape[0] // k_shot - 1
@@ -864,13 +870,13 @@ plt.close()
 class ProtoMAML(pl.LightningModule):
 
     def __init__(self, proto_dim, lr, lr_inner, lr_output, num_inner_steps):
-        """
-        Inputs
-            proto_dim - Dimensionality of prototype feature space
-            lr - Learning rate of the outer loop Adam optimizer
-            lr_inner - Learning rate of the inner loop SGD optimizer
-            lr_output - Learning rate for the output layer in the inner loop
-            num_inner_steps - Number of inner loop updates to perform
+        """Inputs.
+
+        proto_dim - Dimensionality of prototype feature space
+        lr - Learning rate of the outer loop Adam optimizer
+        lr_inner - Learning rate of the inner loop SGD optimizer
+        lr_output - Learning rate for the output layer in the inner loop
+        num_inner_steps - Number of inner loop updates to perform
         """
         super().__init__()
         self.save_hyperparameters()
@@ -986,7 +992,7 @@ class ProtoMAML(pl.LightningModule):
 
 
 # %%
-class TaskBatchSampler(object):
+class TaskBatchSampler:
 
     def __init__(self, dataset_targets, batch_size, N_way, K_shot, include_query=False, shuffle=True):
         """
@@ -1182,7 +1188,7 @@ protomaml_result_file = os.path.join(CHECKPOINT_PATH, "protomaml_fewshot.json")
 
 if os.path.isfile(protomaml_result_file):
     # Load pre-computed results
-    with open(protomaml_result_file, 'r') as f:
+    with open(protomaml_result_file) as f:
         protomaml_accuracies = json.load(f)
     protomaml_accuracies = {int(k): v for k, v in protomaml_accuracies.items()}
 else:
@@ -1245,7 +1251,8 @@ SVHN_test_dataset = SVHN(root=DATASET_PATH, split='test', download=True, transfo
 NUM_IMAGES = 12
 SVHN_images = torch.stack([
     SVHN_test_dataset[np.random.randint(len(SVHN_test_dataset))][0] for idx in range(NUM_IMAGES)
-], dim=0)
+],
+                          dim=0)
 img_grid = torchvision.utils.make_grid(SVHN_images, nrow=6, normalize=True, pad_value=0.9)
 img_grid = img_grid.permute(1, 2, 0)
 
@@ -1304,7 +1311,7 @@ protomaml_result_file = os.path.join(CHECKPOINT_PATH, "protomaml_svhn_fewshot.js
 
 if os.path.isfile(protomaml_result_file):
     # Load pre-computed results
-    with open(protomaml_result_file, 'r') as f:
+    with open(protomaml_result_file) as f:
         protomaml_svhn_accuracies = json.load(f)
     protomaml_svhn_accuracies = {int(k): v for k, v in protomaml_svhn_accuracies.items()}
 else:
