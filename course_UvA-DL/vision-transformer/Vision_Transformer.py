@@ -299,7 +299,7 @@ class VisionTransformer(nn.Module):
         # Layers/Networks
         self.input_layer = nn.Linear(num_channels * (patch_size**2), embed_dim)
         self.transformer = nn.Sequential(
-            *[AttentionBlock(embed_dim, hidden_dim, num_heads, dropout=dropout) for _ in range(num_layers)]
+            *(AttentionBlock(embed_dim, hidden_dim, num_heads, dropout=dropout) for _ in range(num_layers))
         )
         self.mlp_head = nn.Sequential(nn.LayerNorm(embed_dim), nn.Linear(embed_dim, num_classes))
         self.dropout = nn.Dropout(dropout)
