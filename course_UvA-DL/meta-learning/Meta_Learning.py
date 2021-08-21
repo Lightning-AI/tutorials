@@ -132,7 +132,8 @@ CIFAR_test_set = CIFAR100(root=DATASET_PATH, train=False, download=True, transfo
 NUM_IMAGES = 12
 CIFAR_images = torch.stack([
     CIFAR_train_set[np.random.randint(len(CIFAR_train_set))][0] for idx in range(NUM_IMAGES)
-], dim=0)
+],
+                           dim=0)
 img_grid = torchvision.utils.make_grid(CIFAR_images, nrow=6, normalize=True, pad_value=0.9)
 img_grid = img_grid.permute(1, 2, 0)
 
@@ -691,14 +692,19 @@ def test_proto_net(model, dataset, data_feats=None, k_shot=4):
         range(0, img_features.shape[0], k_shot), "Evaluating prototype classification", leave=False
     ):
         # Select support set and calculate prototypes
-        k_img_feats, k_targets = img_features[k_idx:k_idx + k_shot].flatten(0, 1), img_targets[k_idx:k_idx + k_shot].flatten(0, 1)
+        k_img_feats, k_targets = img_features[k_idx:k_idx
+                                              + k_shot].flatten(0, 1), img_targets[k_idx:k_idx
+                                                                                   + k_shot].flatten(0, 1)
         prototypes, proto_classes = model.calculate_prototypes(k_img_feats, k_targets)
         # Evaluate accuracy on the rest of the dataset
         batch_acc = 0
         for e_idx in range(0, img_features.shape[0], k_shot):
             if k_idx == e_idx:  # Do not evaluate on the support set examples
                 continue
-            e_img_feats, e_targets = img_features[e_idx:e_idx + k_shot].flatten(0, 1), img_targets[e_idx:e_idx + k_shot].flatten(0, 1)
+            e_img_feats, e_targets = img_features[e_idx:e_idx
+                                                  + k_shot].flatten(0,
+                                                                    1), img_targets[e_idx:e_idx
+                                                                                    + k_shot].flatten(0, 1)
             _, _, acc = model.classify_feats(prototypes, proto_classes, e_img_feats, e_targets)
             batch_acc += acc.item()
         batch_acc /= img_features.shape[0] // k_shot - 1
@@ -1245,7 +1251,8 @@ SVHN_test_dataset = SVHN(root=DATASET_PATH, split='test', download=True, transfo
 NUM_IMAGES = 12
 SVHN_images = torch.stack([
     SVHN_test_dataset[np.random.randint(len(SVHN_test_dataset))][0] for idx in range(NUM_IMAGES)
-], dim=0)
+],
+                          dim=0)
 img_grid = torchvision.utils.make_grid(SVHN_images, nrow=6, normalize=True, pad_value=0.9)
 img_grid = img_grid.permute(1, 2, 0)
 
