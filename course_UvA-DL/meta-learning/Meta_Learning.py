@@ -130,9 +130,7 @@ CIFAR_test_set = CIFAR100(root=DATASET_PATH, train=False, download=True, transfo
 # %%
 # Visualize some examples
 NUM_IMAGES = 12
-CIFAR_images = [
-    CIFAR_train_set[np.random.randint(len(CIFAR_train_set))][0] for idx in range(NUM_IMAGES)
-]
+CIFAR_images = [CIFAR_train_set[np.random.randint(len(CIFAR_train_set))][0] for idx in range(NUM_IMAGES)]
 CIFAR_images = torch.stack(CIFAR_images, dim=0)
 img_grid = torchvision.utils.make_grid(CIFAR_images, nrow=6, normalize=True, pad_value=0.9)
 img_grid = img_grid.permute(1, 2, 0)
