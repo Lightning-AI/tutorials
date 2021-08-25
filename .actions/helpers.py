@@ -30,7 +30,7 @@ TEMPLATE_HEADER = f"""# %%%% [raw] raw_mimetype="text/restructuredtext"
 #.. customcarditem::
 #   :header: %(title)s
 #   :card_description: %(short_description)s
-#   :tags: %(topic)s
+#   :tags: %(tags)s
 #
 
 # %%%% [markdown]
