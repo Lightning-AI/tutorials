@@ -7,8 +7,15 @@ python -c "import glob ; assert(len(glob.glob('$1/*.ipynb')) == 1)"
 ipynb_file=( $(ls "$1"/*.ipynb) )
 printf $ipynb_file
 
+python -c "import glob ; assert(len(glob.glob('$1/.meta.{yaml,yml}')) == 1)"
+meta_file=( $(ls "$1"/.meta.*) )
+printf $meta_file
+
 pub_file=".notebooks/$1.ipynb"
 printf $pub_file
+
+pub_meta_file=".notebooks/$1.yaml"
+printf $pub_meta_file
 
 pub_dir=$(dirname "$pub_file")
 mkdir -p $pub_dir
@@ -31,6 +38,7 @@ then
 else
   printf "WARNING: not valid accelerator so no outputs will be generated.\n"
   cp $ipynb_file $pub_file
+  cp $meta_file $
 fi
 
 git add $pub_file
