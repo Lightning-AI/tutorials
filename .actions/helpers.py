@@ -1,7 +1,7 @@
 import base64
+import json
 import os
 import re
-import shutil
 from datetime import datetime
 from pprint import pprint
 from textwrap import wrap
@@ -25,13 +25,7 @@ PUBLIC_BRANCH = "publication"
 URL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{DEFAULT_BRANCH}"
 ENV_DEVICE = "ACCELERATOR"
 DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, 'cpu').lower()
-TEMPLATE_HEADER = f"""# %%%% [raw] raw_mimetype="text/restructuredtext"
-#.. customcarditem::
-#   :header: %(title)s
-#   :card_description: %(short_description)s
-#   :tags: %(tags)s
-
-# %%%% [markdown]
+TEMPLATE_HEADER = f"""# %%%% [markdown]
 #
 # # %(title)s
 #
@@ -86,6 +80,12 @@ TEMPLATE_FOOTER = """
 #
 # ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png){height="60px" width="240px"}
 
+"""
+TEMPLATE_CARD_ITEM = """
+.. customcarditem::
+   :header: %(title)s
+   :card_description: %(short_description)s
+   :tags: %(tags)s
 """
 
 
@@ -170,10 +170,8 @@ class HelperCLI:
             dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"),
             generated=datetime.now().isoformat(),
         )
-        meta['short_description'] = wrap(meta['description'].replace(os.linesep, " "), 175)[0] + "..."
-        meta['description'] = meta['description'].replace(os.linesep, f"{os.linesep}# ")
 
-        meta['tags'] = ",".join(meta.get('tags', ["Other"]))
+        meta['description'] = meta['description'].replace(os.linesep, f"{os.linesep}# ")
 
         header = TEMPLATE_HEADER % meta
         requires = set(default_requirements() + meta["requirements"])
@@ -336,12 +334,39 @@ class HelperCLI:
         os.makedirs(path_docs_ipynb, exist_ok=True)
         ipynb_content = []
         for path_ipynb in tqdm.tqdm(ls_ipynb):
+            fpath_meta = HelperCLI._meta_file(os.path.dirname(path_ipynb))
+            meta = yaml.safe_load(open(fpath_meta))
+
+            wrapped_description = wrap(
+                meta.get('short_description', meta['description']).strip().replace(os.linesep, " "), 175
+            )
+            suffix = "..." if len(wrapped_description) > 1 else ""
+            meta['short_description'] = wrapped_description[0] + suffix
+
+            meta['tags'] = ",".join(meta.get('tags', ["Other"]))
+
+            rst_cell = TEMPLATE_CARD_ITEM % meta
+
             ipynb = path_ipynb.split(os.path.sep)
             sub_ipynb = os.path.sep.join(ipynb[ipynb.index(HelperCLI.DIR_NOTEBOOKS) + 1:])
             new_ipynb = os.path.join(path_docs_ipynb, sub_ipynb)
             os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
             print(f'{path_ipynb} -> {new_ipynb}')
-            shutil.copy(path_ipynb, new_ipynb)
+
+            with open(path_ipynb) as f:
+                ipynb = json.load(f)
+
+            ipynb["cells"].append({
+                "cell_type": "raw",
+                "metadata": {
+                    "raw_mimetype": "text/restructuredtext"
+                },
+                "source": rst_cell.strip().splitlines(True)
+            })
+
+            with open(new_ipynb, 'w') as f:
+                json.dump(ipynb, f)
+
             ipynb_content.append(os.path.join('notebooks', sub_ipynb))
 
     @staticmethod
