@@ -62,12 +62,14 @@ jobs:
           while IFS= read -r line; do
               bash .actions/ipynb-generate.sh $line
               ipynb=( $(ls "$line"/*.ipynb) )
+              meta=( $(ls "$line"/.meta.*) )
               # create folder of it is missing
               pub_dir=$(dirname ".notebooks/$line")
               printf "Dir: $pub_dir"
               mkdir -p $pub_dir
               # simulate render as somple move
               mv $ipynb ".notebooks/$line.ipynb"
+              mv $meta ".notebooks/$line.yaml"
           done <<< $(cat changed-folders.txt)
         shell: bash
 
