@@ -24,7 +24,13 @@ PUBLIC_BRANCH = "publication"
 URL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{DEFAULT_BRANCH}"
 ENV_DEVICE = "ACCELERATOR"
 DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, 'cpu').lower()
-TEMPLATE_HEADER = f"""# %%%% [markdown]
+TEMPLATE_HEADER = f"""# %%%% [raw] raw_mimetype="text/restructuredtext"
+# .. customcarditem::
+#    :header: %(title)s
+#    :card_description: %(description)s
+#    :tags: Image/Video
+
+# %%%% [markdown]
 #
 # # %(title)s
 #
@@ -164,6 +170,9 @@ class HelperCLI:
             generated=datetime.now().isoformat(),
         )
         meta['description'] = meta['description'].replace(os.linesep, f"{os.linesep}# ")
+
+        if 'topic' not in meta:
+            meta['topic'] = "default"
 
         header = TEMPLATE_HEADER % meta
         requires = set(default_requirements() + meta["requirements"])

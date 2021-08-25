@@ -4,6 +4,7 @@ created: 2021-06-11
 updated: 2021-06-16
 license: CC BY-SA
 build: 0
+topic: Vision
 description: |
   In this tutorial we will show how to combine both Kornia.org and PyTorch Lightning
   to perform efficient data augmentation to train a simpple model using the GPU in batch
