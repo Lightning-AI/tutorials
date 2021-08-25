@@ -25,10 +25,12 @@ URL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{DEFAULT_BR
 ENV_DEVICE = "ACCELERATOR"
 DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, 'cpu').lower()
 TEMPLATE_HEADER = f"""# %%%% [raw] raw_mimetype="text/restructuredtext"
-# .. customcarditem::
-#    :header: %(title)s
-#    :card_description: %(description)s
-#    :tags: Image/Video
+#
+#.. customcarditem::
+#   :header: %(title)s
+#   :card_description: %(description)s
+#   :tags: %(tag)s
+#
 
 # %%%% [markdown]
 #

@@ -19,10 +19,11 @@ Lightning-Sandbox documentation
    :glob:
 
    notebooks/*
+   notebooks/**/*
 
 .. raw:: html
 
-   </dvi>
+   </div>
 
 Indices and tables
 ==================
