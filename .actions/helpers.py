@@ -28,7 +28,7 @@ TEMPLATE_HEADER = f"""# %%%% [raw] raw_mimetype="text/restructuredtext"
 #
 #.. customcarditem::
 #   :header: %(title)s
-#   :card_description: %(description)s
+#   :card_description: %(trimmed_description)s
 #   :tags: %(topic)s
 #
 
@@ -171,6 +171,7 @@ class HelperCLI:
             dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"),
             generated=datetime.now().isoformat(),
         )
+        meta['trimmed_description'] = meta['description'].replace(os.linesep, " ")
         meta['description'] = meta['description'].replace(os.linesep, f"{os.linesep}# ")
 
         if 'topic' not in meta:
