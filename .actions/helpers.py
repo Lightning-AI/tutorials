@@ -4,6 +4,7 @@ import re
 import shutil
 from datetime import datetime
 from pprint import pprint
+from textwrap import wrap
 from typing import Sequence
 from warnings import warn
 
@@ -28,7 +29,7 @@ TEMPLATE_HEADER = f"""# %%%% [raw] raw_mimetype="text/restructuredtext"
 #
 #.. customcarditem::
 #   :header: %(title)s
-#   :card_description: %(trimmed_description)s
+#   :card_description: %(short_description)s
 #   :tags: %(topic)s
 #
 
@@ -131,7 +132,7 @@ RUNTIME_VERSIONS = dict(
 class HelperCLI:
 
     DIR_NOTEBOOKS = ".notebooks"
-    META_REQUIRED_FIELDS = ('title', 'author', 'license', 'description')
+    META_REQUIRED_FIELDS = ('title', 'author', 'license', 'tags', 'description')
     SKIP_DIRS = (
         ".actions",
         ".azure-pipelines",
@@ -171,14 +172,12 @@ class HelperCLI:
             dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"),
             generated=datetime.now().isoformat(),
         )
-        meta['trimmed_description'] = meta['description'].replace(os.linesep, " ")
+        meta['short_description'] = wrap(meta['description'].replace(os.linesep, " "), 175)[0] + "..."
         meta['description'] = meta['description'].replace(os.linesep, f"{os.linesep}# ")
 
-        if 'topic' not in meta:
-            meta['topic'] = "default"
+        meta['tags'] = ",".join(meta['tags'])
 
         header = TEMPLATE_HEADER % meta
-        print(header)
         requires = set(default_requirements() + meta["requirements"])
         setup = TEMPLATE_SETUP % dict(requirements=" ".join([f'"{req}"' for req in requires]))
         py_file = [header + setup] + py_file + [TEMPLATE_FOOTER]

@@ -3,6 +3,9 @@ author: Phillip Lippe
 created: 2021-07-12
 updated: 2021-07-12
 license: CC BY-SA
+tags:
+  - UvA-DL
+  - Image
 description: |
   In this tutorial, we implement an autoregressive likelihood model for the task of image modeling.
   Autoregressive models are naturally strong generative models that constitute one of the current
