@@ -334,7 +334,7 @@ class HelperCLI:
         os.makedirs(path_docs_ipynb, exist_ok=True)
         ipynb_content = []
         for path_ipynb in tqdm.tqdm(ls_ipynb):
-            fpath_meta = HelperCLI._meta_file(os.path.dirname(path_ipynb))
+            fpath_meta = path_ipynb.replace(".ipynb", ".yaml")
             meta = yaml.safe_load(open(fpath_meta))
 
             wrapped_description = wrap(
