@@ -26,12 +26,10 @@ URL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{DEFAULT_BR
 ENV_DEVICE = "ACCELERATOR"
 DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, 'cpu').lower()
 TEMPLATE_HEADER = f"""# %%%% [raw] raw_mimetype="text/restructuredtext"
-#
 #.. customcarditem::
 #   :header: %(title)s
 #   :card_description: %(short_description)s
 #   :tags: %(tags)s
-#
 
 # %%%% [markdown]
 #
@@ -132,7 +130,7 @@ RUNTIME_VERSIONS = dict(
 class HelperCLI:
 
     DIR_NOTEBOOKS = ".notebooks"
-    META_REQUIRED_FIELDS = ('title', 'author', 'license', 'tags', 'description')
+    META_REQUIRED_FIELDS = ('title', 'author', 'license', 'description')
     SKIP_DIRS = (
         ".actions",
         ".azure-pipelines",
@@ -175,7 +173,7 @@ class HelperCLI:
         meta['short_description'] = wrap(meta['description'].replace(os.linesep, " "), 175)[0] + "..."
         meta['description'] = meta['description'].replace(os.linesep, f"{os.linesep}# ")
 
-        meta['tags'] = ",".join(meta['tags'])
+        meta['tags'] = ",".join(meta.get('tags', ["Other"]))
 
         header = TEMPLATE_HEADER % meta
         requires = set(default_requirements() + meta["requirements"])
