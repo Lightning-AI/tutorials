@@ -89,6 +89,7 @@ TUTORIAL_LIST_END = """
 
 
 class TutorialListDirective(SphinxDirective):
+
     def run(self):
         start_list = StringList(TUTORIAL_LIST_START.split("\n"))
         start_node = nodes.paragraph()
