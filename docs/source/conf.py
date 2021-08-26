@@ -19,7 +19,6 @@ _PATH_HERE = os.path.abspath(os.path.dirname(__file__))
 _PATH_IPYNB = os.path.join(_PATH_HERE, 'notebooks')
 _PATH_ROOT = os.path.realpath(os.path.join(_PATH_HERE, "..", ".."))
 sys.path.insert(0, os.path.abspath(_PATH_ROOT))
-sys.path.insert(0, os.path.abspath(os.path.join(_PATH_HERE, "..", "extensions")))
 sys.path.append(os.path.join(_PATH_ROOT, '.actions'))
 
 from helpers import HelperCLI  # noqa: E402
@@ -67,7 +66,7 @@ extensions = [
     'nbsphinx',
     'myst_parser',
     'sphinx_paramlinks',
-    'lightning_tutorials',
+    'pt_lightning_sphinx_theme.extensions.lightning_tutorials',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
