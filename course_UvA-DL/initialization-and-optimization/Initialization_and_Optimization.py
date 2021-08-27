@@ -581,7 +581,7 @@ def load_model(model_path, model_name, net=None):
     assert os.path.isfile(
         model_file
     ), f"Could not find the model file \"{model_file}\". Are you sure this is the correct path and you have your model stored here?"
-    with open(config_file, "r") as f:
+    with open(config_file) as f:
         config_dict = json.load(f)
     if net is None:
         act_fn_name = config_dict["act_fn"].pop("name").lower()
@@ -603,8 +603,7 @@ def save_model(model, model_path, model_name):
 
 
 def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, overwrite=False):
-    """
-    Train a model on the training set of FashionMNIST
+    """Train a model on the training set of FashionMNIST.
 
     Inputs:
         net - Object of BaseNetwork
@@ -617,7 +616,7 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
     file_exists = os.path.isfile(_get_model_file(CHECKPOINT_PATH, model_name))
     if file_exists and not overwrite:
         print(f"Model file of \"{model_name}\" already exists. Skipping training...")
-        with open(_get_result_file(CHECKPOINT_PATH, model_name), "r") as f:
+        with open(_get_result_file(CHECKPOINT_PATH, model_name)) as f:
             results = json.load(f)
     else:
         if file_exists:
