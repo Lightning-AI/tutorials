@@ -35,9 +35,9 @@ sns.set()
 
 # %%
 # Path to the folder where the datasets are/should be downloaded (e.g. MNIST)
-DATASET_PATH = "../data"
+DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 # Path to the folder where the pretrained models are saved
-CHECKPOINT_PATH = "../saved_models/tutorial4"
+CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/InitOptim/")
 
 
 # Function for setting the seed
