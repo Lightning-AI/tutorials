@@ -11,6 +11,8 @@ description: |
   We will compare these results to popular convolutional architectures such as Inception, ResNet and DenseNet.
   This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
+tags:
+  - Image
 requirements:
   - torchvision
   - matplotlib
