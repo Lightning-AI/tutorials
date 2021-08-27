@@ -1260,7 +1260,7 @@ all_models = [("GoogleNet", googlenet_results, googlenet_model), ("ResNet", resn
               ("DenseNet", densenet_results, densenet_model)]
 table = [[
     model_name, f"{100.0*model_results['val']:4.2f}%", f"{100.0*model_results['test']:4.2f}%",
-    "{:,}".format(sum([np.prod(p.shape) for p in model.parameters()]))
+    f"{sum(np.prod(p.shape) for p in model.parameters()):,}"
 ] for model_name, model_results, model in all_models]
 display(
     HTML(
