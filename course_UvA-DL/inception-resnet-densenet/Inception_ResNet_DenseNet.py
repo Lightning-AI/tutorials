@@ -940,7 +940,7 @@ model_dict["ResNet"] = ResNet
 # ResNet has been shown to produce smoother loss surfaces than networks without skip connection (see [Li et al., 2018](https://arxiv.org/pdf/1712.09913.pdf) for details).
 # A possible visualization of the loss surface with/out skip connections is below (figure credit - [Li et al. ](https://arxiv.org/pdf/1712.09913.pdf)):
 #
-# <center width="100%"><img src="resnet_loss_surface.svg" style="display: block; margin-left: auto; margin-right: auto;" width="600px"/></center>
+# <center width="100%"><img src="resnet_loss_surface.png" style="display: block; margin-left: auto; margin-right: auto;" width="600px"/></center>
 #
 # The $x$ and $y$ axis shows a projection of the parameter space, and the $z$ axis shows the loss values achieved by different parameter values.
 # On smooth surfaces like the one on the right, we might not require an adaptive learning rate as Adam provides.
