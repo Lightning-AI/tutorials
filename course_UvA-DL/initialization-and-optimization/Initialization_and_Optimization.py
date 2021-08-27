@@ -29,7 +29,6 @@ from tqdm.notebook import tqdm
 set_matplotlib_formats('svg', 'pdf')  # For export
 sns.set()
 
-
 # %% [markdown]
 # We will use the same `set_seed` function as in Tutorial 3, as well as the path variables `DATASET_PATH` and `CHECKPOINT_PATH`.
 # Adjust the paths if necessary.
@@ -68,9 +67,11 @@ print("Using device", device)
 # Github URL where saved models are stored for this tutorial
 base_url = "https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial4/"
 # Files to download
-pretrained_files = ["FashionMNIST_SGD.config", "FashionMNIST_SGD_results.json", "FashionMNIST_SGD.tar",
-                    "FashionMNIST_SGDMom.config", "FashionMNIST_SGDMom_results.json", "FashionMNIST_SGDMom.tar",
-                    "FashionMNIST_Adam.config", "FashionMNIST_Adam_results.json", "FashionMNIST_Adam.tar"]
+pretrained_files = [
+    "FashionMNIST_SGD.config", "FashionMNIST_SGD_results.json", "FashionMNIST_SGD.tar",
+    "FashionMNIST_SGDMom.config", "FashionMNIST_SGDMom_results.json", "FashionMNIST_SGDMom.tar",
+    "FashionMNIST_Adam.config", "FashionMNIST_Adam_results.json", "FashionMNIST_Adam.tar"
+]
 # Create checkpoint path if it doesn't exist yet
 os.makedirs(CHECKPOINT_PATH, exist_ok=True)
 
@@ -83,7 +84,10 @@ for file_name in pretrained_files:
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
-            print("Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n", e)
+            print(
+                "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
+                e
+            )
 
 # %% [markdown]
 # ## Preparation
@@ -96,9 +100,7 @@ for file_name in pretrained_files:
 # %%
 
 # Transformations applied on each image => first make them a tensor, then normalize them with mean 0 and std 1
-transform = transforms.Compose([transforms.ToTensor(),
-                                transforms.Normalize((0.2861,), (0.3530,))
-                                ])
+transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.2861, ), (0.3530, ))])
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_dataset = FashionMNIST(root=DATASET_PATH, train=True, transform=transform, download=True)
@@ -135,12 +137,12 @@ print(f"Standard deviation: {imgs.std().item():5.3f}")
 print(f"Maximum: {imgs.max().item():5.3f}")
 print(f"Minimum: {imgs.min().item():5.3f}")
 
-
 # %% [markdown]
 # Note that the maximum and minimum are not 1 and -1 anymore, but shifted towards the positive values.
 # This is because FashionMNIST contains a lot of black pixels, similar to MNIST.
 #
 # Next, we create a linear neural network. We use the same setup as in the previous tutorial.
+
 
 # %%
 class BaseNetwork(nn.Module):
@@ -159,8 +161,7 @@ class BaseNetwork(nn.Module):
         layers = []
         layer_sizes = [input_size] + hidden_sizes
         for layer_index in range(1, len(layer_sizes)):
-            layers += [nn.Linear(layer_sizes[layer_index - 1], layer_sizes[layer_index]),
-                       act_fn]
+            layers += [nn.Linear(layer_sizes[layer_index - 1], layer_sizes[layer_index]), act_fn]
         layers += [nn.Linear(layer_sizes[-1], num_classes)]
         # A module list registers a list of modules as submodules (e.g. for parameters)
         self.layers = nn.ModuleList(layers)
@@ -169,7 +170,8 @@ class BaseNetwork(nn.Module):
             "act_fn": act_fn.__class__.__name__,
             "input_size": input_size,
             "num_classes": num_classes,
-            "hidden_sizes": hidden_sizes}
+            "hidden_sizes": hidden_sizes
+        }
 
     def forward(self, x):
         x = x.view(x.size(0), -1)
@@ -185,18 +187,15 @@ class BaseNetwork(nn.Module):
 # network's modeling capabilities, we will use it in the first steps of
 # our discussion about initialization (for simplicity).
 
+
 # %%
 class Identity(nn.Module):
+
     def forward(self, x):
         return x
 
 
-act_fn_by_name = {
-    "tanh": nn.Tanh,
-    "relu": nn.ReLU,
-    "identity": Identity
-}
-
+act_fn_by_name = {"tanh": nn.Tanh, "relu": nn.ReLU, "identity": Identity}
 
 # %% [markdown]
 # Finally, we define a few plotting functions that we will use for our discussions.
@@ -206,21 +205,33 @@ act_fn_by_name = {
 # %%
 ##############################################################
 
+
 def plot_dists(val_dict, color="C0", xlabel=None, stat="count", use_kde=True):
     columns = len(val_dict)
     fig, ax = plt.subplots(1, columns, figsize=(columns * 3, 2.5))
     fig_index = 0
     for key in sorted(val_dict.keys()):
         key_ax = ax[fig_index % columns]
-        sns.histplot(val_dict[key], ax=key_ax, color=color, bins=50, stat=stat,
-                     kde=use_kde and ((val_dict[key].max() - val_dict[key].min()) > 1e-8))  # Only plot kde if there is variance
-        key_ax.set_title(f"{key} " + (r"(%i $\to$ %i)" %
-                                      (val_dict[key].shape[1], val_dict[key].shape[0]) if len(val_dict[key].shape) > 1 else ""))
+        sns.histplot(
+            val_dict[key],
+            ax=key_ax,
+            color=color,
+            bins=50,
+            stat=stat,
+            kde=use_kde and ((val_dict[key].max() - val_dict[key].min()) > 1e-8)
+        )  # Only plot kde if there is variance
+        key_ax.set_title(
+            f"{key} " + (
+                r"(%i $\to$ %i)"
+                % (val_dict[key].shape[1], val_dict[key].shape[0]) if len(val_dict[key].shape) > 1 else ""
+            )
+        )
         if xlabel is not None:
             key_ax.set_xlabel(xlabel)
         fig_index += 1
     fig.subplots_adjust(wspace=0.4)
     return fig
+
 
 ##############################################################
 
@@ -238,6 +249,7 @@ def visualize_weight_distribution(model, color="C0"):
     fig.suptitle("Weight distribution", fontsize=14, y=1.05)
     plt.show()
     plt.close()
+
 
 ##############################################################
 
@@ -259,8 +271,10 @@ def visualize_gradients(model, color="C0", print_variance=False):
     loss = F.cross_entropy(preds, labels)  # Same as nn.CrossEntropyLoss, but as a function instead of module
     loss.backward()
     # We limit our visualization to the weight parameters and exclude the bias to reduce the number of plots
-    grads = {name: params.grad.view(-1).cpu().clone().numpy()
-             for name, params in model.named_parameters() if "weight" in name}
+    grads = {
+        name: params.grad.view(-1).cpu().clone().numpy()
+        for name, params in model.named_parameters() if "weight" in name
+    }
     model.zero_grad()
 
     # Plotting
@@ -272,6 +286,7 @@ def visualize_gradients(model, color="C0", print_variance=False):
     if print_variance:
         for key in sorted(grads.keys()):
             print(f"{key} - Variance: {np.var(grads[key])}")
+
 
 ##############################################################
 
@@ -325,7 +340,6 @@ def visualize_activations(model, color="C0", print_variance=False):
 # %%
 model = BaseNetwork(act_fn=Identity()).to(device)
 
-
 # %% [markdown]
 # ### Constant initialization
 #
@@ -333,6 +347,7 @@ model = BaseNetwork(act_fn=Identity()).to(device)
 # Intuitively, setting all weights to zero is not a good idea as the propagated gradient will be zero.
 # However, what happens if we set all weights to a value slightly larger or smaller than 0?
 # To find out, we can implement a function for setting all parameters below and visualize the gradients.
+
 
 # %%
 def const_init(model, c=0.0):
@@ -343,7 +358,6 @@ def const_init(model, c=0.0):
 const_init(model, c=0.005)
 visualize_gradients(model)
 visualize_activations(model, print_variance=True)
-
 
 # %% [markdown]
 # As we can see, only the first and the last layer have diverse gradient distributions while the other three layers have the same gradient for all weights (note that this value is unequal 0, but often very close to it).
@@ -358,6 +372,7 @@ visualize_activations(model, print_variance=True)
 # So instead, how about we initialize the parameters by randomly sampling from a distribution like a Gaussian?
 # The most intuitive way would be to choose one variance that is used for all layers in the network.
 # Let's implement it below, and visualize the activation distribution across layers.
+
 
 # %%
 def var_init(model, std=0.01):
@@ -375,7 +390,6 @@ visualize_activations(model, print_variance=True)
 # %%
 var_init(model, std=0.1)
 visualize_activations(model, print_variance=True)
-
 
 # %% [markdown]
 # With a higher standard deviation, the activations are likely to explode.
@@ -419,6 +433,7 @@ visualize_activations(model, print_variance=True)
 # Thus, we should initialize the weight distribution with a variance of the inverse of the input dimension $d_x$.
 # Let's implement it below and check whether this holds:
 
+
 # %%
 def equal_var_init(model):
     for name, param in model.named_parameters():
@@ -431,7 +446,6 @@ def equal_var_init(model):
 equal_var_init(model)
 visualize_weight_distribution(model)
 visualize_activations(model, print_variance=True)
-
 
 # %% [markdown]
 # As we expected, the variance stays indeed constant across layers.
@@ -453,6 +467,7 @@ visualize_activations(model, print_variance=True)
 # $$W\sim U\left[-\frac{\sqrt{6}}{\sqrt{d_x+d_y}}, \frac{\sqrt{6}}{\sqrt{d_x+d_y}}\right]$$
 #
 # Let's shortly implement it and validate its effectiveness:
+
 
 # %%
 def xavier_init(model):
@@ -481,7 +496,6 @@ model = BaseNetwork(act_fn=nn.Tanh()).to(device)
 xavier_init(model)
 visualize_gradients(model, print_variance=True)
 visualize_activations(model, print_variance=True)
-
 
 # %% [markdown]
 # Although the variance decreases over depth, it is apparent that the activation distribution becomes more focused on the low values.
@@ -512,6 +526,7 @@ visualize_activations(model, print_variance=True)
 # In their paper (Section 2.2, Backward Propagation, last paragraph), they argue that using $d_x$ or $d_y$ both lead to stable gradients throughout the network, and only depend on the overall input and output size of the network.
 # Hence, we can use here only the input $d_x$:
 
+
 # %%
 def kaiming_init(model):
     for name, param in model.named_parameters():
@@ -528,7 +543,6 @@ kaiming_init(model)
 visualize_gradients(model, print_variance=True)
 visualize_activations(model, print_variance=True)
 
-
 # %% [markdown]
 # The variance stays stable across layers.
 # We can conclude that the Kaiming initialization indeed works well for ReLU-based networks.
@@ -544,6 +558,7 @@ visualize_activations(model, print_variance=True)
 # Before taking a closer look at them, we should define code for training the models.
 # Most of the following code is copied from the previous tutorial, and only slightly altered to fit our needs.
 
+
 # %%
 def _get_config_file(model_path, model_name):
     return os.path.join(model_path, model_name + ".config")
@@ -558,11 +573,14 @@ def _get_result_file(model_path, model_name):
 
 
 def load_model(model_path, model_name, net=None):
-    config_file, model_file = _get_config_file(model_path, model_name), _get_model_file(model_path, model_name)
+    config_file, model_file = _get_config_file(model_path,
+                                               model_name), _get_model_file(model_path, model_name)
     assert os.path.isfile(
-        config_file), f"Could not find the config file \"{config_file}\". Are you sure this is the correct path and you have your model config stored here?"
+        config_file
+    ), f"Could not find the config file \"{config_file}\". Are you sure this is the correct path and you have your model config stored here?"
     assert os.path.isfile(
-        model_file), f"Could not find the model file \"{model_file}\". Are you sure this is the correct path and you have your model stored here?"
+        model_file
+    ), f"Could not find the model file \"{model_file}\". Are you sure this is the correct path and you have your model stored here?"
     with open(config_file, "r") as f:
         config_dict = json.load(f)
     if net is None:
@@ -577,7 +595,8 @@ def load_model(model_path, model_name, net=None):
 def save_model(model, model_path, model_name):
     config_dict = model.config
     os.makedirs(model_path, exist_ok=True)
-    config_file, model_file = _get_config_file(model_path, model_name), _get_model_file(model_path, model_name)
+    config_file, model_file = _get_config_file(model_path,
+                                               model_name), _get_model_file(model_path, model_name)
     with open(config_file, "w") as f:
         json.dump(config_dict, f)
     torch.save(model.state_dict(), model_file)
@@ -608,11 +627,8 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
         optimizer = optim_func(net.parameters())
         loss_module = nn.CrossEntropyLoss()
         train_loader_local = data.DataLoader(
-            train_set,
-            batch_size=batch_size,
-            shuffle=True,
-            drop_last=True,
-            pin_memory=True)
+            train_set, batch_size=batch_size, shuffle=True, drop_last=True, pin_memory=True
+        )
 
         results = None
         val_scores = []
@@ -645,7 +661,9 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
             ##############
             val_acc = test_model(net, val_loader)
             val_scores.append(val_acc)
-            print(f"[Epoch {epoch+1:2i}] Training accuracy: {train_acc*100.0:05.2f}%, Validation accuracy: {val_acc*100.0:05.2f}%")
+            print(
+                f"[Epoch {epoch+1:2i}] Training accuracy: {train_acc*100.0:05.2f}%, Validation accuracy: {val_acc*100.0:05.2f}%"
+            )
 
             if len(val_scores) == 1 or val_acc > val_scores[best_val_epoch]:
                 print("\t   (New best performance, saving model...)")
@@ -659,7 +677,8 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
             "test_acc": test_acc,
             "val_scores": val_scores,
             "train_losses": train_losses,
-            "train_scores": train_scores}
+            "train_scores": train_scores
+        }
         with open(_get_result_file(CHECKPOINT_PATH, model_name), "w") as f:
             json.dump(results, f)
 
@@ -680,8 +699,7 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
 
 
 def test_model(net, data_loader):
-    """
-    Test a model on a specified dataset.
+    """Test a model on a specified dataset.
 
     Inputs:
         net - Trained model of type BaseNetwork
@@ -712,6 +730,7 @@ def test_model(net, data_loader):
 # The function `zero_grad` sets the gradients of all parameters to zero, which we have to do before calling `loss.backward()`.
 # Finally, the `step()` function tells the optimizer to update all weights based on their gradients.
 # The template is setup below:
+
 
 # %%
 class OptimizerTemplate:
@@ -752,6 +771,7 @@ class OptimizerTemplate:
 #
 # As simple as the equation is also our implementation of SGD:
 
+
 # %%
 class SGD(OptimizerTemplate):
 
@@ -774,6 +794,7 @@ class SGD(OptimizerTemplate):
 # $$
 #
 # Let's also implement it below:
+
 
 # %%
 class SGDMomentum(OptimizerTemplate):
@@ -808,6 +829,7 @@ class SGDMomentum(OptimizerTemplate):
 # rate hyperparameter $\eta$, but rather acts as an extra factor and
 # ensures that the gradients of various parameters have a similar norm.
 
+
 # %%
 class Adam(OptimizerTemplate):
 
@@ -826,8 +848,8 @@ class Adam(OptimizerTemplate):
         self.param_momentum[p] = (1 - self.beta1) * p.grad + self.beta1 * self.param_momentum[p]
         self.param_2nd_momentum[p] = (1 - self.beta2) * (p.grad)**2 + self.beta2 * self.param_2nd_momentum[p]
 
-        bias_correction_1 = 1 - self.beta1 ** self.param_step[p]
-        bias_correction_2 = 1 - self.beta2 ** self.param_step[p]
+        bias_correction_1 = 1 - self.beta1**self.param_step[p]
+        bias_correction_2 = 1 - self.beta2**self.param_step[p]
 
         p_2nd_mom = self.param_2nd_momentum[p] / bias_correction_2
         p_mom = self.param_momentum[p] / bias_correction_1
@@ -857,22 +879,25 @@ kaiming_init(base_model)
 
 # %%
 SGD_model = copy.deepcopy(base_model).to(device)
-SGD_results = train_model(SGD_model, "FashionMNIST_SGD",
-                          lambda params: SGD(params, lr=1e-1),
-                          max_epochs=40, batch_size=256)
+SGD_results = train_model(
+    SGD_model, "FashionMNIST_SGD", lambda params: SGD(params, lr=1e-1), max_epochs=40, batch_size=256
+)
 
 # %%
 SGDMom_model = copy.deepcopy(base_model).to(device)
-SGDMom_results = train_model(SGDMom_model, "FashionMNIST_SGDMom",
-                             lambda params: SGDMomentum(params, lr=1e-1, momentum=0.9),
-                             max_epochs=40, batch_size=256)
+SGDMom_results = train_model(
+    SGDMom_model,
+    "FashionMNIST_SGDMom",
+    lambda params: SGDMomentum(params, lr=1e-1, momentum=0.9),
+    max_epochs=40,
+    batch_size=256
+)
 
 # %%
 Adam_model = copy.deepcopy(base_model).to(device)
-Adam_results = train_model(Adam_model, "FashionMNIST_Adam",
-                           lambda params: Adam(params, lr=1e-3),
-                           max_epochs=40, batch_size=256)
-
+Adam_results = train_model(
+    Adam_model, "FashionMNIST_Adam", lambda params: Adam(params, lr=1e-3), max_epochs=40, batch_size=256
+)
 
 # %% [markdown]
 # The result is that all optimizers perform similarly well with the given model.
@@ -890,6 +915,7 @@ Adam_results = train_model(Adam_model, "FashionMNIST_Adam",
 # In words, pathological curvatures typically have a steep gradient in one direction with an optimum at the center, while in a second direction we have a slower gradient towards a (global) optimum.
 # Let's first create an example surface of this and visualize it:
 
+
 # %%
 def pathological_curve_loss(w1, w2):
     # Example of a pathological curvature. There are many more possible, feel free to experiment here!
@@ -899,8 +925,14 @@ def pathological_curve_loss(w1, w2):
 
 
 # %%
-def plot_curve(curve_fn, x_range=(-5, 5), y_range=(-5, 5), plot_3d=False,
-               cmap=cm.viridis, title="Pathological curvature"):
+def plot_curve(
+    curve_fn,
+    x_range=(-5, 5),
+    y_range=(-5, 5),
+    plot_3d=False,
+    cmap=cm.viridis,
+    title="Pathological curvature"
+):
     fig = plt.figure()
     ax = fig.gca(projection='3d') if plot_3d else fig.gca()
 
@@ -926,7 +958,6 @@ sns.reset_orig()
 _ = plot_curve(pathological_curve_loss, plot_3d=True)
 plt.show()
 
-
 # %% [markdown]
 # In terms of optimization, you can image that $w_1$ and $w_2$ are weight parameters, and the curvature represents the loss surface over the space of $w_1$ and $w_2$.
 # Note that in typical networks, we have many, many more parameters than two, and such curvatures can occur in multi-dimensional spaces as well.
@@ -936,6 +967,7 @@ plt.show()
 # Due to the large gradients, we would have to reduce our learning rate slowing down learning significantly.
 #
 # To test our algorithms, we can implement a simple function to train two parameters on such a surface:
+
 
 # %%
 def train_curve(optimizer_func, curve_func=pathological_curve_loss, num_updates=100, init=[5, 5]):
@@ -978,16 +1010,17 @@ Adam_points = train_curve(lambda params: Adam(params, lr=1))
 
 # %%
 all_points = np.concatenate([SGD_points, SGDMom_points, Adam_points], axis=0)
-ax = plot_curve(pathological_curve_loss,
-                x_range=(-np.absolute(all_points[:, 0]).max(), np.absolute(all_points[:, 0]).max()),
-                y_range=(all_points[:, 1].min(), all_points[:, 1].max()),
-                plot_3d=False)
+ax = plot_curve(
+    pathological_curve_loss,
+    x_range=(-np.absolute(all_points[:, 0]).max(), np.absolute(all_points[:, 0]).max()),
+    y_range=(all_points[:, 1].min(), all_points[:, 1].max()),
+    plot_3d=False
+)
 ax.plot(SGD_points[:, 0], SGD_points[:, 1], color="red", marker="o", zorder=1, label="SGD")
 ax.plot(SGDMom_points[:, 0], SGDMom_points[:, 1], color="blue", marker="o", zorder=2, label="SGDMom")
 ax.plot(Adam_points[:, 0], Adam_points[:, 1], color="grey", marker="o", zorder=3, label="Adam")
 plt.legend()
 plt.show()
-
 
 # %% [markdown]
 # We can clearly see that SGD is not able to find the center of the optimization curve and has a problem converging due to the steep gradients in $w_1$.
@@ -1000,6 +1033,7 @@ plt.show()
 # A second type of challenging loss surfaces are steep optima.
 # In those, we have a larger part of the surface having very small gradients while around the optimum, we have very large gradients.
 # For instance, take the following loss surfaces:
+
 
 # %%
 def bivar_gaussian(w1, w2, x_mean=0.0, y_mean=0.0, x_sig=1.0, y_sig=1.0):
@@ -1030,13 +1064,11 @@ SGDMom_points = train_curve(lambda params: SGDMomentum(params, lr=1, momentum=0.
 Adam_points = train_curve(lambda params: Adam(params, lr=0.2), comb_func, init=[0, 0])
 
 all_points = np.concatenate([SGD_points, SGDMom_points, Adam_points], axis=0)
-ax = plot_curve(comb_func,
-                x_range=(-2, 2),
-                y_range=(-2, 2),
-                plot_3d=False,
-                title="Steep optima")
+ax = plot_curve(comb_func, x_range=(-2, 2), y_range=(-2, 2), plot_3d=False, title="Steep optima")
 ax.plot(SGD_points[:, 0], SGD_points[:, 1], color="red", marker="o", zorder=3, label="SGD", alpha=0.7)
-ax.plot(SGDMom_points[:, 0], SGDMom_points[:, 1], color="blue", marker="o", zorder=2, label="SGDMom", alpha=0.7)
+ax.plot(
+    SGDMom_points[:, 0], SGDMom_points[:, 1], color="blue", marker="o", zorder=2, label="SGDMom", alpha=0.7
+)
 ax.plot(Adam_points[:, 0], Adam_points[:, 1], color="grey", marker="o", zorder=1, label="Adam", alpha=0.7)
 ax.set_xlim(-2, 2)
 ax.set_ylim(-2, 2)
