@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 from pprint import pprint
 from textwrap import wrap
-from typing import Sequence
+from typing import Any, Dict, Sequence
 from warnings import warn
 
 import fire
@@ -320,6 +320,43 @@ class HelperCLI:
             fp.write(" ".join(cmd_args))
 
     @staticmethod
+    def _get_card_item_cell(path_ipynb: str) -> Dict[str, Any]:
+        """Build the card item cell for the given notebook path."""
+        fpath_meta = path_ipynb.replace(".ipynb", ".yaml")
+        meta = yaml.safe_load(open(fpath_meta))
+
+        # Clamp description length
+        wrapped_description = wrap(
+            meta.get('short_description', meta['description']).strip().replace(os.linesep, " "), 175
+        )
+        suffix = "..." if len(wrapped_description) > 1 else ""
+        meta['short_description'] = wrapped_description[0] + suffix
+
+        # Resolve some default tags based on accelerators and directory name
+        meta['tags'] = meta.get('tags', [])
+
+        accelerators = meta.get("accelerator", ('CPU', ))
+        if ('GPU' in accelerators) or ('TPU' in accelerators):
+            meta['tags'].append('GPU/TPU')
+
+        dirname = os.path.basename(os.path.dirname(path_ipynb))
+        if dirname != ".notebooks":
+            meta['tags'].append(dirname)
+
+        meta['tags'] = ",".join(meta['tags'])
+
+        # Build the notebook cell
+        rst_cell = TEMPLATE_CARD_ITEM % meta
+
+        return {
+            "cell_type": "raw",
+            "metadata": {
+                "raw_mimetype": "text/restructuredtext"
+            },
+            "source": rst_cell.strip().splitlines(True)
+        }
+
+    @staticmethod
     def copy_notebooks(path_root: str, path_docs_ipynb: str = "docs/source/notebooks"):
         """Copy all notebooks from a folder to doc folder.
 
@@ -334,29 +371,6 @@ class HelperCLI:
         os.makedirs(path_docs_ipynb, exist_ok=True)
         ipynb_content = []
         for path_ipynb in tqdm.tqdm(ls_ipynb):
-            fpath_meta = path_ipynb.replace(".ipynb", ".yaml")
-            meta = yaml.safe_load(open(fpath_meta))
-
-            wrapped_description = wrap(
-                meta.get('short_description', meta['description']).strip().replace(os.linesep, " "), 175
-            )
-            suffix = "..." if len(wrapped_description) > 1 else ""
-            meta['short_description'] = wrapped_description[0] + suffix
-
-            meta['tags'] = meta.get('tags', [])
-
-            accelerators = meta.get("accelerator", ('CPU', ))
-            if ('GPU' in accelerators) or ('TPU' in accelerators):
-                meta['tags'].append('GPU/TPU')
-
-            dirname = os.path.basename(os.path.dirname(path_ipynb))
-            if dirname != ".notebooks":
-                meta['tags'].append(dirname)
-
-            meta['tags'] = ",".join(meta['tags'])
-
-            rst_cell = TEMPLATE_CARD_ITEM % meta
-
             ipynb = path_ipynb.split(os.path.sep)
             sub_ipynb = os.path.sep.join(ipynb[ipynb.index(HelperCLI.DIR_NOTEBOOKS) + 1:])
             new_ipynb = os.path.join(path_docs_ipynb, sub_ipynb)
@@ -366,13 +380,7 @@ class HelperCLI:
             with open(path_ipynb) as f:
                 ipynb = json.load(f)
 
-            ipynb["cells"].append({
-                "cell_type": "raw",
-                "metadata": {
-                    "raw_mimetype": "text/restructuredtext"
-                },
-                "source": rst_cell.strip().splitlines(True)
-            })
+            ipynb["cells"].append(HelperCLI._get_card_item_cell(path_ipynb))
 
             with open(new_ipynb, 'w') as f:
                 json.dump(ipynb, f)
