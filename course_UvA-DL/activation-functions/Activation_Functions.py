@@ -234,8 +234,7 @@ act_fn_by_name = {
 
 # %%
 def get_grads(act_fn, x):
-    """
-    Computes the gradients of an activation function at specified positions.
+    """Computes the gradients of an activation function at specified positions.
 
     Inputs:
         act_fn - An object of the class "ActivationFunction" with an implemented forward pass.
@@ -351,8 +350,7 @@ def _get_model_file(model_path, model_name):
 
 
 def load_model(model_path, model_name, net=None):
-    """
-    Loads a saved model from disk.
+    """Loads a saved model from disk.
 
     Inputs:
         model_path - Path of the checkpoint directory
@@ -367,7 +365,7 @@ def load_model(model_path, model_name, net=None):
     assert os.path.isfile(
         model_file
     ), f"Could not find the model file \"{model_file}\". Are you sure this is the correct path and you have your model stored here?"
-    with open(config_file, "r") as f:
+    with open(config_file) as f:
         config_dict = json.load(f)
     if net is None:
         act_fn_name = config_dict["act_fn"].pop("name").lower()
@@ -378,8 +376,7 @@ def load_model(model_path, model_name, net=None):
 
 
 def save_model(model, model_path, model_name):
-    """
-    Given a model, we save the state_dict and hyperparameters.
+    """Given a model, we save the state_dict and hyperparameters.
 
     Inputs:
         model - Network object to save parameters from
@@ -531,8 +528,7 @@ for i, act_fn_name in enumerate(act_fn_by_name):
 
 # %%
 def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, overwrite=False):
-    """
-    Train a model on the training set of FashionMNIST
+    """Train a model on the training set of FashionMNIST
 
     Inputs:
         net - Object of BaseNetwork
@@ -610,8 +606,7 @@ def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, over
 
 
 def test_model(net, data_loader):
-    """
-    Test a model on a specified dataset.
+    """Test a model on a specified dataset.
 
     Inputs:
         net - Trained model of type BaseNetwork
