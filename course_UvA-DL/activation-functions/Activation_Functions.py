@@ -528,7 +528,7 @@ for i, act_fn_name in enumerate(act_fn_by_name):
 
 # %%
 def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, overwrite=False):
-    """Train a model on the training set of FashionMNIST
+    """Train a model on the training set of FashionMNIST.
 
     Inputs:
         net - Object of BaseNetwork
