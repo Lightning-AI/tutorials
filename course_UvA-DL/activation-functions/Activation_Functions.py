@@ -48,6 +48,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 # Path to the folder where the pretrained models are saved
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/Activation_Functions/")
 
+
 # Function for setting the seed
 def set_seed(seed):
     np.random.seed(seed)
@@ -55,6 +56,7 @@ def set_seed(seed):
     if torch.cuda.is_available():  # GPU operation have separate seed
         torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
+
 
 set_seed(42)
 
@@ -77,12 +79,12 @@ print("Using device", device)
 # Github URL where saved models are stored for this tutorial
 base_url = "https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial3/"
 # Files to download
-pretrained_files = ["FashionMNIST_elu.config", "FashionMNIST_elu.tar",
-                    "FashionMNIST_leakyrelu.config", "FashionMNIST_leakyrelu.tar",
-                    "FashionMNIST_relu.config", "FashionMNIST_relu.tar",
-                    "FashionMNIST_sigmoid.config", "FashionMNIST_sigmoid.tar",
-                    "FashionMNIST_swish.config", "FashionMNIST_swish.tar",
-                    "FashionMNIST_tanh.config", "FashionMNIST_tanh.tar"]
+pretrained_files = [
+    "FashionMNIST_elu.config", "FashionMNIST_elu.tar", "FashionMNIST_leakyrelu.config",
+    "FashionMNIST_leakyrelu.tar", "FashionMNIST_relu.config", "FashionMNIST_relu.tar",
+    "FashionMNIST_sigmoid.config", "FashionMNIST_sigmoid.tar", "FashionMNIST_swish.config",
+    "FashionMNIST_swish.tar", "FashionMNIST_tanh.config", "FashionMNIST_tanh.tar"
+]
 # Create checkpoint path if it doesn't exist yet
 os.makedirs(CHECKPOINT_PATH, exist_ok=True)
 
@@ -95,8 +97,10 @@ for file_name in pretrained_files:
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
-            print("Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n", e)
-
+            print(
+                "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
+                e
+            )
 
 # %% [markdown]
 # ## Common activation functions
@@ -109,6 +113,7 @@ for file_name in pretrained_files:
 # For an easier time of comparing various activation functions, we start
 # with defining a base class from which all our future modules will
 # inherit:
+
 
 # %%
 class ActivationFunction(nn.Module):
@@ -130,10 +135,12 @@ class ActivationFunction(nn.Module):
 # %%
 ##############################
 
+
 class Sigmoid(ActivationFunction):
 
     def forward(self, x):
         return 1 / (1 + torch.exp(-x))
+
 
 ##############################
 
@@ -144,8 +151,8 @@ class Tanh(ActivationFunction):
         x_exp, neg_x_exp = torch.exp(x), torch.exp(-x)
         return (x_exp - neg_x_exp) / (x_exp + neg_x_exp)
 
-##############################
 
+##############################
 
 # %% [markdown]
 # Another popular activation function that has allowed the training of deeper networks, is the Rectified Linear Unit (ReLU).
@@ -163,10 +170,12 @@ class Tanh(ActivationFunction):
 # %%
 ##############################
 
+
 class ReLU(ActivationFunction):
 
     def forward(self, x):
         return x * (x > 0).float()
+
 
 ##############################
 
@@ -180,6 +189,7 @@ class LeakyReLU(ActivationFunction):
     def forward(self, x):
         return torch.where(x > 0, x, self.config["alpha"] * x)
 
+
 ##############################
 
 
@@ -187,6 +197,7 @@ class ELU(ActivationFunction):
 
     def forward(self, x):
         return torch.where(x > 0, x, torch.exp(x) - 1)
+
 
 ##############################
 
@@ -196,8 +207,8 @@ class Swish(ActivationFunction):
     def forward(self, x):
         return x * torch.sigmoid(x)
 
-##############################
 
+##############################
 
 # %% [markdown]
 # For later usage, we summarize all our activation functions in a dictionary mapping the name to the class object.
@@ -213,13 +224,13 @@ act_fn_by_name = {
     "swish": Swish
 }
 
-
 # %% [markdown]
 # ### Visualizing activation functions
 #
 # To get an idea of what each activation function actually does, we will visualize them in the following.
 # Next to the actual activation value, the gradient of the function is an important aspect as it is crucial for optimizing the neural network.
 # PyTorch allows us to compute the gradients simply by calling the `backward` function:
+
 
 # %%
 def get_grads(act_fn, x):
@@ -240,6 +251,7 @@ def get_grads(act_fn, x):
 
 # %% [markdown]
 # Now we can visualize all our activation functions including their gradients:
+
 
 # %%
 def vis_act_fn(act_fn, ax, x):
@@ -267,7 +279,6 @@ for i, act_fn in enumerate(act_fns):
 fig.subplots_adjust(hspace=0.3)
 plt.show()
 
-
 # %% [markdown]
 # ## Analysing the effect of activation functions
 
@@ -286,6 +297,7 @@ plt.show()
 # The chosen network views the images as 1D tensors and pushes them through a sequence of linear layers and a specified activation function.
 # Feel free to experiment with other network architectures.
 
+
 # %%
 class BaseNetwork(nn.Module):
 
@@ -303,8 +315,7 @@ class BaseNetwork(nn.Module):
         layers = []
         layer_sizes = [input_size] + hidden_sizes
         for layer_index in range(1, len(layer_sizes)):
-            layers += [nn.Linear(layer_sizes[layer_index - 1], layer_sizes[layer_index]),
-                       act_fn]
+            layers += [nn.Linear(layer_sizes[layer_index - 1], layer_sizes[layer_index]), act_fn]
         layers += [nn.Linear(layer_sizes[-1], num_classes)]
         # nn.Sequential summarizes a list of modules into a single module, applying them in sequence
         self.layers = nn.Sequential(*layers)
@@ -314,7 +325,8 @@ class BaseNetwork(nn.Module):
             "act_fn": act_fn.config,
             "input_size": input_size,
             "num_classes": num_classes,
-            "hidden_sizes": hidden_sizes}
+            "hidden_sizes": hidden_sizes
+        }
 
     def forward(self, x):
         x = x.view(x.size(0), -1)  # Reshape images to a flat vector
@@ -325,6 +337,7 @@ class BaseNetwork(nn.Module):
 # %% [markdown]
 # We also add functions for loading and saving the model.
 # The hyperparameters are stored in a configuration file (simple json file):
+
 
 # %%
 def _get_config_file(model_path, model_name):
@@ -346,11 +359,14 @@ def load_model(model_path, model_name, net=None):
         model_name - Name of the model (str)
         net - (Optional) If given, the state dict is loaded into this model. Otherwise, a new model is created.
     """
-    config_file, model_file = _get_config_file(model_path, model_name), _get_model_file(model_path, model_name)
+    config_file, model_file = _get_config_file(model_path,
+                                               model_name), _get_model_file(model_path, model_name)
     assert os.path.isfile(
-        config_file), f"Could not find the config file \"{config_file}\". Are you sure this is the correct path and you have your model config stored here?"
+        config_file
+    ), f"Could not find the config file \"{config_file}\". Are you sure this is the correct path and you have your model config stored here?"
     assert os.path.isfile(
-        model_file), f"Could not find the model file \"{model_file}\". Are you sure this is the correct path and you have your model stored here?"
+        model_file
+    ), f"Could not find the model file \"{model_file}\". Are you sure this is the correct path and you have your model stored here?"
     with open(config_file, "r") as f:
         config_dict = json.load(f)
     if net is None:
@@ -372,7 +388,8 @@ def save_model(model, model_path, model_name):
     """
     config_dict = model.config
     os.makedirs(model_path, exist_ok=True)
-    config_file, model_file = _get_config_file(model_path, model_name), _get_model_file(model_path, model_name)
+    config_file, model_file = _get_config_file(model_path,
+                                               model_name), _get_model_file(model_path, model_name)
     with open(config_file, "w") as f:
         json.dump(config_dict, f)
     torch.save(model.state_dict(), model_file)
@@ -391,8 +408,7 @@ def save_model(model, model_path, model_name):
 # %%
 
 # Transformations applied on each image => first make them a tensor, then normalize them in the range -1 to 1
-transform = transforms.Compose([transforms.ToTensor(),
-                                transforms.Normalize((0.5,), (0.5,))])
+transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, ), (0.5, ))])
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_dataset = FashionMNIST(root=DATASET_PATH, train=True, transform=transform, download=True)
@@ -421,7 +437,6 @@ plt.axis('off')
 plt.show()
 plt.close()
 
-
 # %% [markdown]
 # ### Visualizing the gradient flow after initialization
 #
@@ -434,6 +449,7 @@ plt.close()
 # To get a feeling of how every activation function influences the
 # gradients, we can look at a freshly initialized network and measure the
 # gradients for each parameter for a batch of 256 images:
+
 
 # %%
 def visualize_gradients(net, color="C0"):
@@ -453,8 +469,10 @@ def visualize_gradients(net, color="C0"):
     loss = F.cross_entropy(preds, labels)
     loss.backward()
     # We limit our visualization to the weight parameters and exclude the bias to reduce the number of plots
-    grads = {name: params.grad.data.view(-1).cpu().clone().numpy()
-             for name, params in net.named_parameters() if "weight" in name}
+    grads = {
+        name: params.grad.data.view(-1).cpu().clone().numpy()
+        for name, params in net.named_parameters() if "weight" in name
+    }
     net.zero_grad()
 
     # Plotting
@@ -470,7 +488,8 @@ def visualize_gradients(net, color="C0"):
     fig.suptitle(
         f"Gradient magnitude distribution for activation function {net.config['act_fn']['name']}",
         fontsize=14,
-        y=1.05)
+        y=1.05
+    )
     fig.subplots_adjust(wspace=0.45)
     plt.show()
     plt.close()
@@ -481,11 +500,12 @@ def visualize_gradients(net, color="C0"):
 warnings.filterwarnings('ignore')
 # Create a plot for every activation function
 for i, act_fn_name in enumerate(act_fn_by_name):
-    set_seed(42)  # Setting the seed ensures that we have the same weight initialization for each activation function
+    set_seed(
+        42
+    )  # Setting the seed ensures that we have the same weight initialization for each activation function
     act_fn = act_fn_by_name[act_fn_name]()
     net_actfn = BaseNetwork(act_fn=act_fn).to(device)
     visualize_gradients(net_actfn, color=f"C{i}")
-
 
 # %% [markdown]
 # The sigmoid activation function shows a clearly undesirable behavior.
@@ -508,6 +528,7 @@ for i, act_fn_name in enumerate(act_fn_by_name):
 # Therefore, we write a training loop in the next cell including a
 # validation after every epoch and a final test on the best model:
 
+
 # %%
 def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, overwrite=False):
     """
@@ -529,14 +550,13 @@ def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, over
             print("Model file exists, but will be overwritten...")
 
         # Defining optimizer, loss and data loader
-        optimizer = optim.SGD(net.parameters(), lr=1e-2, momentum=0.9)  # Default parameters, feel free to change
+        optimizer = optim.SGD(
+            net.parameters(), lr=1e-2, momentum=0.9
+        )  # Default parameters, feel free to change
         loss_module = nn.CrossEntropyLoss()
         train_loader_local = data.DataLoader(
-            train_set,
-            batch_size=batch_size,
-            shuffle=True,
-            drop_last=True,
-            pin_memory=True)
+            train_set, batch_size=batch_size, shuffle=True, drop_last=True, pin_memory=True
+        )
 
         val_scores = []
         best_val_epoch = -1
@@ -563,7 +583,9 @@ def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, over
             ################
             val_acc = test_model(net, val_loader)
             val_scores.append(val_acc)
-            print(f"[Epoch {epoch+1:2i}] Training accuracy: {train_acc*100.0:05.2f}%, Validation accuracy: {val_acc*100.0:05.2f}%")
+            print(
+                f"[Epoch {epoch+1:2i}] Training accuracy: {train_acc*100.0:05.2f}%, Validation accuracy: {val_acc*100.0:05.2f}%"
+            )
 
             if len(val_scores) == 1 or val_acc > val_scores[best_val_epoch]:
                 print("\t   (New best performance, saving model...)")
@@ -619,7 +641,6 @@ for act_fn_name in act_fn_by_name:
     net_actfn = BaseNetwork(act_fn=act_fn).to(device)
     train_model(net_actfn, f"FashionMNIST_{act_fn_name}", overwrite=False)
 
-
 # %% [markdown]
 # Not surprisingly, the model using the sigmoid activation function shows to fail and does not improve upon random performance (10 classes => 1/10 for random chance).
 #
@@ -642,6 +663,7 @@ for act_fn_name in act_fn_by_name:
 # To answer these questions, we can write a simple function which takes a
 # trained model, applies it to a batch of images, and plots the histogram
 # of the activations inside the network:
+
 
 # %%
 def visualize_activations(net, color="C0"):
@@ -669,7 +691,9 @@ def visualize_activations(net, color="C0"):
         sns.histplot(data=activations[key], bins=50, ax=key_ax, color=color, kde=True, stat="density")
         key_ax.set_title(f"Layer {key} - {net.layers[key].__class__.__name__}")
         fig_index += 1
-    fig.suptitle(f"Activation distribution for activation function {net.config['act_fn']['name']}", fontsize=14)
+    fig.suptitle(
+        f"Activation distribution for activation function {net.config['act_fn']['name']}", fontsize=14
+    )
     fig.subplots_adjust(hspace=0.4, wspace=0.4)
     plt.show()
     plt.close()
@@ -679,7 +703,6 @@ def visualize_activations(net, color="C0"):
 for i, act_fn_name in enumerate(act_fn_by_name):
     net_actfn = load_model(model_path=CHECKPOINT_PATH, model_name=f"FashionMNIST_{act_fn_name}").to(device)
     visualize_activations(net_actfn, color=f"C{i}")
-
 
 # %% [markdown]
 # As the model with sigmoid activation was not able to train properly, the activations are also less informative and all gathered around 0.5 (the activation at input 0).
@@ -713,13 +736,15 @@ for i, act_fn_name in enumerate(act_fn_by_name):
 # training set and records whether a neuron is exactly 0 for all data
 # points or not:
 
+
 # %%
 def measure_number_dead_neurons(net):
 
     # For each neuron, we create a boolean variable initially set to 1. If it has an activation unequals 0 at any time,
     # we set this variable to 0. After running through the whole training set, only dead neurons will have a 1.
     neurons_dead = [
-        torch.ones(layer.weight.shape[0], device=device, dtype=torch.bool) for layer in net.layers[:-1] if isinstance(layer, nn.Linear)
+        torch.ones(layer.weight.shape[0], device=device, dtype=torch.bool) for layer in net.layers[:-1]
+        if isinstance(layer, nn.Linear)
     ]  # Same shapes as hidden size in BaseNetwork
 
     net.eval()
@@ -732,12 +757,18 @@ def measure_number_dead_neurons(net):
                 imgs = layer(imgs)
                 if isinstance(layer, ActivationFunction):
                     # Are all activations == 0 in the batch, and we did not record the opposite in the last batches?
-                    neurons_dead[layer_index] = torch.logical_and(neurons_dead[layer_index], (imgs == 0).all(dim=0))
+                    neurons_dead[layer_index] = torch.logical_and(
+                        neurons_dead[layer_index], (imgs == 0).all(dim=0)
+                    )
                     layer_index += 1
     number_neurons_dead = [t.sum().item() for t in neurons_dead]
     print("Number of dead neurons:", number_neurons_dead)
-    print("In percentage:", ", ".join(
-        [f"{(100.0 * num_dead / tens.shape[0]):4.2f}%" for tens, num_dead in zip(neurons_dead, number_neurons_dead)]))
+    print(
+        "In percentage:", ", ".join([
+            f"{(100.0 * num_dead / tens.shape[0]):4.2f}%"
+            for tens, num_dead in zip(neurons_dead, number_neurons_dead)
+        ])
+    )
 
 
 # %% [markdown]
@@ -770,7 +801,8 @@ measure_number_dead_neurons(net_relu)
 
 # %%
 set_seed(42)
-net_relu = BaseNetwork(act_fn=ReLU(), hidden_sizes=[256, 256, 256, 256, 256, 128, 128, 128, 128, 128]).to(device)
+net_relu = BaseNetwork(act_fn=ReLU(), hidden_sizes=[256, 256, 256, 256, 256, 128, 128, 128, 128,
+                                                    128]).to(device)
 measure_number_dead_neurons(net_relu)
 
 # %% [markdown]
