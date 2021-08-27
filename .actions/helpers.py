@@ -343,13 +343,15 @@ class HelperCLI:
             suffix = "..." if len(wrapped_description) > 1 else ""
             meta['short_description'] = wrapped_description[0] + suffix
 
-            meta['tags'] = ",".join(meta.get('tags', ["Other"]))
+            meta['tags'] = ",".join(meta.get('tags', []))
 
             accelerators = meta.get("accelerator", ('CPU', ))
             if ('GPU' in accelerators) or ('TPU' in accelerators):
                 meta['tags'].append('GPU/TPU')
 
-            meta['tags'].append(os.path.basename(os.path.dirname(path_ipynb)))
+            dirname = os.path.basename(os.path.dirname(path_ipynb))
+            if dirname != ".notebooks":
+                meta['tags'].append()
 
             rst_cell = TEMPLATE_CARD_ITEM % meta
 
