@@ -3,6 +3,8 @@ author: Phillip Lippe
 created: 2021-07-12
 updated: 2021-07-12
 license: CC BY-SA
+tags:
+  - Image
 description: |
   In this tutorial, we will look at energy-based deep learning models, and focus on their application as generative models.
   Energy models have been a popular tool before the huge deep learning hype around 2012 hit.

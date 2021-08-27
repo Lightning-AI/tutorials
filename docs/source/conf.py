@@ -66,6 +66,7 @@ extensions = [
     'nbsphinx',
     'myst_parser',
     'sphinx_paramlinks',
+    'pt_lightning_sphinx_theme.extensions.lightning_tutorials',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

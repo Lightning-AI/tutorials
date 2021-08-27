@@ -10,7 +10,7 @@ description: This notebook will walk you through how to start using Datamodules.
   The most up to date documentation on datamodules can be found
   [here](https://pytorch-lightning.readthedocs.io/en/latest/extensions/datamodules.html).
 requirements:
-- torchvision
+  - torchvision
 accelerator:
-- CPU
-- GPU
+  - CPU
+  - GPU

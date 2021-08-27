@@ -3,6 +3,8 @@ author: Phillip Lippe
 created: 2021-06-30
 updated: 2021-06-30
 license: CC BY-SA
+tags:
+  - Text
 description: |
   In this tutorial, we will discuss one of the most impactful architectures of the last 2 years: the Transformer model.
   Since the paper Attention Is All You Need by Vaswani et al. had been published in 2017,
