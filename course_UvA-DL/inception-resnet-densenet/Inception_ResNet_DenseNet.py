@@ -1078,12 +1078,7 @@ class DenseBlock(nn.Module):
             # Input channels are original plus the feature maps from previous layers
             layer_c_in = c_in + layer_idx * growth_rate
             layers.append(
-                DenseLayer(
-                    c_in=layer_c_in,
-                    bn_size=bn_size,
-                    growth_rate=growth_rate,
-                    act_fn=act_fn
-                )
+                DenseLayer(c_in=layer_c_in, bn_size=bn_size, growth_rate=growth_rate, act_fn=act_fn)
             )
         self.block = nn.Sequential(*layers)
 
