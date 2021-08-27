@@ -345,6 +345,12 @@ class HelperCLI:
 
             meta['tags'] = ",".join(meta.get('tags', ["Other"]))
 
+            accelerators = meta.get("accelerator", ('CPU', ))
+            if ('GPU' in accelerators) or ('TPU' in accelerators):
+                meta['tags'].append('GPU/TPU')
+
+            meta['tags'].append(os.path.basename(os.path.dirname(path_ipynb)))
+
             rst_cell = TEMPLATE_CARD_ITEM % meta
 
             ipynb = path_ipynb.split(os.path.sep)
