@@ -561,9 +561,9 @@ def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, over
         val_scores = []
         best_val_epoch = -1
         for epoch in range(max_epochs):
-            ##############
-            ## Training ##
-            ##############
+            ############
+            # Training #
+            ############
             net.train()
             true_preds, count = 0., 0
             for imgs, labels in tqdm(train_loader_local, desc=f"Epoch {epoch+1}", leave=False):
@@ -578,9 +578,9 @@ def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, over
                 count += labels.shape[0]
             train_acc = true_preds / count
 
-            ################
-            ## Validation ##
-            ################
+            ##############
+            # Validation #
+            ##############
             val_acc = test_model(net, val_loader)
             val_scores.append(val_acc)
             print(
