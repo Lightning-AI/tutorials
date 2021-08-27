@@ -351,7 +351,7 @@ class HelperCLI:
 
             dirname = os.path.basename(os.path.dirname(path_ipynb))
             if dirname != ".notebooks":
-                meta['tags'].append()
+                meta['tags'].append(dirname)
 
             meta['tags'] = ",".join(meta['tags'])
 
