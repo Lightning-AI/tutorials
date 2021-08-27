@@ -43,7 +43,7 @@ TEMPLATE_HEADER = f"""# %%%% [markdown]
 
 """
 TEMPLATE_SETUP = """# %%%% [markdown]
-# ### Setup
+# ## Setup
 # This notebook requires some packages besides pytorch-lightning.
 
 # %%%% colab={} colab_type="code" id="LfrJLKPFyhsK"
