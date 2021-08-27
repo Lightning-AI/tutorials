@@ -9,7 +9,6 @@ description: |
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 requirements:
   - matplotlib
-  - seaborn
 accelerator:
   - CPU
   - GPU

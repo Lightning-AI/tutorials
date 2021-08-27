@@ -35,7 +35,6 @@ from tqdm.notebook import tqdm  # Progress bar
 
 set_matplotlib_formats('svg', 'pdf')
 
-
 # %% [markdown]
 # ## The Basics of PyTorch
 #
@@ -242,10 +241,10 @@ x = torch.arange(12).view(3, 4)
 print("X", x)
 
 # %%
-print(x[:, 1])   # Second column
+print(x[:, 1])  # Second column
 
 # %%
-print(x[0])      # First row
+print(x[0])  # First row
 
 # %%
 print(x[:2, -1])  # First two rows, last column
@@ -280,7 +279,7 @@ print(x[1:3, :])  # Middle two rows
 # By default, when we create a tensor, it does not require gradients.
 
 # %%
-x = torch.ones((3,))
+x = torch.ones((3, ))
 print(x.requires_grad)
 
 # %% [markdown]
@@ -313,7 +312,7 @@ print("X", x)
 
 # %%
 a = x + 2
-b = a ** 2
+b = a**2
 c = b + 3
 y = c.mean()
 print("Y", y)
@@ -488,13 +487,13 @@ torch.backends.cudnn.benchmark = False
 # This is in contrast to `torch.nn` which defines them as `nn.Modules` (more on it below), and `torch.nn` actually uses a lot of functionalities from `torch.nn.functional`.
 # Hence, the functional package is useful in many situations, and so we import it as well here.
 
-
 # %% [markdown]
 # #### nn.Module
 #
 # In PyTorch, a neural network is build up out of modules.
 # Modules can contain other modules, and a neural network is considered to be a module itself as well.
 # The basic template of a module is as follows:
+
 
 # %%
 class MyModule(nn.Module):
@@ -523,6 +522,7 @@ class MyModule(nn.Module):
 # The input neurons are shown in blue, which represent the coordinates $x_1$ and $x_2$ of a data point.
 # The hidden neurons including a tanh activation are shown in white, and the output neuron in red.
 # In PyTorch, we can define this as follows:
+
 
 # %%
 class SimpleClassifier(nn.Module):
@@ -641,9 +641,9 @@ dataset = XORDataset(size=200)
 print("Size of dataset:", len(dataset))
 print("Data point 0:", dataset[0])
 
-
 # %% [markdown]
 # To better relate to the dataset, we visualize the samples below.
+
 
 # %%
 def visualize_samples(data, label):
@@ -782,13 +782,13 @@ train_data_loader = data.DataLoader(train_dataset, batch_size=128, shuffle=True)
 # Push model to device. Has to be only done once
 model.to(device)
 
-
 # %% [markdown]
 # In addition, we set our model to training mode.
 # This is done by calling `model.train()`.
 # There exist certain modules that need to perform a different forward
 # step during training than during testing (e.g. BatchNorm and Dropout),
 # and we can switch between them using `model.train()` and `model.eval()`.
+
 
 # %%
 def train_model(model, optimizer, data_loader, loss_module, num_epochs=100):
@@ -875,7 +875,6 @@ test_dataset = XORDataset(size=500)
 # drop_last -> Don't drop the last batch although it is smaller than 128
 test_data_loader = data.DataLoader(test_dataset, batch_size=128, shuffle=False, drop_last=False)
 
-
 # %% [markdown]
 # As metric, we will use accuracy which is calculated as follows:
 #
@@ -887,6 +886,7 @@ test_data_loader = data.DataLoader(test_dataset, batch_size=128, shuffle=False, 
 # This reduces the required memory and speed up the model.
 # In PyTorch, we can deactivate the computation graph using `with torch.no_grad(): ...`.
 # Remember to additionally set the model to eval mode.
+
 
 # %%
 def eval_model(model, data_loader):
@@ -914,7 +914,6 @@ def eval_model(model, data_loader):
 # %%
 eval_model(model, test_data_loader)
 
-
 # %% [markdown]
 # If we trained our model correctly, we should see a score close to 100% accuracy.
 # However, this is only possible because of our simple task, and
@@ -930,6 +929,7 @@ eval_model(model, test_data_loader)
 # The spots where the model is uncertain we will see a blurry overlap.
 # The specific code is less relevant compared to the output figure which
 # should hopefully show us a clear separation of classes:
+
 
 # %%
 @torch.no_grad()  # Decorator, same effect as "with torch.no_grad(): ..." over the whole function.
@@ -961,7 +961,8 @@ def visualize_classification(model, data, label):
     preds = torch.sigmoid(preds)
     # Specifying "None" in a dimension creates a new one
     output_image = preds * c0[None, None] + (1 - preds) * c1[None, None]
-    output_image = output_image.cpu().numpy()  # Convert to numpy array. This only works for tensors on CPU, hence first push to CPU
+    output_image = output_image.cpu().numpy(
+    )  # Convert to numpy array. This only works for tensors on CPU, hence first push to CPU
     plt.imshow(output_image, origin='upper', extent=(-0.5, 1.5, -0.5, 1.5))
     plt.grid(False)
 
