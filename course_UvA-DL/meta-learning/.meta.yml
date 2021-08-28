@@ -3,6 +3,10 @@ author: Phillip Lippe
 created: 2021-08-21
 updated: 2021-08-21
 license: CC BY-SA
+tags:
+  - Few-shot learning
+  - MAML
+  - ProtoNet
 description: |
   In this tutorial, we will discuss algorithms that learn models which can quickly adapt to new classes and/or tasks with few samples.
   This area of machine learning is called _Meta-Learning_ aiming at "learning to learn".
