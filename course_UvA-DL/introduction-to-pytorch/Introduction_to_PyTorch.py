@@ -18,7 +18,7 @@
 #
 # We will use a set of standard libraries that are often used in machine learning projects.
 # If you are running this notebook on Google Colab, all libraries should be pre-installed.
-# If you are running this notebook locally, make sure you have installed our `dl2020` environment and have activated it.
+# If you are running this notebook locally, make sure you have installed our `dl2020` environment ([link](https://github.com/uvadlc/uvadlc_practicals_2020/blob/master/environment.yml)) and have activated it.
 
 # %%
 import time
