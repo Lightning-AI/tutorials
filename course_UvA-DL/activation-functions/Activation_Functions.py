@@ -31,7 +31,7 @@ sns.set()
 # We will define a function to set a seed on all libraries we might interact with in this tutorial (here numpy and torch).
 # This allows us to make our training reproducible.
 # However, note that in contrast to the CPU, the same seed on different GPU architectures can give different results.
-# All models here have been trained on an NVIDIA GTX1080Ti, which is also the GPU type provided by the Lisa gpu_shared_course partition.
+# All models here have been trained on an NVIDIA GTX1080Ti.
 #
 # Additionally, the following cell defines two paths: `DATASET_PATH` and `CHECKPOINT_PATH`.
 # The dataset path is the directory where we will download datasets used in the notebooks.
