@@ -604,7 +604,7 @@ def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, ma
 # %%
 def get_smaller_dataset(original_dataset, num_imgs_per_label):
     new_dataset = data.TensorDataset(
-        *(t.unflatten(0, (10, -1))[:, :num_imgs_per_label].flatten(0, 1) for t in original_dataset.tensors)
+        *(t.unflatten(0, (10, 500))[:, :num_imgs_per_label].flatten(0, 1) for t in original_dataset.tensors)
     )
     return new_dataset
 
