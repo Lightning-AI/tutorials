@@ -124,7 +124,7 @@ for file_name in pretrained_files:
 
 
 # %%
-class ContrastiveTransformations(object):
+class ContrastiveTransformations:
 
     def __init__(self, base_transforms, n_views=2):
         self.base_transforms = base_transforms
@@ -604,7 +604,7 @@ def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, ma
 # %%
 def get_smaller_dataset(original_dataset, num_imgs_per_label):
     new_dataset = data.TensorDataset(
-        *[t.unflatten(0, (10, -1))[:, :num_imgs_per_label].flatten(0, 1) for t in original_dataset.tensors]
+        *(t.unflatten(0, (10, -1))[:, :num_imgs_per_label].flatten(0, 1) for t in original_dataset.tensors)
     )
     return new_dataset
 
@@ -633,7 +633,7 @@ for num_imgs_per_label in [10, 20, 50, 100, 200, 500]:
 # Finally, let's plot the results.
 
 # %%
-dataset_sizes = sorted([k for k in results])
+dataset_sizes = sorted(k for k in results)
 test_scores = [results[k]["test"] for k in dataset_sizes]
 
 fig = plt.figure(figsize=(6, 4))
