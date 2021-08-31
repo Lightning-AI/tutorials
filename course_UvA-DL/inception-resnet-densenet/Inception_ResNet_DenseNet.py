@@ -18,15 +18,16 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
+
 # %matplotlib inline
-from IPython.display import display, HTML, set_matplotlib_formats
+from IPython.display import HTML, display, set_matplotlib_formats
 from PIL import Image
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
 
-set_matplotlib_formats('svg', 'pdf')  # For export
-matplotlib.rcParams['lines.linewidth'] = 2.0
+set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
 # PyTorch
@@ -69,10 +70,14 @@ device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("
 base_url = "https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial5/"
 # Files to download
 pretrained_files = [
-    "GoogleNet.ckpt", "ResNet.ckpt", "ResNetPreAct.ckpt", "DenseNet.ckpt",
-    "tensorboards/GoogleNet/events.out.tfevents.googlenet", "tensorboards/ResNet/events.out.tfevents.resnet",
+    "GoogleNet.ckpt",
+    "ResNet.ckpt",
+    "ResNetPreAct.ckpt",
+    "DenseNet.ckpt",
+    "tensorboards/GoogleNet/events.out.tfevents.googlenet",
+    "tensorboards/ResNet/events.out.tfevents.resnet",
     "tensorboards/ResNetPreAct/events.out.tfevents.resnetpreact",
-    "tensorboards/DenseNet/events.out.tfevents.densenet"
+    "tensorboards/DenseNet/events.out.tfevents.densenet",
 ]
 # Create checkpoint path if it doesn't exist yet
 os.makedirs(CHECKPOINT_PATH, exist_ok=True)
@@ -90,7 +95,7 @@ for file_name in pretrained_files:
         except HTTPError as e:
             print(
                 "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
-                e
+                e,
             )
 
 # %% [markdown]
@@ -127,12 +132,14 @@ print("Data std", DATA_STD)
 # %%
 test_transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(DATA_MEANS, DATA_STD)])
 # For training, we add some augmentation. Networks are too powerful and would overfit.
-train_transform = transforms.Compose([
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomResizedCrop((32, 32), scale=(0.8, 1.0), ratio=(0.9, 1.1)),
-    transforms.ToTensor(),
-    transforms.Normalize(DATA_MEANS, DATA_STD)
-])
+train_transform = transforms.Compose(
+    [
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomResizedCrop((32, 32), scale=(0.8, 1.0), ratio=(0.9, 1.1)),
+        transforms.ToTensor(),
+        transforms.Normalize(DATA_MEANS, DATA_STD),
+    ]
+)
 # Loading the training dataset. We need to split it into a training and validation part
 # We need to do a little trick because the validation set should not use the augmentation.
 train_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=train_transform, download=True)
@@ -146,9 +153,7 @@ _, val_set = torch.utils.data.random_split(val_dataset, [45000, 5000])
 test_set = CIFAR10(root=DATASET_PATH, train=False, transform=test_transform, download=True)
 
 # We define a set of data loaders that we can use for various purposes later.
-train_loader = data.DataLoader(
-    train_set, batch_size=128, shuffle=True, drop_last=True, pin_memory=True, num_workers=4
-)
+train_loader = data.DataLoader(train_set, batch_size=128, shuffle=True, drop_last=True, pin_memory=True, num_workers=4)
 val_loader = data.DataLoader(val_set, batch_size=128, shuffle=False, drop_last=False, num_workers=4)
 test_loader = data.DataLoader(test_set, batch_size=128, shuffle=False, drop_last=False, num_workers=4)
 
@@ -170,15 +175,13 @@ images = [train_dataset[idx][0] for idx in range(NUM_IMAGES)]
 orig_images = [Image.fromarray(train_dataset.data[idx]) for idx in range(NUM_IMAGES)]
 orig_images = [test_transform(img) for img in orig_images]
 
-img_grid = torchvision.utils.make_grid(
-    torch.stack(images + orig_images, dim=0), nrow=4, normalize=True, pad_value=0.5
-)
+img_grid = torchvision.utils.make_grid(torch.stack(images + orig_images, dim=0), nrow=4, normalize=True, pad_value=0.5)
 img_grid = img_grid.permute(1, 2, 0)
 
 plt.figure(figsize=(8, 8))
 plt.title("Augmentation examples on CIFAR10")
 plt.imshow(img_grid)
-plt.axis('off')
+plt.axis("off")
 plt.show()
 plt.close()
 
@@ -231,7 +234,6 @@ pl.seed_everything(42)
 
 # %%
 class CIFARModule(pl.LightningModule):
-
     def __init__(self, model_name, model_hparams, optimizer_name, optimizer_hparams):
         """
         Inputs:
@@ -263,7 +265,7 @@ class CIFARModule(pl.LightningModule):
         elif self.hparams.optimizer_name == "SGD":
             optimizer = optim.SGD(self.parameters(), **self.hparams.optimizer_hparams)
         else:
-            assert False, f"Unknown optimizer: \"{self.hparams.optimizer_name}\""
+            assert False, f'Unknown optimizer: "{self.hparams.optimizer_name}"'
 
         # We will reduce the learning rate by 0.1 after 100 and 150 epochs
         scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[100, 150], gamma=0.1)
@@ -277,8 +279,8 @@ class CIFARModule(pl.LightningModule):
         acc = (preds.argmax(dim=-1) == labels).float().mean()
 
         # Logs the accuracy per epoch to tensorboard (weighted average over batches)
-        self.log('train_acc', acc, on_step=False, on_epoch=True)
-        self.log('train_loss', loss)
+        self.log("train_acc", acc, on_step=False, on_epoch=True)
+        self.log("train_loss", loss)
         return loss  # Return tensor to call ".backward" on
 
     def validation_step(self, batch, batch_idx):
@@ -286,14 +288,14 @@ class CIFARModule(pl.LightningModule):
         preds = self.model(imgs).argmax(dim=-1)
         acc = (labels == preds).float().mean()
         # By default logs it per epoch (weighted average over batches)
-        self.log('val_acc', acc)
+        self.log("val_acc", acc)
 
     def test_step(self, batch, batch_idx):
         imgs, labels = batch
         preds = self.model(imgs).argmax(dim=-1)
         acc = (labels == preds).float().mean()
         # By default logs it per epoch (weighted average over batches), and returns it afterwards
-        self.log('test_acc', acc)
+        self.log("test_acc", acc)
 
 
 # %% [markdown]
@@ -323,7 +325,7 @@ def create_model(model_name, model_hparams):
     if model_name in model_dict:
         return model_dict[model_name](**model_hparams)
     else:
-        assert False, f"Unknown model name \"{model_name}\". Available models are: {str(model_dict.keys())}"
+        assert False, f'Unknown model name "{model_name}". Available models are: {str(model_dict.keys())}'
 
 
 # %% [markdown]
@@ -372,9 +374,9 @@ def train_model(model_name, save_name=None, **kwargs):
             ModelCheckpoint(
                 save_weights_only=True, mode="max", monitor="val_acc"
             ),  # Save the best checkpoint based on the maximum val_acc recorded. Saves only weights and not optimizer
-            LearningRateMonitor("epoch")
+            LearningRateMonitor("epoch"),
         ],  # Log learning rate every epoch
-        progress_bar_refresh_rate=1
+        progress_bar_refresh_rate=1,
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
     trainer.logger._log_graph = True  # If True, we plot the computation graph in tensorboard
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
@@ -430,7 +432,6 @@ def train_model(model_name, save_name=None, **kwargs):
 
 # %%
 class InceptionBlock(nn.Module):
-
     def __init__(self, c_in, c_red: dict, c_out: dict, act_fn):
         """
         Inputs:
@@ -448,22 +449,30 @@ class InceptionBlock(nn.Module):
 
         # 3x3 convolution branch
         self.conv_3x3 = nn.Sequential(
-            nn.Conv2d(c_in, c_red["3x3"], kernel_size=1), nn.BatchNorm2d(c_red["3x3"]), act_fn(),
-            nn.Conv2d(c_red["3x3"], c_out["3x3"], kernel_size=3, padding=1), nn.BatchNorm2d(c_out["3x3"]),
-            act_fn()
+            nn.Conv2d(c_in, c_red["3x3"], kernel_size=1),
+            nn.BatchNorm2d(c_red["3x3"]),
+            act_fn(),
+            nn.Conv2d(c_red["3x3"], c_out["3x3"], kernel_size=3, padding=1),
+            nn.BatchNorm2d(c_out["3x3"]),
+            act_fn(),
         )
 
         # 5x5 convolution branch
         self.conv_5x5 = nn.Sequential(
-            nn.Conv2d(c_in, c_red["5x5"], kernel_size=1), nn.BatchNorm2d(c_red["5x5"]), act_fn(),
-            nn.Conv2d(c_red["5x5"], c_out["5x5"], kernel_size=5, padding=2), nn.BatchNorm2d(c_out["5x5"]),
-            act_fn()
+            nn.Conv2d(c_in, c_red["5x5"], kernel_size=1),
+            nn.BatchNorm2d(c_red["5x5"]),
+            act_fn(),
+            nn.Conv2d(c_red["5x5"], c_out["5x5"], kernel_size=5, padding=2),
+            nn.BatchNorm2d(c_out["5x5"]),
+            act_fn(),
         )
 
         # Max-pool branch
         self.max_pool = nn.Sequential(
-            nn.MaxPool2d(kernel_size=3, padding=1, stride=1), nn.Conv2d(c_in, c_out["max"], kernel_size=1),
-            nn.BatchNorm2d(c_out["max"]), act_fn()
+            nn.MaxPool2d(kernel_size=3, padding=1, stride=1),
+            nn.Conv2d(c_in, c_out["max"], kernel_size=1),
+            nn.BatchNorm2d(c_out["max"]),
+            act_fn(),
         )
 
     def forward(self, x):
@@ -488,7 +497,6 @@ class InceptionBlock(nn.Module):
 
 # %%
 class GoogleNet(nn.Module):
-
     def __init__(self, num_classes=10, act_fn_name="relu", **kwargs):
         super().__init__()
         self.hparams = SimpleNamespace(
@@ -506,118 +514,54 @@ class GoogleNet(nn.Module):
         self.inception_blocks = nn.Sequential(
             InceptionBlock(
                 64,
-                c_red={
-                    "3x3": 32,
-                    "5x5": 16
-                },
-                c_out={
-                    "1x1": 16,
-                    "3x3": 32,
-                    "5x5": 8,
-                    "max": 8
-                },
-                act_fn=self.hparams.act_fn
+                c_red={"3x3": 32, "5x5": 16},
+                c_out={"1x1": 16, "3x3": 32, "5x5": 8, "max": 8},
+                act_fn=self.hparams.act_fn,
             ),
             InceptionBlock(
                 64,
-                c_red={
-                    "3x3": 32,
-                    "5x5": 16
-                },
-                c_out={
-                    "1x1": 24,
-                    "3x3": 48,
-                    "5x5": 12,
-                    "max": 12
-                },
-                act_fn=self.hparams.act_fn
+                c_red={"3x3": 32, "5x5": 16},
+                c_out={"1x1": 24, "3x3": 48, "5x5": 12, "max": 12},
+                act_fn=self.hparams.act_fn,
             ),
             nn.MaxPool2d(3, stride=2, padding=1),  # 32x32 => 16x16
             InceptionBlock(
                 96,
-                c_red={
-                    "3x3": 32,
-                    "5x5": 16
-                },
-                c_out={
-                    "1x1": 24,
-                    "3x3": 48,
-                    "5x5": 12,
-                    "max": 12
-                },
-                act_fn=self.hparams.act_fn
+                c_red={"3x3": 32, "5x5": 16},
+                c_out={"1x1": 24, "3x3": 48, "5x5": 12, "max": 12},
+                act_fn=self.hparams.act_fn,
             ),
             InceptionBlock(
                 96,
-                c_red={
-                    "3x3": 32,
-                    "5x5": 16
-                },
-                c_out={
-                    "1x1": 16,
-                    "3x3": 48,
-                    "5x5": 16,
-                    "max": 16
-                },
-                act_fn=self.hparams.act_fn
+                c_red={"3x3": 32, "5x5": 16},
+                c_out={"1x1": 16, "3x3": 48, "5x5": 16, "max": 16},
+                act_fn=self.hparams.act_fn,
             ),
             InceptionBlock(
                 96,
-                c_red={
-                    "3x3": 32,
-                    "5x5": 16
-                },
-                c_out={
-                    "1x1": 16,
-                    "3x3": 48,
-                    "5x5": 16,
-                    "max": 16
-                },
-                act_fn=self.hparams.act_fn
+                c_red={"3x3": 32, "5x5": 16},
+                c_out={"1x1": 16, "3x3": 48, "5x5": 16, "max": 16},
+                act_fn=self.hparams.act_fn,
             ),
             InceptionBlock(
                 96,
-                c_red={
-                    "3x3": 32,
-                    "5x5": 16
-                },
-                c_out={
-                    "1x1": 32,
-                    "3x3": 48,
-                    "5x5": 24,
-                    "max": 24
-                },
-                act_fn=self.hparams.act_fn
+                c_red={"3x3": 32, "5x5": 16},
+                c_out={"1x1": 32, "3x3": 48, "5x5": 24, "max": 24},
+                act_fn=self.hparams.act_fn,
             ),
             nn.MaxPool2d(3, stride=2, padding=1),  # 16x16 => 8x8
             InceptionBlock(
                 128,
-                c_red={
-                    "3x3": 48,
-                    "5x5": 16
-                },
-                c_out={
-                    "1x1": 32,
-                    "3x3": 64,
-                    "5x5": 16,
-                    "max": 16
-                },
-                act_fn=self.hparams.act_fn
+                c_red={"3x3": 48, "5x5": 16},
+                c_out={"1x1": 32, "3x3": 64, "5x5": 16, "max": 16},
+                act_fn=self.hparams.act_fn,
             ),
             InceptionBlock(
                 128,
-                c_red={
-                    "3x3": 48,
-                    "5x5": 16
-                },
-                c_out={
-                    "1x1": 32,
-                    "3x3": 64,
-                    "5x5": 16,
-                    "max": 16
-                },
-                act_fn=self.hparams.act_fn
-            )
+                c_red={"3x3": 48, "5x5": 16},
+                c_out={"1x1": 32, "3x3": 64, "5x5": 16, "max": 16},
+                act_fn=self.hparams.act_fn,
+            ),
         )
         # Mapping to classification output
         self.output_net = nn.Sequential(
@@ -655,15 +599,9 @@ model_dict["GoogleNet"] = GoogleNet
 # %%
 googlenet_model, googlenet_results = train_model(
     model_name="GoogleNet",
-    model_hparams={
-        "num_classes": 10,
-        "act_fn_name": "relu"
-    },
+    model_hparams={"num_classes": 10, "act_fn_name": "relu"},
     optimizer_name="Adam",
-    optimizer_hparams={
-        "lr": 1e-3,
-        "weight_decay": 1e-4
-    }
+    optimizer_hparams={"lr": 1e-3, "weight_decay": 1e-4},
 )
 
 # %% [markdown]
@@ -743,7 +681,6 @@ print("GoogleNet Results", googlenet_results)
 
 
 class ResNetBlock(nn.Module):
-
     def __init__(self, c_in, act_fn, subsample=False, c_out=-1):
         """
         Inputs:
@@ -758,12 +695,13 @@ class ResNetBlock(nn.Module):
 
         # Network representing F
         self.net = nn.Sequential(
-            nn.Conv2d(c_in, c_out, kernel_size=3, padding=1, stride=1 if not subsample else 2,
-                      bias=False),  # No bias needed as the Batch Norm handles it
+            nn.Conv2d(
+                c_in, c_out, kernel_size=3, padding=1, stride=1 if not subsample else 2, bias=False
+            ),  # No bias needed as the Batch Norm handles it
             nn.BatchNorm2d(c_out),
             act_fn(),
             nn.Conv2d(c_out, c_out, kernel_size=3, padding=1, bias=False),
-            nn.BatchNorm2d(c_out)
+            nn.BatchNorm2d(c_out),
         )
 
         # 1x1 convolution with stride 2 means we take the upper left value, and transform it to new output size
@@ -788,7 +726,6 @@ class ResNetBlock(nn.Module):
 
 # %%
 class PreActResNetBlock(nn.Module):
-
     def __init__(self, c_in, act_fn, subsample=False, c_out=-1):
         """
         Inputs:
@@ -803,15 +740,20 @@ class PreActResNetBlock(nn.Module):
 
         # Network representing F
         self.net = nn.Sequential(
-            nn.BatchNorm2d(c_in), act_fn(),
+            nn.BatchNorm2d(c_in),
+            act_fn(),
             nn.Conv2d(c_in, c_out, kernel_size=3, padding=1, stride=1 if not subsample else 2, bias=False),
-            nn.BatchNorm2d(c_out), act_fn(), nn.Conv2d(c_out, c_out, kernel_size=3, padding=1, bias=False)
+            nn.BatchNorm2d(c_out),
+            act_fn(),
+            nn.Conv2d(c_out, c_out, kernel_size=3, padding=1, bias=False),
         )
 
         # 1x1 convolution needs to apply non-linearity as well as not done on skip connection
-        self.downsample = nn.Sequential(
-            nn.BatchNorm2d(c_in), act_fn(), nn.Conv2d(c_in, c_out, kernel_size=1, stride=2, bias=False)
-        ) if subsample else None
+        self.downsample = (
+            nn.Sequential(nn.BatchNorm2d(c_in), act_fn(), nn.Conv2d(c_in, c_out, kernel_size=1, stride=2, bias=False))
+            if subsample
+            else None
+        )
 
     def forward(self, x):
         z = self.net(x)
@@ -845,7 +787,6 @@ resnet_blocks_by_name = {"ResNetBlock": ResNetBlock, "PreActResNetBlock": PreAct
 
 # %%
 class ResNet(nn.Module):
-
     def __init__(
         self,
         num_classes=10,
@@ -853,7 +794,7 @@ class ResNet(nn.Module):
         c_hidden=[16, 32, 64],
         act_fn_name="relu",
         block_name="ResNetBlock",
-        **kwargs
+        **kwargs,
     ):
         """
         Inputs:
@@ -871,7 +812,7 @@ class ResNet(nn.Module):
             num_blocks=num_blocks,
             act_fn_name=act_fn_name,
             act_fn=act_fn_by_name[act_fn_name],
-            block_class=resnet_blocks_by_name[block_name]
+            block_class=resnet_blocks_by_name[block_name],
         )
         self._create_network()
         self._init_params()
@@ -884,8 +825,9 @@ class ResNet(nn.Module):
             self.input_net = nn.Sequential(nn.Conv2d(3, c_hidden[0], kernel_size=3, padding=1, bias=False))
         else:
             self.input_net = nn.Sequential(
-                nn.Conv2d(3, c_hidden[0], kernel_size=3, padding=1, bias=False), nn.BatchNorm2d(c_hidden[0]),
-                self.hparams.act_fn()
+                nn.Conv2d(3, c_hidden[0], kernel_size=3, padding=1, bias=False),
+                nn.BatchNorm2d(c_hidden[0]),
+                self.hparams.act_fn(),
             )
 
         # Creating the ResNet blocks
@@ -893,13 +835,13 @@ class ResNet(nn.Module):
         for block_idx, block_count in enumerate(self.hparams.num_blocks):
             for bc in range(block_count):
                 # Subsample the first block of each group, except the very first one.
-                subsample = (bc == 0 and block_idx > 0)
+                subsample = bc == 0 and block_idx > 0
                 blocks.append(
                     self.hparams.block_class(
                         c_in=c_hidden[block_idx if not subsample else (block_idx - 1)],
                         act_fn=self.hparams.act_fn,
                         subsample=subsample,
-                        c_out=c_hidden[block_idx]
+                        c_out=c_hidden[block_idx],
                     )
                 )
         self.blocks = nn.Sequential(*blocks)
@@ -914,7 +856,7 @@ class ResNet(nn.Module):
         # Fan-out focuses on the gradient distribution, and is commonly used in ResNets
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity=self.hparams.act_fn_name)
+                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity=self.hparams.act_fn_name)
             elif isinstance(m, nn.BatchNorm2d):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
@@ -952,18 +894,9 @@ model_dict["ResNet"] = ResNet
 # %%
 resnet_model, resnet_results = train_model(
     model_name="ResNet",
-    model_hparams={
-        "num_classes": 10,
-        "c_hidden": [16, 32, 64],
-        "num_blocks": [3, 3, 3],
-        "act_fn_name": "relu"
-    },
+    model_hparams={"num_classes": 10, "c_hidden": [16, 32, 64], "num_blocks": [3, 3, 3], "act_fn_name": "relu"},
     optimizer_name="SGD",
-    optimizer_hparams={
-        "lr": 0.1,
-        "momentum": 0.9,
-        "weight_decay": 1e-4
-    }
+    optimizer_hparams={"lr": 0.1, "momentum": 0.9, "weight_decay": 1e-4},
 )
 
 # %% [markdown]
@@ -977,15 +910,11 @@ resnetpreact_model, resnetpreact_results = train_model(
         "c_hidden": [16, 32, 64],
         "num_blocks": [3, 3, 3],
         "act_fn_name": "relu",
-        "block_name": "PreActResNetBlock"
+        "block_name": "PreActResNetBlock",
     },
     optimizer_name="SGD",
-    optimizer_hparams={
-        "lr": 0.1,
-        "momentum": 0.9,
-        "weight_decay": 1e-4
-    },
-    save_name="ResNetPreAct"
+    optimizer_hparams={"lr": 0.1, "momentum": 0.9, "weight_decay": 1e-4},
+    save_name="ResNetPreAct",
 )
 
 # %% [markdown]
@@ -1033,7 +962,6 @@ resnetpreact_model, resnetpreact_results = train_model(
 
 # %%
 class DenseLayer(nn.Module):
-
     def __init__(self, c_in, bn_size, growth_rate, act_fn):
         """
         Inputs:
@@ -1044,9 +972,12 @@ class DenseLayer(nn.Module):
         """
         super().__init__()
         self.net = nn.Sequential(
-            nn.BatchNorm2d(c_in), act_fn(), nn.Conv2d(c_in, bn_size * growth_rate, kernel_size=1, bias=False),
-            nn.BatchNorm2d(bn_size * growth_rate), act_fn(),
-            nn.Conv2d(bn_size * growth_rate, growth_rate, kernel_size=3, padding=1, bias=False)
+            nn.BatchNorm2d(c_in),
+            act_fn(),
+            nn.Conv2d(c_in, bn_size * growth_rate, kernel_size=1, bias=False),
+            nn.BatchNorm2d(bn_size * growth_rate),
+            act_fn(),
+            nn.Conv2d(bn_size * growth_rate, growth_rate, kernel_size=3, padding=1, bias=False),
         )
 
     def forward(self, x):
@@ -1062,7 +993,6 @@ class DenseLayer(nn.Module):
 
 # %%
 class DenseBlock(nn.Module):
-
     def __init__(self, c_in, num_layers, bn_size, growth_rate, act_fn):
         """
         Inputs:
@@ -1077,9 +1007,7 @@ class DenseBlock(nn.Module):
         for layer_idx in range(num_layers):
             # Input channels are original plus the feature maps from previous layers
             layer_c_in = c_in + layer_idx * growth_rate
-            layers.append(
-                DenseLayer(c_in=layer_c_in, bn_size=bn_size, growth_rate=growth_rate, act_fn=act_fn)
-            )
+            layers.append(DenseLayer(c_in=layer_c_in, bn_size=bn_size, growth_rate=growth_rate, act_fn=act_fn))
         self.block = nn.Sequential(*layers)
 
     def forward(self, x):
@@ -1097,14 +1025,13 @@ class DenseBlock(nn.Module):
 
 # %%
 class TransitionLayer(nn.Module):
-
     def __init__(self, c_in, c_out, act_fn):
         super().__init__()
         self.transition = nn.Sequential(
             nn.BatchNorm2d(c_in),
             act_fn(),
             nn.Conv2d(c_in, c_out, kernel_size=1, bias=False),
-            nn.AvgPool2d(kernel_size=2, stride=2)  # Average the output for each 2x2 pixel group
+            nn.AvgPool2d(kernel_size=2, stride=2),  # Average the output for each 2x2 pixel group
         )
 
     def forward(self, x):
@@ -1119,15 +1046,8 @@ class TransitionLayer(nn.Module):
 
 # %%
 class DenseNet(nn.Module):
-
     def __init__(
-        self,
-        num_classes=10,
-        num_layers=[6, 6, 6, 6],
-        bn_size=2,
-        growth_rate=16,
-        act_fn_name="relu",
-        **kwargs
+        self, num_classes=10, num_layers=[6, 6, 6, 6], bn_size=2, growth_rate=16, act_fn_name="relu", **kwargs
     ):
         super().__init__()
         self.hparams = SimpleNamespace(
@@ -1136,7 +1056,7 @@ class DenseNet(nn.Module):
             bn_size=bn_size,
             growth_rate=growth_rate,
             act_fn_name=act_fn_name,
-            act_fn=act_fn_by_name[act_fn_name]
+            act_fn=act_fn_by_name[act_fn_name],
         )
         self._create_network()
         self._init_params()
@@ -1159,7 +1079,7 @@ class DenseNet(nn.Module):
                     num_layers=num_layers,
                     bn_size=self.hparams.bn_size,
                     growth_rate=self.hparams.growth_rate,
-                    act_fn=self.hparams.act_fn
+                    act_fn=self.hparams.act_fn,
                 )
             )
             c_hidden = c_hidden + num_layers * self.hparams.growth_rate  # Overall output of the dense block
@@ -1175,7 +1095,7 @@ class DenseNet(nn.Module):
             self.hparams.act_fn(),
             nn.AdaptiveAvgPool2d((1, 1)),
             nn.Flatten(),
-            nn.Linear(c_hidden, self.hparams.num_classes)
+            nn.Linear(c_hidden, self.hparams.num_classes),
         )
 
     def _init_params(self):
@@ -1217,13 +1137,10 @@ densenet_model, densenet_results = train_model(
         "num_layers": [6, 6, 6, 6],
         "bn_size": 2,
         "growth_rate": 16,
-        "act_fn_name": "relu"
+        "act_fn_name": "relu",
     },
     optimizer_name="Adam",
-    optimizer_hparams={
-        "lr": 1e-3,
-        "weight_decay": 1e-4
-    }
+    optimizer_hparams={"lr": 1e-3, "weight_decay": 1e-4},
 )
 
 # %% [markdown]
@@ -1255,18 +1172,24 @@ densenet_model, densenet_results = train_model(
 # </style>
 
 # %%
-all_models = [("GoogleNet", googlenet_results, googlenet_model), ("ResNet", resnet_results, resnet_model),
-              ("ResNetPreAct", resnetpreact_results, resnetpreact_model),
-              ("DenseNet", densenet_results, densenet_model)]
-table = [[
-    model_name, f"{100.0*model_results['val']:4.2f}%", f"{100.0*model_results['test']:4.2f}%",
-    f"{sum(np.prod(p.shape) for p in model.parameters()):,}"
-] for model_name, model_results, model in all_models]
+all_models = [
+    ("GoogleNet", googlenet_results, googlenet_model),
+    ("ResNet", resnet_results, resnet_model),
+    ("ResNetPreAct", resnetpreact_results, resnetpreact_model),
+    ("DenseNet", densenet_results, densenet_model),
+]
+table = [
+    [
+        model_name,
+        f"{100.0*model_results['val']:4.2f}%",
+        f"{100.0*model_results['test']:4.2f}%",
+        f"{sum(np.prod(p.shape) for p in model.parameters()):,}",
+    ]
+    for model_name, model_results, model in all_models
+]
 display(
     HTML(
-        tabulate.tabulate(
-            table, tablefmt='html', headers=["Model", "Val Accuracy", "Test Accuracy", "Num Parameters"]
-        )
+        tabulate.tabulate(table, tablefmt="html", headers=["Model", "Val Accuracy", "Test Accuracy", "Num Parameters"])
     )
 )
 
