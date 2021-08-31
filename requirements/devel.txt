@@ -4,6 +4,6 @@ jupytext  # converting
 pytest>=6.0
 nbval  # testing
 papermill  # render
-yapf
+black
 flake8
 isort

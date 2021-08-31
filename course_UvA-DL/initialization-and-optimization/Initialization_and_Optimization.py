@@ -19,6 +19,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data as data
+
 # %matplotlib inline
 from IPython.display import set_matplotlib_formats
 from matplotlib import cm
@@ -26,7 +27,7 @@ from torchvision import transforms
 from torchvision.datasets import FashionMNIST
 from tqdm.notebook import tqdm
 
-set_matplotlib_formats('svg', 'pdf')  # For export
+set_matplotlib_formats("svg", "pdf")  # For export
 sns.set()
 
 # %% [markdown]
@@ -68,9 +69,15 @@ print("Using device", device)
 base_url = "https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial4/"
 # Files to download
 pretrained_files = [
-    "FashionMNIST_SGD.config", "FashionMNIST_SGD_results.json", "FashionMNIST_SGD.tar",
-    "FashionMNIST_SGDMom.config", "FashionMNIST_SGDMom_results.json", "FashionMNIST_SGDMom.tar",
-    "FashionMNIST_Adam.config", "FashionMNIST_Adam_results.json", "FashionMNIST_Adam.tar"
+    "FashionMNIST_SGD.config",
+    "FashionMNIST_SGD_results.json",
+    "FashionMNIST_SGD.tar",
+    "FashionMNIST_SGDMom.config",
+    "FashionMNIST_SGDMom_results.json",
+    "FashionMNIST_SGDMom.tar",
+    "FashionMNIST_Adam.config",
+    "FashionMNIST_Adam_results.json",
+    "FashionMNIST_Adam.tar",
 ]
 # Create checkpoint path if it doesn't exist yet
 os.makedirs(CHECKPOINT_PATH, exist_ok=True)
@@ -86,7 +93,7 @@ for file_name in pretrained_files:
         except HTTPError as e:
             print(
                 "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
-                e
+                e,
             )
 
 # %% [markdown]
@@ -100,7 +107,7 @@ for file_name in pretrained_files:
 # %%
 
 # Transformations applied on each image => first make them a tensor, then normalize them with mean 0 and std 1
-transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.2861, ), (0.3530, ))])
+transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.2861,), (0.3530,))])
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_dataset = FashionMNIST(root=DATASET_PATH, train=True, transform=transform, download=True)
@@ -146,7 +153,6 @@ print(f"Minimum: {imgs.min().item():5.3f}")
 
 # %%
 class BaseNetwork(nn.Module):
-
     def __init__(self, act_fn, input_size=784, num_classes=10, hidden_sizes=[512, 256, 256, 128]):
         """
         Inputs:
@@ -170,7 +176,7 @@ class BaseNetwork(nn.Module):
             "act_fn": act_fn.__class__.__name__,
             "input_size": input_size,
             "num_classes": num_classes,
-            "hidden_sizes": hidden_sizes
+            "hidden_sizes": hidden_sizes,
         }
 
     def forward(self, x):
@@ -190,7 +196,6 @@ class BaseNetwork(nn.Module):
 
 # %%
 class Identity(nn.Module):
-
     def forward(self, x):
         return x
 
@@ -218,12 +223,14 @@ def plot_dists(val_dict, color="C0", xlabel=None, stat="count", use_kde=True):
             color=color,
             bins=50,
             stat=stat,
-            kde=use_kde and ((val_dict[key].max() - val_dict[key].min()) > 1e-8)
+            kde=use_kde and ((val_dict[key].max() - val_dict[key].min()) > 1e-8),
         )  # Only plot kde if there is variance
         key_ax.set_title(
-            f"{key} " + (
-                r"(%i $\to$ %i)"
-                % (val_dict[key].shape[1], val_dict[key].shape[0]) if len(val_dict[key].shape) > 1 else ""
+            f"{key} "
+            + (
+                r"(%i $\to$ %i)" % (val_dict[key].shape[1], val_dict[key].shape[0])
+                if len(val_dict[key].shape) > 1
+                else ""
             )
         )
         if xlabel is not None:
@@ -273,7 +280,8 @@ def visualize_gradients(model, color="C0", print_variance=False):
     # We limit our visualization to the weight parameters and exclude the bias to reduce the number of plots
     grads = {
         name: params.grad.view(-1).cpu().clone().numpy()
-        for name, params in model.named_parameters() if "weight" in name
+        for name, params in model.named_parameters()
+        if "weight" in name
     }
     model.zero_grad()
 
@@ -573,19 +581,20 @@ def _get_result_file(model_path, model_name):
 
 
 def load_model(model_path, model_name, net=None):
-    config_file, model_file = _get_config_file(model_path,
-                                               model_name), _get_model_file(model_path, model_name)
+    config_file, model_file = _get_config_file(model_path, model_name), _get_model_file(model_path, model_name)
     assert os.path.isfile(
         config_file
-    ), f"Could not find the config file \"{config_file}\". Are you sure this is the correct path and you have your model config stored here?"
+    ), f'Could not find the config file "{config_file}". Are you sure this is the correct path and you have your model config stored here?'
     assert os.path.isfile(
         model_file
-    ), f"Could not find the model file \"{model_file}\". Are you sure this is the correct path and you have your model stored here?"
+    ), f'Could not find the model file "{model_file}". Are you sure this is the correct path and you have your model stored here?'
     with open(config_file) as f:
         config_dict = json.load(f)
     if net is None:
         act_fn_name = config_dict["act_fn"].pop("name").lower()
-        assert act_fn_name in act_fn_by_name, f"Unknown activation function \"{act_fn_name}\". Please add it to the \"act_fn_by_name\" dict."
+        assert (
+            act_fn_name in act_fn_by_name
+        ), f'Unknown activation function "{act_fn_name}". Please add it to the "act_fn_by_name" dict.'
         act_fn = act_fn_by_name[act_fn_name]()
         net = BaseNetwork(act_fn=act_fn, **config_dict)
     net.load_state_dict(torch.load(model_file))
@@ -595,8 +604,7 @@ def load_model(model_path, model_name, net=None):
 def save_model(model, model_path, model_name):
     config_dict = model.config
     os.makedirs(model_path, exist_ok=True)
-    config_file, model_file = _get_config_file(model_path,
-                                               model_name), _get_model_file(model_path, model_name)
+    config_file, model_file = _get_config_file(model_path, model_name), _get_model_file(model_path, model_name)
     with open(config_file, "w") as f:
         json.dump(config_dict, f)
     torch.save(model.state_dict(), model_file)
@@ -615,7 +623,7 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
     """
     file_exists = os.path.isfile(_get_model_file(CHECKPOINT_PATH, model_name))
     if file_exists and not overwrite:
-        print(f"Model file of \"{model_name}\" already exists. Skipping training...")
+        print(f'Model file of "{model_name}" already exists. Skipping training...')
         with open(_get_result_file(CHECKPOINT_PATH, model_name)) as f:
             results = json.load(f)
     else:
@@ -638,7 +646,7 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
             # Training #
             ############
             net.train()
-            true_preds, count = 0., 0
+            true_preds, count = 0.0, 0
             t = tqdm(train_loader_local, leave=False)
             for imgs, labels in t:
                 imgs, labels = imgs.to(device), labels.to(device)
@@ -676,7 +684,7 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
             "test_acc": test_acc,
             "val_scores": val_scores,
             "train_losses": train_losses,
-            "train_scores": train_scores
+            "train_scores": train_scores,
         }
         with open(_get_result_file(CHECKPOINT_PATH, model_name), "w") as f:
             json.dump(results, f)
@@ -705,7 +713,7 @@ def test_model(net, data_loader):
         data_loader - DataLoader object of the dataset to test on (validation or test)
     """
     net.eval()
-    true_preds, count = 0., 0
+    true_preds, count = 0.0, 0
     for imgs, labels in data_loader:
         imgs, labels = imgs.to(device), labels.to(device)
         with torch.no_grad():
@@ -733,7 +741,6 @@ def test_model(net, data_loader):
 
 # %%
 class OptimizerTemplate:
-
     def __init__(self, params, lr):
         self.params = list(params)
         self.lr = lr
@@ -773,7 +780,6 @@ class OptimizerTemplate:
 
 # %%
 class SGD(OptimizerTemplate):
-
     def __init__(self, params, lr):
         super().__init__(params, lr)
 
@@ -797,7 +803,6 @@ class SGD(OptimizerTemplate):
 
 # %%
 class SGDMomentum(OptimizerTemplate):
-
     def __init__(self, params, lr, momentum=0.0):
         super().__init__(params, lr)
         self.momentum = momentum  # Corresponds to beta_1 in the equation above
@@ -831,7 +836,6 @@ class SGDMomentum(OptimizerTemplate):
 
 # %%
 class Adam(OptimizerTemplate):
-
     def __init__(self, params, lr, beta1=0.9, beta2=0.999, eps=1e-8):
         super().__init__(params, lr)
         self.beta1 = beta1
@@ -845,10 +849,10 @@ class Adam(OptimizerTemplate):
         self.param_step[p] += 1
 
         self.param_momentum[p] = (1 - self.beta1) * p.grad + self.beta1 * self.param_momentum[p]
-        self.param_2nd_momentum[p] = (1 - self.beta2) * (p.grad)**2 + self.beta2 * self.param_2nd_momentum[p]
+        self.param_2nd_momentum[p] = (1 - self.beta2) * (p.grad) ** 2 + self.beta2 * self.param_2nd_momentum[p]
 
-        bias_correction_1 = 1 - self.beta1**self.param_step[p]
-        bias_correction_2 = 1 - self.beta2**self.param_step[p]
+        bias_correction_1 = 1 - self.beta1 ** self.param_step[p]
+        bias_correction_2 = 1 - self.beta2 ** self.param_step[p]
 
         p_2nd_mom = self.param_2nd_momentum[p] / bias_correction_2
         p_mom = self.param_momentum[p] / bias_correction_1
@@ -889,7 +893,7 @@ SGDMom_results = train_model(
     "FashionMNIST_SGDMom",
     lambda params: SGDMomentum(params, lr=1e-1, momentum=0.9),
     max_epochs=40,
-    batch_size=256
+    batch_size=256,
 )
 
 # %%
@@ -918,25 +922,20 @@ Adam_results = train_model(
 # %%
 def pathological_curve_loss(w1, w2):
     # Example of a pathological curvature. There are many more possible, feel free to experiment here!
-    x1_loss = torch.tanh(w1)**2 + 0.01 * torch.abs(w1)
+    x1_loss = torch.tanh(w1) ** 2 + 0.01 * torch.abs(w1)
     x2_loss = torch.sigmoid(w2)
     return x1_loss + x2_loss
 
 
 # %%
 def plot_curve(
-    curve_fn,
-    x_range=(-5, 5),
-    y_range=(-5, 5),
-    plot_3d=False,
-    cmap=cm.viridis,
-    title="Pathological curvature"
+    curve_fn, x_range=(-5, 5), y_range=(-5, 5), plot_3d=False, cmap=cm.viridis, title="Pathological curvature"
 ):
     fig = plt.figure()
-    ax = fig.gca(projection='3d') if plot_3d else fig.gca()
+    ax = fig.gca(projection="3d") if plot_3d else fig.gca()
 
-    x = torch.arange(x_range[0], x_range[1], (x_range[1] - x_range[0]) / 100.)
-    y = torch.arange(y_range[0], y_range[1], (y_range[1] - y_range[0]) / 100.)
+    x = torch.arange(x_range[0], x_range[1], (x_range[1] - x_range[0]) / 100.0)
+    y = torch.arange(y_range[0], y_range[1], (y_range[1] - y_range[0]) / 100.0)
     x, y = torch.meshgrid([x, y])
     z = curve_fn(x, y)
     x, y, z = x.numpy(), y.numpy(), z.numpy()
@@ -1013,7 +1012,7 @@ ax = plot_curve(
     pathological_curve_loss,
     x_range=(-np.absolute(all_points[:, 0]).max(), np.absolute(all_points[:, 0]).max()),
     y_range=(all_points[:, 1].min(), all_points[:, 1].max()),
-    plot_3d=False
+    plot_3d=False,
 )
 ax.plot(SGD_points[:, 0], SGD_points[:, 1], color="red", marker="o", zorder=1, label="SGD")
 ax.plot(SGDMom_points[:, 0], SGDMom_points[:, 1], color="blue", marker="o", zorder=2, label="SGDMom")
@@ -1037,8 +1036,8 @@ plt.show()
 # %%
 def bivar_gaussian(w1, w2, x_mean=0.0, y_mean=0.0, x_sig=1.0, y_sig=1.0):
     norm = 1 / (2 * np.pi * x_sig * y_sig)
-    x_exp = (-1 * (w1 - x_mean)**2) / (2 * x_sig**2)
-    y_exp = (-1 * (w2 - y_mean)**2) / (2 * y_sig**2)
+    x_exp = (-1 * (w1 - x_mean) ** 2) / (2 * x_sig ** 2)
+    y_exp = (-1 * (w2 - y_mean) ** 2) / (2 * y_sig ** 2)
     return norm * torch.exp(x_exp + y_exp)
 
 
@@ -1058,16 +1057,14 @@ _ = plot_curve(comb_func, x_range=(-2, 2), y_range=(-2, 2), plot_3d=True, title=
 # To verify this hypothesis, we can run our three optimizers on the surface:
 
 # %%
-SGD_points = train_curve(lambda params: SGD(params, lr=.5), comb_func, init=[0, 0])
+SGD_points = train_curve(lambda params: SGD(params, lr=0.5), comb_func, init=[0, 0])
 SGDMom_points = train_curve(lambda params: SGDMomentum(params, lr=1, momentum=0.9), comb_func, init=[0, 0])
 Adam_points = train_curve(lambda params: Adam(params, lr=0.2), comb_func, init=[0, 0])
 
 all_points = np.concatenate([SGD_points, SGDMom_points, Adam_points], axis=0)
 ax = plot_curve(comb_func, x_range=(-2, 2), y_range=(-2, 2), plot_3d=False, title="Steep optima")
 ax.plot(SGD_points[:, 0], SGD_points[:, 1], color="red", marker="o", zorder=3, label="SGD", alpha=0.7)
-ax.plot(
-    SGDMom_points[:, 0], SGDMom_points[:, 1], color="blue", marker="o", zorder=2, label="SGDMom", alpha=0.7
-)
+ax.plot(SGDMom_points[:, 0], SGDMom_points[:, 1], color="blue", marker="o", zorder=2, label="SGDMom", alpha=0.7)
 ax.plot(Adam_points[:, 0], Adam_points[:, 1], color="grey", marker="o", zorder=1, label="Adam", alpha=0.7)
 ax.set_xlim(-2, 2)
 ax.set_ylim(-2, 2)

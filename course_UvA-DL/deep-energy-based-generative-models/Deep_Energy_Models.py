@@ -12,28 +12,32 @@ from urllib.error import HTTPError
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+
 # PyTorch Lightning
 import pytorch_lightning as pl
+
 # PyTorch
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data as data
+
 # Torchvision
 import torchvision
+
 # %matplotlib inline
 from IPython.display import set_matplotlib_formats
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import MNIST
 
-set_matplotlib_formats('svg', 'pdf')  # For export
-matplotlib.rcParams['lines.linewidth'] = 2.0
+set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib.rcParams["lines.linewidth"] = 2.0
 
 # Path to the folder where the datasets are/should be downloaded (e.g. CIFAR10)
-DATASET_PATH = os.environ.get('PATH_DATASETS', 'data')
+DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
 # Path to the folder where the pretrained models are saved
-CHECKPOINT_PATH = os.environ.get('PATH_CHECKPOINT', 'saved_models/tutorial8')
+CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial8")
 
 # Setting the seed
 pl.seed_everything(42)
@@ -69,7 +73,8 @@ for file_name in pretrained_files:
         except HTTPError as e:
             print(
                 "Something went wrong. Please try to download the files manually,"
-                " or contact the author with the full output including the following error:\n", e
+                " or contact the author with the full output including the following error:\n",
+                e,
             )
 
 # %% [markdown]
@@ -233,7 +238,7 @@ for file_name in pretrained_files:
 
 # %%
 # Transformations applied on each image => make them a tensor and normalize between -1 and 1
-transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, ), (0.5, ))])
+transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_set = MNIST(root=DATASET_PATH, train=True, transform=transform, download=True)
@@ -244,9 +249,7 @@ test_set = MNIST(root=DATASET_PATH, train=False, transform=transform, download=T
 # We define a set of data loaders that we can use for various purposes later.
 # Note that for actually training a model, we will use different data loaders
 # with a lower batch size.
-train_loader = data.DataLoader(
-    train_set, batch_size=128, shuffle=True, drop_last=True, num_workers=4, pin_memory=True
-)
+train_loader = data.DataLoader(train_set, batch_size=128, shuffle=True, drop_last=True, num_workers=4, pin_memory=True)
 test_loader = data.DataLoader(test_set, batch_size=256, shuffle=False, drop_last=False, num_workers=4)
 
 # %% [markdown]
@@ -264,7 +267,6 @@ test_loader = data.DataLoader(test_set, batch_size=256, shuffle=False, drop_last
 
 # %%
 class CNNModel(nn.Module):
-
     def __init__(self, hidden_features=32, out_dim=1, **kwargs):
         super().__init__()
         # We increase the hidden dimension over layers. Here pre-calculated for simplicity.
@@ -274,8 +276,7 @@ class CNNModel(nn.Module):
 
         # Series of convolutions and Swish activation functions
         self.cnn_layers = nn.Sequential(
-            nn.Conv2d(1, c_hid1, kernel_size=5, stride=2,
-                      padding=4),  # [16x16] - Larger padding to get 32x32 image
+            nn.Conv2d(1, c_hid1, kernel_size=5, stride=2, padding=4),  # [16x16] - Larger padding to get 32x32 image
             nn.SiLU(),
             nn.Conv2d(c_hid1, c_hid2, kernel_size=3, stride=2, padding=1),  # [8x8]
             nn.SiLU(),
@@ -286,7 +287,7 @@ class CNNModel(nn.Module):
             nn.Flatten(),
             nn.Linear(c_hid3 * 4, c_hid3),
             nn.SiLU(),
-            nn.Linear(c_hid3, out_dim)
+            nn.Linear(c_hid3, out_dim),
         )
 
     def forward(self, x):
@@ -330,7 +331,6 @@ class CNNModel(nn.Module):
 
 # %%
 class Sampler:
-
     def __init__(self, model, img_shape, sample_size, max_len=8192):
         """
         Args:
@@ -344,7 +344,7 @@ class Sampler:
         self.img_shape = img_shape
         self.sample_size = sample_size
         self.max_len = max_len
-        self.examples = [(torch.rand((1, ) + img_shape) * 2 - 1) for _ in range(self.sample_size)]
+        self.examples = [(torch.rand((1,) + img_shape) * 2 - 1) for _ in range(self.sample_size)]
 
     def sample_new_exmps(self, steps=60, step_size=10):
         """Function for getting a new batch of "fake" images.
@@ -355,7 +355,7 @@ class Sampler:
         """
         # Choose 95% of the batch from the buffer, 5% generate from scratch
         n_new = np.random.binomial(self.sample_size, 0.05)
-        rand_imgs = torch.rand((n_new, ) + self.img_shape) * 2 - 1
+        rand_imgs = torch.rand((n_new,) + self.img_shape) * 2 - 1
         old_imgs = torch.cat(random.choices(self.examples, k=self.sample_size - n_new), dim=0)
         inp_imgs = torch.cat([rand_imgs, old_imgs], dim=0).detach().to(device)
 
@@ -364,7 +364,7 @@ class Sampler:
 
         # Add new images to the buffer and remove old ones if needed
         self.examples = list(inp_imgs.to(torch.device("cpu")).chunk(self.sample_size, dim=0)) + self.examples
-        self.examples = self.examples[:self.max_len]
+        self.examples = self.examples[: self.max_len]
         return inp_imgs
 
     @staticmethod
@@ -461,7 +461,6 @@ class Sampler:
 
 # %%
 class DeepEnergyModel(pl.LightningModule):
-
     def __init__(self, img_shape, batch_size, alpha=0.1, lr=1e-4, beta1=0.0, **CNN_args):
         super().__init__()
         self.save_hyperparameters()
@@ -495,16 +494,16 @@ class DeepEnergyModel(pl.LightningModule):
         real_out, fake_out = self.cnn(inp_imgs).chunk(2, dim=0)
 
         # Calculate losses
-        reg_loss = self.hparams.alpha * (real_out**2 + fake_out**2).mean()
+        reg_loss = self.hparams.alpha * (real_out ** 2 + fake_out ** 2).mean()
         cdiv_loss = fake_out.mean() - real_out.mean()
         loss = reg_loss + cdiv_loss
 
         # Logging
-        self.log('loss', loss)
-        self.log('loss_regularization', reg_loss)
-        self.log('loss_contrastive_divergence', cdiv_loss)
-        self.log('metrics_avg_real', real_out.mean())
-        self.log('metrics_avg_fake', fake_out.mean())
+        self.log("loss", loss)
+        self.log("loss_regularization", reg_loss)
+        self.log("loss_contrastive_divergence", cdiv_loss)
+        self.log("metrics_avg_real", real_out.mean())
+        self.log("metrics_avg_fake", fake_out.mean())
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -517,9 +516,9 @@ class DeepEnergyModel(pl.LightningModule):
         real_out, fake_out = self.cnn(inp_imgs).chunk(2, dim=0)
 
         cdiv = fake_out.mean() - real_out.mean()
-        self.log('val_contrastive_divergence', cdiv)
-        self.log('val_fake_out', fake_out.mean())
-        self.log('val_real_out', real_out.mean())
+        self.log("val_contrastive_divergence", cdiv)
+        self.log("val_fake_out", fake_out.mean())
+        self.log("val_real_out", real_out.mean())
 
 
 # %% [markdown]
@@ -546,7 +545,6 @@ class DeepEnergyModel(pl.LightningModule):
 
 # %%
 class GenerateCallback(pl.Callback):
-
     def __init__(self, batch_size=8, vis_steps=8, num_steps=256, every_n_epochs=5):
         super().__init__()
         self.batch_size = batch_size  # Number of images to generate
@@ -563,17 +561,15 @@ class GenerateCallback(pl.Callback):
             # Plot and add to tensorboard
             for i in range(imgs_per_step.shape[1]):
                 step_size = self.num_steps // self.vis_steps
-                imgs_to_plot = imgs_per_step[step_size - 1::step_size, i]
+                imgs_to_plot = imgs_per_step[step_size - 1 :: step_size, i]
                 grid = torchvision.utils.make_grid(
                     imgs_to_plot, nrow=imgs_to_plot.shape[0], normalize=True, range=(-1, 1)
                 )
-                trainer.logger.experiment.add_image(
-                    "generation_%i" % i, grid, global_step=trainer.current_epoch
-                )
+                trainer.logger.experiment.add_image("generation_%i" % i, grid, global_step=trainer.current_epoch)
 
     def generate_imgs(self, pl_module):
         pl_module.eval()
-        start_imgs = torch.rand((self.batch_size, ) + pl_module.hparams["img_shape"]).to(pl_module.device)
+        start_imgs = torch.rand((self.batch_size,) + pl_module.hparams["img_shape"]).to(pl_module.device)
         start_imgs = start_imgs * 2 - 1
         imgs_per_step = Sampler.generate_samples(
             pl_module.cnn, start_imgs, steps=self.num_steps, step_size=10, return_img_per_step=True
@@ -590,7 +586,6 @@ class GenerateCallback(pl.Callback):
 
 # %%
 class SamplerCallback(pl.Callback):
-
     def __init__(self, num_imgs=32, every_n_epochs=5):
         super().__init__()
         self.num_imgs = num_imgs  # Number of images to plot
@@ -613,7 +608,6 @@ class SamplerCallback(pl.Callback):
 
 # %%
 class OutlierCallback(pl.Callback):
-
     def __init__(self, batch_size=1024):
         super().__init__()
         self.batch_size = batch_size
@@ -621,7 +615,7 @@ class OutlierCallback(pl.Callback):
     def on_epoch_end(self, trainer, pl_module):
         with torch.no_grad():
             pl_module.eval()
-            rand_imgs = torch.rand((self.batch_size, ) + pl_module.hparams["img_shape"]).to(pl_module.device)
+            rand_imgs = torch.rand((self.batch_size,) + pl_module.hparams["img_shape"]).to(pl_module.device)
             rand_imgs = rand_imgs * 2 - 1.0
             rand_out = pl_module.cnn(rand_imgs).mean()
             pl_module.train()
@@ -647,13 +641,13 @@ def train_model(**kwargs):
         max_epochs=60,
         gradient_clip_val=0.1,
         callbacks=[
-            ModelCheckpoint(save_weights_only=True, mode="min", monitor='val_contrastive_divergence'),
+            ModelCheckpoint(save_weights_only=True, mode="min", monitor="val_contrastive_divergence"),
             GenerateCallback(every_n_epochs=5),
             SamplerCallback(every_n_epochs=5),
             OutlierCallback(),
-            LearningRateMonitor("epoch")
+            LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=1
+        progress_bar_refresh_rate=1,
     )
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, "MNIST.ckpt")
@@ -722,7 +716,7 @@ imgs_per_step = imgs_per_step.cpu()
 # %%
 for i in range(imgs_per_step.shape[1]):
     step_size = callback.num_steps // callback.vis_steps
-    imgs_to_plot = imgs_per_step[step_size - 1::step_size, i]
+    imgs_to_plot = imgs_per_step[step_size - 1 :: step_size, i]
     imgs_to_plot = torch.cat([imgs_per_step[0:1, i], imgs_to_plot], dim=0)
     grid = torchvision.utils.make_grid(
         imgs_to_plot, nrow=imgs_to_plot.shape[0], normalize=True, range=(-1, 1), pad_value=0.5, padding=2
@@ -731,8 +725,10 @@ for i in range(imgs_per_step.shape[1]):
     plt.figure(figsize=(8, 8))
     plt.imshow(grid)
     plt.xlabel("Generation iteration")
-    plt.xticks([(imgs_per_step.shape[-1] + 2) * (0.5 + j) for j in range(callback.vis_steps + 1)],
-               labels=[1] + list(range(step_size, imgs_per_step.shape[0] + 1, step_size)))
+    plt.xticks(
+        [(imgs_per_step.shape[-1] + 2) * (0.5 + j) for j in range(callback.vis_steps + 1)],
+        labels=[1] + list(range(step_size, imgs_per_step.shape[0] + 1, step_size)),
+    )
     plt.yticks([])
     plt.show()
 
@@ -766,7 +762,7 @@ for i in range(imgs_per_step.shape[1]):
 
 # %%
 with torch.no_grad():
-    rand_imgs = torch.rand((128, ) + model.hparams.img_shape).to(model.device)
+    rand_imgs = torch.rand((128,) + model.hparams.img_shape).to(model.device)
     rand_imgs = rand_imgs * 2 - 1.0
     rand_out = model.cnn(rand_imgs).mean()
     print("Average score for random images: %4.2f" % (rand_out.item()))
@@ -793,17 +789,13 @@ with torch.no_grad():
 def compare_images(img1, img2):
     imgs = torch.stack([img1, img2], dim=0).to(model.device)
     score1, score2 = model.cnn(imgs).cpu().chunk(2, dim=0)
-    grid = torchvision.utils.make_grid([img1.cpu(), img2.cpu()],
-                                       nrow=2,
-                                       normalize=True,
-                                       range=(-1, 1),
-                                       pad_value=0.5,
-                                       padding=2)
+    grid = torchvision.utils.make_grid(
+        [img1.cpu(), img2.cpu()], nrow=2, normalize=True, range=(-1, 1), pad_value=0.5, padding=2
+    )
     grid = grid.permute(1, 2, 0)
     plt.figure(figsize=(4, 4))
     plt.imshow(grid)
-    plt.xticks([(img1.shape[2] + 2) * (0.5 + j) for j in range(2)],
-               labels=["Original image", "Transformed image"])
+    plt.xticks([(img1.shape[2] + 2) * (0.5 + j) for j in range(2)], labels=["Original image", "Transformed image"])
     plt.yticks([])
     plt.show()
     print("Score original image: %4.2f" % score1)
@@ -848,7 +840,7 @@ compare_images(exmp_img, img_flipped)
 
 # %%
 img_tiny = torch.zeros_like(exmp_img) - 1
-img_tiny[:, exmp_img.shape[1] // 2:, exmp_img.shape[2] // 2:] = exmp_img[:, ::2, ::2]
+img_tiny[:, exmp_img.shape[1] // 2 :, exmp_img.shape[2] // 2 :] = exmp_img[:, ::2, ::2]
 compare_images(exmp_img, img_tiny)
 
 # %% [markdown]

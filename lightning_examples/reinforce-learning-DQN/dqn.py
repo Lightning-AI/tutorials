@@ -1,6 +1,6 @@
 # %%
 import os
-from collections import deque, namedtuple, OrderedDict
+from collections import OrderedDict, deque, namedtuple
 from typing import List, Tuple
 
 import gym
@@ -8,12 +8,12 @@ import numpy as np
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.utilities import DistributedType
-from torch import nn, Tensor
+from torch import Tensor, nn
 from torch.optim import Adam, Optimizer
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import IterableDataset
 
-PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
+PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 
 
@@ -46,8 +46,8 @@ class DQN(nn.Module):
 
 # Named tuple for storing experience steps gathered in training
 Experience = namedtuple(
-    'Experience',
-    field_names=['state', 'action', 'reward', 'done', 'new_state'],
+    "Experience",
+    field_names=["state", "action", "reward", "done", "new_state"],
 )
 
 
@@ -144,7 +144,7 @@ class Agent:
         else:
             state = torch.tensor([self.state])
 
-            if device not in ['cpu']:
+            if device not in ["cpu"]:
                 state = state.cuda(device)
 
             q_values = net(state)
@@ -158,7 +158,7 @@ class Agent:
         self,
         net: nn.Module,
         epsilon: float = 0.0,
-        device: str = 'cpu',
+        device: str = "cpu",
     ) -> Tuple[float, bool]:
         """Carries out a single interaction step between the agent and the environment.
 
@@ -320,16 +320,16 @@ class DQNLightning(LightningModule):
             self.target_net.load_state_dict(self.net.state_dict())
 
         log = {
-            'total_reward': torch.tensor(self.total_reward).to(device),
-            'reward': torch.tensor(reward).to(device),
-            'train_loss': loss
+            "total_reward": torch.tensor(self.total_reward).to(device),
+            "reward": torch.tensor(reward).to(device),
+            "train_loss": loss,
         }
         status = {
-            'steps': torch.tensor(self.global_step).to(device),
-            'total_reward': torch.tensor(self.total_reward).to(device)
+            "steps": torch.tensor(self.global_step).to(device),
+            "total_reward": torch.tensor(self.total_reward).to(device),
         }
 
-        return OrderedDict({'loss': loss, 'log': log, 'progress_bar': status})
+        return OrderedDict({"loss": loss, "log": log, "progress_bar": status})
 
     def configure_optimizers(self) -> List[Optimizer]:
         """Initialize Adam optimizer."""
@@ -351,7 +351,7 @@ class DQNLightning(LightningModule):
 
     def get_device(self, batch) -> str:
         """Retrieve device currently being used by minibatch."""
-        return batch[0].device.index if self.on_gpu else 'cpu'
+        return batch[0].device.index if self.on_gpu else "cpu"
 
 
 # %% [markdown]
