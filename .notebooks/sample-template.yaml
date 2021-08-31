@@ -3,19 +3,12 @@ author: PL team
 created: 2021-06-15
 updated: 2021-06-17
 license: CC
-build: 3
-description: 'This is a template to show how to contribute a tutorial.
-
-  '
+build: 4
+description: |
+  This is a template to show how to contribute a tutorial.
 requirements:
-- matplotlib
+  - matplotlib
 accelerator:
-- CPU
-- GPU
-- TPU
-environment:
-- matplotlib==3.4.2
-- torchmetrics==0.4.1
-- torch==1.8.1
-- pytorch-lightning==1.4.0
-published: '2021-07-28T21:22:15.381524'
+  - CPU
+  - GPU
+  - TPU

@@ -3,19 +3,13 @@ author: PL team
 created: 2020-12-21
 updated: 2021-06-16
 license: CC BY-SA
-build: 0
-description: 'Train a Resnet to 94% accuracy on Cifar10!
-
-  '
+build: 1
+tags:
+  - Image
+description: >
+  Train a Resnet to 94% accuracy on Cifar10!
 requirements:
-- torchvision
-- lightning-bolts
+  - torchvision
+  - lightning-bolts
 accelerator:
-- GPU
-environment:
-- torchvision==0.8.2
-- torchmetrics==0.4.1
-- pytorch-lightning==1.3.8
-- lightning-bolts==0.3.4
-- torch==1.7.1
-published: '2021-07-08T20:51:14.134888'
+  - GPU
