@@ -228,9 +228,7 @@ def plot_dists(val_dict, color="C0", xlabel=None, stat="count", use_kde=True):
             stat=stat,
             kde=use_kde and ((val_dict[key].max() - val_dict[key].min()) > 1e-8),
         )  # Only plot kde if there is variance
-        hidden_dim_str = r"(%i $\to$ %i)" % (val_dict[key].shape[1], val_dict[key].shape[0])
-                         if len(val_dict[key].shape) > 1
-                         else ""
+        hidden_dim_str = r"(%i $\to$ %i)" % (val_dict[key].shape[1], val_dict[key].shape[0]) if len(val_dict[key].shape) > 1 else ""
         key_ax.set_title(
             f"{key} {hidden_dim_str}"
         )
