@@ -116,9 +116,12 @@ train_set, val_set = torch.utils.data.random_split(train_dataset, [50000, 10000]
 # Loading the test set
 test_set = FashionMNIST(root=DATASET_PATH, train=False, transform=transform, download=True)
 
+# %% [markdown]
 # We define a set of data loaders that we can use for various purposes later.
 # Note that for actually training a model, we will use different data loaders
 # with a lower batch size.
+
+# %%
 train_loader = data.DataLoader(train_set, batch_size=1024, shuffle=True, drop_last=False)
 val_loader = data.DataLoader(val_set, batch_size=1024, shuffle=False, drop_last=False)
 test_loader = data.DataLoader(test_set, batch_size=1024, shuffle=False, drop_last=False)
@@ -155,11 +158,11 @@ print(f"Minimum: {imgs.min().item():5.3f}")
 class BaseNetwork(nn.Module):
     def __init__(self, act_fn, input_size=784, num_classes=10, hidden_sizes=[512, 256, 256, 128]):
         """
-        Inputs:
-            act_fn - Object of the activation function that should be used as non-linearity in the network.
-            input_size - Size of the input images in pixels
-            num_classes - Number of classes we want to predict
-            hidden_sizes - A list of integers specifying the hidden layer sizes in the NN
+        Args:
+            act_fn: Object of the activation function that should be used as non-linearity in the network.
+            input_size: Size of the input images in pixels
+            num_classes: Number of classes we want to predict
+            hidden_sizes: A list of integers specifying the hidden layer sizes in the NN
         """
         super().__init__()
 
@@ -263,9 +266,9 @@ def visualize_weight_distribution(model, color="C0"):
 
 def visualize_gradients(model, color="C0", print_variance=False):
     """
-    Inputs:
-        net - Object of class BaseNetwork
-        color - Color in which we want to visualize the histogram (for easier separation of activation functions)
+    Args:
+        net: Object of class BaseNetwork
+        color: Color in which we want to visualize the histogram (for easier separation of activation functions)
     """
     model.eval()
     small_loader = data.DataLoader(train_set, batch_size=1024, shuffle=False)
@@ -358,12 +361,12 @@ model = BaseNetwork(act_fn=Identity()).to(device)
 
 
 # %%
-def const_init(model, c=0.0):
+def const_init(model, fill=0.0):
     for name, param in model.named_parameters():
-        param.data.fill_(c)
+        param.data.fill_(fill)
 
 
-const_init(model, c=0.005)
+const_init(model, fill=0.005)
 visualize_gradients(model)
 visualize_activations(model, print_variance=True)
 
@@ -385,7 +388,7 @@ visualize_activations(model, print_variance=True)
 # %%
 def var_init(model, std=0.01):
     for name, param in model.named_parameters():
-        param.data.normal_(std=std)
+        param.data.normal_(mean=0.0, std=std)
 
 
 var_init(model, std=0.01)
@@ -581,7 +584,8 @@ def _get_result_file(model_path, model_name):
 
 
 def load_model(model_path, model_name, net=None):
-    config_file, model_file = _get_config_file(model_path, model_name), _get_model_file(model_path, model_name)
+    config_file = _get_config_file(model_path, model_name)
+    model_file = _get_model_file(model_path, model_name)
     assert os.path.isfile(
         config_file
     ), f'Could not find the config file "{config_file}". Are you sure this is the correct path and you have your model config stored here?'
@@ -604,7 +608,8 @@ def load_model(model_path, model_name, net=None):
 def save_model(model, model_path, model_name):
     config_dict = model.config
     os.makedirs(model_path, exist_ok=True)
-    config_file, model_file = _get_config_file(model_path, model_name), _get_model_file(model_path, model_name)
+    config_file = _get_config_file(model_path, model_name)
+    model_file = _get_model_file(model_path, model_name)
     with open(config_file, "w") as f:
         json.dump(config_dict, f)
     torch.save(model.state_dict(), model_file)
@@ -613,13 +618,13 @@ def save_model(model, model_path, model_name):
 def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, overwrite=False):
     """Train a model on the training set of FashionMNIST.
 
-    Inputs:
-        net - Object of BaseNetwork
-        model_name - (str) Name of the model, used for creating the checkpoint names
-        max_epochs - Number of epochs we want to (maximally) train for
-        patience - If the performance on the validation set has not improved for #patience epochs, we stop training early
-        batch_size - Size of batches used in training
-        overwrite - Determines how to handle the case when there already exists a checkpoint. If True, it will be overwritten. Otherwise, we skip training.
+    Args:
+        net: Object of BaseNetwork
+        model_name: (str) Name of the model, used for creating the checkpoint names
+        max_epochs: Number of epochs we want to (maximally) train for
+        patience: If the performance on the validation set has not improved for #patience epochs, we stop training early
+        batch_size: Size of batches used in training
+        overwrite: Determines how to handle the case when there already exists a checkpoint. If True, it will be overwritten. Otherwise, we skip training.
     """
     file_exists = os.path.isfile(_get_model_file(CHECKPOINT_PATH, model_name))
     if file_exists and not overwrite:
@@ -642,35 +647,10 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
         train_losses, train_scores = [], []
         best_val_epoch = -1
         for epoch in range(max_epochs):
-            ############
-            # Training #
-            ############
-            net.train()
-            true_preds, count = 0.0, 0
-            t = tqdm(train_loader_local, leave=False)
-            for imgs, labels in t:
-                imgs, labels = imgs.to(device), labels.to(device)
-                optimizer.zero_grad()
-                preds = net(imgs)
-                loss = loss_module(preds, labels)
-                loss.backward()
-                optimizer.step()
-                # Record statistics during training
-                true_preds += (preds.argmax(dim=-1) == labels).sum().item()
-                count += labels.shape[0]
-                t.set_description(f"Epoch {epoch+1}: loss={loss.item():4.2f}")
-                train_losses.append(loss.item())
-            train_acc = true_preds / count
+            train_acc, val_acc, epoch_losses = epoch_iteration(net, loss_module, optimizer, train_loader_local, val_loader)
             train_scores.append(train_acc)
-
-            ##############
-            # Validation #
-            ##############
-            val_acc = test_model(net, val_loader)
             val_scores.append(val_acc)
-            print(
-                f"[Epoch {epoch+1:2i}] Training accuracy: {train_acc*100.0:05.2f}%, Validation accuracy: {val_acc*100.0:05.2f}%"
-            )
+            train_losses += epoch_losses
 
             if len(val_scores) == 1 or val_acc > val_scores[best_val_epoch]:
                 print("\t   (New best performance, saving model...)")
@@ -705,12 +685,44 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
     return results
 
 
+def epoch_iteration(net, loss_module, optimizer, train_loader_local, val_loader):
+    ############
+    # Training #
+    ############
+    net.train()
+    true_preds, count = 0.0, 0
+    epoch_losses = []
+    t = tqdm(train_loader_local, leave=False)
+    for imgs, labels in t:
+        imgs, labels = imgs.to(device), labels.to(device)
+        optimizer.zero_grad()
+        preds = net(imgs)
+        loss = loss_module(preds, labels)
+        loss.backward()
+        optimizer.step()
+        # Record statistics during training
+        true_preds += (preds.argmax(dim=-1) == labels).sum().item()
+        count += labels.shape[0]
+        t.set_description(f"Epoch {epoch+1}: loss={loss.item():4.2f}")
+        epoch_losses.append(loss.item())
+    train_acc = true_preds / count
+
+    ##############
+    # Validation #
+    ##############
+    val_acc = test_model(net, val_loader)
+    print(
+        f"[Epoch {epoch+1:2i}] Training accuracy: {train_acc*100.0:05.2f}%, Validation accuracy: {val_acc*100.0:05.2f}%"
+    )
+    return train_acc, val_acc, epoch_losses
+
+
 def test_model(net, data_loader):
     """Test a model on a specified dataset.
 
-    Inputs:
-        net - Trained model of type BaseNetwork
-        data_loader - DataLoader object of the dataset to test on (validation or test)
+    Args:
+        net: Trained model of type BaseNetwork
+        data_loader: DataLoader object of the dataset to test on (validation or test)
     """
     net.eval()
     true_preds, count = 0.0, 0
@@ -970,12 +982,12 @@ plt.show()
 # %%
 def train_curve(optimizer_func, curve_func=pathological_curve_loss, num_updates=100, init=[5, 5]):
     """
-    Inputs:
-        optimizer_func - Constructor of the optimizer to use. Should only take a parameter list
-        curve_func - Loss function (e.g. pathological curvature)
-        num_updates - Number of updates/steps to take when optimizing
-        init - Initial values of parameters. Must be a list/tuple with two elements representing w_1 and w_2
-    Outputs:
+    Args:
+        optimizer_func: Constructor of the optimizer to use. Should only take a parameter list
+        curve_func: Loss function (e.g. pathological curvature)
+        num_updates: Number of updates/steps to take when optimizing
+        init: Initial values of parameters. Must be a list/tuple with two elements representing w_1 and w_2
+    Returns:
         Numpy array of shape [num_updates, 3] with [t,:2] being the parameter values at step t, and [t,2] the loss at t.
     """
     weights = nn.Parameter(torch.FloatTensor(init), requires_grad=True)
