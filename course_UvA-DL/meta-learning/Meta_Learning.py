@@ -109,15 +109,15 @@ for file_name in pretrained_files:
 
 # %%
 # Loading CIFAR100 dataset
-CIFAR_train_set = CIFAR100(root=DATASET_PATH, train=True, download=True, transform=transforms.ToTensor())
-CIFAR_test_set = CIFAR100(root=DATASET_PATH, train=False, download=True, transform=transforms.ToTensor())
+cifar_train_set = CIFAR100(root=DATASET_PATH, train=True, download=True, transform=transforms.ToTensor())
+cifar_test_set = CIFAR100(root=DATASET_PATH, train=False, download=True, transform=transforms.ToTensor())
 
 # %%
 # Visualize some examples
 NUM_IMAGES = 12
-CIFAR_images = [CIFAR_train_set[np.random.randint(len(CIFAR_train_set))][0] for idx in range(NUM_IMAGES)]
-CIFAR_images = torch.stack(CIFAR_images, dim=0)
-img_grid = torchvision.utils.make_grid(CIFAR_images, nrow=6, normalize=True, pad_value=0.9)
+cifar_images = [cifar_train_set[np.random.randint(len(cifar_train_set))][0] for idx in range(NUM_IMAGES)]
+cifar_images = torch.stack(cifar_images, dim=0)
+img_grid = torchvision.utils.make_grid(cifar_images, nrow=6, normalize=True, pad_value=0.9)
 img_grid = img_grid.permute(1, 2, 0)
 
 plt.figure(figsize=(8, 8))
@@ -136,8 +136,8 @@ plt.close()
 
 # %%
 # Merging original training and test set
-CIFAR_all_images = np.concatenate([CIFAR_train_set.data, CIFAR_test_set.data], axis=0)
-CIFAR_all_targets = torch.LongTensor(CIFAR_train_set.targets + CIFAR_test_set.targets)
+cifar_all_images = np.concatenate([cifar_train_set.data, cifar_test_set.data], axis=0)
+cifar_all_targets = torch.LongTensor(cifar_train_set.targets + cifar_test_set.targets)
 
 # %% [markdown]
 # To have an easier time handling the dataset, we define our own, simple dataset class below.
@@ -180,7 +180,7 @@ class ImageDataset(data.Dataset):
 # We will assign the classes randomly to training, validation and test, and use a 80%-10%-10% split.
 
 # %%
-torch.manual_seed(0)  # Set seed for reproducibility
+pl.seed_everything(0)  # Set seed for reproducibility
 classes = torch.randperm(100)  # Returns random permutation of numbers 0 to 99
 train_classes, val_classes, test_classes = classes[:80], classes[80:90], classes[90:]
 
@@ -189,7 +189,7 @@ train_classes, val_classes, test_classes = classes[:80], classes[80:90], classes
 
 # %%
 # Printing validation and test classes
-idx_to_class = {val: key for key, val in CIFAR_train_set.class_to_idx.items()}
+idx_to_class = {val: key for key, val in cifar_train_set.class_to_idx.items()}
 print("Validation classes:", [idx_to_class[c.item()] for c in val_classes])
 print("Test classes:", [idx_to_class[c.item()] for c in test_classes])
 
@@ -214,8 +214,8 @@ def dataset_from_labels(imgs, targets, class_set, **kwargs):
 # Additionally, we use small augmentations during training to prevent overfitting.
 
 # %%
-DATA_MEANS = (CIFAR_train_set.data / 255.0).mean(axis=(0, 1, 2))
-DATA_STD = (CIFAR_train_set.data / 255.0).std(axis=(0, 1, 2))
+DATA_MEANS = (cifar_train_set.data / 255.0).mean(axis=(0, 1, 2))
+DATA_STD = (cifar_train_set.data / 255.0).std(axis=(0, 1, 2))
 
 test_transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(DATA_MEANS, DATA_STD)])
 # For training, we add some augmentation.
@@ -227,11 +227,11 @@ train_transform = transforms.Compose([
 ])
 
 train_set = dataset_from_labels(
-    CIFAR_all_images, CIFAR_all_targets, train_classes, img_transform=train_transform
+    cifar_all_images, cifar_all_targets, train_classes, img_transform=train_transform
 )
-val_set = dataset_from_labels(CIFAR_all_images, CIFAR_all_targets, val_classes, img_transform=test_transform)
+val_set = dataset_from_labels(cifar_all_images, cifar_all_targets, val_classes, img_transform=test_transform)
 test_set = dataset_from_labels(
-    CIFAR_all_images, CIFAR_all_targets, test_classes, img_transform=test_transform
+    cifar_all_images, cifar_all_targets, test_classes, img_transform=test_transform
 )
 
 # %% [markdown]
@@ -395,9 +395,9 @@ ax[0].axis('off')
 ax[1].imshow(query_grid)
 ax[1].set_title("Query set")
 ax[1].axis('off')
-plt.suptitle("Few Shot Batch", weight='bold')
-plt.show()
-plt.close()
+fig.suptitle("Few Shot Batch", weight='bold')
+fig.show()
+plt.close(fig)
 
 # %% [markdown]
 # As we can see, the support and query set have the same five classes, but different examples.
@@ -532,7 +532,7 @@ class ProtoNet(pl.LightningModule):
         return self.calculate_loss(batch, mode="train")
 
     def validation_step(self, batch, batch_idx):
-        _ = self.calculate_loss(batch, mode="val")
+        self.calculate_loss(batch, mode="val")
 
 
 # %% [markdown]
