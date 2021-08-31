@@ -17,5 +17,6 @@ requirements:
   - torchvision
   - matplotlib
   - seaborn
+  - tabulate
 accelerator:
   - GPU
