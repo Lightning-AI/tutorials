@@ -3,6 +3,7 @@ author: PL team
 created: 2020-12-21
 updated: 2021-06-25
 license: CC BY-SA
+build: 0
 tags:
   - Image
 description: In this notebook, we'll train a model on TPUs. Updating one Trainer flag is all you need for that.

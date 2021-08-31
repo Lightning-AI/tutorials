@@ -12,7 +12,7 @@ from pytorch_lightning import LightningDataModule, LightningModule, Trainer
 from torch.utils.data import DataLoader, random_split
 from torchvision.datasets import MNIST
 
-PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
+PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 BATCH_SIZE = 256 if AVAIL_GPUS else 64
 NUM_WORKERS = int(os.cpu_count() / 2)
@@ -26,7 +26,6 @@ NUM_WORKERS = int(os.cpu_count() / 2)
 
 # %%
 class MNISTDataModule(LightningDataModule):
-
     def __init__(
         self,
         data_dir: str = PATH_DATASETS,
@@ -38,10 +37,12 @@ class MNISTDataModule(LightningDataModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
 
-        self.transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.1307, ), (0.3081, )),
-        ])
+        self.transform = transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Normalize((0.1307,), (0.3081,)),
+            ]
+        )
 
         # self.dims is returned when you call dm.size()
         # Setting default dims here because we know them.
@@ -56,12 +57,12 @@ class MNISTDataModule(LightningDataModule):
 
     def setup(self, stage=None):
         # Assign train/val datasets for use in dataloaders
-        if stage == 'fit' or stage is None:
+        if stage == "fit" or stage is None:
             mnist_full = MNIST(self.data_dir, train=True, transform=self.transform)
             self.mnist_train, self.mnist_val = random_split(mnist_full, [55000, 5000])
 
         # Assign test dataset for use in dataloader(s)
-        if stage == 'test' or stage is None:
+        if stage == "test" or stage is None:
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def train_dataloader(self):
@@ -84,7 +85,6 @@ class MNISTDataModule(LightningDataModule):
 
 # %%
 class Generator(nn.Module):
-
     def __init__(self, latent_dim, img_shape):
         super().__init__()
         self.img_shape = img_shape
@@ -117,7 +117,6 @@ class Generator(nn.Module):
 
 # %%
 class Discriminator(nn.Module):
-
     def __init__(self, img_shape):
         super().__init__()
 
@@ -151,7 +150,6 @@ class Discriminator(nn.Module):
 
 # %%
 class GAN(LightningModule):
-
     def __init__(
         self,
         channels,
@@ -198,7 +196,7 @@ class GAN(LightningModule):
             # log sampled images
             sample_imgs = self.generated_imgs[:6]
             grid = torchvision.utils.make_grid(sample_imgs)
-            self.logger.experiment.add_image('generated_images', grid, 0)
+            self.logger.experiment.add_image("generated_images", grid, 0)
 
             # ground truth result (ie: all fake)
             # put on GPU because we created this tensor inside training_loop
@@ -207,8 +205,8 @@ class GAN(LightningModule):
 
             # adversarial loss is binary cross-entropy
             g_loss = self.adversarial_loss(self.discriminator(self(z)), valid)
-            tqdm_dict = {'g_loss': g_loss}
-            output = OrderedDict({'loss': g_loss, 'progress_bar': tqdm_dict, 'log': tqdm_dict})
+            tqdm_dict = {"g_loss": g_loss}
+            output = OrderedDict({"loss": g_loss, "progress_bar": tqdm_dict, "log": tqdm_dict})
             return output
 
         # train discriminator
@@ -229,8 +227,8 @@ class GAN(LightningModule):
 
             # discriminator loss is the average of these
             d_loss = (real_loss + fake_loss) / 2
-            tqdm_dict = {'d_loss': d_loss}
-            output = OrderedDict({'loss': d_loss, 'progress_bar': tqdm_dict, 'log': tqdm_dict})
+            tqdm_dict = {"d_loss": d_loss}
+            output = OrderedDict({"loss": d_loss, "progress_bar": tqdm_dict, "log": tqdm_dict})
             return output
 
     def configure_optimizers(self):
@@ -248,7 +246,7 @@ class GAN(LightningModule):
         # log sampled images
         sample_imgs = self(z)
         grid = torchvision.utils.make_grid(sample_imgs)
-        self.logger.experiment.add_image('generated_images', grid, self.current_epoch)
+        self.logger.experiment.add_image("generated_images", grid, self.current_epoch)
 
 
 # %%
