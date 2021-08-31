@@ -52,14 +52,14 @@ from torchvision import transforms
 from torchvision.datasets import MNIST
 from tqdm.notebook import tqdm
 
-plt.set_cmap('cividis')
+plt.set_cmap("cividis")
 # %matplotlib inline
-set_matplotlib_formats('svg', 'pdf')  # For export
+set_matplotlib_formats("svg", "pdf")  # For export
 
 # Path to the folder where the datasets are/should be downloaded (e.g. MNIST)
-DATASET_PATH = os.environ.get('PATH_DATASETS', 'data')
+DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
 # Path to the folder where the pretrained models are saved
-CHECKPOINT_PATH = os.environ.get('PATH_CHECKPOINT', 'saved_models/tutorial12')
+CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial12")
 
 # Setting the seed
 pl.seed_everything(42)
@@ -94,7 +94,7 @@ for file_name in pretrained_files:
         except HTTPError as e:
             print(
                 "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
-                e
+                e,
             )
 
 # %% [markdown]
@@ -121,9 +121,7 @@ train_set, val_set = torch.utils.data.random_split(train_dataset, [50000, 10000]
 test_set = MNIST(root=DATASET_PATH, train=False, transform=transform, download=True)
 
 # We define a set of data loaders that we can use for various purposes later.
-train_loader = data.DataLoader(
-    train_set, batch_size=128, shuffle=True, drop_last=True, pin_memory=True, num_workers=4
-)
+train_loader = data.DataLoader(train_set, batch_size=128, shuffle=True, drop_last=True, pin_memory=True, num_workers=4)
 val_loader = data.DataLoader(val_set, batch_size=128, shuffle=False, drop_last=False, num_workers=4)
 test_loader = data.DataLoader(test_set, batch_size=128, shuffle=False, drop_last=False, num_workers=4)
 
@@ -140,8 +138,8 @@ def show_imgs(imgs):
     imgs = imgs.clamp(min=0, max=255)
     np_imgs = imgs.cpu().numpy()
     plt.figure(figsize=(1.5 * nrow, 1.5 * ncol))
-    plt.imshow(np.transpose(np_imgs, (1, 2, 0)), interpolation='nearest')
-    plt.axis('off')
+    plt.imshow(np.transpose(np_imgs, (1, 2, 0)), interpolation="nearest")
+    plt.axis("off")
     plt.show()
     plt.close()
 
@@ -182,7 +180,6 @@ show_imgs([train_set[i][0] for i in range(8)])
 
 # %%
 class MaskedConvolution(nn.Module):
-
     def __init__(self, c_in, c_out, mask, **kwargs):
         """Implements a convolution with mask applied on its weights.
 
@@ -203,7 +200,7 @@ class MaskedConvolution(nn.Module):
 
         # Mask as buffer => it is no parameter but still a tensor of the module
         # (must be moved with the devices)
-        self.register_buffer('mask', mask[None, None])
+        self.register_buffer("mask", mask[None, None])
 
     def forward(self, x):
         self.conv.weight.data *= self.mask  # Ensures zero's at masked positions
@@ -238,12 +235,11 @@ class MaskedConvolution(nn.Module):
 
 # %%
 class VerticalStackConvolution(MaskedConvolution):
-
     def __init__(self, c_in, c_out, kernel_size=3, mask_center=False, **kwargs):
         # Mask out all pixels below. For efficiency, we could also reduce the kernel
         # size in height, but for simplicity, we stick with masking here.
         mask = torch.ones(kernel_size, kernel_size)
-        mask[kernel_size // 2 + 1:, :] = 0
+        mask[kernel_size // 2 + 1 :, :] = 0
 
         # For the very first convolution, we will also mask the center row
         if mask_center:
@@ -253,12 +249,11 @@ class VerticalStackConvolution(MaskedConvolution):
 
 
 class HorizontalStackConvolution(MaskedConvolution):
-
     def __init__(self, c_in, c_out, kernel_size=3, mask_center=False, **kwargs):
         # Mask out all pixels on the left. Note that our kernel has a size of 1
         # in height because we only look at the pixel in the same row.
         mask = torch.ones(1, kernel_size)
-        mask[0, kernel_size // 2 + 1:] = 0
+        mask[0, kernel_size // 2 + 1 :] = 0
 
         # For the very first convolution, we will also mask the center pixel
         if mask_center:
@@ -312,13 +307,12 @@ def show_center_recep_field(img, out):
     ax[1].imshow(img > 0)
     # Mark the center pixel in red if it doesn't have any gradients (should be
     # the case for standard autoregressive models)
-    show_center = (img[img.shape[0] // 2, img.shape[1] // 2] == 0)
+    show_center = img[img.shape[0] // 2, img.shape[1] // 2] == 0
     if show_center:
-        center_pixel = np.zeros(img.shape + (4, ))
-        center_pixel[center_pixel.shape[0] // 2,
-                     center_pixel.shape[1] // 2, :] = np.array([1.0, 0.0, 0.0, 1.0])
+        center_pixel = np.zeros(img.shape + (4,))
+        center_pixel[center_pixel.shape[0] // 2, center_pixel.shape[1] // 2, :] = np.array([1.0, 0.0, 0.0, 1.0])
     for i in range(2):
-        ax[i].axis('off')
+        ax[i].axis("off")
         if show_center:
             ax[i].imshow(center_pixel)
     ax[0].set_title("Weighted receptive field")
@@ -474,7 +468,6 @@ del inp_img, horiz_conv, vert_conv
 
 # %%
 class GatedMaskedConv(nn.Module):
-
     def __init__(self, c_in, **kwargs):
         """Gated Convolution block implemented the computation graph shown above."""
         super().__init__()
@@ -532,7 +525,6 @@ class GatedMaskedConv(nn.Module):
 
 # %%
 class PixelCNN(pl.LightningModule):
-
     def __init__(self, c_in, c_hidden):
         super().__init__()
         self.save_hyperparameters()
@@ -541,15 +533,17 @@ class PixelCNN(pl.LightningModule):
         self.conv_vstack = VerticalStackConvolution(c_in, c_hidden, mask_center=True)
         self.conv_hstack = HorizontalStackConvolution(c_in, c_hidden, mask_center=True)
         # Convolution block of PixelCNN. We use dilation instead of downscaling
-        self.conv_layers = nn.ModuleList([
-            GatedMaskedConv(c_hidden),
-            GatedMaskedConv(c_hidden, dilation=2),
-            GatedMaskedConv(c_hidden),
-            GatedMaskedConv(c_hidden, dilation=4),
-            GatedMaskedConv(c_hidden),
-            GatedMaskedConv(c_hidden, dilation=2),
-            GatedMaskedConv(c_hidden)
-        ])
+        self.conv_layers = nn.ModuleList(
+            [
+                GatedMaskedConv(c_hidden),
+                GatedMaskedConv(c_hidden, dilation=2),
+                GatedMaskedConv(c_hidden),
+                GatedMaskedConv(c_hidden, dilation=4),
+                GatedMaskedConv(c_hidden),
+                GatedMaskedConv(c_hidden, dilation=2),
+                GatedMaskedConv(c_hidden),
+            ]
+        )
         # Output classification convolution (1x1)
         self.conv_out = nn.Conv2d(c_hidden, c_in * 256, kernel_size=1, padding=0)
 
@@ -581,7 +575,7 @@ class PixelCNN(pl.LightningModule):
     def calc_likelihood(self, x):
         # Forward pass with bpd likelihood calculation
         pred = self.forward(x)
-        nll = F.cross_entropy(pred, x, reduction='none')
+        nll = F.cross_entropy(pred, x, reduction="none")
         bpd = nll.mean(dim=[1, 2, 3]) * np.log2(np.exp(1))
         return bpd.mean()
 
@@ -607,7 +601,7 @@ class PixelCNN(pl.LightningModule):
                         continue
                     # For efficiency, we only have to input the upper part of the image
                     # as all other parts will be skipped by the masked convolutions anyways
-                    pred = self.forward(img[:, :, :h + 1, :])
+                    pred = self.forward(img[:, :, : h + 1, :])
                     probs = F.softmax(pred[:, :, c, h, w], dim=-1)
                     img[:, c, h, w] = torch.multinomial(probs, num_samples=1).squeeze(dim=-1)
         return img
@@ -619,16 +613,16 @@ class PixelCNN(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         loss = self.calc_likelihood(batch[0])
-        self.log('train_bpd', loss)
+        self.log("train_bpd", loss)
         return loss
 
     def validation_step(self, batch, batch_idx):
         loss = self.calc_likelihood(batch[0])
-        self.log('val_bpd', loss)
+        self.log("val_bpd", loss)
 
     def test_step(self, batch, batch_idx):
         loss = self.calc_likelihood(batch[0])
-        self.log('test_bpd', loss)
+        self.log("test_bpd", loss)
 
 
 # %% [markdown]
@@ -682,8 +676,8 @@ def train_model(**kwargs):
         max_epochs=150,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="min", monitor="val_bpd"),
-            LearningRateMonitor("epoch")
-        ]
+            LearningRateMonitor("epoch"),
+        ],
     )
     result = None
     # Check whether pretrained model exists. If yes, load it and skip training
@@ -717,8 +711,7 @@ def train_model(**kwargs):
 model, result = train_model(c_in=1, c_hidden=64)
 test_res = result["test"][0]
 print(
-    "Test bits per dimension: %4.3fbpd" %
-    (test_res["test_loss"] if "test_loss" in test_res else test_res["test_bpd"])
+    "Test bits per dimension: %4.3fbpd" % (test_res["test_loss"] if "test_loss" in test_res else test_res["test_bpd"])
 )
 
 # %% [markdown]
@@ -856,7 +849,7 @@ with torch.no_grad():
 
 # %%
 sns.set()
-plot_args = {"color": to_rgb("C0") + (0.5, ), "edgecolor": "C0", "linewidth": 0.5, "width": 1.0}
+plot_args = {"color": to_rgb("C0") + (0.5,), "edgecolor": "C0", "linewidth": 0.5, "width": 1.0}
 plt.hist(imgs.view(-1).cpu().numpy(), bins=256, density=True, **plot_args)
 plt.yscale("log")
 plt.xticks([0, 64, 128, 192, 256])
