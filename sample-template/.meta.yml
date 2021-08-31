@@ -6,8 +6,6 @@ license: CC
 build: 4
 description: |
   This is a template to show how to contribute a tutorial.
-tags:
-  - Template
 requirements:
   - matplotlib
 accelerator:
