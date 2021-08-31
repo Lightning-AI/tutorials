@@ -21,18 +21,18 @@ from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
 
-plt.set_cmap('cividis')
+plt.set_cmap("cividis")
 # %matplotlib inline
-set_matplotlib_formats('svg', 'pdf')  # For export
-matplotlib.rcParams['lines.linewidth'] = 2.0
+set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
 # %load_ext tensorboard
 
 # Path to the folder where the datasets are/should be downloaded (e.g. CIFAR10)
-DATASET_PATH = os.environ.get('PATH_DATASETS', "data/")
+DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 # Path to the folder where the pretrained models are saved
-CHECKPOINT_PATH = os.environ.get('PATH_CHECKPOINT', "saved_models/VisionTransformers/")
+CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/VisionTransformers/")
 
 # Setting the seed
 pl.seed_everything(42)
@@ -54,8 +54,9 @@ print("Device:", device)
 base_url = "https://raw.githubusercontent.com/phlippe/saved_models/main/"
 # Files to download
 pretrained_files = [
-    "tutorial15/ViT.ckpt", "tutorial15/tensorboards/ViT/events.out.tfevents.ViT",
-    "tutorial5/tensorboards/ResNet/events.out.tfevents.resnet"
+    "tutorial15/ViT.ckpt",
+    "tutorial15/tensorboards/ViT/events.out.tfevents.ViT",
+    "tutorial5/tensorboards/ResNet/events.out.tfevents.resnet",
 ]
 # Create checkpoint path if it doesn't exist yet
 os.makedirs(CHECKPOINT_PATH, exist_ok=True)
@@ -73,7 +74,7 @@ for file_name in pretrained_files:
         except HTTPError as e:
             print(
                 "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
-                e
+                e,
             )
 
 # %% [markdown]
@@ -84,17 +85,21 @@ for file_name in pretrained_files:
 # one.
 
 # %%
-test_transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize([0.49139968, 0.48215841, 0.44653091], [0.24703223, 0.24348513, 0.26158784])
-])
+test_transform = transforms.Compose(
+    [
+        transforms.ToTensor(),
+        transforms.Normalize([0.49139968, 0.48215841, 0.44653091], [0.24703223, 0.24348513, 0.26158784]),
+    ]
+)
 # For training, we add some augmentation. Networks are too powerful and would overfit.
-train_transform = transforms.Compose([
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomResizedCrop((32, 32), scale=(0.8, 1.0), ratio=(0.9, 1.1)),
-    transforms.ToTensor(),
-    transforms.Normalize([0.49139968, 0.48215841, 0.44653091], [0.24703223, 0.24348513, 0.26158784])
-])
+train_transform = transforms.Compose(
+    [
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomResizedCrop((32, 32), scale=(0.8, 1.0), ratio=(0.9, 1.1)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.49139968, 0.48215841, 0.44653091], [0.24703223, 0.24348513, 0.26158784]),
+    ]
+)
 # Loading the training dataset. We need to split it into a training and validation part
 # We need to do a little trick because the validation set should not use the augmentation.
 train_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=train_transform, download=True)
@@ -108,9 +113,7 @@ _, val_set = torch.utils.data.random_split(val_dataset, [45000, 5000])
 test_set = CIFAR10(root=DATASET_PATH, train=False, transform=test_transform, download=True)
 
 # We define a set of data loaders that we can use for various purposes later.
-train_loader = data.DataLoader(
-    train_set, batch_size=128, shuffle=True, drop_last=True, pin_memory=True, num_workers=4
-)
+train_loader = data.DataLoader(train_set, batch_size=128, shuffle=True, drop_last=True, pin_memory=True, num_workers=4)
 val_loader = data.DataLoader(val_set, batch_size=128, shuffle=False, drop_last=False, num_workers=4)
 test_loader = data.DataLoader(test_set, batch_size=128, shuffle=False, drop_last=False, num_workers=4)
 
@@ -123,7 +126,7 @@ img_grid = img_grid.permute(1, 2, 0)
 plt.figure(figsize=(8, 8))
 plt.title("Image examples of the CIFAR10 dataset")
 plt.imshow(img_grid)
-plt.axis('off')
+plt.axis("off")
 plt.show()
 plt.close()
 
@@ -180,7 +183,7 @@ for i in range(CIFAR_images.shape[0]):
     img_grid = torchvision.utils.make_grid(img_patches[i], nrow=64, normalize=True, pad_value=0.9)
     img_grid = img_grid.permute(1, 2, 0)
     ax[i].imshow(img_grid)
-    ax[i].axis('off')
+    ax[i].axis("off")
 plt.show()
 plt.close()
 
@@ -204,7 +207,6 @@ plt.close()
 
 # %%
 class AttentionBlock(nn.Module):
-
     def __init__(self, embed_dim, hidden_dim, num_heads, dropout=0.0):
         """
         Inputs:
@@ -220,8 +222,11 @@ class AttentionBlock(nn.Module):
         self.attn = nn.MultiheadAttention(embed_dim, num_heads)
         self.layer_norm_2 = nn.LayerNorm(embed_dim)
         self.linear = nn.Sequential(
-            nn.Linear(embed_dim, hidden_dim), nn.GELU(), nn.Dropout(dropout),
-            nn.Linear(hidden_dim, embed_dim), nn.Dropout(dropout)
+            nn.Linear(embed_dim, hidden_dim),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, embed_dim),
+            nn.Dropout(dropout),
         )
 
     def forward(self, x):
@@ -250,7 +255,6 @@ class AttentionBlock(nn.Module):
 
 # %%
 class VisionTransformer(nn.Module):
-
     def __init__(
         self,
         embed_dim,
@@ -261,7 +265,7 @@ class VisionTransformer(nn.Module):
         num_classes,
         patch_size,
         num_patches,
-        dropout=0.0
+        dropout=0.0,
     ):
         """
         Inputs:
@@ -282,7 +286,7 @@ class VisionTransformer(nn.Module):
         self.patch_size = patch_size
 
         # Layers/Networks
-        self.input_layer = nn.Linear(num_channels * (patch_size**2), embed_dim)
+        self.input_layer = nn.Linear(num_channels * (patch_size ** 2), embed_dim)
         self.transformer = nn.Sequential(
             *(AttentionBlock(embed_dim, hidden_dim, num_heads, dropout=dropout) for _ in range(num_layers))
         )
@@ -302,7 +306,7 @@ class VisionTransformer(nn.Module):
         # Add CLS token and positional encoding
         cls_token = self.cls_token.repeat(B, 1, 1)
         x = torch.cat([cls_token, x], dim=1)
-        x = x + self.pos_embedding[:, :T + 1]
+        x = x + self.pos_embedding[:, : T + 1]
 
         # Apply Transforrmer
         x = self.dropout(x)
@@ -324,7 +328,6 @@ class VisionTransformer(nn.Module):
 
 # %%
 class ViT(pl.LightningModule):
-
     def __init__(self, model_kwargs, lr):
         super().__init__()
         self.save_hyperparameters()
@@ -345,8 +348,8 @@ class ViT(pl.LightningModule):
         loss = F.cross_entropy(preds, labels)
         acc = (preds.argmax(dim=-1) == labels).float().mean()
 
-        self.log('%s_loss' % mode, loss)
-        self.log('%s_acc' % mode, acc)
+        self.log("%s_loss" % mode, loss)
+        self.log("%s_acc" % mode, acc)
         return loss
 
     def training_step(self, batch, batch_idx):
@@ -378,9 +381,9 @@ def train_model(**kwargs):
         max_epochs=180,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
-            LearningRateMonitor("epoch")
+            LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=1
+        progress_bar_refresh_rate=1,
     )
     trainer.logger._log_graph = True  # If True, we plot the computation graph in tensorboard
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
@@ -440,17 +443,17 @@ def train_model(**kwargs):
 # %%
 model, results = train_model(
     model_kwargs={
-        'embed_dim': 256,
-        'hidden_dim': 512,
-        'num_heads': 8,
-        'num_layers': 6,
-        'patch_size': 4,
-        'num_channels': 3,
-        'num_patches': 64,
-        'num_classes': 10,
-        'dropout': 0.2
+        "embed_dim": 256,
+        "hidden_dim": 512,
+        "num_heads": 8,
+        "num_layers": 6,
+        "patch_size": 4,
+        "num_channels": 3,
+        "num_patches": 64,
+        "num_classes": 10,
+        "dropout": 0.2,
     },
-    lr=3e-4
+    lr=3e-4,
 )
 print("ViT results", results)
 
