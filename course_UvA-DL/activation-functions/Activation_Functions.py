@@ -151,6 +151,7 @@ class Tanh(ActivationFunction):
         x_exp, neg_x_exp = torch.exp(x), torch.exp(-x)
         return (x_exp - neg_x_exp) / (x_exp + neg_x_exp)
 
+
 # %% [markdown]
 # Another popular activation function that has allowed the training of deeper networks, is the Rectified Linear Unit (ReLU).
 # Despite its simplicity of being a piecewise linear function, ReLU has one major benefit compared to sigmoid and tanh: a strong, stable gradient for a large range of values.
@@ -704,9 +705,10 @@ for i, act_fn_name in enumerate(act_fn_by_name):
 # %%
 @torch.no_grad()
 def measure_number_dead_neurons(net):
-    """ Function to measure the number of dead neurons in a trained neural network.
-    For each neuron, we create a boolean variable initially set to 1. If it has an activation unequals 0 at any time,
-    we set this variable to 0. After running through the whole training set, only dead neurons will have a 1.
+    """Function to measure the number of dead neurons in a trained neural network.
+
+    For each neuron, we create a boolean variable initially set to 1. If it has an activation unequals 0 at any time, we
+    set this variable to 0. After running through the whole training set, only dead neurons will have a 1.
     """
     neurons_dead = [
         torch.ones(layer.weight.shape[0], device=device, dtype=torch.bool)
@@ -765,7 +767,10 @@ measure_number_dead_neurons(net_relu)
 
 # %%
 set_seed(42)
-net_relu = BaseNetwork(act_fn=ReLU(), hidden_sizes=[256, 256, 256, 256, 256, 128, 128, 128, 128, 128],).to(device)
+net_relu = BaseNetwork(
+    act_fn=ReLU(),
+    hidden_sizes=[256, 256, 256, 256, 256, 128, 128, 128, 128, 128],
+).to(device)
 measure_number_dead_neurons(net_relu)
 
 # %% [markdown]
