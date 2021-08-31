@@ -228,13 +228,11 @@ def plot_dists(val_dict, color="C0", xlabel=None, stat="count", use_kde=True):
             stat=stat,
             kde=use_kde and ((val_dict[key].max() - val_dict[key].min()) > 1e-8),
         )  # Only plot kde if there is variance
+        hidden_dim_str = r"(%i $\to$ %i)" % (val_dict[key].shape[1], val_dict[key].shape[0])
+                         if len(val_dict[key].shape) > 1
+                         else ""
         key_ax.set_title(
-            f"{key} "
-            + (
-                r"(%i $\to$ %i)" % (val_dict[key].shape[1], val_dict[key].shape[0])
-                if len(val_dict[key].shape) > 1
-                else ""
-            )
+            f"{key} {hidden_dim_str}"
         )
         if xlabel is not None:
             key_ax.set_xlabel(xlabel)
@@ -648,7 +646,7 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
         best_val_epoch = -1
         for epoch in range(max_epochs):
             train_acc, val_acc, epoch_losses = epoch_iteration(
-                net, loss_module, optimizer, train_loader_local, val_loader
+                net, loss_module, optimizer, train_loader_local, val_loader, epoch
             )
             train_scores.append(train_acc)
             val_scores.append(val_acc)
@@ -687,7 +685,7 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
     return results
 
 
-def epoch_iteration(net, loss_module, optimizer, train_loader_local, val_loader):
+def epoch_iteration(net, loss_module, optimizer, train_loader_local, val_loader, epoch):
     ############
     # Training #
     ############
