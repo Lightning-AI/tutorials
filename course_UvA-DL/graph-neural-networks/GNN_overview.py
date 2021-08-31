@@ -19,30 +19,34 @@
 # %%
 # Standard libraries
 import os
+
 # For downloading pre-trained models
 import urllib.request
 from urllib.error import HTTPError
 
 # PyTorch Lightning
 import pytorch_lightning as pl
+
 # PyTorch
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+
 # PyTorch geometric
 import torch_geometric
 import torch_geometric.data as geom_data
 import torch_geometric.nn as geom_nn
+
 # PL callbacks
 from pytorch_lightning.callbacks import ModelCheckpoint
 
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 BATCH_SIZE = 256 if AVAIL_GPUS else 64
 # Path to the folder where the datasets are/should be downloaded
-DATASET_PATH = os.environ.get('PATH_DATASETS', "data/")
+DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 # Path to the folder where the pretrained models are saved
-CHECKPOINT_PATH = os.environ.get('PATH_CHECKPOINT', "saved_models/GNNs/")
+CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/GNNs/")
 
 # Setting the seed
 pl.seed_everything(42)
@@ -76,7 +80,8 @@ for file_name in pretrained_files:
         except HTTPError as e:
             print(
                 "Something went wrong. Please try to download the file from the GDrive folder,"
-                " or contact the author with the full output including the following error:\n", e
+                " or contact the author with the full output including the following error:\n",
+                e,
             )
 
 # %% [markdown]
@@ -165,7 +170,6 @@ for file_name in pretrained_files:
 
 # %%
 class GCNLayer(nn.Module):
-
     def __init__(self, c_in, c_out):
         super().__init__()
         self.projection = nn.Linear(c_in, c_out)
@@ -205,8 +209,8 @@ print("\nAdjacency matrix:\n", adj_matrix)
 
 # %%
 layer = GCNLayer(c_in=2, c_out=2)
-layer.projection.weight.data = torch.Tensor([[1., 0.], [0., 1.]])
-layer.projection.bias.data = torch.Tensor([0., 0.])
+layer.projection.weight.data = torch.Tensor([[1.0, 0.0], [0.0, 1.0]])
+layer.projection.bias.data = torch.Tensor([0.0, 0.0])
 
 with torch.no_grad():
     out_feats = layer(node_feats, adj_matrix)
@@ -299,7 +303,6 @@ print("Output features", out_feats)
 
 # %%
 class GATLayer(nn.Module):
-
     def __init__(self, c_in, c_out, num_heads=1, concat_heads=True, alpha=0.2):
         """
         Args:
@@ -351,24 +354,24 @@ class GATLayer(nn.Module):
         a_input = torch.cat(
             [
                 torch.index_select(input=node_feats_flat, index=edge_indices_row, dim=0),
-                torch.index_select(input=node_feats_flat, index=edge_indices_col, dim=0)
+                torch.index_select(input=node_feats_flat, index=edge_indices_col, dim=0),
             ],
-            dim=-1
+            dim=-1,
         )  # Index select returns a tensor with node_feats_flat being indexed at the desired positions
 
         # Calculate attention MLP output (independent for each head)
-        attn_logits = torch.einsum('bhc,hc->bh', a_input, self.a)
+        attn_logits = torch.einsum("bhc,hc->bh", a_input, self.a)
         attn_logits = self.leakyrelu(attn_logits)
 
         # Map list of attention values back into a matrix
-        attn_matrix = attn_logits.new_zeros(adj_matrix.shape + (self.num_heads, )).fill_(-9e15)
+        attn_matrix = attn_logits.new_zeros(adj_matrix.shape + (self.num_heads,)).fill_(-9e15)
         attn_matrix[adj_matrix[..., None].repeat(1, 1, 1, self.num_heads) == 1] = attn_logits.reshape(-1)
 
         # Weighted average of attention
         attn_probs = F.softmax(attn_matrix, dim=2)
         if print_attn_probs:
             print("Attention probs\n", attn_probs.permute(0, 3, 1, 2))
-        node_feats = torch.einsum('bijh,bjhc->bihc', attn_probs, node_feats)
+        node_feats = torch.einsum("bijh,bjhc->bihc", attn_probs, node_feats)
 
         # If heads should be concatenated, we can do this by reshaping. Otherwise, take mean
         if self.concat_heads:
@@ -387,8 +390,8 @@ class GATLayer(nn.Module):
 
 # %%
 layer = GATLayer(2, 2, num_heads=2)
-layer.projection.weight.data = torch.Tensor([[1., 0.], [0., 1.]])
-layer.projection.bias.data = torch.Tensor([0., 0.])
+layer.projection.weight.data = torch.Tensor([[1.0, 0.0], [0.0, 1.0]])
+layer.projection.bias.data = torch.Tensor([0.0, 0.0])
 layer.a.data = torch.Tensor([[-0.2, 0.3], [0.1, -0.1]])
 
 with torch.no_grad():
@@ -495,7 +498,6 @@ cora_dataset[0]
 
 # %%
 class GNNModel(nn.Module):
-
     def __init__(
         self,
         c_in,
@@ -525,7 +527,7 @@ class GNNModel(nn.Module):
             layers += [
                 gnn_layer(in_channels=in_channels, out_channels=out_channels, **kwargs),
                 nn.ReLU(inplace=True),
-                nn.Dropout(dp_rate)
+                nn.Dropout(dp_rate),
             ]
             in_channels = c_hidden
         layers += [gnn_layer(in_channels=in_channels, out_channels=c_out, **kwargs)]
@@ -557,7 +559,6 @@ class GNNModel(nn.Module):
 
 # %%
 class MLPModel(nn.Module):
-
     def __init__(self, c_in, c_hidden, c_out, num_layers=2, dp_rate=0.1):
         """
         Args:
@@ -591,7 +592,6 @@ class MLPModel(nn.Module):
 
 # %%
 class NodeLevelGNN(pl.LightningModule):
-
     def __init__(self, model_name, **model_kwargs):
         super().__init__()
         # Saving hyperparameters
@@ -628,17 +628,17 @@ class NodeLevelGNN(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         loss, acc = self.forward(batch, mode="train")
-        self.log('train_loss', loss)
-        self.log('train_acc', acc)
+        self.log("train_loss", loss)
+        self.log("train_acc", acc)
         return loss
 
     def validation_step(self, batch, batch_idx):
         _, acc = self.forward(batch, mode="val")
-        self.log('val_acc', acc)
+        self.log("val_acc", acc)
 
     def test_step(self, batch, batch_idx):
         _, acc = self.forward(batch, mode="test")
-        self.log('test_acc', acc)
+        self.log("test_acc", acc)
 
 
 # %% [markdown]
@@ -664,7 +664,7 @@ def train_node_classifier(model_name, dataset, **model_kwargs):
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
         gpus=AVAIL_GPUS,
         max_epochs=200,
-        progress_bar_refresh_rate=0
+        progress_bar_refresh_rate=0,
     )  # 0 because epoch size is 1
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
@@ -687,7 +687,7 @@ def train_node_classifier(model_name, dataset, **model_kwargs):
     batch = batch.to(model.device)
     _, train_acc = model.forward(batch, mode="train")
     _, val_acc = model.forward(batch, mode="val")
-    result = {"train": train_acc, "val": val_acc, "test": test_result[0]['test_acc']}
+    result = {"train": train_acc, "val": val_acc, "test": test_result[0]["test_acc"]}
     return model, result
 
 
@@ -826,9 +826,7 @@ test_dataset = tu_dataset[150:]
 
 # %%
 graph_train_loader = geom_data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-graph_val_loader = geom_data.DataLoader(
-    test_dataset, batch_size=BATCH_SIZE
-)  # Additional loader for a larger datasets
+graph_val_loader = geom_data.DataLoader(test_dataset, batch_size=BATCH_SIZE)  # Additional loader for a larger datasets
 graph_test_loader = geom_data.DataLoader(test_dataset, batch_size=BATCH_SIZE)
 
 # %% [markdown]
@@ -855,7 +853,6 @@ print("Batch indices:", batch.batch[:40])
 
 # %%
 class GraphGNNModel(nn.Module):
-
     def __init__(self, c_in, c_hidden, c_out, dp_rate_linear=0.5, **kwargs):
         """
         Args:
@@ -866,12 +863,7 @@ class GraphGNNModel(nn.Module):
             kwargs: Additional arguments for the GNNModel object
         """
         super().__init__()
-        self.GNN = GNNModel(
-            c_in=c_in,
-            c_hidden=c_hidden,
-            c_out=c_hidden,  # Not our prediction output yet!
-            **kwargs
-        )
+        self.GNN = GNNModel(c_in=c_in, c_hidden=c_hidden, c_out=c_hidden, **kwargs)  # Not our prediction output yet!
         self.head = nn.Sequential(nn.Dropout(dp_rate_linear), nn.Linear(c_hidden, c_out))
 
     def forward(self, x, edge_index, batch_idx):
@@ -895,7 +887,6 @@ class GraphGNNModel(nn.Module):
 
 # %%
 class GraphLevelGNN(pl.LightningModule):
-
     def __init__(self, **model_kwargs):
         super().__init__()
         # Saving hyperparameters
@@ -925,17 +916,17 @@ class GraphLevelGNN(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         loss, acc = self.forward(batch, mode="train")
-        self.log('train_loss', loss)
-        self.log('train_acc', acc)
+        self.log("train_loss", loss)
+        self.log("train_acc", acc)
         return loss
 
     def validation_step(self, batch, batch_idx):
         _, acc = self.forward(batch, mode="val")
-        self.log('val_acc', acc)
+        self.log("val_acc", acc)
 
     def test_step(self, batch, batch_idx):
         _, acc = self.forward(batch, mode="test")
-        self.log('test_acc', acc)
+        self.log("test_acc", acc)
 
 
 # %% [markdown]
@@ -954,7 +945,7 @@ def train_graph_classifier(model_name, **model_kwargs):
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
         gpus=AVAIL_GPUS,
         max_epochs=500,
-        progress_bar_refresh_rate=0
+        progress_bar_refresh_rate=0,
     )
     trainer.logger._default_hp_metric = None
 
@@ -968,7 +959,7 @@ def train_graph_classifier(model_name, **model_kwargs):
         model = GraphLevelGNN(
             c_in=tu_dataset.num_node_features,
             c_out=1 if tu_dataset.num_classes == 2 else tu_dataset.num_classes,
-            **model_kwargs
+            **model_kwargs,
         )
         trainer.fit(model, graph_train_loader, graph_val_loader)
         model = GraphLevelGNN.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
@@ -976,7 +967,7 @@ def train_graph_classifier(model_name, **model_kwargs):
     # Test best model on validation and test set
     train_result = trainer.test(model, test_dataloaders=graph_train_loader, verbose=False)
     test_result = trainer.test(model, test_dataloaders=graph_test_loader, verbose=False)
-    result = {"test": test_result[0]['test_acc'], "train": train_result[0]['test_acc']}
+    result = {"test": test_result[0]["test_acc"], "train": train_result[0]["test_acc"]}
     return model, result
 
 
@@ -986,17 +977,12 @@ def train_graph_classifier(model_name, **model_kwargs):
 
 # %%
 model, result = train_graph_classifier(
-    model_name="GraphConv",
-    c_hidden=256,
-    layer_name="GraphConv",
-    num_layers=3,
-    dp_rate_linear=0.5,
-    dp_rate=0.0
+    model_name="GraphConv", c_hidden=256, layer_name="GraphConv", num_layers=3, dp_rate_linear=0.5, dp_rate=0.0
 )
 
 # %%
-print("Train performance: %4.2f%%" % (100.0 * result['train']))
-print("Test performance:  %4.2f%%" % (100.0 * result['test']))
+print("Train performance: %4.2f%%" % (100.0 * result["train"]))
+print("Test performance:  %4.2f%%" % (100.0 * result["test"]))
 
 # %% [markdown]
 # The test performance shows that we obtain quite good scores on an unseen part of the dataset.

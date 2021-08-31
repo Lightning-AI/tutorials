@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 from torchvision.datasets import MNIST
 
-PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
+PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 BATCH_SIZE = 256 if AVAIL_GPUS else 64
 
@@ -24,7 +24,6 @@ BATCH_SIZE = 256 if AVAIL_GPUS else 64
 
 # %%
 class MNISTModel(LightningModule):
-
     def __init__(self):
         super().__init__()
         self.l1 = torch.nn.Linear(28 * 28, 10)
@@ -96,7 +95,6 @@ trainer.fit(mnist_model, train_loader)
 
 # %%
 class LitMNIST(LightningModule):
-
     def __init__(self, data_dir=PATH_DATASETS, hidden_size=64, learning_rate=2e-4):
 
         super().__init__()
@@ -110,10 +108,12 @@ class LitMNIST(LightningModule):
         self.num_classes = 10
         self.dims = (1, 28, 28)
         channels, width, height = self.dims
-        self.transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.1307, ), (0.3081, )),
-        ])
+        self.transform = transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Normalize((0.1307,), (0.3081,)),
+            ]
+        )
 
         # Define PyTorch model
         self.model = nn.Sequential(
@@ -145,8 +145,8 @@ class LitMNIST(LightningModule):
         acc = accuracy(preds, y)
 
         # Calling self.log will surface up scalars for you in TensorBoard
-        self.log('val_loss', loss, prog_bar=True)
-        self.log('val_acc', acc, prog_bar=True)
+        self.log("val_loss", loss, prog_bar=True)
+        self.log("val_acc", acc, prog_bar=True)
         return loss
 
     def test_step(self, batch, batch_idx):
@@ -169,12 +169,12 @@ class LitMNIST(LightningModule):
     def setup(self, stage=None):
 
         # Assign train/val datasets for use in dataloaders
-        if stage == 'fit' or stage is None:
+        if stage == "fit" or stage is None:
             mnist_full = MNIST(self.data_dir, train=True, transform=self.transform)
             self.mnist_train, self.mnist_val = random_split(mnist_full, [55000, 5000])
 
         # Assign test dataset for use in dataloader(s)
-        if stage == 'test' or stage is None:
+        if stage == "test" or stage is None:
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def train_dataloader(self):
