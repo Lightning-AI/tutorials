@@ -3,7 +3,6 @@
 
 # %%
 import os
-import random
 import urllib.request
 from types import SimpleNamespace
 from urllib.error import HTTPError
