@@ -3,7 +3,9 @@ author: PL team
 created: 2020-12-21
 updated: 2021-06-16
 license: CC BY-SA
-build: 0
+build: 1
+tags:
+  - Image
 description: |
   How to train a GAN!
 

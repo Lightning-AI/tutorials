@@ -5,6 +5,13 @@
 
 Lightning-Sandbox documentation
 ===============================
+
+.. tutoriallist::
+
+.. raw:: html
+
+   <div style="display:none">
+
 .. toctree::
    :maxdepth: 1
    :name: start
@@ -14,6 +21,9 @@ Lightning-Sandbox documentation
    notebooks/*
    notebooks/**/*
 
+.. raw:: html
+
+   </div>
 
 Indices and tables
 ==================

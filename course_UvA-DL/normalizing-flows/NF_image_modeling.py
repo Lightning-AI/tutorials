@@ -21,7 +21,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from IPython.display import display, HTML, set_matplotlib_formats
+from IPython.display import HTML, display, set_matplotlib_formats
 from matplotlib.colors import to_rgb
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
@@ -29,14 +29,14 @@ from torchvision.datasets import MNIST
 from tqdm.notebook import tqdm
 
 # %matplotlib inline
-set_matplotlib_formats('svg', 'pdf')  # For export
-matplotlib.rcParams['lines.linewidth'] = 2.0
+set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
 # Path to the folder where the datasets are/should be downloaded (e.g. MNIST)
-DATASET_PATH = os.environ.get('PATH_DATASETS', 'data')
+DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
 # Path to the folder where the pretrained models are saved
-CHECKPOINT_PATH = os.environ.get('PATH_CHECKPOINT', 'saved_models/tutorial11')
+CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial11")
 
 # Setting the seed
 pl.seed_everything(42)
@@ -71,7 +71,7 @@ for file_name in pretrained_files:
         except HTTPError as e:
             print(
                 "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
-                e
+                e,
             )
 
 # %% [markdown]
@@ -124,8 +124,8 @@ def show_imgs(imgs, title=None, row_size=4):
     np_imgs = imgs.cpu().numpy()
     # Plot the grid
     plt.figure(figsize=(1.5 * nrow, 1.5 * ncol))
-    plt.imshow(np.transpose(np_imgs, (1, 2, 0)), interpolation='nearest')
-    plt.axis('off')
+    plt.imshow(np.transpose(np_imgs, (1, 2, 0)), interpolation="nearest")
+    plt.axis("off")
     if title is not None:
         plt.title(title)
     plt.show()
@@ -255,7 +255,6 @@ show_imgs([train_set[i][0] for i in range(8)])
 
 # %%
 class ImageFlow(pl.LightningModule):
-
     def __init__(self, flows, import_samples=8):
         """
         Args:
@@ -319,12 +318,12 @@ class ImageFlow(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         # Normalizing flows are trained by maximum likelihood => return bpd
         loss = self._get_likelihood(batch[0])
-        self.log('train_bpd', loss)
+        self.log("train_bpd", loss)
         return loss
 
     def validation_step(self, batch, batch_idx):
         loss = self._get_likelihood(batch[0])
-        self.log('val_bpd', loss)
+        self.log("val_bpd", loss)
 
     def test_step(self, batch, batch_idx):
         # Perform importance sampling during testing => estimate likelihood M times for each image
@@ -342,7 +341,7 @@ class ImageFlow(pl.LightningModule):
         bpd = -img_ll * np.log2(np.exp(1)) / np.prod(batch[0].shape[1:])
         bpd = bpd.mean()
 
-        self.log('test_bpd', bpd)
+        self.log("test_bpd", bpd)
 
 
 # %% [markdown]
@@ -396,7 +395,6 @@ class ImageFlow(pl.LightningModule):
 
 # %%
 class Dequantization(nn.Module):
-
     def __init__(self, alpha=1e-5, quants=256):
         """
         Args:
@@ -449,7 +447,9 @@ class Dequantization(nn.Module):
 # Testing invertibility of dequantization layer
 pl.seed_everything(42)
 orig_img = train_set[0][0].unsqueeze(dim=0)
-ldj = torch.zeros(1, )
+ldj = torch.zeros(
+    1,
+)
 dequant_module = Dequantization()
 deq_img, ldj = dequant_module(orig_img, ldj, reverse=False)
 reconst_img, ldj = dequant_module(deq_img, ldj, reverse=True)
@@ -486,8 +486,7 @@ def visualize_dequantization(quants, prior=None):
     # Prior over discrete values. If not given, a uniform is assumed
     if prior is None:
         prior = np.ones(quants, dtype=np.float32) / quants
-    prior = prior / prior.sum(
-    ) * quants  # In the following, we assume 1 for each value means uniform distribution
+    prior = prior / prior.sum() * quants  # In the following, we assume 1 for each value means uniform distribution
 
     inp = torch.arange(-4, 4, 0.01).view(-1, 1, 1, 1)  # Possible continuous values we want to consider
     ldj = torch.zeros(inp.shape[0])
@@ -504,9 +503,7 @@ def visualize_dequantization(quants, prior=None):
     for v in np.unique(out):
         indices = np.where(out == v)
         color = to_rgb("C%i" % v)
-        plt.fill_between(
-            inp[indices], prob[indices], np.zeros(indices[0].shape[0]), color=color + (0.5, ), label=str(v)
-        )
+        plt.fill_between(inp[indices], prob[indices], np.zeros(indices[0].shape[0]), color=color + (0.5,), label=str(v))
         plt.plot([inp[indices[0][0]]] * 2, [0, prob[indices[0][0]]], color=color)
         plt.plot([inp[indices[0][-1]]] * 2, [0, prob[indices[0][-1]]], color=color)
         x_ticks.append(inp[indices[0][0]])
@@ -585,7 +582,6 @@ visualize_dequantization(quants=8, prior=np.array([0.075, 0.2, 0.4, 0.2, 0.075, 
 
 # %%
 class VariationalDequantization(Dequantization):
-
     def __init__(self, var_flows, alpha=1e-5):
         """
         Args:
@@ -652,7 +648,6 @@ class VariationalDequantization(Dequantization):
 
 # %%
 class CouplingLayer(nn.Module):
-
     def __init__(self, network, mask, c_in):
         """Coupling layer inside a normalizing flow.
 
@@ -668,7 +663,7 @@ class CouplingLayer(nn.Module):
         self.scaling_factor = nn.Parameter(torch.zeros(c_in))
         # Register mask as buffer as it is a tensor which is not a parameter,
         # but should be part of the modules state.
-        self.register_buffer('mask', mask)
+        self.register_buffer("mask", mask)
 
     def forward(self, z, ldj, reverse=False, orig_img=None):
         """
@@ -755,10 +750,7 @@ def create_checkerboard_mask(h, w, invert=False):
 
 
 def create_channel_mask(c_in, invert=False):
-    mask = torch.cat([
-        torch.ones(c_in // 2, dtype=torch.float32),
-        torch.zeros(c_in - c_in // 2, dtype=torch.float32)
-    ])
+    mask = torch.cat([torch.ones(c_in // 2, dtype=torch.float32), torch.zeros(c_in - c_in // 2, dtype=torch.float32)])
     mask = mask.view(1, c_in, 1, 1)
     if invert:
         mask = 1 - mask
@@ -800,7 +792,6 @@ class ConcatELU(nn.Module):
 
 
 class LayerNormChannels(nn.Module):
-
     def __init__(self, c_in):
         """This module applies layer norm across channels in an image.
 
@@ -819,7 +810,6 @@ class LayerNormChannels(nn.Module):
 
 
 class GatedConv(nn.Module):
-
     def __init__(self, c_in, c_hidden):
         """
         This module applies a two-layer convolutional ResNet block with input gate
@@ -829,8 +819,9 @@ class GatedConv(nn.Module):
         """
         super().__init__()
         self.net = nn.Sequential(
-            nn.Conv2d(c_in, c_hidden, kernel_size=3, padding=1), ConcatELU(),
-            nn.Conv2d(2 * c_hidden, 2 * c_in, kernel_size=1)
+            nn.Conv2d(c_in, c_hidden, kernel_size=3, padding=1),
+            ConcatELU(),
+            nn.Conv2d(2 * c_hidden, 2 * c_in, kernel_size=1),
         )
 
     def forward(self, x):
@@ -840,7 +831,6 @@ class GatedConv(nn.Module):
 
 
 class GatedConvNet(nn.Module):
-
     def __init__(self, c_in, c_hidden=32, c_out=-1, num_layers=3):
         """Module that summarizes the previous blocks to a full convolutional neural network.
 
@@ -887,8 +877,9 @@ def create_simple_flow(use_vardeq=True):
             CouplingLayer(
                 network=GatedConvNet(c_in=2, c_out=2, c_hidden=16),
                 mask=create_checkerboard_mask(h=28, w=28, invert=(i % 2 == 1)),
-                c_in=1
-            ) for i in range(4)
+                c_in=1,
+            )
+            for i in range(4)
         ]
         flow_layers += [VariationalDequantization(var_flows=vardeq_layers)]
     else:
@@ -899,7 +890,7 @@ def create_simple_flow(use_vardeq=True):
             CouplingLayer(
                 network=GatedConvNet(c_in=1, c_hidden=32),
                 mask=create_checkerboard_mask(h=28, w=28, invert=(i % 2 == 1)),
-                c_in=1
+                c_in=1,
             )
         ]
 
@@ -926,8 +917,8 @@ def train_flow(flow, model_name="MNISTFlow"):
         gradient_clip_val=1.0,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="min", monitor="val_bpd"),
-            LearningRateMonitor("epoch")
-        ]
+            LearningRateMonitor("epoch"),
+        ],
     )
     trainer.logger._log_graph = True
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
@@ -942,7 +933,7 @@ def train_flow(flow, model_name="MNISTFlow"):
     if os.path.isfile(pretrained_filename):
         print("Found pretrained model, loading...")
         ckpt = torch.load(pretrained_filename, map_location=device)
-        flow.load_state_dict(ckpt['state_dict'])
+        flow.load_state_dict(ckpt["state_dict"])
         result = ckpt.get("result", None)
     else:
         print("Start training", model_name)
@@ -955,11 +946,7 @@ def train_flow(flow, model_name="MNISTFlow"):
         start_time = time.time()
         test_result = trainer.test(flow, test_dataloaders=test_loader, verbose=False)
         duration = time.time() - start_time
-        result = {
-            "test": test_result,
-            "val": val_result,
-            "time": duration / len(test_loader) / flow.import_samples
-        }
+        result = {"test": test_result, "val": val_result, "time": duration / len(test_loader) / flow.import_samples}
 
     return flow, result
 
@@ -1000,7 +987,6 @@ def train_flow(flow, model_name="MNISTFlow"):
 
 # %%
 class SqueezeFlow(nn.Module):
-
     def forward(self, z, ldj, reverse=False):
         B, C, H, W = z.shape
         if not reverse:
@@ -1038,7 +1024,6 @@ print("\nImage (reverse)\n", reconst_img)
 
 # %%
 class SplitFlow(nn.Module):
-
     def __init__(self):
         super().__init__()
         self.prior = torch.distributions.normal.Normal(loc=0.0, scale=1.0)
@@ -1088,8 +1073,9 @@ def create_multiscale_flow():
         CouplingLayer(
             network=GatedConvNet(c_in=2, c_out=2, c_hidden=16),
             mask=create_checkerboard_mask(h=28, w=28, invert=(i % 2 == 1)),
-            c_in=1
-        ) for i in range(4)
+            c_in=1,
+        )
+        for i in range(4)
     ]
     flow_layers += [VariationalDequantization(vardeq_layers)]
 
@@ -1097,25 +1083,22 @@ def create_multiscale_flow():
         CouplingLayer(
             network=GatedConvNet(c_in=1, c_hidden=32),
             mask=create_checkerboard_mask(h=28, w=28, invert=(i % 2 == 1)),
-            c_in=1
-        ) for i in range(2)
+            c_in=1,
+        )
+        for i in range(2)
     ]
     flow_layers += [SqueezeFlow()]
     for i in range(2):
         flow_layers += [
             CouplingLayer(
-                network=GatedConvNet(c_in=4, c_hidden=48),
-                mask=create_channel_mask(c_in=4, invert=(i % 2 == 1)),
-                c_in=4
+                network=GatedConvNet(c_in=4, c_hidden=48), mask=create_channel_mask(c_in=4, invert=(i % 2 == 1)), c_in=4
             )
         ]
     flow_layers += [SplitFlow(), SqueezeFlow()]
     for i in range(4):
         flow_layers += [
             CouplingLayer(
-                network=GatedConvNet(c_in=8, c_hidden=64),
-                mask=create_channel_mask(c_in=8, invert=(i % 2 == 1)),
-                c_in=8
+                network=GatedConvNet(c_in=8, c_hidden=64), mask=create_channel_mask(c_in=8, invert=(i % 2 == 1)), c_in=8
             )
         ]
 
@@ -1185,22 +1168,23 @@ flow_dict["multiscale"]["model"], flow_dict["multiscale"]["result"] = train_flow
 
 # %%
 
-table = [[
-    key,
-    "%4.3f bpd" % flow_dict[key]["result"]["val"][0]["test_bpd"],
-    "%4.3f bpd" % flow_dict[key]["result"]["test"][0]["test_bpd"],
-    "%2.0f ms" % (1000 * flow_dict[key]["result"]["time"]),
-    "%2.0f ms" % (1000 * flow_dict[key]["result"].get("samp_time", 0)),
-    "{:,}".format(sum(np.prod(p.shape) for p in flow_dict[key]["model"].parameters()))
-] for key in flow_dict]
+table = [
+    [
+        key,
+        "%4.3f bpd" % flow_dict[key]["result"]["val"][0]["test_bpd"],
+        "%4.3f bpd" % flow_dict[key]["result"]["test"][0]["test_bpd"],
+        "%2.0f ms" % (1000 * flow_dict[key]["result"]["time"]),
+        "%2.0f ms" % (1000 * flow_dict[key]["result"].get("samp_time", 0)),
+        "{:,}".format(sum(np.prod(p.shape) for p in flow_dict[key]["model"].parameters())),
+    ]
+    for key in flow_dict
+]
 display(
     HTML(
         tabulate.tabulate(
             table,
-            tablefmt='html',
-            headers=[
-                "Model", "Validation Bpd", "Test Bpd", "Inference time", "Sampling time", "Num Parameters"
-            ]
+            tablefmt="html",
+            headers=["Model", "Validation Bpd", "Test Bpd", "Inference time", "Sampling time", "Num Parameters"],
         )
     )
 )
@@ -1343,7 +1327,7 @@ def visualize_dequant_distribution(model: ImageFlow, imgs: torch.Tensor, title: 
     dequant_vals = dequant_vals.view(-1).cpu().numpy()
     sns.set()
     plt.figure(figsize=(10, 3))
-    plt.hist(dequant_vals, bins=256, color=to_rgb("C0") + (0.5, ), edgecolor="C0", density=True)
+    plt.hist(dequant_vals, bins=256, color=to_rgb("C0") + (0.5,), edgecolor="C0", density=True)
     if title is not None:
         plt.title(title)
     plt.show()

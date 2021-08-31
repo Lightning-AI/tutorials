@@ -3,6 +3,9 @@ author: Phillip Lippe
 created: 2021-06-07
 updated: 2021-06-16
 license: CC BY-SA
+build: 0
+tags:
+  - Image
 description: |
   In this tutorial, we will take a closer look at complex, deep normalizing flows.
   The most popular, current application of deep normalizing flows is to model datasets of images.
