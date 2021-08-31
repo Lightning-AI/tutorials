@@ -140,7 +140,7 @@ plt.close()
 # With adding positional encodings and a token for classification on top, we can apply a Transformer as usual to this sequence and start training it for our task.
 # A nice GIF visualization of the architecture is shown below (figure credit - [Phil Wang](https://github.com/lucidrains/vit-pytorch/blob/main/images/vit.gif)):
 #
-# <center width="100%"><img src="vit.gif" width="600px"></center>
+# <center width="100%"><img src="vit_architecture.png" width="600px"></center>
 #
 # We will walk step by step through the Vision Transformer, and implement all parts by ourselves.
 # First, let's implement the image preprocessing: an image of size $N\times N$ has to be split into $(N/M)^2$ patches of size $M\times M$.
