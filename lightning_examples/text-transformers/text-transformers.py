@@ -259,7 +259,7 @@ class GLUETransformer(LightningModule):
 # ## Training
 
 # %% [markdown]
-# #### CoLA
+# ### CoLA
 #
 # See an interactive view of the
 # CoLA dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=cola)
@@ -276,11 +276,11 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(max_epochs=3, gpus=AVAIL_GPUS)
+trainer = Trainer(max_epochs=1, gpus=AVAIL_GPUS)
 trainer.fit(model, dm)
 
 # %% [markdown]
-# #### MRPC
+# ### MRPC
 #
 # See an interactive view of the
 # MRPC dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=mrpc)
@@ -304,7 +304,7 @@ trainer = Trainer(max_epochs=3, gpus=AVAIL_GPUS)
 trainer.fit(model, dm)
 
 # %% [markdown]
-# #### MNLI
+# ### MNLI
 #
 #  - The MNLI dataset is huge, so we aren't going to bother trying to train on it here.
 #  - We will skip over training and go straight to validation.
