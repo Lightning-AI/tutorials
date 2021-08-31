@@ -41,19 +41,19 @@ from torchvision import transforms
 from torchvision.datasets import CIFAR100, SVHN
 from tqdm.auto import tqdm
 
-plt.set_cmap('cividis')
+plt.set_cmap("cividis")
 # %matplotlib inline
-set_matplotlib_formats('svg', 'pdf')  # For export
-matplotlib.rcParams['lines.linewidth'] = 2.0
+set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
 # Import tensorboard
 # %load_ext tensorboard
 
 # Path to the folder where the datasets are/should be downloaded (e.g. CIFAR10)
-DATASET_PATH = os.environ.get('PATH_DATASETS', "data/")
+DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 # Path to the folder where the pretrained models are saved
-CHECKPOINT_PATH = os.environ.get('PATH_CHECKPOINT', "saved_models/MetaLearning/")
+CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/MetaLearning/")
 
 # Setting the seed
 pl.seed_everything(42)
@@ -74,9 +74,12 @@ print("Device:", device)
 base_url = "https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial16/"
 # Files to download
 pretrained_files = [
-    "ProtoNet.ckpt", "ProtoMAML.ckpt", "tensorboards/ProtoNet/events.out.tfevents.ProtoNet",
-    "tensorboards/ProtoMAML/events.out.tfevents.ProtoMAML", "protomaml_fewshot.json",
-    "protomaml_svhn_fewshot.json"
+    "ProtoNet.ckpt",
+    "ProtoMAML.ckpt",
+    "tensorboards/ProtoNet/events.out.tfevents.ProtoNet",
+    "tensorboards/ProtoMAML/events.out.tfevents.ProtoMAML",
+    "protomaml_fewshot.json",
+    "protomaml_svhn_fewshot.json",
 ]
 # Create checkpoint path if it doesn't exist yet
 os.makedirs(CHECKPOINT_PATH, exist_ok=True)
@@ -94,7 +97,7 @@ for file_name in pretrained_files:
         except HTTPError as e:
             print(
                 "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
-                e
+                e,
             )
 
 # %% [markdown]
@@ -123,7 +126,7 @@ img_grid = img_grid.permute(1, 2, 0)
 plt.figure(figsize=(8, 8))
 plt.title("Image examples of the CIFAR100 dataset")
 plt.imshow(img_grid)
-plt.axis('off')
+plt.axis("off")
 plt.show()
 plt.close()
 
@@ -147,7 +150,6 @@ cifar_all_targets = torch.LongTensor(cifar_train_set.targets + cifar_test_set.ta
 
 # %%
 class ImageDataset(data.Dataset):
-
     def __init__(self, imgs, targets, img_transform=None):
         """
         Inputs:
@@ -219,20 +221,18 @@ DATA_STD = (cifar_train_set.data / 255.0).std(axis=(0, 1, 2))
 
 test_transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(DATA_MEANS, DATA_STD)])
 # For training, we add some augmentation.
-train_transform = transforms.Compose([
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomResizedCrop((32, 32), scale=(0.8, 1.0), ratio=(0.9, 1.1)),
-    transforms.ToTensor(),
-    transforms.Normalize(DATA_MEANS, DATA_STD)
-])
+train_transform = transforms.Compose(
+    [
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomResizedCrop((32, 32), scale=(0.8, 1.0), ratio=(0.9, 1.1)),
+        transforms.ToTensor(),
+        transforms.Normalize(DATA_MEANS, DATA_STD),
+    ]
+)
 
-train_set = dataset_from_labels(
-    cifar_all_images, cifar_all_targets, train_classes, img_transform=train_transform
-)
+train_set = dataset_from_labels(cifar_all_images, cifar_all_targets, train_classes, img_transform=train_transform)
 val_set = dataset_from_labels(cifar_all_images, cifar_all_targets, val_classes, img_transform=test_transform)
-test_set = dataset_from_labels(
-    cifar_all_images, cifar_all_targets, test_classes, img_transform=test_transform
-)
+test_set = dataset_from_labels(cifar_all_images, cifar_all_targets, test_classes, img_transform=test_transform)
 
 # %% [markdown]
 # ### Data sampling
@@ -255,7 +255,6 @@ test_set = dataset_from_labels(
 
 # %%
 class FewShotBatchSampler:
-
     def __init__(self, dataset_targets, N_way, K_shot, include_query=False, shuffle=True, shuffle_once=False):
         """
         Inputs:
@@ -299,8 +298,7 @@ class FewShotBatchSampler:
         else:
             # For testing, we iterate over classes instead of shuffling them
             sort_idxs = [
-                i + p * self.num_classes for i, c in enumerate(self.classes)
-                for p in range(self.batches_per_class[c])
+                i + p * self.num_classes for i, c in enumerate(self.classes) for p in range(self.batches_per_class[c])
             ]
             self.class_list = np.array(self.class_list)[np.argsort(sort_idxs)].tolist()
 
@@ -322,11 +320,10 @@ class FewShotBatchSampler:
         # Sample few-shot batches
         start_index = defaultdict(int)
         for it in range(self.iterations):
-            class_batch = self.class_list[it * self.N_way:(it + 1) * self.N_way
-                                          ]  # Select N classes for the batch
+            class_batch = self.class_list[it * self.N_way : (it + 1) * self.N_way]  # Select N classes for the batch
             index_batch = []
             for c in class_batch:  # For each class, select the next K examples and add them to the batch
-                index_batch.extend(self.indices_per_class[c][start_index[c]:start_index[c] + self.K_shot])
+                index_batch.extend(self.indices_per_class[c][start_index[c] : start_index[c] + self.K_shot])
                 start_index[c] += self.K_shot
             if self.include_query:  # If we return support+query set, sort them so that they are easy to split
                 index_batch = index_batch[::2] + index_batch[1::2]
@@ -350,17 +347,15 @@ N_WAY = 5
 K_SHOT = 4
 train_data_loader = data.DataLoader(
     train_set,
-    batch_sampler=FewShotBatchSampler(
-        train_set.targets, include_query=True, N_way=N_WAY, K_shot=K_SHOT, shuffle=True
-    ),
-    num_workers=4
+    batch_sampler=FewShotBatchSampler(train_set.targets, include_query=True, N_way=N_WAY, K_shot=K_SHOT, shuffle=True),
+    num_workers=4,
 )
 val_data_loader = data.DataLoader(
     val_set,
     batch_sampler=FewShotBatchSampler(
         val_set.targets, include_query=True, N_way=N_WAY, K_shot=K_SHOT, shuffle=False, shuffle_once=True
     ),
-    num_workers=4
+    num_workers=4,
 )
 
 # %% [markdown]
@@ -391,11 +386,11 @@ query_grid = query_grid.permute(1, 2, 0)
 fig, ax = plt.subplots(1, 2, figsize=(8, 5))
 ax[0].imshow(support_grid)
 ax[0].set_title("Support set")
-ax[0].axis('off')
+ax[0].axis("off")
 ax[1].imshow(query_grid)
 ax[1].set_title("Query set")
-ax[1].axis('off')
-fig.suptitle("Few Shot Batch", weight='bold')
+ax[1].axis("off")
+fig.suptitle("Few Shot Batch", weight="bold")
 fig.show()
 plt.close(fig)
 
@@ -461,7 +456,7 @@ def get_convnet(output_size):
         block_config=(6, 6, 6, 6),
         bn_size=2,
         num_init_features=64,
-        num_classes=output_size  # Output dimensionality
+        num_classes=output_size,  # Output dimensionality
     )
     return convnet
 
@@ -478,7 +473,6 @@ def get_convnet(output_size):
 
 # %%
 class ProtoNet(pl.LightningModule):
-
     def __init__(self, proto_dim, lr):
         """Inputs.
 
@@ -562,9 +556,9 @@ def train_model(model_class, train_loader, val_loader, **kwargs):
         max_epochs=200,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
-            LearningRateMonitor("epoch")
+            LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=0
+        progress_bar_refresh_rate=0,
     )
     trainer.logger._default_hp_metric = None
 
@@ -671,20 +665,18 @@ def test_proto_net(model, dataset, data_feats=None, k_shot=4):
     # We iterate through the full dataset in two manners. First, to select the k-shot batch.
     # Second, the evaluate the model on all other examples
     accuracies = []
-    for k_idx in tqdm(
-        range(0, img_features.shape[0], k_shot), "Evaluating prototype classification", leave=False
-    ):
+    for k_idx in tqdm(range(0, img_features.shape[0], k_shot), "Evaluating prototype classification", leave=False):
         # Select support set and calculate prototypes
-        k_img_feats = img_features[k_idx:k_idx + k_shot].flatten(0, 1)
-        k_targets = img_targets[k_idx:k_idx + k_shot].flatten(0, 1)
+        k_img_feats = img_features[k_idx : k_idx + k_shot].flatten(0, 1)
+        k_targets = img_targets[k_idx : k_idx + k_shot].flatten(0, 1)
         prototypes, proto_classes = model.calculate_prototypes(k_img_feats, k_targets)
         # Evaluate accuracy on the rest of the dataset
         batch_acc = 0
         for e_idx in range(0, img_features.shape[0], k_shot):
             if k_idx == e_idx:  # Do not evaluate on the support set examples
                 continue
-            e_img_feats = img_features[e_idx:e_idx + k_shot].flatten(0, 1)
-            e_targets = img_targets[e_idx:e_idx + k_shot].flatten(0, 1)
+            e_img_feats = img_features[e_idx : e_idx + k_shot].flatten(0, 1)
+            e_targets = img_targets[e_idx : e_idx + k_shot].flatten(0, 1)
             _, _, acc = model.classify_feats(prototypes, proto_classes, e_img_feats, e_targets)
             batch_acc += acc.item()
         batch_acc /= img_features.shape[0] // k_shot - 1
@@ -700,12 +692,10 @@ def test_proto_net(model, dataset, data_feats=None, k_shot=4):
 protonet_accuracies = dict()
 data_feats = None
 for k in [2, 4, 8, 16, 32]:
-    protonet_accuracies[k], data_feats = test_proto_net(
-        protonet_model, test_set, data_feats=data_feats, k_shot=k
-    )
+    protonet_accuracies[k], data_feats = test_proto_net(protonet_model, test_set, data_feats=data_feats, k_shot=k)
     print(
-        "Accuracy for k=%i: %4.2f%% (+-%4.2f%%)" %
-        (k, 100.0 * protonet_accuracies[k][0], 100 * protonet_accuracies[k][1])
+        "Accuracy for k=%i: %4.2f%% (+-%4.2f%%)"
+        % (k, 100.0 * protonet_accuracies[k][0], 100 * protonet_accuracies[k][1])
     )
 
 # %% [markdown]
@@ -720,20 +710,22 @@ def plot_few_shot(acc_dict, name, color=None, ax=None):
     ks = sorted(list(acc_dict.keys()))
     mean_accs = [acc_dict[k][0] for k in ks]
     std_accs = [acc_dict[k][1] for k in ks]
-    ax.plot(ks, mean_accs, marker='o', markeredgecolor='k', markersize=6, label=name, color=color)
+    ax.plot(ks, mean_accs, marker="o", markeredgecolor="k", markersize=6, label=name, color=color)
     ax.fill_between(
-        ks, [m - s for m, s in zip(mean_accs, std_accs)], [m + s for m, s in zip(mean_accs, std_accs)],
+        ks,
+        [m - s for m, s in zip(mean_accs, std_accs)],
+        [m + s for m, s in zip(mean_accs, std_accs)],
         alpha=0.2,
-        color=color
+        color=color,
     )
     ax.set_xticks(ks)
     ax.set_xlim([ks[0] - 1, ks[-1] + 1])
-    ax.set_xlabel("Number of shots per class", weight='bold')
-    ax.set_ylabel("Accuracy", weight='bold')
+    ax.set_xlabel("Number of shots per class", weight="bold")
+    ax.set_ylabel("Accuracy", weight="bold")
     if len(ax.get_title()) == 0:
-        ax.set_title("Few-Shot Performance " + name, weight='bold')
+        ax.set_title("Few-Shot Performance " + name, weight="bold")
     else:
-        ax.set_title(ax.get_title() + " and " + name, weight='bold')
+        ax.set_title(ax.get_title() + " and " + name, weight="bold")
     ax.legend()
     return ax
 
@@ -848,7 +840,6 @@ plt.close()
 
 # %%
 class ProtoMAML(pl.LightningModule):
-
     def __init__(self, proto_dim, lr, lr_inner, lr_output, num_inner_steps):
         """Inputs.
 
@@ -887,7 +878,7 @@ class ProtoMAML(pl.LightningModule):
         local_optim.zero_grad()
         # Create output layer weights with prototype-based initialization
         init_weight = 2 * prototypes
-        init_bias = -torch.norm(prototypes, dim=1)**2
+        init_bias = -torch.norm(prototypes, dim=1) ** 2
         output_weight = init_weight.detach().requires_grad_()
         output_bias = init_bias.detach().requires_grad_()
 
@@ -922,14 +913,10 @@ class ProtoMAML(pl.LightningModule):
             imgs, targets = task_batch
             support_imgs, query_imgs, support_targets, query_targets = split_batch(imgs, targets)
             # Perform inner loop adaptation
-            local_model, output_weight, output_bias, classes = self.adapt_few_shot(
-                support_imgs, support_targets
-            )
+            local_model, output_weight, output_bias, classes = self.adapt_few_shot(support_imgs, support_targets)
             # Determine loss of query set
             query_labels = (classes[None, :] == query_targets[:, None]).long().argmax(dim=-1)
-            loss, preds, acc = self.run_model(
-                local_model, output_weight, output_bias, query_imgs, query_labels
-            )
+            loss, preds, acc = self.run_model(local_model, output_weight, output_bias, query_imgs, query_labels)
             # Calculate gradients for query set loss
             if mode == "train":
                 loss.backward()
@@ -973,7 +960,6 @@ class ProtoMAML(pl.LightningModule):
 
 # %%
 class TaskBatchSampler:
-
     def __init__(self, dataset_targets, batch_size, N_way, K_shot, include_query=False, shuffle=True):
         """
         Inputs:
@@ -1031,10 +1017,7 @@ train_protomaml_sampler = TaskBatchSampler(
     train_set.targets, include_query=True, N_way=N_WAY, K_shot=K_SHOT, batch_size=16
 )
 train_protomaml_loader = data.DataLoader(
-    train_set,
-    batch_sampler=train_protomaml_sampler,
-    collate_fn=train_protomaml_sampler.get_collate_fn(),
-    num_workers=2
+    train_set, batch_sampler=train_protomaml_sampler, collate_fn=train_protomaml_sampler.get_collate_fn(), num_workers=2
 )
 
 # Validation set
@@ -1044,13 +1027,10 @@ val_protomaml_sampler = TaskBatchSampler(
     N_way=N_WAY,
     K_shot=K_SHOT,
     batch_size=1,  # We do not update the parameters, hence the batch size is irrelevant here
-    shuffle=False
+    shuffle=False,
 )
 val_protomaml_loader = data.DataLoader(
-    val_set,
-    batch_sampler=val_protomaml_sampler,
-    collate_fn=val_protomaml_sampler.get_collate_fn(),
-    num_workers=2
+    val_set, batch_sampler=val_protomaml_sampler, collate_fn=val_protomaml_sampler.get_collate_fn(), num_workers=2
 )
 
 # %% [markdown]
@@ -1072,7 +1052,7 @@ protomaml_model = train_model(
     lr_output=0.1,
     num_inner_steps=1,  # Often values between 1 and 10
     train_loader=train_protomaml_loader,
-    val_loader=val_protomaml_loader
+    val_loader=val_protomaml_loader,
 )
 
 # %% [markdown]
@@ -1114,27 +1094,23 @@ def test_protomaml(model, dataset, k_shot=4):
     full_dataloader = data.DataLoader(dataset, batch_size=128, num_workers=4, shuffle=False, drop_last=False)
     # Data loader for sampling support sets
     sampler = FewShotBatchSampler(
-        dataset.targets,
-        include_query=False,
-        N_way=num_classes,
-        K_shot=k_shot,
-        shuffle=False,
-        shuffle_once=False
+        dataset.targets, include_query=False, N_way=num_classes, K_shot=k_shot, shuffle=False, shuffle_once=False
     )
     sample_dataloader = data.DataLoader(dataset, batch_sampler=sampler, num_workers=2)
 
     # We iterate through the full dataset in two manners. First, to select the k-shot batch.
     # Second, the evaluate the model on all other examples
     accuracies = []
-    for (support_imgs, support_targets
-         ), support_indices in tqdm(zip(sample_dataloader, sampler), "Performing few-shot finetuning"):
+    for (support_imgs, support_targets), support_indices in tqdm(
+        zip(sample_dataloader, sampler), "Performing few-shot finetuning"
+    ):
         support_imgs = support_imgs.to(device)
         support_targets = support_targets.to(device)
         # Finetune new model on support set
         local_model, output_weight, output_bias, classes = model.adapt_few_shot(support_imgs, support_targets)
         with torch.no_grad():  # No gradients for query set needed
             local_model.eval()
-            batch_acc = torch.zeros((0, ), dtype=torch.float32, device=device)
+            batch_acc = torch.zeros((0,), dtype=torch.float32, device=device)
             # Evaluate all examples in test dataset
             for query_imgs, query_targets in full_dataloader:
                 query_imgs = query_imgs.to(device)
@@ -1177,13 +1153,13 @@ else:
     for k in [2, 4, 8, 16, 32]:
         protomaml_accuracies[k] = test_protomaml(protomaml_model, test_set, k_shot=k)
     # Export results
-    with open(protomaml_result_file, 'w') as f:
+    with open(protomaml_result_file, "w") as f:
         json.dump(protomaml_accuracies, f, indent=4)
 
 for k in protomaml_accuracies:
     print(
-        "Accuracy for k=%i: %4.2f%% (+-%4.2f%%)" %
-        (k, 100.0 * protomaml_accuracies[k][0], 100.0 * protomaml_accuracies[k][1])
+        "Accuracy for k=%i: %4.2f%% (+-%4.2f%%)"
+        % (k, 100.0 * protomaml_accuracies[k][0], 100.0 * protomaml_accuracies[k][1])
     )
 
 # %% [markdown]
@@ -1224,7 +1200,7 @@ plt.close()
 # Let's first load the dataset, and visualize some images to get an impression of the dataset.
 
 # %%
-SVHN_test_dataset = SVHN(root=DATASET_PATH, split='test', download=True, transform=transforms.ToTensor())
+SVHN_test_dataset = SVHN(root=DATASET_PATH, split="test", download=True, transform=transforms.ToTensor())
 
 # %%
 # Visualize some examples
@@ -1237,7 +1213,7 @@ img_grid = img_grid.permute(1, 2, 0)
 plt.figure(figsize=(8, 8))
 plt.title("Image examples of the SVHN dataset")
 plt.imshow(img_grid)
-plt.axis('off')
+plt.axis("off")
 plt.show()
 plt.close()
 
@@ -1275,8 +1251,8 @@ for k in [2, 4, 8, 16, 32]:
         protonet_model, svhn_fewshot_dataset, data_feats=data_feats, k_shot=k
     )
     print(
-        "Accuracy for k=%i: %4.2f%% (+-%4.2f%%)" %
-        (k, 100.0 * protonet_svhn_accuracies[k][0], 100 * protonet_svhn_accuracies[k][1])
+        "Accuracy for k=%i: %4.2f%% (+-%4.2f%%)"
+        % (k, 100.0 * protonet_svhn_accuracies[k][0], 100 * protonet_svhn_accuracies[k][1])
     )
 
 # %% [markdown]
@@ -1298,13 +1274,13 @@ else:
     for k in [2, 4, 8, 16, 32]:
         protomaml_svhn_accuracies[k] = test_protomaml(protomaml_model, svhn_fewshot_dataset, k_shot=k)
     # Export results
-    with open(protomaml_result_file, 'w') as f:
+    with open(protomaml_result_file, "w") as f:
         json.dump(protomaml_svhn_accuracies, f, indent=4)
 
 for k in protomaml_svhn_accuracies:
     print(
-        "Accuracy for k=%i: %4.2f%% (+-%4.2f%%)" %
-        (k, 100.0 * protomaml_svhn_accuracies[k][0], 100.0 * protomaml_svhn_accuracies[k][1])
+        "Accuracy for k=%i: %4.2f%% (+-%4.2f%%)"
+        % (k, 100.0 * protomaml_svhn_accuracies[k][0], 100.0 * protomaml_svhn_accuracies[k][1])
     )
 
 # %% [markdown]
