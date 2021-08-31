@@ -28,12 +28,13 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.utils.data as data
+
 # %matplotlib inline
 from IPython.display import set_matplotlib_formats
 from matplotlib.colors import to_rgba
 from tqdm.notebook import tqdm  # Progress bar
 
-set_matplotlib_formats('svg', 'pdf')
+set_matplotlib_formats("svg", "pdf")
 
 # %% [markdown]
 # ## The Basics of PyTorch
@@ -279,7 +280,7 @@ print(x[1:3, :])  # Middle two rows
 # By default, when we create a tensor, it does not require gradients.
 
 # %%
-x = torch.ones((3, ))
+x = torch.ones((3,))
 print(x.requires_grad)
 
 # %% [markdown]
@@ -312,7 +313,7 @@ print("X", x)
 
 # %%
 a = x + 2
-b = a**2
+b = a ** 2
 c = b + 3
 y = c.mean()
 print("Y", y)
@@ -497,7 +498,6 @@ torch.backends.cudnn.benchmark = False
 
 # %%
 class MyModule(nn.Module):
-
     def __init__(self):
         super().__init__()
         # Some init for my module
@@ -526,7 +526,6 @@ class MyModule(nn.Module):
 
 # %%
 class SimpleClassifier(nn.Module):
-
     def __init__(self, num_inputs, num_hidden, num_outputs):
         super().__init__()
         # Initialize the modules we need to build the network
@@ -597,7 +596,6 @@ for name, param in model.named_parameters():
 
 
 class XORDataset(data.Dataset):
-
     def __init__(self, size, std=0.1):
         """
         Inputs:
@@ -891,7 +889,7 @@ test_data_loader = data.DataLoader(test_dataset, batch_size=128, shuffle=False, 
 # %%
 def eval_model(model, data_loader):
     model.eval()  # Set model to eval mode
-    true_preds, num_preds = 0., 0.
+    true_preds, num_preds = 0.0, 0.0
 
     with torch.no_grad():  # Deactivate gradients for the following code
         for data_inputs, data_labels in data_loader:
@@ -961,9 +959,10 @@ def visualize_classification(model, data, label):
     preds = torch.sigmoid(preds)
     # Specifying "None" in a dimension creates a new one
     output_image = preds * c0[None, None] + (1 - preds) * c1[None, None]
-    output_image = output_image.cpu().numpy(
+    output_image = (
+        output_image.cpu().numpy()
     )  # Convert to numpy array. This only works for tensors on CPU, hence first push to CPU
-    plt.imshow(output_image, origin='upper', extent=(-0.5, 1.5, -0.5, 1.5))
+    plt.imshow(output_image, origin="upper", extent=(-0.5, 1.5, -0.5, 1.5))
     plt.grid(False)
 
 
