@@ -647,7 +647,9 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
         train_losses, train_scores = [], []
         best_val_epoch = -1
         for epoch in range(max_epochs):
-            train_acc, val_acc, epoch_losses = epoch_iteration(net, loss_module, optimizer, train_loader_local, val_loader)
+            train_acc, val_acc, epoch_losses = epoch_iteration(
+                net, loss_module, optimizer, train_loader_local, val_loader
+            )
             train_scores.append(train_acc)
             val_scores.append(val_acc)
             train_losses += epoch_losses
