@@ -24,7 +24,7 @@ DEFAULT_BRANCH = "main"
 PUBLIC_BRANCH = "publication"
 URL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{DEFAULT_BRANCH}"
 ENV_DEVICE = "ACCELERATOR"
-DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, 'cpu').lower()
+DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, "cpu").lower()
 TEMPLATE_HEADER = f"""# %%%% [markdown]
 #
 # # %(title)s
@@ -44,7 +44,7 @@ TEMPLATE_HEADER = f"""# %%%% [markdown]
 
 """
 TEMPLATE_SETUP = """# %%%% [markdown]
-# ### Setup
+# ## Setup
 # This notebook requires some packages besides pytorch-lightning.
 
 # %%%% colab={} colab_type="code" id="LfrJLKPFyhsK"
@@ -92,7 +92,7 @@ TEMPLATE_CARD_ITEM = """
 def default_requirements(path_req: str = PATH_REQ_DEFAULT) -> list:
     with open(path_req) as fp:
         req = fp.readlines()
-    req = [r[:r.index("#")] if "#" in r else r for r in req]
+    req = [r[: r.index("#")] if "#" in r else r for r in req]
     req = [r.strip() for r in req]
     req = [r for r in req if r]
     return req
@@ -101,6 +101,7 @@ def default_requirements(path_req: str = PATH_REQ_DEFAULT) -> list:
 def get_running_cuda_version() -> str:
     try:
         import torch
+
         return torch.version.cuda or ""
     except ImportError:
         return ""
@@ -109,8 +110,9 @@ def get_running_cuda_version() -> str:
 def get_running_torch_version():
     try:
         import torch
+
         ver = torch.__version__
-        return ver[:ver.index('+')] if '+' in ver else ver
+        return ver[: ver.index("+")] if "+" in ver else ver
     except ImportError:
         return ""
 
@@ -119,8 +121,8 @@ TORCH_VERSION = get_running_torch_version()
 CUDA_VERSION = get_running_cuda_version()
 RUNTIME_VERSIONS = dict(
     TORCH_VERSION_FULL=TORCH_VERSION,
-    TORCH_VERSION=TORCH_VERSION[:TORCH_VERSION.index('+')] if '+' in TORCH_VERSION else TORCH_VERSION,
-    TORCH_MAJOR_DOT_MINOR='.'.join(TORCH_VERSION.split('.')[:2]),
+    TORCH_VERSION=TORCH_VERSION[: TORCH_VERSION.index("+")] if "+" in TORCH_VERSION else TORCH_VERSION,
+    TORCH_MAJOR_DOT_MINOR=".".join(TORCH_VERSION.split(".")[:2]),
     CUDA_VERSION=CUDA_VERSION,
     CUDA_MAJOR_MINOR=CUDA_VERSION.replace(".", ""),
     DEVICE=f"cu{CUDA_VERSION.replace('.', '')}" if CUDA_VERSION else "cpu",
@@ -130,7 +132,7 @@ RUNTIME_VERSIONS = dict(
 class HelperCLI:
 
     DIR_NOTEBOOKS = ".notebooks"
-    META_REQUIRED_FIELDS = ('title', 'author', 'license', 'description')
+    META_REQUIRED_FIELDS = ("title", "author", "license", "description")
     SKIP_DIRS = (
         ".actions",
         ".azure-pipelines",
@@ -144,7 +146,7 @@ class HelperCLI:
     META_FILE_REGEX = ".meta.{yaml,yml}"
     REQUIREMENTS_FILE = "requirements.txt"
     PIP_ARGS_FILE = "pip_arguments.txt"
-    META_PIP_KEY = 'pip__'
+    META_PIP_KEY = "pip__"
 
     @staticmethod
     def _meta_file(folder: str) -> str:
@@ -171,7 +173,7 @@ class HelperCLI:
             generated=datetime.now().isoformat(),
         )
 
-        meta['description'] = meta['description'].replace(os.linesep, f"{os.linesep}# ")
+        meta["description"] = meta["description"].replace(os.linesep, f"{os.linesep}# ")
 
         header = TEMPLATE_HEADER % meta
         requires = set(default_requirements() + meta["requirements"])
@@ -203,14 +205,14 @@ class HelperCLI:
                 url_path = p_img
                 im = requests.get(p_img, stream=True).raw.read()
             else:
-                url_path = '/'.join([URL_DOWNLOAD, local_dir, p_img])
+                url_path = "/".join([URL_DOWNLOAD, local_dir, p_img])
                 p_local_img = os.path.join(local_dir, p_img)
                 with open(p_local_img, "rb") as fp:
                     im = fp.read()
             im_base64 = base64.b64encode(im).decode("utf-8")
             _, ext = os.path.splitext(p_img)
             md = md.replace(f'src="{p_img}"', f'src="{url_path}"')
-            md = md.replace(f']({p_img})', f'](data:image/{ext[1:]};base64,{im_base64})')
+            md = md.replace(f"]({p_img})", f"](data:image/{ext[1:]};base64,{im_base64})")
 
         return [ln + os.linesep for ln in md.split(os.linesep)]
 
@@ -218,7 +220,7 @@ class HelperCLI:
     def _is_ipynb_parent_dir(dir_path: str) -> bool:
         if HelperCLI._meta_file(dir_path):
             return True
-        sub_dirs = [d for d in glob.glob(os.path.join(dir_path, '*')) if os.path.isdir(d)]
+        sub_dirs = [d for d in glob.glob(os.path.join(dir_path, "*")) if os.path.isdir(d)]
         return any(HelperCLI._is_ipynb_parent_dir(d) for d in sub_dirs)
 
     @staticmethod
@@ -296,15 +298,14 @@ class HelperCLI:
         meta = yaml.safe_load(open(fpath))
         pprint(meta)
 
-        req = meta.get('requirements', [])
+        req = meta.get("requirements", [])
         fname = os.path.join(dir_path, HelperCLI.REQUIREMENTS_FILE)
         print(f"File for requirements: {fname}")
         with open(fname, "w") as fp:
             fp.write(os.linesep.join(req))
 
         pip_args = {
-            k.replace(HelperCLI.META_PIP_KEY, ''): v
-            for k, v in meta.items() if k.startswith(HelperCLI.META_PIP_KEY)
+            k.replace(HelperCLI.META_PIP_KEY, ""): v for k, v in meta.items() if k.startswith(HelperCLI.META_PIP_KEY)
         }
         cmd_args = []
         for pip_key in pip_args:
@@ -327,33 +328,31 @@ class HelperCLI:
 
         # Clamp description length
         wrapped_description = wrap(
-            meta.get('short_description', meta['description']).strip().replace(os.linesep, " "), 175
+            meta.get("short_description", meta["description"]).strip().replace(os.linesep, " "), 175
         )
         suffix = "..." if len(wrapped_description) > 1 else ""
-        meta['short_description'] = wrapped_description[0] + suffix
+        meta["short_description"] = wrapped_description[0] + suffix
 
         # Resolve some default tags based on accelerators and directory name
-        meta['tags'] = meta.get('tags', [])
+        meta["tags"] = meta.get("tags", [])
 
-        accelerators = meta.get("accelerator", ('CPU', ))
-        if ('GPU' in accelerators) or ('TPU' in accelerators):
-            meta['tags'].append('GPU/TPU')
+        accelerators = meta.get("accelerator", ("CPU",))
+        if ("GPU" in accelerators) or ("TPU" in accelerators):
+            meta["tags"].append("GPU/TPU")
 
         dirname = os.path.basename(os.path.dirname(path_ipynb))
         if dirname != ".notebooks":
-            meta['tags'].append(dirname)
+            meta["tags"].append(dirname)
 
-        meta['tags'] = ",".join(meta['tags'])
+        meta["tags"] = ",".join(meta["tags"])
 
         # Build the notebook cell
         rst_cell = TEMPLATE_CARD_ITEM % meta
 
         return {
             "cell_type": "raw",
-            "metadata": {
-                "raw_mimetype": "text/restructuredtext"
-            },
-            "source": rst_cell.strip().splitlines(True)
+            "metadata": {"raw_mimetype": "text/restructuredtext"},
+            "source": rst_cell.strip().splitlines(True),
         }
 
     @staticmethod
@@ -365,27 +364,27 @@ class HelperCLI:
             path_docs_ipynb: destination path to the notebooks location
         """
         ls_ipynb = []
-        for sub in (['*.ipynb'], ['**', '*.ipynb']):
+        for sub in (["*.ipynb"], ["**", "*.ipynb"]):
             ls_ipynb += glob.glob(os.path.join(path_root, HelperCLI.DIR_NOTEBOOKS, *sub))
 
         os.makedirs(path_docs_ipynb, exist_ok=True)
         ipynb_content = []
         for path_ipynb in tqdm.tqdm(ls_ipynb):
             ipynb = path_ipynb.split(os.path.sep)
-            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(HelperCLI.DIR_NOTEBOOKS) + 1:])
+            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(HelperCLI.DIR_NOTEBOOKS) + 1 :])
             new_ipynb = os.path.join(path_docs_ipynb, sub_ipynb)
             os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
-            print(f'{path_ipynb} -> {new_ipynb}')
+            print(f"{path_ipynb} -> {new_ipynb}")
 
             with open(path_ipynb) as f:
                 ipynb = json.load(f)
 
             ipynb["cells"].append(HelperCLI._get_card_item_cell(path_ipynb))
 
-            with open(new_ipynb, 'w') as f:
+            with open(new_ipynb, "w") as f:
                 json.dump(ipynb, f)
 
-            ipynb_content.append(os.path.join('notebooks', sub_ipynb))
+            ipynb_content.append(os.path.join("notebooks", sub_ipynb))
 
     @staticmethod
     def valid_accelerator(dir_path: str):
@@ -397,7 +396,7 @@ class HelperCLI:
         assert fpath, f"Missing Meta file in {dir_path}"
         meta = yaml.safe_load(open(fpath))
         # default is CPU runtime
-        accels = [acc.lower() for acc in meta.get("accelerator", ('CPU'))]
+        accels = [acc.lower() for acc in meta.get("accelerator", ("CPU"))]
         dev_accels = DEVICE_ACCELERATOR.split(",")
         return int(any(ac in accels for ac in dev_accels))
 
@@ -413,7 +412,7 @@ class HelperCLI:
         # default is COU runtime
         with open(PATH_REQ_DEFAULT) as fp:
             req = fp.readlines()
-        req += meta.get('requirements', [])
+        req += meta.get("requirements", [])
         req = [r.strip() for r in req]
 
         def _parse(pkg: str, keys: str = " <=>") -> str:
@@ -425,12 +424,12 @@ class HelperCLI:
 
         require = {_parse(r) for r in req if r}
         env = {_parse(p): p for p in freeze.freeze()}
-        meta['environment'] = [env[r] for r in require]
-        meta['published'] = datetime.now().isoformat()
+        meta["environment"] = [env[r] for r in require]
+        meta["published"] = datetime.now().isoformat()
 
         fmeta = os.path.join(HelperCLI.DIR_NOTEBOOKS, dir_path) + ".yaml"
-        yaml.safe_dump(meta, stream=open(fmeta, 'w'), sort_keys=False)
+        yaml.safe_dump(meta, stream=open(fmeta, "w"), sort_keys=False)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     fire.Fire(HelperCLI)

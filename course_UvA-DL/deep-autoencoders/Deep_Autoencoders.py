@@ -21,8 +21,8 @@ from torchvision.datasets import CIFAR10
 from tqdm.notebook import tqdm
 
 # %matplotlib inline
-set_matplotlib_formats('svg', 'pdf')  # For export
-matplotlib.rcParams['lines.linewidth'] = 2.0
+set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 sns.set()
 
@@ -30,9 +30,9 @@ sns.set()
 # %load_ext tensorboard
 
 # Path to the folder where the datasets are/should be downloaded (e.g. CIFAR10)
-DATASET_PATH = os.environ.get('PATH_DATASETS', 'data')
+DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
 # Path to the folder where the pretrained models are saved
-CHECKPOINT_PATH = os.environ.get('PATH_CHECKPOINT', 'saved_models/tutorial9')
+CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial9")
 
 # Setting the seed
 pl.seed_everything(42)
@@ -67,7 +67,8 @@ for file_name in pretrained_files:
         except HTTPError as e:
             print(
                 "Something went wrong. Please try to download the files manually,"
-                " or contact the author with the full output including the following error:\n", e
+                " or contact the author with the full output including the following error:\n",
+                e,
             )
 
 # %% [markdown]
@@ -86,7 +87,7 @@ for file_name in pretrained_files:
 
 # %%
 # Transformations applied on each image => only make them a tensor
-transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, ), (0.5, ))])
+transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=transform, download=True)
@@ -97,9 +98,7 @@ train_set, val_set = torch.utils.data.random_split(train_dataset, [45000, 5000])
 test_set = CIFAR10(root=DATASET_PATH, train=False, transform=transform, download=True)
 
 # We define a set of data loaders that we can use for various purposes later.
-train_loader = data.DataLoader(
-    train_set, batch_size=256, shuffle=True, drop_last=True, pin_memory=True, num_workers=4
-)
+train_loader = data.DataLoader(train_set, batch_size=256, shuffle=True, drop_last=True, pin_memory=True, num_workers=4)
 val_loader = data.DataLoader(val_set, batch_size=256, shuffle=False, drop_last=False, num_workers=4)
 test_loader = data.DataLoader(test_set, batch_size=256, shuffle=False, drop_last=False, num_workers=4)
 
@@ -128,10 +127,7 @@ def get_train_images(num):
 
 # %%
 class Encoder(nn.Module):
-
-    def __init__(
-        self, num_input_channels: int, base_channel_size: int, latent_dim: int, act_fn: object = nn.GELU
-    ):
+    def __init__(self, num_input_channels: int, base_channel_size: int, latent_dim: int, act_fn: object = nn.GELU):
         """
         Args:
            num_input_channels : Number of input channels of the image. For CIFAR, this parameter is 3
@@ -153,7 +149,7 @@ class Encoder(nn.Module):
             nn.Conv2d(2 * c_hid, 2 * c_hid, kernel_size=3, padding=1, stride=2),  # 8x8 => 4x4
             act_fn(),
             nn.Flatten(),  # Image grid to single feature vector
-            nn.Linear(2 * 16 * c_hid, latent_dim)
+            nn.Linear(2 * 16 * c_hid, latent_dim),
         )
 
     def forward(self, x):
@@ -190,10 +186,7 @@ class Encoder(nn.Module):
 
 # %%
 class Decoder(nn.Module):
-
-    def __init__(
-        self, num_input_channels: int, base_channel_size: int, latent_dim: int, act_fn: object = nn.GELU
-    ):
+    def __init__(self, num_input_channels: int, base_channel_size: int, latent_dim: int, act_fn: object = nn.GELU):
         """
         Args:
            num_input_channels : Number of channels of the image to reconstruct. For CIFAR, this parameter is 3
@@ -205,21 +198,20 @@ class Decoder(nn.Module):
         c_hid = base_channel_size
         self.linear = nn.Sequential(nn.Linear(latent_dim, 2 * 16 * c_hid), act_fn())
         self.net = nn.Sequential(
-            nn.ConvTranspose2d(2 * c_hid, 2 * c_hid, kernel_size=3, output_padding=1, padding=1,
-                               stride=2),  # 4x4 => 8x8
+            nn.ConvTranspose2d(
+                2 * c_hid, 2 * c_hid, kernel_size=3, output_padding=1, padding=1, stride=2
+            ),  # 4x4 => 8x8
             act_fn(),
             nn.Conv2d(2 * c_hid, 2 * c_hid, kernel_size=3, padding=1),
             act_fn(),
-            nn.ConvTranspose2d(2 * c_hid, c_hid, kernel_size=3, output_padding=1, padding=1,
-                               stride=2),  # 8x8 => 16x16
+            nn.ConvTranspose2d(2 * c_hid, c_hid, kernel_size=3, output_padding=1, padding=1, stride=2),  # 8x8 => 16x16
             act_fn(),
             nn.Conv2d(c_hid, c_hid, kernel_size=3, padding=1),
             act_fn(),
             nn.ConvTranspose2d(
                 c_hid, num_input_channels, kernel_size=3, output_padding=1, padding=1, stride=2
             ),  # 16x16 => 32x32
-            nn.Tanh(
-            )  # The input images is scaled between -1 and 1, hence the output has to be bounded as well
+            nn.Tanh(),  # The input images is scaled between -1 and 1, hence the output has to be bounded as well
         )
 
     def forward(self, x):
@@ -242,7 +234,6 @@ class Decoder(nn.Module):
 
 # %%
 class Autoencoder(pl.LightningModule):
-
     def __init__(
         self,
         base_channel_size: int,
@@ -251,7 +242,7 @@ class Autoencoder(pl.LightningModule):
         decoder_class: object = Decoder,
         num_input_channels: int = 3,
         width: int = 32,
-        height: int = 32
+        height: int = 32,
     ):
         super().__init__()
         # Saving hyperparameters of autoencoder
@@ -280,23 +271,21 @@ class Autoencoder(pl.LightningModule):
         optimizer = optim.Adam(self.parameters(), lr=1e-3)
         # Using a scheduler is optional but can be helpful.
         # The scheduler reduces the LR if the validation performance hasn't improved for the last N epochs
-        scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, mode='min', factor=0.2, patience=20, min_lr=5e-5
-        )
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", factor=0.2, patience=20, min_lr=5e-5)
         return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val_loss"}
 
     def training_step(self, batch, batch_idx):
         loss = self._get_reconstruction_loss(batch)
-        self.log('train_loss', loss)
+        self.log("train_loss", loss)
         return loss
 
     def validation_step(self, batch, batch_idx):
         loss = self._get_reconstruction_loss(batch)
-        self.log('val_loss', loss)
+        self.log("val_loss", loss)
 
     def test_step(self, batch, batch_idx):
         loss = self._get_reconstruction_loss(batch)
-        self.log('test_loss', loss)
+        self.log("test_loss", loss)
 
 
 # %% [markdown]
@@ -325,14 +314,12 @@ def compare_imgs(img1, img2, title_prefix=""):
     # Calculate MSE loss between both images
     loss = F.mse_loss(img1, img2, reduction="sum")
     # Plot images for visual comparison
-    grid = torchvision.utils.make_grid(
-        torch.stack([img1, img2], dim=0), nrow=2, normalize=True, range=(-1, 1)
-    )
+    grid = torchvision.utils.make_grid(torch.stack([img1, img2], dim=0), nrow=2, normalize=True, range=(-1, 1))
     grid = grid.permute(1, 2, 0)
     plt.figure(figsize=(4, 2))
     plt.title(f"{title_prefix} Loss: {loss.item():4.2f}")
     plt.imshow(grid)
-    plt.axis('off')
+    plt.axis("off")
     plt.show()
 
 
@@ -351,7 +338,7 @@ for i in range(2):
 
     # Set half of the image to zero
     img_masked = img.clone()
-    img_masked[:, :img_masked.shape[1] // 2, :] = img_mean
+    img_masked[:, : img_masked.shape[1] // 2, :] = img_mean
     compare_imgs(img, img_masked, "Masked -")
 
 # %% [markdown]
@@ -363,7 +350,6 @@ for i in range(2):
 
 # %%
 class GenerateCallback(pl.Callback):
-
     def __init__(self, input_imgs, every_n_epochs=1):
         super().__init__()
         self.input_imgs = input_imgs  # Images to reconstruct during training
@@ -401,8 +387,8 @@ def train_cifar(latent_dim):
         callbacks=[
             ModelCheckpoint(save_weights_only=True),
             GenerateCallback(get_train_images(8), every_n_epochs=10),
-            LearningRateMonitor("epoch")
-        ]
+            LearningRateMonitor("epoch"),
+        ],
     )
     trainer.logger._log_graph = True  # If True, we plot the computation graph in tensorboard
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
@@ -449,14 +435,7 @@ val_scores = [model_dict[k]["result"]["val"][0]["test_loss"] for k in latent_dim
 
 fig = plt.figure(figsize=(6, 4))
 plt.plot(
-    latent_dims,
-    val_scores,
-    '--',
-    color="#000",
-    marker="*",
-    markeredgecolor="#000",
-    markerfacecolor="y",
-    markersize=16
+    latent_dims, val_scores, "--", color="#000", marker="*", markeredgecolor="#000", markerfacecolor="y", markersize=16
 )
 plt.xscale("log")
 plt.xticks(latent_dims, labels=latent_dims)
@@ -488,7 +467,7 @@ def visualize_reconstructions(model, input_imgs):
     plt.figure(figsize=(7, 4.5))
     plt.title("Reconstructed from %i latents" % (model.hparams.latent_dim))
     plt.imshow(grid)
-    plt.axis('off')
+    plt.axis("off")
     plt.show()
 
 
@@ -572,7 +551,7 @@ grid = torchvision.utils.make_grid(imgs, nrow=4, normalize=True, range=(-1, 1), 
 grid = grid.permute(1, 2, 0)
 plt.figure(figsize=(8, 5))
 plt.imshow(grid)
-plt.axis('off')
+plt.axis("off")
 plt.show()
 
 # %% [markdown]
@@ -632,7 +611,7 @@ def find_similar_images(query_img, query_z, key_embeds, K=8):
     grid = grid.permute(1, 2, 0)
     plt.figure(figsize=(12, 3))
     plt.imshow(grid)
-    plt.axis('off')
+    plt.axis("off")
     plt.show()
 
 
@@ -688,7 +667,7 @@ NUM_IMGS = len(test_set)
 writer.add_embedding(
     test_img_embeds[1][:NUM_IMGS],  # Encodings per image
     metadata=[test_set[i][1] for i in range(NUM_IMGS)],  # Adding the labels per image to the plot
-    label_img=(test_img_embeds[0][:NUM_IMGS] + 1) / 2.0
+    label_img=(test_img_embeds[0][:NUM_IMGS] + 1) / 2.0,
 )  # Adding the original images to the plot
 
 # %% [markdown]

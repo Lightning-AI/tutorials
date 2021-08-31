@@ -25,15 +25,18 @@ from urllib.error import HTTPError
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+
 # PyTorch Lightning
 import pytorch_lightning as pl
 import seaborn as sns
+
 # PyTorch
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
+
 # Torchvision
 import torchvision
 from IPython.display import set_matplotlib_formats
@@ -42,16 +45,16 @@ from torchvision import transforms
 from torchvision.datasets import CIFAR100
 from tqdm.notebook import tqdm
 
-plt.set_cmap('cividis')
+plt.set_cmap("cividis")
 # %matplotlib inline
-set_matplotlib_formats('svg', 'pdf')  # For export
-matplotlib.rcParams['lines.linewidth'] = 2.0
+set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
 # Path to the folder where the datasets are/should be downloaded (e.g. CIFAR10)
-DATASET_PATH = os.environ.get('PATH_DATASETS', "data/")
+DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 # Path to the folder where the pretrained models are saved
-CHECKPOINT_PATH = os.environ.get('PATH_CHECKPOINT', "saved_models/Transformers/")
+CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/Transformers/")
 
 # Setting the seed
 pl.seed_everything(42)
@@ -89,7 +92,8 @@ for file_name in pretrained_files:
         except HTTPError as e:
             print(
                 "Something went wrong. Please try to download the file manually,"
-                " or contact the author with the full output including the following error:\n", e
+                " or contact the author with the full output including the following error:\n",
+                e,
             )
 
 # %% [markdown]
@@ -298,7 +302,6 @@ print("Attention\n", attention)
 
 # %%
 class MultiheadAttention(nn.Module):
-
     def __init__(self, input_dim, embed_dim, num_heads):
         super().__init__()
         assert embed_dim % num_heads == 0, "Embedding dimension must be 0 modulo number of heads."
@@ -456,7 +459,6 @@ class MultiheadAttention(nn.Module):
 
 # %%
 class EncoderBlock(nn.Module):
-
     def __init__(self, input_dim, num_heads, dim_feedforward, dropout=0.0):
         """
         Args:
@@ -472,8 +474,10 @@ class EncoderBlock(nn.Module):
 
         # Two-layer MLP
         self.linear_net = nn.Sequential(
-            nn.Linear(input_dim, dim_feedforward), nn.Dropout(dropout), nn.ReLU(inplace=True),
-            nn.Linear(dim_feedforward, input_dim)
+            nn.Linear(input_dim, dim_feedforward),
+            nn.Dropout(dropout),
+            nn.ReLU(inplace=True),
+            nn.Linear(dim_feedforward, input_dim),
         )
 
         # Layers to apply in between the main layers
@@ -509,7 +513,6 @@ class EncoderBlock(nn.Module):
 
 # %%
 class TransformerEncoder(nn.Module):
-
     def __init__(self, num_layers, **block_args):
         super().__init__()
         self.layers = nn.ModuleList([EncoderBlock(**block_args) for _ in range(num_layers)])
@@ -565,7 +568,6 @@ class TransformerEncoder(nn.Module):
 
 # %%
 class PositionalEncoding(nn.Module):
-
     def __init__(self, d_model, max_len=5000):
         """
         Args
@@ -585,10 +587,10 @@ class PositionalEncoding(nn.Module):
         # register_buffer => Tensor which is not a parameter, but should be part of the modules state.
         # Used for tensors that need to be on the same device as the module.
         # persistent=False tells PyTorch to not add the buffer to the state dict (e.g. when we save the model)
-        self.register_buffer('pe', pe, persistent=False)
+        self.register_buffer("pe", pe, persistent=False)
 
     def forward(self, x):
-        x = x + self.pe[:, :x.size(1)]
+        x = x + self.pe[:, : x.size(1)]
         return x
 
 
@@ -624,15 +626,13 @@ sns.set_theme()
 fig, ax = plt.subplots(2, 2, figsize=(12, 4))
 ax = [a for a_list in ax for a in a_list]
 for i in range(len(ax)):
-    ax[i].plot(
-        np.arange(1, 17), pe[i, :16], color='C%i' % i, marker="o", markersize=6, markeredgecolor="black"
-    )
+    ax[i].plot(np.arange(1, 17), pe[i, :16], color="C%i" % i, marker="o", markersize=6, markeredgecolor="black")
     ax[i].set_title("Encoding in hidden dimension %i" % (i + 1))
     ax[i].set_xlabel("Position in sequence", fontsize=10)
     ax[i].set_ylabel("Positional encoding", fontsize=10)
     ax[i].set_xticks(np.arange(1, 17))
-    ax[i].tick_params(axis='both', which='major', labelsize=10)
-    ax[i].tick_params(axis='both', which='minor', labelsize=8)
+    ax[i].tick_params(axis="both", which="major", labelsize=10)
+    ax[i].tick_params(axis="both", which="minor", labelsize=8)
     ax[i].set_ylim(-1.2, 1.2)
 fig.subplots_adjust(hspace=0.8)
 sns.reset_orig()
@@ -683,7 +683,6 @@ plt.show()
 
 # %%
 class CosineWarmupScheduler(optim.lr_scheduler._LRScheduler):
-
     def __init__(self, optimizer, warmup, max_iters):
         self.warmup = warmup
         self.max_num_iters = max_iters
@@ -744,7 +743,6 @@ sns.reset_orig()
 
 # %%
 class TransformerPredictor(pl.LightningModule):
-
     def __init__(
         self,
         input_dim,
@@ -756,7 +754,7 @@ class TransformerPredictor(pl.LightningModule):
         warmup,
         max_iters,
         dropout=0.0,
-        input_dropout=0.0
+        input_dropout=0.0,
     ):
         """
         Args:
@@ -788,13 +786,15 @@ class TransformerPredictor(pl.LightningModule):
             input_dim=self.hparams.model_dim,
             dim_feedforward=2 * self.hparams.model_dim,
             num_heads=self.hparams.num_heads,
-            dropout=self.hparams.dropout
+            dropout=self.hparams.dropout,
         )
         # Output classifier per sequence lement
         self.output_net = nn.Sequential(
-            nn.Linear(self.hparams.model_dim, self.hparams.model_dim), nn.LayerNorm(self.hparams.model_dim),
-            nn.ReLU(inplace=True), nn.Dropout(self.hparams.dropout),
-            nn.Linear(self.hparams.model_dim, self.hparams.num_classes)
+            nn.Linear(self.hparams.model_dim, self.hparams.model_dim),
+            nn.LayerNorm(self.hparams.model_dim),
+            nn.ReLU(inplace=True),
+            nn.Dropout(self.hparams.dropout),
+            nn.Linear(self.hparams.model_dim, self.hparams.num_classes),
         )
 
     def forward(self, x, mask=None, add_positional_encoding=True):
@@ -873,7 +873,6 @@ class TransformerPredictor(pl.LightningModule):
 
 # %%
 class ReverseDataset(data.Dataset):
-
     def __init__(self, num_categories, seq_len, size):
         super().__init__()
         self.num_categories = num_categories
@@ -887,7 +886,7 @@ class ReverseDataset(data.Dataset):
 
     def __getitem__(self, idx):
         inp_data = self.data[idx]
-        labels = torch.flip(inp_data, dims=(0, ))
+        labels = torch.flip(inp_data, dims=(0,))
         return inp_data, labels
 
 
@@ -927,7 +926,6 @@ print("Labels:    ", labels)
 
 # %%
 class ReversePredictor(TransformerPredictor):
-
     def _calculate_loss(self, batch, mode="train"):
         # Fetch data and transform categories to one-hot vectors
         inp_data, labels = batch
@@ -980,7 +978,7 @@ def train_reverse(**kwargs):
         gpus=1 if str(device).startswith("cuda") else 0,
         max_epochs=10,
         gradient_clip_val=5,
-        progress_bar_refresh_rate=1
+        progress_bar_refresh_rate=1,
     )
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
@@ -1017,7 +1015,7 @@ reverse_model, reverse_result = train_reverse(
     num_layers=1,
     dropout=0.0,
     lr=5e-4,
-    warmup=50
+    warmup=50,
 )
 
 # %% [markdown]
@@ -1074,7 +1072,7 @@ def plot_attention_maps(input_data, attn_maps, idx=0):
         ax = [[a] for a in ax]
     for row in range(num_layers):
         for column in range(num_heads):
-            ax[row][column].imshow(attn_maps[row][column], origin='lower', vmin=0)
+            ax[row][column].imshow(attn_maps[row][column], origin="lower", vmin=0)
             ax[row][column].set_xticks(list(range(seq_len)))
             ax[row][column].set_xticklabels(input_data.tolist())
             ax[row][column].set_yticks(list(range(seq_len)))
@@ -1151,11 +1149,9 @@ TORCH_DATA_MEANS = torch.from_numpy(DATA_MEANS).view(1, 3, 1, 1)
 TORCH_DATA_STD = torch.from_numpy(DATA_STD).view(1, 3, 1, 1)
 
 # Resize to 224x224, and normalize to ImageNet statistic
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(DATA_MEANS, DATA_STD)
-])
+transform = transforms.Compose(
+    [transforms.Resize((224, 224)), transforms.ToTensor(), transforms.Normalize(DATA_MEANS, DATA_STD)]
+)
 # Loading the training dataset.
 train_set = CIFAR100(root=DATASET_PATH, train=True, transform=transform, download=True)
 
@@ -1277,7 +1273,6 @@ val_feats, val_labels = train_set_feats[val_indices], labels[val_indices]
 
 # %%
 class SetAnomalyDataset(data.Dataset):
-
     def __init__(self, img_feats, labels, set_size=10, train=True):
         """
         Args:
@@ -1358,12 +1353,8 @@ test_anom_dataset = SetAnomalyDataset(test_feats, test_labels, set_size=SET_SIZE
 train_anom_loader = data.DataLoader(
     train_anom_dataset, batch_size=64, shuffle=True, drop_last=True, num_workers=4, pin_memory=True
 )
-val_anom_loader = data.DataLoader(
-    val_anom_dataset, batch_size=64, shuffle=False, drop_last=False, num_workers=4
-)
-test_anom_loader = data.DataLoader(
-    test_anom_dataset, batch_size=64, shuffle=False, drop_last=False, num_workers=4
-)
+val_anom_loader = data.DataLoader(val_anom_dataset, batch_size=64, shuffle=False, drop_last=False, num_workers=4)
+test_anom_loader = data.DataLoader(test_anom_dataset, batch_size=64, shuffle=False, drop_last=False, num_workers=4)
 
 # %% [markdown]
 # To understand the dataset a little better, we can plot below a few sets from the test dataset.
@@ -1382,7 +1373,7 @@ def visualize_exmp(indices, orig_dataset):
     plt.figure(figsize=(12, 8))
     plt.title("Anomaly examples on CIFAR100")
     plt.imshow(img_grid)
-    plt.axis('off')
+    plt.axis("off")
     plt.show()
     plt.close()
 
@@ -1409,7 +1400,6 @@ visualize_exmp(indices[:4], test_set)
 
 # %%
 class AnomalyPredictor(TransformerPredictor):
-
     def _calculate_loss(self, batch, mode="train"):
         img_sets, _, labels = batch
         # No positional encodings as it is a set, not a sequence!
@@ -1448,7 +1438,7 @@ def train_anomaly(**kwargs):
         gpus=1 if str(device).startswith("cuda") else 0,
         max_epochs=100,
         gradient_clip_val=2,
-        progress_bar_refresh_rate=1
+        progress_bar_refresh_rate=1,
     )
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
@@ -1469,7 +1459,7 @@ def train_anomaly(**kwargs):
     result = {
         "test_acc": test_result[0]["test_acc"],
         "val_acc": val_result[0]["test_acc"],
-        "train_acc": train_result[0]["test_acc"]
+        "train_acc": train_result[0]["test_acc"],
     }
 
     model = model.to(device)
@@ -1494,7 +1484,7 @@ anomaly_model, anomaly_result = train_anomaly(
     dropout=0.1,
     input_dropout=0.1,
     lr=5e-4,
-    warmup=100
+    warmup=100,
 )
 
 # %% [markdown]
@@ -1556,7 +1546,7 @@ predictions = preds.argmax(dim=-1)
 
 # %%
 def visualize_prediction(idx):
-    visualize_exmp(indices[idx:idx + 1], test_set)
+    visualize_exmp(indices[idx : idx + 1], test_set)
     print("Prediction:", predictions[idx].item())
     plot_attention_maps(input_data=None, attn_maps=attention_maps, idx=idx)
 
