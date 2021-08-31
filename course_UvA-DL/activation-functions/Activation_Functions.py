@@ -141,24 +141,15 @@ class ActivationFunction(nn.Module):
 # Here, we implement them by hand:
 
 # %%
-##############################
-
-
 class Sigmoid(ActivationFunction):
     def forward(self, x):
         return 1 / (1 + torch.exp(-x))
-
-
-##############################
 
 
 class Tanh(ActivationFunction):
     def forward(self, x):
         x_exp, neg_x_exp = torch.exp(x), torch.exp(-x)
         return (x_exp - neg_x_exp) / (x_exp + neg_x_exp)
-
-
-##############################
 
 # %% [markdown]
 # Another popular activation function that has allowed the training of deeper networks, is the Rectified Linear Unit (ReLU).
@@ -174,15 +165,9 @@ class Tanh(ActivationFunction):
 # Let's implement the four activation functions below:
 
 # %%
-##############################
-
-
 class ReLU(ActivationFunction):
     def forward(self, x):
         return x * (x > 0).float()
-
-
-##############################
 
 
 class LeakyReLU(ActivationFunction):
@@ -194,23 +179,15 @@ class LeakyReLU(ActivationFunction):
         return torch.where(x > 0, x, self.config["alpha"] * x)
 
 
-##############################
-
-
 class ELU(ActivationFunction):
     def forward(self, x):
         return torch.where(x > 0, x, torch.exp(x) - 1)
-
-
-##############################
 
 
 class Swish(ActivationFunction):
     def forward(self, x):
         return x * torch.sigmoid(x)
 
-
-##############################
 
 # %% [markdown]
 # For later usage, we summarize all our activation functions in a dictionary mapping the name to the class object.
@@ -231,10 +208,10 @@ act_fn_by_name = {"sigmoid": Sigmoid, "tanh": Tanh, "relu": ReLU, "leakyrelu": L
 def get_grads(act_fn, x):
     """Computes the gradients of an activation function at specified positions.
 
-    Inputs:
-        act_fn - An object of the class "ActivationFunction" with an implemented forward pass.
-        x - 1D input tensor.
-    Output:
+    Args:
+        act_fn: An object of the class "ActivationFunction" with an implemented forward pass.
+        x: 1D input tensor.
+    Returns:
         A tensor with the same size of x containing the gradients of act_fn at x.
     """
     x = x.clone().requires_grad_()  # Mark the input as tensor for which we want to store gradients
@@ -266,10 +243,11 @@ def vis_act_fn(act_fn, ax, x):
 act_fns = [act_fn() for act_fn in act_fn_by_name.values()]
 x = torch.linspace(-5, 5, 1000)  # Range on which we want to visualize the activation functions
 # Plotting
-rows = math.ceil(len(act_fns) / 2.0)
-fig, ax = plt.subplots(rows, 2, figsize=(8, rows * 4))
+cols = 2
+rows = math.ceil(len(act_fns) / float(cols))
+fig, ax = plt.subplots(rows, cols, figsize=(cols * 4, rows * 4))
 for i, act_fn in enumerate(act_fns):
-    vis_act_fn(act_fn, ax[divmod(i, 2)], x)
+    vis_act_fn(act_fn, ax[divmod(i, cols)], x)
 fig.subplots_adjust(hspace=0.3)
 plt.show()
 
@@ -296,19 +274,21 @@ plt.show()
 class BaseNetwork(nn.Module):
     def __init__(self, act_fn, input_size=784, num_classes=10, hidden_sizes=[512, 256, 256, 128]):
         """
-        Inputs:
-            act_fn - Object of the activation function that should be used as non-linearity in the network.
-            input_size - Size of the input images in pixels
-            num_classes - Number of classes we want to predict
-            hidden_sizes - A list of integers specifying the hidden layer sizes in the NN
+        Args:
+            act_fn: Object of the activation function that should be used as non-linearity in the network.
+            input_size: Size of the input images in pixels
+            num_classes: Number of classes we want to predict
+            hidden_sizes: A list of integers specifying the hidden layer sizes in the NN
         """
         super().__init__()
 
         # Create the network based on the specified hidden sizes
         layers = []
         layer_sizes = [input_size] + hidden_sizes
-        for layer_index in range(1, len(layer_sizes)):
-            layers += [nn.Linear(layer_sizes[layer_index - 1], layer_sizes[layer_index]), act_fn]
+        layer_size_last = layer_sizes[0]
+        for layer_size in layer_sizes[1:]:
+            layers += [nn.Linear(layer_size_last, layer_size), act_fn]
+            layer_size_last = layer_size
         layers += [nn.Linear(layer_sizes[-1], num_classes)]
         # nn.Sequential summarizes a list of modules into a single module, applying them in sequence
         self.layers = nn.Sequential(*layers)
@@ -346,10 +326,10 @@ def _get_model_file(model_path, model_name):
 def load_model(model_path, model_name, net=None):
     """Loads a saved model from disk.
 
-    Inputs:
-        model_path - Path of the checkpoint directory
-        model_name - Name of the model (str)
-        net - (Optional) If given, the state dict is loaded into this model. Otherwise, a new model is created.
+    Args:
+        model_path: Path of the checkpoint directory
+        model_name: Name of the model (str)
+        net: (Optional) If given, the state dict is loaded into this model. Otherwise, a new model is created.
     """
     config_file, model_file = _get_config_file(model_path, model_name), _get_model_file(model_path, model_name)
     assert os.path.isfile(
@@ -371,10 +351,10 @@ def load_model(model_path, model_name, net=None):
 def save_model(model, model_path, model_name):
     """Given a model, we save the state_dict and hyperparameters.
 
-    Inputs:
-        model - Network object to save parameters from
-        model_path - Path of the checkpoint directory
-        model_name - Name of the model (str)
+    Args:
+        model: Network object to save parameters from
+        model_path: Path of the checkpoint directory
+        model_name: Name of the model (str)
     """
     config_dict = model.config
     os.makedirs(model_path, exist_ok=True)
@@ -406,9 +386,12 @@ train_set, val_set = torch.utils.data.random_split(train_dataset, [50000, 10000]
 # Loading the test set
 test_set = FashionMNIST(root=DATASET_PATH, train=False, transform=transform, download=True)
 
+# %% [markdown]
 # We define a set of data loaders that we can use for various purposes later.
 # Note that for actually training a model, we will use different data loaders
 # with a lower batch size.
+
+# %%
 train_loader = data.DataLoader(train_set, batch_size=1024, shuffle=True, drop_last=False)
 val_loader = data.DataLoader(val_set, batch_size=1024, shuffle=False, drop_last=False)
 test_loader = data.DataLoader(test_set, batch_size=1024, shuffle=False, drop_last=False)
@@ -443,9 +426,9 @@ plt.close()
 # %%
 def visualize_gradients(net, color="C0"):
     """
-    Inputs:
-        net - Object of class BaseNetwork
-        color - Color in which we want to visualize the histogram (for easier separation of activation functions)
+    Args:
+        net: Object of class BaseNetwork
+        color: Color in which we want to visualize the histogram (for easier separation of activation functions)
     """
     net.eval()
     small_loader = data.DataLoader(train_set, batch_size=256, shuffle=False)
@@ -488,7 +471,8 @@ def visualize_gradients(net, color="C0"):
 warnings.filterwarnings("ignore")
 # Create a plot for every activation function
 for i, act_fn_name in enumerate(act_fn_by_name):
-    set_seed(42)  # Setting the seed ensures that we have the same weight initialization for each activation function
+    # Setting the seed ensures that we have the same weight initialization for each activation function
+    set_seed(42)
     act_fn = act_fn_by_name[act_fn_name]()
     net_actfn = BaseNetwork(act_fn=act_fn).to(device)
     visualize_gradients(net_actfn, color=f"C{i}")
@@ -519,13 +503,13 @@ for i, act_fn_name in enumerate(act_fn_by_name):
 def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, overwrite=False):
     """Train a model on the training set of FashionMNIST.
 
-    Inputs:
-        net - Object of BaseNetwork
-        model_name - (str) Name of the model, used for creating the checkpoint names
-        max_epochs - Number of epochs we want to (maximally) train for
-        patience - If the performance on the validation set has not improved for #patience epochs, we stop training early
-        batch_size - Size of batches used in training
-        overwrite - Determines how to handle the case when there already exists a checkpoint. If True, it will be overwritten. Otherwise, we skip training.
+    Args:
+        net: Object of BaseNetwork
+        model_name: (str) Name of the model, used for creating the checkpoint names
+        max_epochs: Number of epochs we want to (maximally) train for
+        patience: If the performance on the validation set has not improved for #patience epochs, we stop training early
+        batch_size: Size of batches used in training
+        overwrite: Determines how to handle the case when there already exists a checkpoint. If True, it will be overwritten. Otherwise, we skip training.
     """
     file_exists = os.path.isfile(_get_model_file(CHECKPOINT_PATH, model_name))
     if file_exists and not overwrite:
@@ -595,9 +579,9 @@ def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, over
 def test_model(net, data_loader):
     """Test a model on a specified dataset.
 
-    Inputs:
-        net - Trained model of type BaseNetwork
-        data_loader - DataLoader object of the dataset to test on (validation or test)
+    Args:
+        net: Trained model of type BaseNetwork
+        data_loader: DataLoader object of the dataset to test on (validation or test)
     """
     net.eval()
     true_preds, count = 0.0, 0
@@ -718,10 +702,12 @@ for i, act_fn_name in enumerate(act_fn_by_name):
 
 
 # %%
+@torch.no_grad()
 def measure_number_dead_neurons(net):
-
-    # For each neuron, we create a boolean variable initially set to 1. If it has an activation unequals 0 at any time,
-    # we set this variable to 0. After running through the whole training set, only dead neurons will have a 1.
+    """ Function to measure the number of dead neurons in a trained neural network.
+    For each neuron, we create a boolean variable initially set to 1. If it has an activation unequals 0 at any time,
+    we set this variable to 0. After running through the whole training set, only dead neurons will have a 1.
+    """
     neurons_dead = [
         torch.ones(layer.weight.shape[0], device=device, dtype=torch.bool)
         for layer in net.layers[:-1]
@@ -729,17 +715,16 @@ def measure_number_dead_neurons(net):
     ]  # Same shapes as hidden size in BaseNetwork
 
     net.eval()
-    with torch.no_grad():
-        for imgs, labels in tqdm(train_loader, leave=False):  # Run through whole training set
-            layer_index = 0
-            imgs = imgs.to(device)
-            imgs = imgs.view(imgs.size(0), -1)
-            for layer in net.layers[:-1]:
-                imgs = layer(imgs)
-                if isinstance(layer, ActivationFunction):
-                    # Are all activations == 0 in the batch, and we did not record the opposite in the last batches?
-                    neurons_dead[layer_index] = torch.logical_and(neurons_dead[layer_index], (imgs == 0).all(dim=0))
-                    layer_index += 1
+    for imgs, labels in tqdm(train_loader, leave=False):  # Run through whole training set
+        layer_index = 0
+        imgs = imgs.to(device)
+        imgs = imgs.view(imgs.size(0), -1)
+        for layer in net.layers[:-1]:
+            imgs = layer(imgs)
+            if isinstance(layer, ActivationFunction):
+                # Are all activations == 0 in the batch, and we did not record the opposite in the last batches?
+                neurons_dead[layer_index] = torch.logical_and(neurons_dead[layer_index], (imgs == 0).all(dim=0))
+                layer_index += 1
     number_neurons_dead = [t.sum().item() for t in neurons_dead]
     print("Number of dead neurons:", number_neurons_dead)
     print(
@@ -780,7 +765,7 @@ measure_number_dead_neurons(net_relu)
 
 # %%
 set_seed(42)
-net_relu = BaseNetwork(act_fn=ReLU(), hidden_sizes=[256, 256, 256, 256, 256, 128, 128, 128, 128, 128]).to(device)
+net_relu = BaseNetwork(act_fn=ReLU(), hidden_sizes=[256, 256, 256, 256, 256, 128, 128, 128, 128, 128],).to(device)
 measure_number_dead_neurons(net_relu)
 
 # %% [markdown]
