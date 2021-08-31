@@ -11,6 +11,7 @@ from urllib.error import HTTPError
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import pytorch_lightning as pl
 import seaborn as sns
 import tabulate
 import torch
@@ -45,16 +46,7 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/ConvNets")
 
 
 # Function for setting the seed
-def set_seed(seed):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
-
-
-set_seed(42)
+pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.determinstic = True
@@ -144,9 +136,9 @@ train_transform = transforms.Compose(
 # We need to do a little trick because the validation set should not use the augmentation.
 train_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=train_transform, download=True)
 val_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=test_transform, download=True)
-set_seed(42)
+pl.seed_everything(42)
 train_set, _ = torch.utils.data.random_split(train_dataset, [45000, 5000])
-set_seed(42)
+pl.seed_everything(42)
 _, val_set = torch.utils.data.random_split(val_dataset, [45000, 5000])
 
 # Loading the test set
@@ -196,18 +188,7 @@ plt.close()
 # Future versions might have a slightly changed interface and thus might not work perfectly with the code (we will try to keep it up-to-date as much as possible).
 #
 # Now, we will take the first step in PyTorch Lightning, and continue to explore the framework in our other tutorials.
-# First, we import the library:
-
-# %%
-# PyTorch Lightning
-try:
-    import pytorch_lightning as pl
-except ModuleNotFoundError:  # Google Colab does not have PyTorch Lightning installed by default. Hence, we do it here if necessary
-    # !pip install pytorch-lightning==1.3.4
-    import pytorch_lightning as pl
-
-# %% [markdown]
-# PyTorch Lightning comes with a lot of useful functions, such as one for setting the seed:
+# PyTorch Lightning comes with a lot of useful functions, such as one for setting the seed as we have seen before:
 
 # %%
 # Setting the seed
