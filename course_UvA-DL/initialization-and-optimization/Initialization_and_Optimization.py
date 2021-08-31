@@ -14,6 +14,7 @@ from urllib.error import HTTPError
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pytorch_lightning as pl
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -31,7 +32,8 @@ set_matplotlib_formats("svg", "pdf")  # For export
 sns.set()
 
 # %% [markdown]
-# We will use the same `set_seed` function as in Tutorial 3, as well as the path variables `DATASET_PATH` and `CHECKPOINT_PATH`.
+# Instead of the `set_seed` function as in Tutorial 3, we can use PyTorch Lightning's build-in function `pl.seed_everything`.
+# We will reuse the path variables `DATASET_PATH` and `CHECKPOINT_PATH` as in Tutorial 3.
 # Adjust the paths if necessary.
 
 # %%
@@ -40,17 +42,8 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 # Path to the folder where the pretrained models are saved
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/InitOptim/")
 
-
-# Function for setting the seed
-def set_seed(seed):
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
-
-
-set_seed(42)
+# Seed everything
+pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.determinstic = True
