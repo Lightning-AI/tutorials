@@ -48,19 +48,19 @@ from torchvision import transforms
 from torchvision.datasets import STL10
 from tqdm.notebook import tqdm
 
-plt.set_cmap('cividis')
+plt.set_cmap("cividis")
 # %matplotlib inline
-set_matplotlib_formats('svg', 'pdf')  # For export
-matplotlib.rcParams['lines.linewidth'] = 2.0
+set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.set()
 
 # Import tensorboard
 # %load_ext tensorboard
 
 # Path to the folder where the datasets are/should be downloaded (e.g. CIFAR10)
-DATASET_PATH = os.environ.get('PATH_DATASETS', 'data/')
+DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 # Path to the folder where the pretrained models are saved
-CHECKPOINT_PATH = os.environ.get('PATH_CHECKPOINT', 'saved_models/ContrastiveLearning/')
+CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/ContrastiveLearning/")
 # In this notebook, we use data loaders with heavier computational processing. It is recommended to use as many
 # workers as possible in a data loader, which corresponds to the number of CPU cores
 NUM_WORKERS = os.cpu_count()
@@ -86,8 +86,10 @@ print("Number of workers:", NUM_WORKERS)
 base_url = "https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial17/"
 # Files to download
 pretrained_files = [
-    "SimCLR.ckpt", "ResNet.ckpt", "tensorboards/SimCLR/events.out.tfevents.SimCLR",
-    "tensorboards/classification/ResNet/events.out.tfevents.ResNet"
+    "SimCLR.ckpt",
+    "ResNet.ckpt",
+    "tensorboards/SimCLR/events.out.tfevents.SimCLR",
+    "tensorboards/classification/ResNet/events.out.tfevents.ResNet",
 ]
 pretrained_files += [f"LogisticRegression_{size}.ckpt" for size in [10, 20, 50, 100, 200, 500]]
 # Create checkpoint path if it doesn't exist yet
@@ -106,7 +108,7 @@ for file_name in pretrained_files:
         except HTTPError as e:
             print(
                 "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
-                e
+                e,
             )
 
 # %% [markdown]
@@ -125,7 +127,6 @@ for file_name in pretrained_files:
 
 # %%
 class ContrastiveTransformations:
-
     def __init__(self, base_transforms, n_views=2):
         self.base_transforms = base_transforms
         self.n_views = n_views
@@ -166,16 +167,17 @@ class ContrastiveTransformations:
 # this information anymore to distinguish between images.
 
 # %%
-contrast_transforms = transforms.Compose([
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomResizedCrop(size=96),
-    transforms.RandomApply([transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.1)],
-                           p=0.8),
-    transforms.RandomGrayscale(p=0.2),
-    transforms.GaussianBlur(kernel_size=9),
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, ), (0.5, ))
-])
+contrast_transforms = transforms.Compose(
+    [
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomResizedCrop(size=96),
+        transforms.RandomApply([transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.1)], p=0.8),
+        transforms.RandomGrayscale(p=0.2),
+        transforms.GaussianBlur(kernel_size=9),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,), (0.5,)),
+    ]
+)
 
 # %% [markdown]
 # After discussing the data augmentation techniques, we can now focus on the dataset.
@@ -195,15 +197,15 @@ contrast_transforms = transforms.Compose([
 # %%
 unlabeled_data = STL10(
     root=DATASET_PATH,
-    split='unlabeled',
+    split="unlabeled",
     download=True,
-    transform=ContrastiveTransformations(contrast_transforms, n_views=2)
+    transform=ContrastiveTransformations(contrast_transforms, n_views=2),
 )
 train_data_contrast = STL10(
     root=DATASET_PATH,
-    split='train',
+    split="train",
     download=True,
-    transform=ContrastiveTransformations(contrast_transforms, n_views=2)
+    transform=ContrastiveTransformations(contrast_transforms, n_views=2),
 )
 
 # %% [markdown]
@@ -219,9 +221,9 @@ img_grid = torchvision.utils.make_grid(imgs, nrow=6, normalize=True, pad_value=0
 img_grid = img_grid.permute(1, 2, 0)
 
 plt.figure(figsize=(10, 5))
-plt.title('Augmented image examples of the STL10 dataset')
+plt.title("Augmented image examples of the STL10 dataset")
 plt.imshow(img_grid)
-plt.axis('off')
+plt.axis("off")
 plt.show()
 plt.close()
 
@@ -273,11 +275,10 @@ plt.close()
 
 # %%
 class SimCLR(pl.LightningModule):
-
     def __init__(self, hidden_dim, lr, temperature, weight_decay, max_epochs=500):
         super().__init__()
         self.save_hyperparameters()
-        assert self.hparams.temperature > 0.0, 'The temperature must be a positive float!'
+        assert self.hparams.temperature > 0.0, "The temperature must be a positive float!"
         # Base model f(.)
         self.convnet = torchvision.models.resnet18(
             pretrained=False, num_classes=4 * hidden_dim
@@ -286,7 +287,7 @@ class SimCLR(pl.LightningModule):
         self.convnet.fc = nn.Sequential(
             self.convnet.fc,  # Linear(ResNet output, 4*hidden_dim)
             nn.ReLU(inplace=True),
-            nn.Linear(4 * hidden_dim, hidden_dim)
+            nn.Linear(4 * hidden_dim, hidden_dim),
         )
 
     def configure_optimizers(self):
@@ -296,7 +297,7 @@ class SimCLR(pl.LightningModule):
         )
         return [optimizer], [lr_scheduler]
 
-    def info_nce_loss(self, batch, mode='train'):
+    def info_nce_loss(self, batch, mode="train"):
         imgs, _ = batch
         imgs = torch.cat(imgs, dim=0)
 
@@ -315,28 +316,25 @@ class SimCLR(pl.LightningModule):
         nll = nll.mean()
 
         # Logging loss
-        self.log(mode + '_loss', nll)
+        self.log(mode + "_loss", nll)
         # Get ranking position of positive example
         comb_sim = torch.cat(
-            [
-                cos_sim[pos_mask][:, None],  # First position positive example
-                cos_sim.masked_fill(pos_mask, -9e15)
-            ],
-            dim=-1
+            [cos_sim[pos_mask][:, None], cos_sim.masked_fill(pos_mask, -9e15)],  # First position positive example
+            dim=-1,
         )
         sim_argsort = comb_sim.argsort(dim=-1, descending=True).argmin(dim=-1)
         # Logging ranking metrics
-        self.log(mode + '_acc_top1', (sim_argsort == 0).float().mean())
-        self.log(mode + '_acc_top5', (sim_argsort < 5).float().mean())
-        self.log(mode + '_acc_mean_pos', 1 + sim_argsort.float().mean())
+        self.log(mode + "_acc_top1", (sim_argsort == 0).float().mean())
+        self.log(mode + "_acc_top5", (sim_argsort < 5).float().mean())
+        self.log(mode + "_acc_mean_pos", 1 + sim_argsort.float().mean())
 
         return nll
 
     def training_step(self, batch, batch_idx):
-        return self.info_nce_loss(batch, mode='train')
+        return self.info_nce_loss(batch, mode="train")
 
     def validation_step(self, batch, batch_idx):
-        self.info_nce_loss(batch, mode='val')
+        self.info_nce_loss(batch, mode="val")
 
 
 # %% [markdown]
@@ -357,21 +355,21 @@ class SimCLR(pl.LightningModule):
 # %%
 def train_simclr(batch_size, max_epochs=500, **kwargs):
     trainer = pl.Trainer(
-        default_root_dir=os.path.join(CHECKPOINT_PATH, 'SimCLR'),
-        gpus=1 if str(device) == 'cuda:0' else 0,
+        default_root_dir=os.path.join(CHECKPOINT_PATH, "SimCLR"),
+        gpus=1 if str(device) == "cuda:0" else 0,
         max_epochs=max_epochs,
         callbacks=[
-            ModelCheckpoint(save_weights_only=True, mode='max', monitor='val_acc_top5'),
-            LearningRateMonitor('epoch')
+            ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc_top5"),
+            LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=1
+        progress_bar_refresh_rate=1,
     )
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
     # Check whether pretrained model exists. If yes, load it and skip training
-    pretrained_filename = os.path.join(CHECKPOINT_PATH, 'SimCLR.ckpt')
+    pretrained_filename = os.path.join(CHECKPOINT_PATH, "SimCLR.ckpt")
     if os.path.isfile(pretrained_filename):
-        print(f'Found pretrained model at {pretrained_filename}, loading...')
+        print(f"Found pretrained model at {pretrained_filename}, loading...")
         # Automatically loads the model with the saved hyperparameters
         model = SimCLR.load_from_checkpoint(pretrained_filename)
     else:
@@ -381,7 +379,7 @@ def train_simclr(batch_size, max_epochs=500, **kwargs):
             shuffle=True,
             drop_last=True,
             pin_memory=True,
-            num_workers=NUM_WORKERS
+            num_workers=NUM_WORKERS,
         )
         val_loader = data.DataLoader(
             train_data_contrast,
@@ -389,7 +387,7 @@ def train_simclr(batch_size, max_epochs=500, **kwargs):
             shuffle=False,
             drop_last=False,
             pin_memory=True,
-            num_workers=NUM_WORKERS
+            num_workers=NUM_WORKERS,
         )
         pl.seed_everything(42)  # To be reproducable
         model = SimCLR(max_epochs=max_epochs, **kwargs)
@@ -443,7 +441,6 @@ simclr_model = train_simclr(
 
 # %%
 class LogisticRegression(pl.LightningModule):
-
     def __init__(self, feature_dim, num_classes, lr, weight_decay, max_epochs=100):
         super().__init__()
         self.save_hyperparameters()
@@ -453,31 +450,28 @@ class LogisticRegression(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = optim.AdamW(self.parameters(), lr=self.hparams.lr, weight_decay=self.hparams.weight_decay)
         lr_scheduler = optim.lr_scheduler.MultiStepLR(
-            optimizer,
-            milestones=[int(self.hparams.max_epochs * 0.6),
-                        int(self.hparams.max_epochs * 0.8)],
-            gamma=0.1
+            optimizer, milestones=[int(self.hparams.max_epochs * 0.6), int(self.hparams.max_epochs * 0.8)], gamma=0.1
         )
         return [optimizer], [lr_scheduler]
 
-    def _calculate_loss(self, batch, mode='train'):
+    def _calculate_loss(self, batch, mode="train"):
         feats, labels = batch
         preds = self.model(feats)
         loss = F.cross_entropy(preds, labels)
         acc = (preds.argmax(dim=-1) == labels).float().mean()
 
-        self.log(mode + '_loss', loss)
-        self.log(mode + '_acc', acc)
+        self.log(mode + "_loss", loss)
+        self.log(mode + "_acc", acc)
         return loss
 
     def training_step(self, batch, batch_idx):
-        return self._calculate_loss(batch, mode='train')
+        return self._calculate_loss(batch, mode="train")
 
     def validation_step(self, batch, batch_idx):
-        self._calculate_loss(batch, mode='val')
+        self._calculate_loss(batch, mode="val")
 
     def test_step(self, batch, batch_idx):
-        self._calculate_loss(batch, mode='test')
+        self._calculate_loss(batch, mode="test")
 
 
 # %% [markdown]
@@ -485,10 +479,10 @@ class LogisticRegression(pl.LightningModule):
 # The training contains 500 images per class, while the test set has 800 images per class.
 
 # %%
-img_transforms = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, ), (0.5, ))])
+img_transforms = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
 
-train_img_data = STL10(root=DATASET_PATH, split='train', download=True, transform=img_transforms)
-test_img_data = STL10(root=DATASET_PATH, split='test', download=True, transform=img_transforms)
+train_img_data = STL10(root=DATASET_PATH, split="train", download=True, transform=img_transforms)
+test_img_data = STL10(root=DATASET_PATH, split="test", download=True, transform=img_transforms)
 
 print("Number of training examples:", len(train_img_data))
 print("Number of test examples:", len(test_img_data))
@@ -508,9 +502,7 @@ def prepare_data_features(model, dataset):
     network.to(device)
 
     # Encode all images
-    data_loader = data.DataLoader(
-        dataset, batch_size=64, num_workers=NUM_WORKERS, shuffle=False, drop_last=False
-    )
+    data_loader = data.DataLoader(dataset, batch_size=64, num_workers=NUM_WORKERS, shuffle=False, drop_last=False)
     feats, labels = [], []
     for batch_imgs, batch_labels in tqdm(data_loader):
         batch_imgs = batch_imgs.to(device)
@@ -549,30 +541,20 @@ def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, ma
         gpus=1 if str(device) == "cuda:0" else 0,
         max_epochs=max_epochs,
         callbacks=[
-            ModelCheckpoint(save_weights_only=True, mode='max', monitor='val_acc'),
-            LearningRateMonitor("epoch")
+            ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
+            LearningRateMonitor("epoch"),
         ],
         progress_bar_refresh_rate=0,
-        check_val_every_n_epoch=10
+        check_val_every_n_epoch=10,
     )
     trainer.logger._default_hp_metric = None
 
     # Data loaders
     train_loader = data.DataLoader(
-        train_feats_data,
-        batch_size=batch_size,
-        shuffle=True,
-        drop_last=False,
-        pin_memory=True,
-        num_workers=0
+        train_feats_data, batch_size=batch_size, shuffle=True, drop_last=False, pin_memory=True, num_workers=0
     )
     test_loader = data.DataLoader(
-        test_feats_data,
-        batch_size=batch_size,
-        shuffle=False,
-        drop_last=False,
-        pin_memory=True,
-        num_workers=0
+        test_feats_data, batch_size=batch_size, shuffle=False, drop_last=False, pin_memory=True, num_workers=0
     )
 
     # Check whether pretrained model exists. If yes, load it and skip training
@@ -625,7 +607,7 @@ for num_imgs_per_label in [10, 20, 50, 100, 200, 500]:
         feature_dim=train_feats_simclr.tensors[0].shape[1],
         num_classes=10,
         lr=1e-3,
-        weight_decay=1e-3
+        weight_decay=1e-3,
     )
     results[num_imgs_per_label] = small_set_results
 
@@ -640,12 +622,12 @@ fig = plt.figure(figsize=(6, 4))
 plt.plot(
     dataset_sizes,
     test_scores,
-    '--',
+    "--",
     color="#000",
     marker="*",
     markeredgecolor="#000",
     markerfacecolor="y",
-    markersize=16
+    markersize=16,
 )
 plt.xscale("log")
 plt.xticks(dataset_sizes, labels=dataset_sizes)
@@ -656,7 +638,7 @@ plt.minorticks_off()
 plt.show()
 
 for k, score in zip(dataset_sizes, test_scores):
-    print(f'Test accuracy for {k:3d} images per label: {100*score:4.2f}%')
+    print(f"Test accuracy for {k:3d} images per label: {100*score:4.2f}%")
 
 # %% [markdown]
 # As one would expect, the classification performance improves the more data we have.
@@ -680,7 +662,6 @@ for k, score in zip(dataset_sizes, test_scores):
 
 # %%
 class ResNet(pl.LightningModule):
-
     def __init__(self, num_classes, lr, weight_decay, max_epochs=100):
         super().__init__()
         self.save_hyperparameters()
@@ -689,31 +670,28 @@ class ResNet(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = optim.AdamW(self.parameters(), lr=self.hparams.lr, weight_decay=self.hparams.weight_decay)
         lr_scheduler = optim.lr_scheduler.MultiStepLR(
-            optimizer,
-            milestones=[int(self.hparams.max_epochs * 0.7),
-                        int(self.hparams.max_epochs * 0.9)],
-            gamma=0.1
+            optimizer, milestones=[int(self.hparams.max_epochs * 0.7), int(self.hparams.max_epochs * 0.9)], gamma=0.1
         )
         return [optimizer], [lr_scheduler]
 
-    def _calculate_loss(self, batch, mode='train'):
+    def _calculate_loss(self, batch, mode="train"):
         imgs, labels = batch
         preds = self.model(imgs)
         loss = F.cross_entropy(preds, labels)
         acc = (preds.argmax(dim=-1) == labels).float().mean()
 
-        self.log(mode + '_loss', loss)
-        self.log(mode + '_acc', acc)
+        self.log(mode + "_loss", loss)
+        self.log(mode + "_acc", acc)
         return loss
 
     def training_step(self, batch, batch_idx):
-        return self._calculate_loss(batch, mode='train')
+        return self._calculate_loss(batch, mode="train")
 
     def validation_step(self, batch, batch_idx):
-        self._calculate_loss(batch, mode='val')
+        self._calculate_loss(batch, mode="val")
 
     def test_step(self, batch, batch_idx):
-        self._calculate_loss(batch, mode='test')
+        self._calculate_loss(batch, mode="test")
 
 
 # %% [markdown]
@@ -727,16 +705,18 @@ class ResNet(pl.LightningModule):
 # Hence, the chosen augmentations below are overall weaker than in the contrastive learning case.
 
 # %%
-train_transforms = transforms.Compose([
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomResizedCrop(size=96, scale=(0.8, 1.0)),
-    transforms.RandomGrayscale(p=0.2),
-    transforms.GaussianBlur(kernel_size=9, sigma=(0.1, 0.5)),
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, ), (0.5, ))
-])
+train_transforms = transforms.Compose(
+    [
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomResizedCrop(size=96, scale=(0.8, 1.0)),
+        transforms.RandomGrayscale(p=0.2),
+        transforms.GaussianBlur(kernel_size=9, sigma=(0.1, 0.5)),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,), (0.5,)),
+    ]
+)
 
-train_img_aug_data = STL10(root=DATASET_PATH, split='train', download=True, transform=train_transforms)
+train_img_aug_data = STL10(root=DATASET_PATH, split="train", download=True, transform=train_transforms)
 
 # %% [markdown]
 # The training function for the ResNet is almost identical to the Logistic Regression setup.
@@ -753,10 +733,10 @@ def train_resnet(batch_size, max_epochs=100, **kwargs):
         max_epochs=max_epochs,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
-            LearningRateMonitor("epoch")
+            LearningRateMonitor("epoch"),
         ],
         progress_bar_refresh_rate=1,
-        check_val_every_n_epoch=2
+        check_val_every_n_epoch=2,
     )
     trainer.logger._default_hp_metric = None
 
@@ -767,15 +747,10 @@ def train_resnet(batch_size, max_epochs=100, **kwargs):
         shuffle=True,
         drop_last=True,
         pin_memory=True,
-        num_workers=NUM_WORKERS
+        num_workers=NUM_WORKERS,
     )
     test_loader = data.DataLoader(
-        test_img_data,
-        batch_size=batch_size,
-        shuffle=False,
-        drop_last=False,
-        pin_memory=True,
-        num_workers=NUM_WORKERS
+        test_img_data, batch_size=batch_size, shuffle=False, drop_last=False, pin_memory=True, num_workers=NUM_WORKERS
     )
 
     # Check whether pretrained model exists. If yes, load it and skip training
@@ -801,9 +776,7 @@ def train_resnet(batch_size, max_epochs=100, **kwargs):
 # Finally, let's train the model and check its results:
 
 # %%
-resnet_model, resnet_result = train_resnet(
-    batch_size=64, num_classes=10, lr=1e-3, weight_decay=2e-4, max_epochs=100
-)
+resnet_model, resnet_result = train_resnet(batch_size=64, num_classes=10, lr=1e-3, weight_decay=2e-4, max_epochs=100)
 print(f"Accuracy on training set: {100*resnet_result['train']:4.2f}%")
 print(f"Accuracy on test set: {100*resnet_result['test']:4.2f}%")
 
