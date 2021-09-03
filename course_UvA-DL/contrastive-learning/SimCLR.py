@@ -12,7 +12,7 @@
 # Specifically, contrastive learning methods train a model to cluster an image and its slightly augmented version in latent space, while the distance to other images should be maximized.
 # A very recent and simple method for this is [SimCLR](https://arxiv.org/abs/2006.10029), which is visualized below (figure credit - [Ting Chen et al. ](https://simclr.github.io/)).
 #
-# <center width="100%"><img src="simclr_contrastive_learning.png" width="500px"></center>
+# <center width="100%"> ![simclr contrastive learning](simclr_contrastive_learning.png){width="500px"} </center>
 #
 # The general setup is that we are given a dataset of images without any labels, and want to train a model on this data such that it can quickly adapt to any image recognition task afterward.
 # During each training iteration, we sample a batch of images as usual.
@@ -415,7 +415,7 @@ simclr_model = train_simclr(
 # %tensorboard --logdir ../saved_models/tutorial17/tensorboards/SimCLR/
 
 # %% [markdown]
-# <center width="100%"><img src="tensorboard_simclr.png" width="1200px"></center>
+# <center width="100%"> ![tensorboard simclr](tensorboard_simclr.png){width="1200px"} </center>
 #
 # One thing to note is that contrastive learning benefits a lot from long training.
 # The shown plot above is from a training that took approx.
