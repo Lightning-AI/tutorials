@@ -322,9 +322,7 @@ class HelperCLI:
             fp.write(" ".join(cmd_args))
 
     @staticmethod
-    def _get_card_item_cell(
-        path_ipynb: str, path_meta: str, path_thumb: Optional[str], path_docs_images: str
-    ) -> Dict[str, Any]:
+    def _get_card_item_cell(path_ipynb: str, path_meta: str, path_thumb: Optional[str]) -> Dict[str, Any]:
         """Build the card item cell for the given notebook path."""
         meta = yaml.safe_load(open(path_meta))
 
@@ -356,7 +354,7 @@ class HelperCLI:
 
         if path_thumb is not None:
             rst_cell_lines[-1] += "\n"
-            rst_cell_lines.append(f"   :image: {os.path.join(path_docs_images, path_thumb)}")
+            rst_cell_lines.append(f"   :image: {path_thumb}")
 
         return {
             "cell_type": "raw",
@@ -407,19 +405,21 @@ class HelperCLI:
             path_thumb = HelperCLI._resolve_path_thumb(path_ipynb, path_meta)
 
             if path_thumb is not None:
-                new_thumb = os.path.join(docs_root, path_thumb)
+                new_thumb = os.path.join(docs_root, path_docs_images, path_thumb)
+                path_thumb = os.path.join(HelperCLI.DIR_NOTEBOOKS, path_thumb)
                 os.makedirs(os.path.dirname(new_thumb), exist_ok=True)
 
                 print(f"{path_thumb} -> {new_thumb}")
 
                 copyfile(path_thumb, new_thumb)
+                path_thumb = new_thumb
 
             print(f"{path_ipynb} -> {new_ipynb}")
 
             with open(path_ipynb) as f:
                 ipynb = json.load(f)
 
-            ipynb["cells"].append(HelperCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb, path_docs_images))
+            ipynb["cells"].append(HelperCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb))
 
             with open(new_ipynb, "w") as f:
                 json.dump(ipynb, f)
