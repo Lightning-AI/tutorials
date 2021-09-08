@@ -71,7 +71,7 @@ jobs:
               # simulate render as somple move
               mv $ipynb ".notebooks/$line.ipynb"
               mv $meta ".notebooks/$line.yaml"
-              [ ! -z $thumb ] && mv $thumb ".notebooks/${$thumb/$line\/.thumb/$line}"
+              [ ! -z $thumb ] && mv $thumb .notebooks/${thumb/"$line"\/.thumb/$line}
           done <<< $(cat changed-folders.txt)
         shell: bash
 
