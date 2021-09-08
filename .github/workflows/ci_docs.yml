@@ -63,13 +63,15 @@ jobs:
               bash .actions/ipynb-generate.sh $line
               ipynb=( $(ls "$line"/*.ipynb) )
               meta=( $(ls "$line"/.meta.*) )
+              thumb=( $(ls "$line"/.thumb.* 2>/dev/null || echo "") ) || true
               # create folder of it is missing
               pub_dir=$(dirname ".notebooks/$line")
               printf "Dir: $pub_dir"
               mkdir -p $pub_dir
               # simulate render as somple move
-              mv $ipynb ".notebooks/$line.ipynb"
-              mv $meta ".notebooks/$line.yaml"
+              cp $ipynb ".notebooks/$line.ipynb"
+              cp $meta ".notebooks/$line.yaml"
+              [ ! -z $thumb ] && cp $thumb .notebooks/${thumb/"$line"\/.thumb/$line} || true
           done <<< $(cat changed-folders.txt)
         shell: bash
 

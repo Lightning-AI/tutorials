@@ -16,7 +16,6 @@ import sys
 import pt_lightning_sphinx_theme
 
 _PATH_HERE = os.path.abspath(os.path.dirname(__file__))
-_PATH_IPYNB = os.path.join(_PATH_HERE, "notebooks")
 _PATH_ROOT = os.path.realpath(os.path.join(_PATH_HERE, "..", ".."))
 sys.path.insert(0, os.path.abspath(_PATH_ROOT))
 sys.path.append(os.path.join(_PATH_ROOT, ".actions"))
@@ -43,7 +42,7 @@ github_repo = project
 
 # -- Project documents -------------------------------------------------------
 
-HelperCLI.copy_notebooks(_PATH_ROOT, _PATH_IPYNB)
+HelperCLI.copy_notebooks(_PATH_ROOT, _PATH_HERE)
 
 # with open(os.path.join(_PATH_HERE, 'ipynb_content.rst'), 'w') as fp:
 #     fp.write(os.linesep.join(ipynb_content))
