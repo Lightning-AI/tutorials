@@ -63,7 +63,7 @@ jobs:
               bash .actions/ipynb-generate.sh $line
               ipynb=( $(ls "$line"/*.ipynb) )
               meta=( $(ls "$line"/.meta.*) )
-              thumb=( $(ls "$1"/.thumb.*) )
+              thumb=( $(ls "$1"/.thumb.* 2> /dev/null) )
               # create folder of it is missing
               pub_dir=$(dirname ".notebooks/$line")
               printf "Dir: $pub_dir"
