@@ -12,7 +12,7 @@ meta_file=( $(ls "$1"/.meta.*) )
 printf $meta_file
 
 python -c "import os, glob ; assert(len(glob.glob(os.path.join('$1', '.thumb.*'))) <= 1)"
-thumb_file=( $(ls "$1"/.thumb.* 2> /dev/null || true) )
+thumb_file=( $(ls "$1"/.thumb.* 2>/dev/null || echo "") )
 printf $thumb_file
 
 pub_file=".notebooks/$1.ipynb"
