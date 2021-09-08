@@ -406,7 +406,7 @@ class HelperCLI:
 
             if path_thumb is not None:
                 new_thumb = os.path.join(docs_root, path_docs_images, path_thumb)
-                path_thumb = os.path.join(HelperCLI.DIR_NOTEBOOKS, path_thumb)
+                path_thumb = os.path.join(path_root, HelperCLI.DIR_NOTEBOOKS, path_thumb)
                 os.makedirs(os.path.dirname(new_thumb), exist_ok=True)
 
                 print(f"{path_thumb} -> {new_thumb}")
