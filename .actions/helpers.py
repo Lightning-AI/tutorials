@@ -408,9 +408,6 @@ class HelperCLI:
                 new_thumb = os.path.join(docs_root, path_docs_images, path_thumb)
                 old_path_thumb = os.path.join(path_root, HelperCLI.DIR_NOTEBOOKS, path_thumb)
                 os.makedirs(os.path.dirname(new_thumb), exist_ok=True)
-
-                print(f"{old_path_thumb} -> {new_thumb}")
-
                 copyfile(old_path_thumb, new_thumb)
                 path_thumb = os.path.join(path_docs_images, path_thumb)
 
