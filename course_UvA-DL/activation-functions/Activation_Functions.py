@@ -369,7 +369,7 @@ def save_model(model, model_path, model_name):
 # We also set up the dataset we want to train it on, namely [FashionMNIST](https://github.com/zalandoresearch/fashion-mnist).
 # FashionMNIST is a more complex version of MNIST and contains black-and-white images of clothes instead of digits.
 # The 10 classes include trousers, coats, shoes, bags and more.
-# To load this dataset, we will make use of yet another PyTorch package, namely `torchvision` ([documentation](https://pytorch.org/docs/stable/torchvision/index.html)).
+# To load this dataset, we will make use of yet another PyTorch package, namely `torchvision` ([documentation](https://pytorch.org/vision/stable/index.html)).
 # The `torchvision` package consists of popular datasets, model architectures, and common image transformations for computer vision.
 # We will use the package for many of the notebooks in this course to simplify our dataset handling.
 #
