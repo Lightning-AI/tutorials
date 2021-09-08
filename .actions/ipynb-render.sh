@@ -11,11 +11,20 @@ python -c "import os ; assert any(os.path.isfile(os.path.join('$1', f'.meta{ext}
 meta_file=( $(ls "$1"/.meta.*) )
 printf $meta_file
 
+python -c "import os, glob ; assert(len(glob.glob(os.path.join('$1', '.thumb.*'))) <= 1)"
+thumb_file=( $(ls "$1"/.thumb.*) )
+printf $thumb_file
+
 pub_file=".notebooks/$1.ipynb"
 printf $pub_file
 
 pub_meta_file=".notebooks/$1.yaml"
 printf $pub_meta_file
+
+if [ ! -z $thumb_file ]; then
+  pub_thumb_file=".notebooks/${$thumb_file/$1\/.thumb/$1}"
+  printf $pub_thumb_file
+fi
 
 pub_dir=$(dirname "$pub_file")
 mkdir -p $pub_dir
@@ -40,6 +49,11 @@ else
 fi
 
 cp $meta_file $pub_meta_file
-git add ".notebooks/$1.yaml"
+git add $pub_meta_file
+
+if [ ! -z $thumb_file ]; then
+  cp $thumb_file $pub_thumb_file
+  git add $pub_thumb_file
+fi
 
 git add $pub_file

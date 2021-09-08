@@ -4,8 +4,9 @@ import os
 import re
 from datetime import datetime
 from pprint import pprint
+from shutil import copyfile
 from textwrap import wrap
-from typing import Any, Dict, Sequence
+from typing import Any, Dict, Optional, Sequence
 from warnings import warn
 
 import fire
@@ -321,10 +322,11 @@ class HelperCLI:
             fp.write(" ".join(cmd_args))
 
     @staticmethod
-    def _get_card_item_cell(path_ipynb: str) -> Dict[str, Any]:
+    def _get_card_item_cell(
+        path_ipynb: str, path_meta: str, path_thumb: Optional[str], path_docs_images: str
+    ) -> Dict[str, Any]:
         """Build the card item cell for the given notebook path."""
-        fpath_meta = path_ipynb.replace(".ipynb", ".yaml")
-        meta = yaml.safe_load(open(fpath_meta))
+        meta = yaml.safe_load(open(path_meta))
 
         # Clamp description length
         wrapped_description = wrap(
@@ -349,37 +351,75 @@ class HelperCLI:
         # Build the notebook cell
         rst_cell = TEMPLATE_CARD_ITEM % meta
 
+        # Split lines
+        rst_cell_lines = rst_cell.strip().splitlines(True)
+
+        if path_thumb is not None:
+            rst_cell_lines[-1] += "\n"
+            rst_cell_lines.append(f"   :image: {os.path.join(path_docs_images, path_thumb)}")
+
         return {
             "cell_type": "raw",
             "metadata": {"raw_mimetype": "text/restructuredtext"},
-            "source": rst_cell.strip().splitlines(True),
+            "source": rst_cell_lines,
         }
 
     @staticmethod
-    def copy_notebooks(path_root: str, path_docs_ipynb: str = "docs/source/notebooks"):
+    def _resolve_path_thumb(path_ipynb: str, path_meta: str) -> Optional[str]:
+        """Find the thumbnail (assumes thumbnail to be any file that isn't metadata or notebook)."""
+        paths = list(set(glob.glob(path_ipynb.replace(".ipynb", ".*"))) - {path_ipynb, path_meta})
+        if len(paths) == 0:
+            return None
+        assert len(paths) == 1, f"Found multiple possible thumbnail paths for notebook: {path_ipynb}."
+        path_thumb = paths[0]
+        path_thumb = path_thumb.split(os.path.sep)
+        path_thumb = os.path.sep.join(path_thumb[path_thumb.index(HelperCLI.DIR_NOTEBOOKS) + 1 :])
+        return path_thumb
+
+    @staticmethod
+    def copy_notebooks(
+        path_root: str,
+        docs_root: str = "docs/source",
+        path_docs_ipynb: str = "notebooks",
+        path_docs_images: str = "_static/images",
+    ):
         """Copy all notebooks from a folder to doc folder.
 
         Args:
             path_root: source path to the project root in this tutorials
-            path_docs_ipynb: destination path to the notebooks location
+            docs_root: docs source directory
+            path_docs_ipynb: destination path to the notebooks location relative to ``docs_root``
+            path_docs_images: destination path to the images location relative to ``docs_root``
         """
         ls_ipynb = []
         for sub in (["*.ipynb"], ["**", "*.ipynb"]):
             ls_ipynb += glob.glob(os.path.join(path_root, HelperCLI.DIR_NOTEBOOKS, *sub))
 
-        os.makedirs(path_docs_ipynb, exist_ok=True)
+        os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
         ipynb_content = []
         for path_ipynb in tqdm.tqdm(ls_ipynb):
             ipynb = path_ipynb.split(os.path.sep)
             sub_ipynb = os.path.sep.join(ipynb[ipynb.index(HelperCLI.DIR_NOTEBOOKS) + 1 :])
-            new_ipynb = os.path.join(path_docs_ipynb, sub_ipynb)
+            new_ipynb = os.path.join(docs_root, path_docs_ipynb, sub_ipynb)
             os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
+
+            path_meta = path_ipynb.replace(".ipynb", ".yaml")
+            path_thumb = HelperCLI._resolve_path_thumb(path_ipynb, path_meta)
+
+            if path_thumb is not None:
+                new_thumb = os.path.join(docs_root, path_thumb)
+                os.makedirs(os.path.dirname(new_thumb), exist_ok=True)
+
+                print(f"{path_thumb} -> {new_thumb}")
+
+                copyfile(path_thumb, new_thumb)
+
             print(f"{path_ipynb} -> {new_ipynb}")
 
             with open(path_ipynb) as f:
                 ipynb = json.load(f)
 
-            ipynb["cells"].append(HelperCLI._get_card_item_cell(path_ipynb))
+            ipynb["cells"].append(HelperCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb, path_docs_images))
 
             with open(new_ipynb, "w") as f:
                 json.dump(ipynb, f)
