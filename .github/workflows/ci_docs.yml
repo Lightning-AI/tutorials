@@ -63,6 +63,7 @@ jobs:
               bash .actions/ipynb-generate.sh $line
               ipynb=( $(ls "$line"/*.ipynb) )
               meta=( $(ls "$line"/.meta.*) )
+              thumb=( $(ls "$1"/.thumb.*) )
               # create folder of it is missing
               pub_dir=$(dirname ".notebooks/$line")
               printf "Dir: $pub_dir"
@@ -70,6 +71,7 @@ jobs:
               # simulate render as somple move
               mv $ipynb ".notebooks/$line.ipynb"
               mv $meta ".notebooks/$line.yaml"
+              [ ! -z $thumb ] && mv $thumb ".notebooks/${$thumb/$line\/.thumb/$line}"
           done <<< $(cat changed-folders.txt)
         shell: bash
 
