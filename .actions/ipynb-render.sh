@@ -36,7 +36,7 @@ pip_args=$(cat "$1/pip_arguments.txt")
 printf "pip arguments:\n $pip_args\n\n"
 pip install --requirement "$1/requirements.txt" $pip_args
 
-if [ ! -z "${DRY_RUN}" ] && [ "${DRY_RUN}" = "1" ]; then
+if [ ! -z "${DRY_RUN}" ] && [ "${DRY_RUN}" == "1" ]; then
   cp $ipynb_file $pub_file
 else
   printf "available: $ACCELERATOR\n"
