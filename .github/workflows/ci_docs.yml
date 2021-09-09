@@ -61,18 +61,10 @@ jobs:
         run: |
           while IFS= read -r line; do
               bash .actions/ipynb-generate.sh $line
-              ipynb=( $(ls "$line"/*.ipynb) )
-              meta=( $(ls "$line"/.meta.*) )
-              thumb=( $(ls "$line"/.thumb.* 2>/dev/null || echo "") ) || true
-              # create folder of it is missing
-              pub_dir=$(dirname ".notebooks/$line")
-              printf "Dir: $pub_dir"
-              mkdir -p $pub_dir
-              # simulate render as somple move
-              cp $ipynb ".notebooks/$line.ipynb"
-              cp $meta ".notebooks/$line.yaml"
-              [ ! -z $thumb ] && cp $thumb .notebooks/${thumb/"$line"\/.thumb/$line} || true
+              bash .actions/ipynb-render.sh $line
           done <<< $(cat changed-folders.txt)
+        env:
+          DRY_RUN: true
         shell: bash
 
       - name: Make Documentation
