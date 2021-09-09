@@ -5,7 +5,7 @@ printf "Rendering: $1\n\n"
 
 python -c "import os, glob ; assert(len(glob.glob(os.path.join('$1', '*.ipynb'))) == 1)"
 ipynb_file=( $(ls "$1"/*.ipynb) )
-printf -- $ipynb_file
+printf $ipynb_file
 
 python -c "import os ; assert any(os.path.isfile(os.path.join('$1', f'.meta{ext}')) for ext in ['.yml', '.yaml'])"
 meta_file=( $(ls "$1"/.meta.*) )
@@ -13,7 +13,7 @@ printf $meta_file
 
 python -c "import os, glob ; assert(len(glob.glob(os.path.join('$1', '.thumb.*'))) <= 1)"
 thumb_file=( $(ls "$1"/.thumb.* 2>/dev/null || echo "") ) || true
-printf $thumb_file
+[ ! -z $thumb_file ] && printf $thumb_file
 
 pub_file=".notebooks/$1.ipynb"
 printf $pub_file
