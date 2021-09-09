@@ -64,7 +64,7 @@ jobs:
               bash .actions/ipynb-render.sh $line
           done <<< $(cat changed-folders.txt)
         env:
-          DRY_RUN: true
+          DRY_RUN: 1
         shell: bash
 
       - name: Make Documentation
