@@ -22,7 +22,7 @@ pub_meta_file=".notebooks/$1.yaml"
 printf $pub_meta_file
 
 if [ ! -z $thumb_file ]; then
-  pub_thumb_file=".notebooks/"${$thumb_file/"$1"\/.thumb/$1}
+  pub_thumb_file=".notebooks/"${thumb_file/"$1"\/.thumb/$1}
   printf $pub_thumb_file
 fi
 
