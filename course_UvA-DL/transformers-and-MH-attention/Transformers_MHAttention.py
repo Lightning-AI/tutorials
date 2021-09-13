@@ -1,4 +1,7 @@
 # %% [markdown]
+# <iframe width="560" height="315" src="https://www.youtube.com/embed/hGZ6wa07Vak" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+# <iframe width="560" height="315" src="https://www.youtube.com/embed/QdTgJ85E6YA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+# <iframe width="560" height="315" src="https://www.youtube.com/embed/e7xvF2yS4Dg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 # Despite the huge success of Transformers in NLP, we will _not_ include the NLP domain in our notebook here.
 # There are many courses at the University of Amsterdam that focus on Natural Language Processing
 # and take a closer look at the application of the Transformer architecture in NLP

@@ -1,4 +1,6 @@
 # %% [markdown]
+# <iframe width="560" height="315" src="https://www.youtube.com/embed/3C_m71NDkPs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+# <iframe width="560" height="315" src="https://www.youtube.com/embed/GjCfAeHGq9U" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 # Before we start, we import our standard libraries and set up basic functions:
 
 # %%

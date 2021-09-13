@@ -1,4 +1,6 @@
 # %% [markdown]
+# <iframe width="560" height="315" src="https://www.youtube.com/embed/X5m7bC4xCLY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+# <iframe width="560" height="315" src="https://www.youtube.com/embed/UcRBZbAP9hM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 # In the first half of the notebook, we will review different initialization techniques, and go step by step from the simplest initialization to methods that are nowadays used in very deep networks.
 # In the second half, we focus on optimization comparing the optimizers SGD, SGD with Momentum, and Adam.
 #
