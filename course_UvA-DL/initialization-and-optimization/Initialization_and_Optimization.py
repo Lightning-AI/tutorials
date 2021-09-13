@@ -554,7 +554,7 @@ visualize_activations(model, print_variance=True)
 
 # %% [markdown]
 # ## Optimization
-# 
+#
 # <iframe width="560" height="315" src="https://www.youtube.com/embed/UcRBZbAP9hM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 #
 # Besides initialization, selecting a suitable optimization algorithm can be an important choice for deep neural networks.

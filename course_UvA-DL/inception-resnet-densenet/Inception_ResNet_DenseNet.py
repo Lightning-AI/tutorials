@@ -392,7 +392,7 @@ def train_model(model_name, save_name=None, **kwargs):
 # ## Inception
 #
 # <iframe width="560" height="315" src="https://www.youtube.com/embed/9yRXqYJDHr4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-# 
+#
 # The [GoogleNet](https://arxiv.org/abs/1409.4842), proposed in 2014, won the ImageNet Challenge because of its usage of the Inception modules.
 # In general, we will mainly focus on the concept of Inception in this tutorial instead of the specifics of the GoogleNet, as based on Inception, there have been many follow-up works ([Inception-v2](https://arxiv.org/abs/1512.00567), [Inception-v3](https://arxiv.org/abs/1512.00567), [Inception-v4](https://arxiv.org/abs/1602.07261), [Inception-ResNet](https://arxiv.org/abs/1602.07261),...).
 # The follow-up works mainly focus on increasing efficiency and enabling very deep Inception networks.

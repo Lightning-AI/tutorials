@@ -383,7 +383,7 @@ class MultiheadAttention(nn.Module):
 # ### Transformer Encoder
 #
 # <iframe width="560" height="315" src="https://www.youtube.com/embed/QdTgJ85E6YA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-# 
+#
 # Next, we will look at how to apply the multi-head attention blog inside the Transformer architecture.
 # Originally, the Transformer model was designed for machine translation.
 # Hence, it got an encoder-decoder structure where the encoder takes as input the sentence in the original language
@@ -854,7 +854,7 @@ class TransformerPredictor(pl.LightningModule):
 # ## Experiments
 #
 # <iframe width="560" height="315" src="https://www.youtube.com/embed/e7xvF2yS4Dg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-# 
+#
 # After having finished the implementation of the Transformer architecture, we can start experimenting
 # and apply it to various tasks.
 # In this notebook, we will focus on two tasks: parallel Sequence-to-Sequence, and set anomaly detection.
