@@ -1,6 +1,5 @@
 # %% [markdown]
 # <iframe width="560" height="315" src="https://www.youtube.com/embed/E6PDwquBBQc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-# <iframe width="560" height="315" src="https://www.youtube.com/embed/QJ94zuSQoP4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 # First, let's import our standard libraries below.
 
 # %%
@@ -222,6 +221,8 @@ for file_name in pretrained_files:
 # %% [markdown]
 # ## Image generation
 #
+# <iframe width="560" height="315" src="https://www.youtube.com/embed/QJ94zuSQoP4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+# 
 # As an example for energy-based models, we will train a model on image generation.
 # Specifically, we will look at how we can generate MNIST digits with a very simple CNN model.
 # However, it should be noted that energy models are not easy to train and often diverge

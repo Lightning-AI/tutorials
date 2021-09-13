@@ -1,6 +1,5 @@
 # %% [markdown]
 # <iframe width="560" height="315" src="https://www.youtube.com/embed/E2d8NRYt2e4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-# <iframe width="560" height="315" src="https://www.youtube.com/embed/3UrX2mTY610" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 # %%
 import os
@@ -415,6 +414,8 @@ def train_cifar(latent_dim):
 # %% [markdown]
 # ### Comparing latent dimensionality
 #
+# <iframe width="560" height="315" src="https://www.youtube.com/embed/3UrX2mTY610" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+# 
 # When training an autoencoder, we need to choose a dimensionality for the latent representation $z$.
 # The higher the latent dimensionality, the better we expect the reconstruction to be.
 # However, the idea of autoencoders is to *compress* data.

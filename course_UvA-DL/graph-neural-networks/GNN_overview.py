@@ -1,6 +1,5 @@
 # %% [markdown]
 # <iframe width="560" height="315" src="https://www.youtube.com/embed/fK7d56Ly9q8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-# <iframe width="560" height="315" src="https://www.youtube.com/embed/ZCNSUWe4a_Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 # We start by importing our standard libraries below.
 
 # %%
@@ -433,6 +432,8 @@ gnn_layer_by_name = {"GCN": geom_nn.GCNConv, "GAT": geom_nn.GATConv, "GraphConv"
 
 # %% [markdown]
 # ## Experiments on graph structures
+#
+# <iframe width="560" height="315" src="https://www.youtube.com/embed/ZCNSUWe4a_Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 #
 # Tasks on graph-structured data can be grouped into three groups: node-level, edge-level and graph-level.
 # The different levels describe on which level we want to perform classification/regression.
