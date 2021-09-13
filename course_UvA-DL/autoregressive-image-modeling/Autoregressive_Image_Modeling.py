@@ -1,4 +1,9 @@
 # %% [markdown]
+#
+# **Recordings:**
+# [![YouTube - Part 1](https://img.shields.io/static/v1.svg?logo=youtube&label=YouTube&message=Part%201&color=red)](https://youtu.be/ch0p2HGLa-o)
+# [![YouTube - Part 2](https://img.shields.io/static/v1.svg?logo=youtube&label=YouTube&message=Part%202&color=red)](https://youtu.be/H7dL3qjJKfE)
+#
 # Similar to the language generation you have seen in assignment 2, autoregressive models work on images by modeling the likelihood of a pixel given all previous ones.
 # For instance, in the picture below, we model the pixel $x_i$ as a conditional probability distribution
 # based on all previous (here blue) pixels (figure credit - [Aaron van den Oord et al. ](https://arxiv.org/abs/1601.06759)):

@@ -1,4 +1,11 @@
 # %% [markdown]
+#
+# **Recordings:**
+# [![YouTube - Part 1](https://img.shields.io/static/v1.svg?logo=youtube&label=YouTube&message=Part%201&color=red)](https://youtu.be/U1fwesIusbg)
+# [![YouTube - Part 2](https://img.shields.io/static/v1.svg?logo=youtube&label=YouTube&message=Part%202&color=red)](https://youtu.be/qMoGcRhVrF8)
+# [![YouTube - Part 3](https://img.shields.io/static/v1.svg?logo=youtube&label=YouTube&message=Part%202&color=red)](https://youtu.be/YoAWiaEt41Y)
+# [![YouTube - Part 4](https://img.shields.io/static/v1.svg?logo=youtube&label=YouTube&message=Part%202&color=red)](https://youtu.be/nTyDvn-ADJ4)
+#
 # Throughout this notebook, we make use of [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/latest/).
 # The first cell imports our usual libraries.
 

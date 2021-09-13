@@ -14,6 +14,11 @@
 # ---
 
 # %% [markdown]
+#
+# **Recordings:**
+# [![YouTube - Part 1](https://img.shields.io/static/v1.svg?logo=youtube&label=YouTube&message=Part%201&color=red)](https://youtu.be/fK7d56Ly9q8)
+# [![YouTube - Part 2](https://img.shields.io/static/v1.svg?logo=youtube&label=YouTube&message=Part%202&color=red)](https://youtu.be/ZCNSUWe4a_Q)
+#
 # We start by importing our standard libraries below.
 
 # %%

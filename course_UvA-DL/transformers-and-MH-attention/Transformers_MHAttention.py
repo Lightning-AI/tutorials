@@ -1,4 +1,10 @@
 # %% [markdown]
+#
+# **Recordings:**
+# [![YouTube - Part 1](https://img.shields.io/static/v1.svg?logo=youtube&label=YouTube&message=Part%201&color=red)](https://youtu.be/hGZ6wa07Vak)
+# [![YouTube - Part 2](https://img.shields.io/static/v1.svg?logo=youtube&label=YouTube&message=Part%202&color=red)](https://youtu.be/QdTgJ85E6YA)
+# [![YouTube - Part 3](https://img.shields.io/static/v1.svg?logo=youtube&label=YouTube&message=Part%202&color=red)](https://youtu.be/e7xvF2yS4Dg)
+#
 # Despite the huge success of Transformers in NLP, we will _not_ include the NLP domain in our notebook here.
 # There are many courses at the University of Amsterdam that focus on Natural Language Processing
 # and take a closer look at the application of the Transformer architecture in NLP
