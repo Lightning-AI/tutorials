@@ -1,4 +1,6 @@
 # %% [markdown]
+# <iframe width="560" height="315" src="https://www.youtube.com/embed/ch0p2HGLa-o" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+#
 # Similar to the language generation you have seen in assignment 2, autoregressive models work on images by modeling the likelihood of a pixel given all previous ones.
 # For instance, in the picture below, we model the pixel $x_i$ as a conditional probability distribution
 # based on all previous (here blue) pixels (figure credit - [Aaron van den Oord et al. ](https://arxiv.org/abs/1601.06759)):
@@ -427,6 +429,8 @@ del inp_img, horiz_conv, vert_conv
 
 # %% [markdown]
 # ## Gated PixelCNN
+#
+# <iframe width="560" height="315" src="https://www.youtube.com/embed/H7dL3qjJKfE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 #
 # In the next step, we will use the masked convolutions to build a full autoregressive model, called Gated PixelCNN.
 # The difference between the original PixelCNN and Gated PixelCNN is the use of separate horizontal and vertical stacks.
