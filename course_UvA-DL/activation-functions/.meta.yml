@@ -3,7 +3,6 @@ author: Phillip Lippe
 created: 2021-08-27
 updated: 2021-08-27
 license: CC BY-SA
-build: 0
 description: |
   In this tutorial, we will take a closer look at (popular) activation functions and investigate their effect on optimization properties in neural networks.
   Activation functions are a crucial part of deep learning models as they add the non-linearity to neural networks.

@@ -3,7 +3,6 @@ author: Phillip Lippe
 created: 2021-08-21
 updated: 2021-08-21
 license: CC BY-SA
-build: 0
 description: |
   In this tutorial, we will take a closer look at a recent new trend: Transformers for Computer Vision.
   Since [Alexey Dosovitskiy et al.](https://openreview.net/pdf?id=YicbFdNTTy) successfully applied a Transformer on a variety of image recognition benchmarks, there have been an incredible amount of follow-up works showing that CNNs might not be optimal architecture for Computer Vision anymore.
