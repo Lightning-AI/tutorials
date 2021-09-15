@@ -3,6 +3,7 @@ author: Phillip Lippe
 created: 2021-08-27
 updated: 2021-08-27
 license: CC BY-SA
+build: 0
 description: |
   This tutorial will give a short introduction to PyTorch basics, and get you setup for writing your own neural networks.
   This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.

@@ -6,7 +6,7 @@ license: CC BY-SA
 tags:
   - Image
   - Self-Supervised
-  - Contrastive Learning
+  - Contrastive-Learning
 description: |
   In this tutorial, we will take a closer look at self-supervised contrastive learning.
   Self-supervised learning, or also sometimes called unsupervised learning, describes the scenario where we have given input data, but no accompanying labels to train in a classical supervised way.

@@ -148,6 +148,10 @@ class HelperCLI:
     REQUIREMENTS_FILE = "requirements.txt"
     PIP_ARGS_FILE = "pip_arguments.txt"
     META_PIP_KEY = "pip__"
+    TAGS = {
+        "course_UvA-DL": "UvA-DL-Course",
+        "lightning_examples": "Lightning-Examples",
+    }
 
     @staticmethod
     def _meta_file(folder: str) -> str:
@@ -344,7 +348,21 @@ class HelperCLI:
         if dirname != ".notebooks":
             meta["tags"].append(dirname)
 
-        meta["tags"] = ",".join(meta["tags"])
+        tags = []
+        invalid_tags = []
+        for tag in meta["tags"]:
+            if " " in tag:
+                invalid_tags.append(tag)
+                continue
+            tags.append(HelperCLI.TAGS.get(tag, tag))
+
+        if invalid_tags:
+            raise ValueError(
+                f"The following tags are invalid: {','.join(invalid_tags)}. Tags should not contain spaces, use a "
+                "hyphen ('-') instead."
+            )
+
+        meta["tags"] = ",".join(tags)
 
         # Build the notebook cell
         rst_cell = TEMPLATE_CARD_ITEM % meta
