@@ -348,21 +348,8 @@ class HelperCLI:
         if dirname != ".notebooks":
             meta["tags"].append(dirname)
 
-        tags = []
-        invalid_tags = []
-        for tag in meta["tags"]:
-            if " " in tag:
-                invalid_tags.append(tag)
-                continue
-            tags.append(HelperCLI.TAGS.get(tag, tag))
-
-        if invalid_tags:
-            raise ValueError(
-                f"The following tags are invalid: {','.join(invalid_tags)}. Tags should not contain spaces, use a "
-                "hyphen ('-') instead."
-            )
-
-        meta["tags"] = ",".join(tags)
+        meta["tags"] = [HelperCLI.TAGS.get(tag, tag).replace(" ", "-") for tag in meta["tags"]]
+        meta["tags"] = ",".join(meta["tags"])
 
         # Build the notebook cell
         rst_cell = TEMPLATE_CARD_ITEM % meta
