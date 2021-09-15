@@ -148,7 +148,9 @@ class HelperCLI:
     REQUIREMENTS_FILE = "requirements.txt"
     PIP_ARGS_FILE = "pip_arguments.txt"
     META_PIP_KEY = "pip__"
-    TAGS = {
+
+    # Map directory names to tag names. Note that dashes will be replaced with spaces in rendered tags in the docs.
+    DIR_TO_TAG = {
         "course_UvA-DL": "UvA-DL-Course",
         "lightning_examples": "Lightning-Examples",
     }
@@ -346,9 +348,9 @@ class HelperCLI:
 
         dirname = os.path.basename(os.path.dirname(path_ipynb))
         if dirname != ".notebooks":
-            meta["tags"].append(dirname)
+            meta["tags"].append(HelperCLI.DIR_TO_TAG.get(dirname, dirname))
 
-        meta["tags"] = [HelperCLI.TAGS.get(tag, tag).replace(" ", "-") for tag in meta["tags"]]
+        meta["tags"] = [tag.replace(" ", "-") for tag in meta["tags"]]
         meta["tags"] = ",".join(meta["tags"])
 
         # Build the notebook cell
