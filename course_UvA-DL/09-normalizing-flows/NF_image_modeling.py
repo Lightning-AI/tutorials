@@ -1,5 +1,5 @@
 # %% [markdown]
-# <iframe width="560" height="315" src="https://www.youtube.com/embed/U1fwesIusbg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/U1fwesIusbg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 # Throughout this notebook, we make use of [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/latest/).
 # The first cell imports our usual libraries.
 
@@ -222,7 +222,7 @@ show_imgs([train_set[i][0] for i in range(8)])
 # %% [markdown]
 # ## Normalizing Flows on images
 #
-# <iframe width="560" height="315" src="https://www.youtube.com/embed/qMoGcRhVrF8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/qMoGcRhVrF8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 #
 # To become familiar with normalizing flows, especially for the application of image modeling,
 # it is best to discuss the different elements in a flow along with the implementation.
@@ -619,7 +619,7 @@ class VariationalDequantization(Dequantization):
 # %% [markdown]
 # ### Coupling layers
 #
-# <iframe width="560" height="315" src="https://www.youtube.com/embed/YoAWiaEt41Y" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/YoAWiaEt41Y" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 #
 # Next, we look at possible transformations to apply inside the flow.
 # A recent popular flow layer, which works well in combination with deep neural networks,
@@ -959,7 +959,7 @@ def train_flow(flow, model_name="MNISTFlow"):
 # %% [markdown]
 # ## Multi-scale architecture
 #
-# <iframe width="560" height="315" src="https://www.youtube.com/embed/nTyDvn-ADJ4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/nTyDvn-ADJ4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 #
 # One disadvantage of normalizing flows is that they operate on the exact same dimensions as the input.
 # If the input is high-dimensional, so is the latent space, which requires larger computational cost to learn suitable transformations.
