@@ -1,5 +1,5 @@
 # %% [markdown]
-# <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/hGZ6wa07Vak" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/hGZ6wa07Vak" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 # Despite the huge success of Transformers in NLP, we will _not_ include the NLP domain in our notebook here.
 # There are many courses at the University of Amsterdam that focus on Natural Language Processing
 # and take a closer look at the application of the Transformer architecture in NLP
@@ -382,7 +382,7 @@ class MultiheadAttention(nn.Module):
 # %% [markdown]
 # ### Transformer Encoder
 #
-# <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/QdTgJ85E6YA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/QdTgJ85E6YA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 #
 # Next, we will look at how to apply the multi-head attention blog inside the Transformer architecture.
 # Originally, the Transformer model was designed for machine translation.
@@ -853,7 +853,7 @@ class TransformerPredictor(pl.LightningModule):
 # %% [markdown]
 # ## Experiments
 #
-# <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/e7xvF2yS4Dg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/e7xvF2yS4Dg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 #
 # After having finished the implementation of the Transformer architecture, we can start experimenting
 # and apply it to various tasks.

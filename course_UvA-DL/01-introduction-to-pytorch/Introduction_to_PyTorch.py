@@ -1,5 +1,5 @@
 # %% [markdown]
-# <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/wnKZZgFQY-E" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/wnKZZgFQY-E" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 # Welcome to our PyTorch tutorial for the Deep Learning course 2020 at the University of Amsterdam!
 # The following notebook is meant to give a short introduction to PyTorch basics, and get you setup for writing your own neural networks.
 # PyTorch is an open source machine learning framework that allows you to write your own neural networks and optimize them efficiently.
@@ -458,7 +458,7 @@ torch.backends.cudnn.benchmark = False
 
 # %% [markdown]
 # ## Learning by example: Continuous XOR
-# <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/schbjeU5X2g" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/schbjeU5X2g" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 #
 # If we want to build a neural network in PyTorch, we could specify all our parameters (weight matrices, bias vectors) using `Tensors` (with `requires_grad=True`), ask PyTorch to calculate the gradients and then adjust the parameters.
 # But things can quickly get cumbersome if we have a lot of parameters.
