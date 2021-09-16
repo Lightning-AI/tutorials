@@ -1,5 +1,5 @@
 # %% [markdown]
-# <iframe width="560" height="315" src="https://www.youtube.com/embed/vjSSyGxlczs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/vjSSyGxlczs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 # Let's start with importing our standard libraries here.
 
 # %%
@@ -391,7 +391,7 @@ def train_model(model_name, save_name=None, **kwargs):
 # %% [markdown]
 # ## Inception
 #
-# <iframe width="560" height="315" src="https://www.youtube.com/embed/9yRXqYJDHr4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/9yRXqYJDHr4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 #
 # The [GoogleNet](https://arxiv.org/abs/1409.4842), proposed in 2014, won the ImageNet Challenge because of its usage of the Inception modules.
 # In general, we will mainly focus on the concept of Inception in this tutorial instead of the specifics of the GoogleNet, as based on Inception, there have been many follow-up works ([Inception-v2](https://arxiv.org/abs/1512.00567), [Inception-v3](https://arxiv.org/abs/1512.00567), [Inception-v4](https://arxiv.org/abs/1602.07261), [Inception-ResNet](https://arxiv.org/abs/1602.07261),...).
@@ -920,7 +920,7 @@ resnetpreact_model, resnetpreact_results = train_model(
 # %% [markdown]
 # ## DenseNet
 #
-# <iframe width="560" height="315" src="https://www.youtube.com/embed/ELEqNwv9vkE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/ELEqNwv9vkE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 #
 # [DenseNet](https://arxiv.org/abs/1608.06993) is another architecture for enabling very deep neural networks and takes a slightly different perspective on residual connections.
 # Instead of modeling the difference between layers, DenseNet considers residual connections as a possible way to reuse features across layers, removing any necessity to learn redundant feature maps.
