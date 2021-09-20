@@ -442,10 +442,6 @@ class ResNet(nn.Module):
         return x
 
 
-def resnet50(**kwargs):
-    return ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
-
-
 # %% [markdown]
 # ### Projection head
 #
@@ -562,7 +558,7 @@ class BarlowTwins(LightningModule):
 # Finally, we define the trainer for training the model. We pass in the ``train_loader`` and ``val_loader`` we had initialized earlier to the ``fit`` function.
 
 # %%
-encoder = resnet50(first_conv3x3=True, remove_first_maxpool=True)
+encoder = ResNet(BasicBlock, [3, 4, 6, 3], first_conv3x3True, remove_first_maxpool=True)
 encoder_out_dim = 2048
 
 model = BarlowTwins(
