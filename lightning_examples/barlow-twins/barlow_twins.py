@@ -564,6 +564,11 @@ model = BarlowTwins(
 )
 
 trainer = Trainer(
-    max_epochs=max_epochs, gpus=torch.cuda.device_count(), precision=16 if torch.cuda.device_count() > 0 else 32
+    max_epochs=max_epochs,
+    gpus=torch.cuda.device_count(),
+    precision=16 if torch.cuda.device_count() > 0 else 32,
+    max_steps=3,  # this is done for the tutorial so that the notebook compiles
 )
 trainer.fit(model, train_loader, val_loader)
+
+# %%
