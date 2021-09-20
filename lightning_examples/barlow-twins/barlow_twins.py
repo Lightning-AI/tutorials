@@ -440,15 +440,18 @@ def linear_warmup_decay(warmup_steps, total_steps):
 
 
 # %%
-class BarlowTwins(nn.Module):
+from pytorch_lightning import LightningModule, Trainer
+
+
+class BarlowTwins(LightningModule):
     def __init__(
         self,
         encoder,
-        projection_head,
+        encoder_out_dim,
         num_training_samples,
+        batch_size,
         lambda_coeff=5e-3,
         z_dim=128,
-        batch_size=32,
         learning_rate=1e-4,
         warmup_epochs=10,
         max_epochs=200,
@@ -456,7 +459,7 @@ class BarlowTwins(nn.Module):
         super().__init__()
         
         self.encoder = encoder
-        self.projection_head = projection_head
+        self.projection_head = ProjectionHead(input_dim=encoder_out_dim, output_dim=z_dim)
         self.loss_fn = BarlowTwinsLoss(batch_size=batch_size, lambda_coeff=lambda_coeff, z_dim=z_dim)
         
         self.learning_rate = learning_rate
@@ -505,5 +508,23 @@ class BarlowTwins(nn.Module):
 
         return [optimizer], [scheduler]
 
+
 # %%
-# training setup
+max_epochs = 200
+z_dim = 128
+
+encoder = resnet50(first_conv3x3=True, remove_first_maxpool=True)
+encoder_out_dim = 2048
+
+model = BarlowTwins(
+    encoder=encoder,
+    encoder_out_dim=encoder_out_dim,
+    num_training_samples=len(train_dataset),
+    batch_size=batch_size,
+    z_dim=z_dim,
+)
+
+trainer = Trainer(max_epochs=max_epochs)
+trainer.fit(model, train_loader, val_loader)
+
+# %%
