@@ -13,6 +13,11 @@
 #     name: python37764bitbf700d440ab14e1ba33cf063888ea5ad
 # ---
 
+# %% [markdown]
+# ## Barlow Twins
+#
+# Barlow Twins finds itself in unique place amongst the current state-of-the-art self-supervised learning methods. It does not fall under the existing categories of contrastive learning, knowledge distillation or clustering based methods. Instead, it creates its own category of redundancy reductionand achieves competitive performance with a simple yet effective loss function. In this tutorial, we look at coding up a small version of Barlow Twins algorithm using PyTorch Lightning.
+
 # %%
 import torch
 import torch.nn as nn
@@ -23,6 +28,8 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
 
 from pytorch_lightning import LightningModule, Trainer
+
+from functools import partial
 from typing import Type, Callable, Union, List, Optional
 
 
@@ -31,6 +38,13 @@ num_workers = 4
 max_epochs = 200
 z_dim = 128
 
+
+# %% [markdown]
+# ### Transforms
+#
+# We first define the data augmentation pipeline used in Barlow Twins. Here, we use pipeline proposed in SimCLR, which generates two copies/views of an input image by applying the following transformations in a sequence.
+#
+# First it takes a random crop of the image and resizes it to a fixed pre-specified size. Then, it applies a left-to-right random flip with a probability of 0.5. This step is followed by a composition of color jitter, conversion to grayscale with a probability of 0.2 and the application of a Gaussian blur filter. Finally, we normalize the image and convert it to a tensor.
 
 # %%
 class BarlowTwinsTransform:
@@ -77,6 +91,11 @@ class BarlowTwinsTransform:
         return self.transform(sample), self.transform(sample)
 
 
+# %% [markdown]
+# ### Dataset
+#
+# We select CIFAR10 as the dataset to demonstrate the pre-training process for Barlow Twins. CIFAR10 images are 32x32 in size and we do not apply a Gaussian blur transformation on them. In this step, we create the training and validation dataloaders for CIFAR10.
+
 # %%
 def cifar10_normalization():
     normalize = transforms.Normalize(
@@ -120,6 +139,13 @@ val_loader = DataLoader(
 )
 
 
+# %% [markdown]
+# ### Barlow Twins Loss
+#
+# Here we define the loss function for Barlow Twins. It first normalizes the D dimensinonal vectors from the projection head and then computes the DxD cross-correlation matrix between the normalized vectors of the 2 views of each image.
+#
+# Then it splits this cross-correlation matrix into two parts. The first part, the diagonal of this matrix is brought closer to 1, which pushes up the cosine similarity between the latent vectors of two views of each image, thus making the backbone invariant to the transformations applied to the views. The second part of the loss pushes the non-diagonal elements of the cross-corrlelation matrix closes to 0. This reduces the redundancy between the different dimensions of the latent vector.
+
 # %%
 class BarlowTwinsLoss(nn.Module):
     def __init__(self, batch_size, lambda_coeff=5e-3, z_dim=128):
@@ -130,12 +156,14 @@ class BarlowTwinsLoss(nn.Module):
         self.lambda_coeff = lambda_coeff
 
     def off_diagonal_ele(self, x):
+        # taken from: https://github.com/facebookresearch/barlowtwins/blob/main/main.py
         # return a flattened view of the off-diagonal elements of a square matrix
         n, m = x.shape
         assert n == m
         return x.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten()
 
     def forward(self, z1, z2):
+        # N x D, where N is the batch size and D is output dim of projection head
         z1_norm = (z1 - torch.mean(z1, dim=0)) / torch.std(z1, dim=0)
         z2_norm = (z2 - torch.mean(z2, dim=0)) / torch.std(z2, dim=0)
 
@@ -146,6 +174,11 @@ class BarlowTwinsLoss(nn.Module):
 
         return on_diag + self.lambda_coeff * off_diag
 
+
+# %% [markdown]
+# ### Backbone
+#
+# This is a standard Resnet backbone that we pre-train using the Barlow Twins method. For simplicity of the tutorial, we select Resnet-18 as our backbone configuration. To accommodate the 32x32 CIFAR10 images, we replace the first 7x7 convolution of the Resnet backbone by a 3x3 filter. We also remove the first Maxpool layer from the network for CIFAR10 images.
 
 # %%
 def conv3x3(in_planes: int, out_planes: int, stride: int = 1, groups: int = 1, dilation: int = 1) -> nn.Conv2d:
@@ -413,6 +446,11 @@ def resnet18(**kwargs):
     return ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
 
 
+# %% [markdown]
+# ### Projection head
+#
+# Unlike SimCLR and BYOL, the downstream performance of Barlow Twins greatly benefits from having a larger projection head after the backbone network. The paper utilizes a 3 layer MLP with 8192 hidden dimensions and 8192 as the output dimenion of the projection head. For the purposes of the tutorial, we use a smaller projection head. But, it is imperative to mention here that in practice, Barlow Twins needs to be trained using a bigger projection head as it is highly sensitive to its architecture and output dimensionality.
+
 # %%
 class ProjectionHead(nn.Module):
     def __init__(self, input_dim=2048, hidden_dim=2048, output_dim=128):
@@ -429,16 +467,26 @@ class ProjectionHead(nn.Module):
         return self.projection_head(x)
 
 
+# %% [markdown]
+# ### Learning rate warmup
+#
+# For the purposes of this tutorial, we keep things simple and use a linear warmup schedule with Adam optimizer. In our previous experiments we have found that linear warmup part is much more important for the final performance of a model than the cosine decay component of the schedule.
+
 # %%
-def linear_warmup_decay(warmup_steps, total_steps):
-    def fn(step):
-        if step < warmup_steps:
-            return float(step) / float(max(1, warmup_steps))
-        else:
-            return 1.0
+def fn(warmup_steps, step):
+    if step < warmup_steps:
+        return float(step) / float(max(1, warmup_steps))
+    else:
+        return 1.0
 
-    return fn
+def linear_warmup_decay(warmup_steps):
+    return partial(fn, warmup_steps)
 
+
+# %% [markdown]
+# ### Barlow Twins Lightning Module
+#
+# We keep the LightningModule for Barlow Twins neat and simple. It takes in an backbone encoder and initializes the projection head and the loss function. We configure the optimizer and the learning rate scheduler in the ``configure_optimizers`` method.
 
 # %%
 class BarlowTwins(LightningModule):
@@ -497,12 +545,11 @@ class BarlowTwins(LightningModule):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
 
         warmup_steps = self.train_iters_per_epoch * self.warmup_epochs
-        total_steps = self.train_iters_per_epoch * self.max_epochs
 
         scheduler = {
             "scheduler": torch.optim.lr_scheduler.LambdaLR(
                 optimizer,
-                linear_warmup_decay(warmup_steps, total_steps),
+                linear_warmup_decay(warmup_steps),
             ),
             "interval": "step",
             "frequency": 1,
@@ -510,6 +557,9 @@ class BarlowTwins(LightningModule):
 
         return [optimizer], [scheduler]
 
+
+# %% [markdown]
+# Finally, we define the trainer for training the model. We pass in the ``train_loader`` and ``val_loader`` we had initialized earlier to the ``fit`` function.
 
 # %%
 encoder = resnet18(first_conv3x3=True, remove_first_maxpool=True)
@@ -529,3 +579,5 @@ trainer = Trainer(
     precision=16 if torch.cuda.device_count() > 0 else 32
 )
 trainer.fit(model, train_loader, val_loader)
+
+# %%
