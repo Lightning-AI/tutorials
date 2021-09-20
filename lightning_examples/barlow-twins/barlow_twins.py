@@ -555,7 +555,7 @@ class BarlowTwins(LightningModule):
 
 # %%
 encoder = resnet18(first_conv3x3=True, remove_first_maxpool=True)
-encoder_out_dim = 2048
+encoder_out_dim = 512
 
 model = BarlowTwins(
     encoder=encoder,
