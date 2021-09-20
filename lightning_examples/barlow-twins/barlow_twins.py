@@ -18,20 +18,17 @@
 #
 # Barlow Twins finds itself in unique place amongst the current state-of-the-art self-supervised learning methods. It does not fall under the existing categories of contrastive learning, knowledge distillation or clustering based methods. Instead, it creates its own category of redundancy reductionand achieves competitive performance with a simple yet effective loss function. In this tutorial, we look at coding up a small version of Barlow Twins algorithm using PyTorch Lightning.
 
+from functools import partial
+from typing import Callable, List, Optional, Type, Union
+
 # %%
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
-
+from pytorch_lightning import LightningModule, Trainer
 from torch import Tensor
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
-
-from pytorch_lightning import LightningModule, Trainer
-
-from functools import partial
-from typing import Type, Callable, Union, List, Optional
-
 
 batch_size = 32
 num_workers = 4
@@ -69,9 +66,7 @@ class BarlowTwinsTransform:
             if kernel_size % 2 == 0:
                 kernel_size += 1
 
-            color_transform.append(
-                transforms.RandomApply([transforms.GaussianBlur(kernel_size=kernel_size)], p=0.5)
-            )
+            color_transform.append(transforms.RandomApply([transforms.GaussianBlur(kernel_size=kernel_size)], p=0.5))
 
         self.color_transform = transforms.Compose(color_transform)
 
@@ -80,12 +75,14 @@ class BarlowTwinsTransform:
         else:
             self.final_transform = transforms.Compose([transforms.ToTensor(), normalize])
 
-        self.transform = transforms.Compose([
-            transforms.RandomResizedCrop(self.input_height),
-            transforms.RandomHorizontalFlip(p=0.5),
-            self.color_transform,
-            self.final_transform,
-        ])
+        self.transform = transforms.Compose(
+            [
+                transforms.RandomResizedCrop(self.input_height),
+                transforms.RandomHorizontalFlip(p=0.5),
+                self.color_transform,
+                self.final_transform,
+            ]
+        )
 
     def __call__(self, sample):
         return self.transform(sample), self.transform(sample)
@@ -99,43 +96,26 @@ class BarlowTwinsTransform:
 # %%
 def cifar10_normalization():
     normalize = transforms.Normalize(
-        mean=[x / 255.0 for x in [125.3, 123.0, 113.9]],
-        std=[x / 255.0 for x in [63.0, 62.1, 66.7]]
+        mean=[x / 255.0 for x in [125.3, 123.0, 113.9]], std=[x / 255.0 for x in [63.0, 62.1, 66.7]]
     )
     return normalize
 
 
 train_transform = BarlowTwinsTransform(
-    input_height=32,
-    gaussian_blur=False,
-    jitter_strength=0.5,
-    normalize=cifar10_normalization()
+    input_height=32, gaussian_blur=False, jitter_strength=0.5, normalize=cifar10_normalization()
 )
-train_dataset = CIFAR10(root='.', train=True, download=True, transform=train_transform)
+train_dataset = CIFAR10(root=".", train=True, download=True, transform=train_transform)
 
 val_transform = BarlowTwinsTransform(
-    input_height=32,
-    gaussian_blur=False,
-    jitter_strength=0.5,
-    normalize=cifar10_normalization()
+    input_height=32, gaussian_blur=False, jitter_strength=0.5, normalize=cifar10_normalization()
 )
-val_dataset = CIFAR10(root='.', train=False, download=True, transform=train_transform)
+val_dataset = CIFAR10(root=".", train=False, download=True, transform=train_transform)
 
 train_loader = DataLoader(
-    train_dataset,
-    batch_size=batch_size,
-    shuffle=True,
-    num_workers=num_workers,
-    drop_last=True,
-    pin_memory=True
+    train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, drop_last=True, pin_memory=True
 )
 val_loader = DataLoader(
-    val_dataset,
-    batch_size=batch_size,
-    shuffle=False,
-    num_workers=num_workers,
-    drop_last=True,
-    pin_memory=True
+    val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, drop_last=True, pin_memory=True
 )
 
 
@@ -182,13 +162,21 @@ class BarlowTwinsLoss(nn.Module):
 
 # %%
 def conv3x3(in_planes: int, out_planes: int, stride: int = 1, groups: int = 1, dilation: int = 1) -> nn.Conv2d:
-    """3x3 convolution with padding"""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                     padding=dilation, groups=groups, bias=False, dilation=dilation)
+    """3x3 convolution with padding."""
+    return nn.Conv2d(
+        in_planes,
+        out_planes,
+        kernel_size=3,
+        stride=stride,
+        padding=dilation,
+        groups=groups,
+        bias=False,
+        dilation=dilation,
+    )
 
 
 def conv1x1(in_planes: int, out_planes: int, stride: int = 1) -> nn.Conv2d:
-    """1x1 convolution"""
+    """1x1 convolution."""
     return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
 
 
@@ -205,13 +193,13 @@ class BasicBlock(nn.Module):
         groups: int = 1,
         base_width: int = 64,
         dilation: int = 1,
-        norm_layer: Optional[Callable[..., nn.Module]] = None
+        norm_layer: Optional[Callable[..., nn.Module]] = None,
     ) -> None:
-        super(BasicBlock, self).__init__()
+        super().__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         if groups != 1 or base_width != 64:
-            raise ValueError('BasicBlock only supports groups=1 and base_width=64')
+            raise ValueError("BasicBlock only supports groups=1 and base_width=64")
         if dilation > 1:
             raise NotImplementedError("Dilation > 1 not supported in BasicBlock")
         # Both self.conv1 and self.downsample layers downsample the input when stride != 1
@@ -261,12 +249,12 @@ class Bottleneck(nn.Module):
         groups: int = 1,
         base_width: int = 64,
         dilation: int = 1,
-        norm_layer: Optional[Callable[..., nn.Module]] = None
+        norm_layer: Optional[Callable[..., nn.Module]] = None,
     ) -> None:
-        super(Bottleneck, self).__init__()
+        super().__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
-        width = int(planes * (base_width / 64.)) * groups
+        width = int(planes * (base_width / 64.0)) * groups
         # Both self.conv2 and self.downsample layers downsample the input when stride != 1
         self.conv1 = conv1x1(inplanes, width)
         self.bn1 = norm_layer(width)
@@ -302,7 +290,6 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-
     def __init__(
         self,
         block: Type[Union[BasicBlock, Bottleneck]],
@@ -317,7 +304,7 @@ class ResNet(nn.Module):
         remove_first_maxpool: bool = False,
     ) -> None:
 
-        super(ResNet, self).__init__()
+        super().__init__()
 
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
@@ -384,8 +371,14 @@ class ResNet(nn.Module):
                 elif isinstance(m, BasicBlock):
                     nn.init.constant_(m.bn2.weight, 0)
 
-    def _make_layer(self, block: Type[Union[BasicBlock, Bottleneck]], planes: int, blocks: int,
-                    stride: int = 1, dilate: bool = False) -> nn.Sequential:
+    def _make_layer(
+        self,
+        block: Type[Union[BasicBlock, Bottleneck]],
+        planes: int,
+        blocks: int,
+        stride: int = 1,
+        dilate: bool = False,
+    ) -> nn.Sequential:
         norm_layer = self._norm_layer
         downsample = None
         previous_dilation = self.dilation
@@ -454,13 +447,13 @@ def resnet18(**kwargs):
 # %%
 class ProjectionHead(nn.Module):
     def __init__(self, input_dim=2048, hidden_dim=2048, output_dim=128):
-        super(ProjectionHead, self).__init__()
+        super().__init__()
 
         self.projection_head = nn.Sequential(
             nn.Linear(input_dim, hidden_dim, bias=True),
             nn.BatchNorm1d(hidden_dim),
             nn.ReLU(),
-            nn.Linear(hidden_dim, output_dim, bias=False)
+            nn.Linear(hidden_dim, output_dim, bias=False),
         )
 
     def forward(self, x):
@@ -478,6 +471,7 @@ def fn(warmup_steps, step):
         return float(step) / float(max(1, warmup_steps))
     else:
         return 1.0
+
 
 def linear_warmup_decay(warmup_steps):
     return partial(fn, warmup_steps)
@@ -503,15 +497,11 @@ class BarlowTwins(LightningModule):
         max_epochs=200,
     ):
         super().__init__()
-        
+
         self.encoder = encoder
-        self.projection_head = ProjectionHead(
-            input_dim=encoder_out_dim,
-            hidden_dim=encoder_out_dim,
-            output_dim=z_dim
-        )
+        self.projection_head = ProjectionHead(input_dim=encoder_out_dim, hidden_dim=encoder_out_dim, output_dim=z_dim)
         self.loss_fn = BarlowTwinsLoss(batch_size=batch_size, lambda_coeff=lambda_coeff, z_dim=z_dim)
-        
+
         self.learning_rate = learning_rate
         self.warmup_epochs = warmup_epochs
         self.max_epochs = max_epochs
@@ -526,12 +516,12 @@ class BarlowTwins(LightningModule):
 
         z1 = self.projection_head(self.encoder(x1))
         z2 = self.projection_head(self.encoder(x2))
-        
+
         return self.loss_fn(z1, z2)
 
     def training_step(self, batch, batch_idx):
         loss = self.shared_step(batch)
-        
+
         self.log("train_loss", loss.item(), on_step=True, on_epoch=False)
         return loss
 
@@ -574,9 +564,7 @@ model = BarlowTwins(
 )
 
 trainer = Trainer(
-    max_epochs=max_epochs,
-    gpus=torch.cuda.device_count(),
-    precision=16 if torch.cuda.device_count() > 0 else 32
+    max_epochs=max_epochs, gpus=torch.cuda.device_count(), precision=16 if torch.cuda.device_count() > 0 else 32
 )
 trainer.fit(model, train_loader, val_loader)
 
