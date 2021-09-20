@@ -19,6 +19,9 @@
 # Barlow Twins finds itself in unique place amongst the current state-of-the-art self-supervised learning methods. It does not fall under the existing categories of contrastive learning, knowledge distillation or clustering based methods. Instead, it creates its own category of redundancy reductionand achieves competitive performance with a simple yet effective loss function. In this tutorial, we look at coding up a small version of Barlow Twins algorithm using PyTorch Lightning.
 
 # %%
+from functools import partial
+from typing import Callable, List, Optional, Type, Union
+
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
@@ -28,9 +31,6 @@ from pytorch_lightning import LightningModule, Trainer
 from torch import Tensor
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
-
-from functools import partial
-from typing import Callable, List, Optional, Type, Union
 
 batch_size = 32
 num_workers = 4
