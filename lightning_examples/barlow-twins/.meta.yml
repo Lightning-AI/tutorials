@@ -1,0 +1,13 @@
+title: Sample notebooks
+author: [User](contact)
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+license: CC BY-SA
+# multi-line
+description: |
+  This notebook will walk you through ...
+requirements:
+  - package  # with version if needed
+# define supported - CPU|GPU|TPU
+accelerator:
+  - CPU
