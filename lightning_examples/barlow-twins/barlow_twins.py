@@ -17,9 +17,9 @@
 # ## Barlow Twins
 #
 # Barlow Twins finds itself in unique place amongst the current state-of-the-art self-supervised learning methods. It does not fall under the existing categories of contrastive learning, knowledge distillation or clustering based methods. Instead, it creates its own category of redundancy reductionand achieves competitive performance with a simple yet effective loss function. In this tutorial, we look at coding up a small version of Barlow Twins algorithm using PyTorch Lightning.
-
-from functools import partial
-from typing import Callable, List, Optional, Type, Union
+#
+# from functools import partial
+# from typing import Callable, List, Optional, Type, Union
 
 # %%
 import torch
@@ -435,6 +435,10 @@ class ResNet(nn.Module):
         return x
 
 
+def resnet18(**kwargs):
+    return ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
+
+
 # %% [markdown]
 # ### Projection head
 #
@@ -548,7 +552,7 @@ class BarlowTwins(LightningModule):
 # Finally, we define the trainer for training the model. We pass in the ``train_loader`` and ``val_loader`` we had initialized earlier to the ``fit`` function.
 
 # %%
-encoder = ResNet(BasicBlock, [3, 4, 6, 3], first_conv3x3=True, remove_first_maxpool=True)
+encoder = resnet18(first_conv3x3=True, remove_first_maxpool=True)
 encoder_out_dim = 2048
 
 model = BarlowTwins(
