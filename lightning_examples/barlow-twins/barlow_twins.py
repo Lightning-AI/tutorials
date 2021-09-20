@@ -14,9 +14,25 @@
 # ---
 
 # %%
+import torch
+import torch.nn as nn
 import torchvision.transforms as transforms
 
+from torch import Tensor
+from torch.utils.data import DataLoader
+from torchvision.datasets import CIFAR10
 
+from pytorch_lightning import LightningModule, Trainer
+from typing import Type, Callable, Union, List, Optional
+
+
+batch_size = 32
+num_workers = 4
+max_epochs = 200
+z_dim = 128
+
+
+# %%
 class BarlowTwinsTransform:
     def __init__(self, input_height=224, gaussian_blur=True, jitter_strength=1.0, normalize=None):
 
@@ -62,14 +78,6 @@ class BarlowTwinsTransform:
 
 
 # %%
-import torchvision.transforms as transforms
-
-from torch.utils.data import DataLoader
-from torchvision.datasets import CIFAR10
-
-batch_size = 32
-num_workers = 4
-
 def cifar10_normalization():
     normalize = transforms.Normalize(
         mean=[x / 255.0 for x in [125.3, 123.0, 113.9]],
@@ -111,11 +119,8 @@ val_loader = DataLoader(
     pin_memory=True
 )
 
+
 # %%
-import torch
-import torch.nn as nn
-
-
 class BarlowTwinsLoss(nn.Module):
     def __init__(self, batch_size, lambda_coeff=5e-3, z_dim=128):
         super().__init__()
@@ -143,10 +148,6 @@ class BarlowTwinsLoss(nn.Module):
 
 
 # %%
-from torch import Tensor
-from typing import Type, Any, Callable, Union, List, Optional
-
-
 def conv3x3(in_planes: int, out_planes: int, stride: int = 1, groups: int = 1, dilation: int = 1) -> nn.Conv2d:
     """3x3 convolution with padding"""
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
@@ -440,9 +441,6 @@ def linear_warmup_decay(warmup_steps, total_steps):
 
 
 # %%
-from pytorch_lightning import LightningModule, Trainer
-
-
 class BarlowTwins(LightningModule):
     def __init__(
         self,
@@ -514,9 +512,6 @@ class BarlowTwins(LightningModule):
 
 
 # %%
-max_epochs = 200
-z_dim = 128
-
 encoder = resnet18(first_conv3x3=True, remove_first_maxpool=True)
 encoder_out_dim = 512
 
@@ -534,5 +529,3 @@ trainer = Trainer(
     precision=16 if torch.cuda.device_count() > 0 else 32
 )
 trainer.fit(model, train_loader, val_loader)
-
-# %%
