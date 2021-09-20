@@ -1,13 +1,20 @@
-title: Sample notebooks
-author: [User](contact)
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
+title: "Barlow Twins Tutorial"
+author: [Ananya Harsh Jha](ananya@pytorchlightning.ai)
+created: 2021-09-19
+updated: 2021-09-20
 license: CC BY-SA
-# multi-line
+tags:
+  - Image
+  - Self-Supervised
 description: |
-  This notebook will walk you through ...
+  This notebook describes the self-supervised learning method Barlow Twins.
+  Barlow Twins differs from other recently proposed algorithms as it doesn't
+  fall under the category of either contrastive learning, or methods like knowledge
+  distillation or clustering. The simplicity of the loss function and its effectiveness
+  in comparison to the current state of the art makes Barlow Twins an interesting
+  case study.
 requirements:
-  - package  # with version if needed
-# define supported - CPU|GPU|TPU
+  - torchvision
 accelerator:
+  - GPU
   - CPU
