@@ -25,9 +25,7 @@ from typing import Callable, List, Optional, Type, Union
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
-
 from pytorch_lightning import LightningModule, Trainer
-
 from torch import Tensor
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
