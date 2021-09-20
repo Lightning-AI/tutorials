@@ -116,7 +116,6 @@ import torch
 import torch.nn as nn
 
 
-# replace with version in paper
 class BarlowTwinsLoss(nn.Module):
     def __init__(self, batch_size, lambda_coeff=5e-3, z_dim=128):
         super().__init__()
@@ -124,20 +123,21 @@ class BarlowTwinsLoss(nn.Module):
         self.z_dim = z_dim
         self.batch_size = batch_size
         self.lambda_coeff = lambda_coeff
-        self.bn = nn.BatchNorm1d(self.z_dim, affine=False)
 
-    def off_diagonal(self, x):
+    def off_diagonal_ele(self, x):
         # return a flattened view of the off-diagonal elements of a square matrix
         n, m = x.shape
         assert n == m
         return x.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten()
 
     def forward(self, z1, z2):
-        cross_corr = self.bn(z1).T @ self.bn(z2)
-        cross_corr.div_(self.batch_size)
+        z1_norm = (z1 - torch.mean(z1, dim=0)) / torch.std(z1, dim=0)
+        z2_norm = (z2 - torch.mean(z2, dim=0)) / torch.std(z2, dim=0)
+
+        cross_corr = torch.matmul(z1_norm.T, z2_norm) / self.batch_size
 
         on_diag = torch.diagonal(cross_corr).add_(-1).pow_(2).sum()
-        off_diag = self.off_diagonal(cross_corr).pow_(2).sum()
+        off_diag = self.off_diagonal_ele(cross_corr).pow_(2).sum()
 
         return on_diag + self.lambda_coeff * off_diag
 
@@ -408,8 +408,8 @@ class ResNet(nn.Module):
         return x
 
 
-def resnet50(**kwargs):
-    return ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
+def resnet18(**kwargs):
+    return ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
 
 
 # %%
@@ -459,7 +459,11 @@ class BarlowTwins(LightningModule):
         super().__init__()
         
         self.encoder = encoder
-        self.projection_head = ProjectionHead(input_dim=encoder_out_dim, output_dim=z_dim)
+        self.projection_head = ProjectionHead(
+            input_dim=encoder_out_dim,
+            hidden_dim=encoder_out_dim,
+            output_dim=z_dim
+        )
         self.loss_fn = BarlowTwinsLoss(batch_size=batch_size, lambda_coeff=lambda_coeff, z_dim=z_dim)
         
         self.learning_rate = learning_rate
@@ -472,7 +476,7 @@ class BarlowTwins(LightningModule):
         return self.encoder(x)
 
     def shared_step(self, batch):
-        x1, x2 = batch
+        (x1, x2), _ = batch
 
         z1 = self.projection_head(self.encoder(x1))
         z2 = self.projection_head(self.encoder(x2))
@@ -513,8 +517,8 @@ class BarlowTwins(LightningModule):
 max_epochs = 200
 z_dim = 128
 
-encoder = resnet50(first_conv3x3=True, remove_first_maxpool=True)
-encoder_out_dim = 2048
+encoder = resnet18(first_conv3x3=True, remove_first_maxpool=True)
+encoder_out_dim = 512
 
 model = BarlowTwins(
     encoder=encoder,
@@ -524,7 +528,11 @@ model = BarlowTwins(
     z_dim=z_dim,
 )
 
-trainer = Trainer(max_epochs=max_epochs)
+trainer = Trainer(
+    max_epochs=max_epochs,
+    gpus=torch.cuda.device_count(),
+    precision=16 if torch.cuda.device_count() > 0 else 32
+)
 trainer.fit(model, train_loader, val_loader)
 
 # %%
