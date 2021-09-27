@@ -15,10 +15,11 @@
 
 # %%
 import prepare_notebook
+
 # %%
 import torch
 import torch.nn.functional as F
-from pytorch_lightning import LightningDataModule, LightningModule, seed_everything, Trainer
+from pytorch_lightning import LightningDataModule, LightningModule, Trainer, seed_everything
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchmetrics import Accuracy
 from torchvision import transforms
@@ -75,14 +76,11 @@ from torchvision.datasets import MNIST
 
 
 class MNISTDataModule(LightningDataModule):
-
     def __init__(self, data_dir: str = "./", batch_size: int = 16):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
-        self.transform = transforms.Compose([
-            transforms.ToTensor(), transforms.Normalize((0.1307, ), (0.3081, ))
-        ])
+        self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
         self.dims = (1, 28, 28)
         self.num_classes = 10
 
@@ -92,10 +90,10 @@ class MNISTDataModule(LightningDataModule):
         MNIST(self.data_dir, train=False, download=True)
 
     def setup(self, stage=None):
-        if stage == 'fit' or stage is None:
+        if stage == "fit" or stage is None:
             mnist_full = MNIST(self.data_dir, train=True, transform=self.transform)
             self.mnist_train, self.mnist_val = random_split(mnist_full, [55000, 5000])
-        if stage == 'test' or stage is None:
+        if stage == "test" or stage is None:
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def train_dataloader(self):
@@ -109,7 +107,6 @@ class MNISTDataModule(LightningDataModule):
 
 
 class TutorialModule(LightningModule):
-
     def __init__(
         self,
         hidden_dim: int = 128,
@@ -230,7 +227,6 @@ trainer = Trainer(
 
 # %%
 class PreprocessExampleDataModule(MNISTDataModule):
-
     def prepare_data(self):
         # runs only once and only in the process 0
         # this hook is also available in the LightningModule
@@ -240,10 +236,10 @@ class PreprocessExampleDataModule(MNISTDataModule):
     def setup(self, stage=None):
         # runs in each process
         # this hook is also available in the LightningModule
-        if stage == 'fit' or stage is None:
+        if stage == "fit" or stage is None:
             mnist_full = MNIST(self.data_dir, train=True, transform=self.transform)
             self.mnist_train, self.mnist_val = random_split(mnist_full, [55000, 5000])
-        if stage == 'test' or stage is None:
+        if stage == "test" or stage is None:
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
 
@@ -278,7 +274,6 @@ trainer = Trainer(
 
 # %%
 class DDPDataDemoModule(TutorialModule):
-
     def training_epoch_end(self, outputs):
         process_id = self.global_rank
         print(f"{process_id=} saw {len(outputs)} samples total")
@@ -339,7 +334,6 @@ class DDPDataDemoModule(TutorialModule):
 
 # %%
 class DDPAllGatherDemoModule(TutorialModule):
-
     def test_step(self, batch, batch_idx):
         x, y = batch
         prob = F.softmax(self(x), dim=1)
@@ -546,7 +540,6 @@ trainer.fit(model, datamodule=datamodule)
 
 # %%
 class DPModule(TutorialModule):
-
     def training_step_end(self, outputs):
         # outputs is a dict
         # it is the result of merging all dicts returned by training_step() on each device
@@ -718,10 +711,9 @@ trainer = Trainer(
 
 # %%
 class DDPInferenceDataModule(MNISTDataModule):
-
     def setup(self, stage=None):
         super().setup(stage=stage)
-        if stage == 'predict' or stage is None:
+        if stage == "predict" or stage is None:
             self.mnist_predict = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def predict_dataloader(self):
@@ -734,7 +726,6 @@ class DDPInferenceDataModule(MNISTDataModule):
 
 # %%
 class DDPInferenceModel(TutorialModule):
-
     def predict_step(self, batch, batch_idx):
         x, y = batch
         prob = F.softmax(self(x), dim=1)
@@ -785,13 +776,12 @@ from pytorch_lightning.callbacks import BasePredictionWriter
 
 
 class PredictionWriter(BasePredictionWriter):
-
     def __init__(self, output_dir: str):
         super().__init__(write_interval="epoch")
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
 
-    def write_on_epoch_end(self, trainer, pl_module: 'LightningModule', predictions, batch_indices):
+    def write_on_epoch_end(self, trainer, pl_module: "LightningModule", predictions, batch_indices):
         predictions = torch.cat(predictions[0]).cpu()
         torch.save(predictions, os.path.join(self.output_dir, f"predictions-{trainer.global_rank}.pt"))
 
