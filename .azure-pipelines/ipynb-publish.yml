@@ -21,16 +21,16 @@ jobs:
     # this need to have installed docker in the base image...
     container:
       # base ML image: mcr.microsoft.com/azureml/openmpi3.1.2-cuda10.2-cudnn8-ubuntu18.04
-      image: "pytorchlightning/pytorch_lightning:base-cuda-py3.8-torch1.7"
+      image: "pytorchlightning/pytorch_lightning:base-cuda-py3.9-torch1.8"
       # image: "pytorch/pytorch:1.7.1-cuda11.0-cudnn8-runtime"
-      options: "-it --rm --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=all"
+      options: "-it --rm --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=all --shm-size=32g"
 
     variables:
       ACCELERATOR: CPU,GPU
       PUB_BRANCH: publication
       PATH_DATASETS: "$(Build.Repository.LocalPath)/.datasets"
-      COMMIT_MSG: $(Build.SourceVersionMessage)
-      # PYTHON_VERSION: 3.8
+      COMMIT_MSG: $(echo "$(Build.SourceVersionMessage)" | head -n 1)
+      COMMIT_HASH: "$(Build.SourceVersion)"
 
     steps:
     - bash: |
@@ -50,6 +50,8 @@ jobs:
     - bash: |
         git config --global user.email "pipelines@azure.com"
         git config --global user.name "Azure Pipelines"
+        printf "commit hash:\n $(COMMIT_HASH)\n"
+        printf "commit message:\n $(COMMIT_MSG)\n"
       displayName: 'Set Git user'
 
     - bash: |
@@ -66,7 +68,7 @@ jobs:
 
     - bash: |
         current_branch=$(cut -d '/' -f3- <<< $(Build.SourceBranch))
-        printf $current_branch
+        printf "$current_branch\n"
         bash .actions/git-diff-sync.sh $current_branch $(PUB_BRANCH)
       displayName: 'Compare changes & sync'
 
@@ -99,7 +101,7 @@ jobs:
             bash .actions/ipynb-render.sh $line
         done <<< $(cat changed-folders.txt)
         git status
-        git commit -m "publish [GPU]: $(COMMIT_MSG)"
+        git commit -m "publish [GPU]: $(COMMIT_HASH)"
       condition: and(succeeded(), gt(variables['changed.folders'], 0))
       displayName: 'Render notebook'
 
@@ -110,7 +112,7 @@ jobs:
             git rm .notebooks/$line.yaml
         done <<< $(cat dropped-folders.txt)
         git status
-        git commit -m "prune: $(COMMIT_MSG)"
+        git commit -m "prune: $(COMMIT_HASH)"
       condition: gt(variables['dropped.folders'], 0)
       displayName: 'Prune notebook'
 

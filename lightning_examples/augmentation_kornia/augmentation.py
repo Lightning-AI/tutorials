@@ -9,12 +9,7 @@ import torch.nn as nn
 import torchmetrics
 import torchvision
 from kornia import image_to_tensor, tensor_to_image
-from kornia.augmentation import (
-    ColorJitter,
-    RandomChannelShuffle,
-    RandomHorizontalFlip,
-    RandomThinPlateSpline,
-)
+from kornia.augmentation import ColorJitter, RandomChannelShuffle, RandomHorizontalFlip, RandomThinPlateSpline
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.loggers import CSVLogger
 from torch import Tensor
@@ -83,7 +78,7 @@ class Preprocess(nn.Module):
     def forward(self, x) -> Tensor:
         x_tmp: np.ndarray = np.array(x)  # HxWxC
         x_out: Tensor = image_to_tensor(x_tmp, keepdim=True)  # CxHxW
-        return x_out.float() / 255.
+        return x_out.float() / 255.0
 
 
 # %% [markdown]
@@ -102,9 +97,8 @@ class Preprocess(nn.Module):
 
 # %%
 class CoolSystem(LightningModule):
-
     def __init__(self):
-        super(CoolSystem, self).__init__()
+        super().__init__()
         # not the best model: expereiment yourself
         self.model = torchvision.models.resnet18(pretrained=True)
 
@@ -121,7 +115,6 @@ class CoolSystem(LightningModule):
         return F.cross_entropy(y_hat, y)
 
     def show_batch(self, win_size=(10, 10)):
-
         def _to_vis(data):
             return tensor_to_image(torchvision.utils.make_grid(data, nrow=8))
 
@@ -189,7 +182,7 @@ trainer = Trainer(
     progress_bar_refresh_rate=20,
     gpus=AVAIL_GPUS,
     max_epochs=10,
-    logger=CSVLogger(save_dir='logs/', name="cifar10-resnet18")
+    logger=CSVLogger(save_dir="logs/", name="cifar10-resnet18"),
 )
 
 # Train the model ⚡
@@ -199,7 +192,7 @@ trainer.fit(model)
 # ### Visualize the training results
 
 # %%
-metrics = pd.read_csv(f'{trainer.logger.log_dir}/metrics.csv')
+metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
 print(metrics.head())
 
 aggreg_metrics = []
@@ -210,8 +203,8 @@ for i, dfg in metrics.groupby(agg_col):
     aggreg_metrics.append(agg)
 
 df_metrics = pd.DataFrame(aggreg_metrics)
-df_metrics[['train_loss', 'valid_loss']].plot(grid=True, legend=True)
-df_metrics[['valid_acc', 'train_acc']].plot(grid=True, legend=True)
+df_metrics[["train_loss", "valid_loss"]].plot(grid=True, legend=True)
+df_metrics[["valid_acc", "train_acc"]].plot(grid=True, legend=True)
 
 # %% [markdown]
 # ## Tensorboard

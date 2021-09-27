@@ -1,8 +1,11 @@
-title: Basics of Graph Neural Networks
+title: "Tutorial 6: Basics of Graph Neural Networks"
 author: Phillip Lippe
 created: 2021-06-07
 updated: 2021-06-16
 license: CC BY-SA
+build: 0
+tags:
+  - Graph
 description: |
   In this tutorial, we will discuss the application of neural networks on graphs.
   Graph Neural Networks (GNNs) have recently gained increasing popularity in both applications and research,
@@ -19,7 +22,7 @@ requirements:
   - torch-sparse
   - torch-cluster
   - torch-spline-conv
-  - torch-geometric
+  - torch-geometric==1.7.2
 pip__find-link:
   # - https://pytorch-geometric.com/whl/torch-1.8.0+cu101.html
   - https://pytorch-geometric.com/whl/torch-%(TORCH_MAJOR_DOT_MINOR)s.0+%(DEVICE)s.html

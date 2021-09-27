@@ -1,12 +1,16 @@
-# -*- coding: utf-8 -*-
+import base64
+import json
 import os
 import re
-import shutil
 from datetime import datetime
 from pprint import pprint
-from typing import Sequence
+from shutil import copyfile
+from textwrap import wrap
+from typing import Any, Dict, Optional, Sequence
+from warnings import warn
 
 import fire
+import requests
 import tqdm
 import yaml
 from pip._internal.operations import freeze
@@ -21,7 +25,7 @@ DEFAULT_BRANCH = "main"
 PUBLIC_BRANCH = "publication"
 URL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{DEFAULT_BRANCH}"
 ENV_DEVICE = "ACCELERATOR"
-DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, 'cpu').lower()
+DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, "cpu").lower()
 TEMPLATE_HEADER = f"""# %%%% [markdown]
 #
 # # %(title)s
@@ -41,7 +45,7 @@ TEMPLATE_HEADER = f"""# %%%% [markdown]
 
 """
 TEMPLATE_SETUP = """# %%%% [markdown]
-# ### Setup
+# ## Setup
 # This notebook requires some packages besides pytorch-lightning.
 
 # %%%% colab={} colab_type="code" id="LfrJLKPFyhsK"
@@ -75,15 +79,21 @@ TEMPLATE_FOOTER = """
 #
 # ### Great thanks from the entire Pytorch Lightning Team for your interest !
 #
-# ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png?raw=true){height="60px" height="60px" width="240px"}
+# ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png){height="60px" width="240px"}
 
+"""
+TEMPLATE_CARD_ITEM = """
+.. customcarditem::
+   :header: %(title)s
+   :card_description: %(short_description)s
+   :tags: %(tags)s
 """
 
 
 def default_requirements(path_req: str = PATH_REQ_DEFAULT) -> list:
-    with open(path_req, 'r') as fp:
+    with open(path_req) as fp:
         req = fp.readlines()
-    req = [r[:r.index("#")] if "#" in r else r for r in req]
+    req = [r[: r.index("#")] if "#" in r else r for r in req]
     req = [r.strip() for r in req]
     req = [r for r in req if r]
     return req
@@ -92,6 +102,7 @@ def default_requirements(path_req: str = PATH_REQ_DEFAULT) -> list:
 def get_running_cuda_version() -> str:
     try:
         import torch
+
         return torch.version.cuda or ""
     except ImportError:
         return ""
@@ -100,8 +111,9 @@ def get_running_cuda_version() -> str:
 def get_running_torch_version():
     try:
         import torch
+
         ver = torch.__version__
-        return ver[:ver.index('+')] if '+' in ver else ver
+        return ver[: ver.index("+")] if "+" in ver else ver
     except ImportError:
         return ""
 
@@ -110,8 +122,8 @@ TORCH_VERSION = get_running_torch_version()
 CUDA_VERSION = get_running_cuda_version()
 RUNTIME_VERSIONS = dict(
     TORCH_VERSION_FULL=TORCH_VERSION,
-    TORCH_VERSION=TORCH_VERSION[:TORCH_VERSION.index('+')] if '+' in TORCH_VERSION else TORCH_VERSION,
-    TORCH_MAJOR_DOT_MINOR='.'.join(TORCH_VERSION.split('.')[:2]),
+    TORCH_VERSION=TORCH_VERSION[: TORCH_VERSION.index("+")] if "+" in TORCH_VERSION else TORCH_VERSION,
+    TORCH_MAJOR_DOT_MINOR=".".join(TORCH_VERSION.split(".")[:2]),
     CUDA_VERSION=CUDA_VERSION,
     CUDA_MAJOR_MINOR=CUDA_VERSION.replace(".", ""),
     DEVICE=f"cu{CUDA_VERSION.replace('.', '')}" if CUDA_VERSION else "cpu",
@@ -121,20 +133,27 @@ RUNTIME_VERSIONS = dict(
 class HelperCLI:
 
     DIR_NOTEBOOKS = ".notebooks"
-    META_REQUIRED_FIELDS = ('title', 'author', 'license', 'description')
+    META_REQUIRED_FIELDS = ("title", "author", "license", "description")
     SKIP_DIRS = (
         ".actions",
         ".azure-pipelines",
         ".datasets",
         ".github",
         "docs",
+        "_TEMP",
         "requirements",
         DIR_NOTEBOOKS,
     )
     META_FILE_REGEX = ".meta.{yaml,yml}"
     REQUIREMENTS_FILE = "requirements.txt"
     PIP_ARGS_FILE = "pip_arguments.txt"
-    META_PIP_KEY = 'pip__'
+    META_PIP_KEY = "pip__"
+
+    # Map directory names to tag names. Note that dashes will be replaced with spaces in rendered tags in the docs.
+    DIR_TO_TAG = {
+        "course_UvA-DL": "UvA-DL-Course",
+        "lightning_examples": "Lightning-Examples",
+    }
 
     @staticmethod
     def _meta_file(folder: str) -> str:
@@ -145,10 +164,11 @@ class HelperCLI:
     @staticmethod
     def augment_script(fpath: str):
         """Add template header and footer to the python base script.
+
         Args:
             fpath: path to python script
         """
-        with open(fpath, "r") as fp:
+        with open(fpath) as fp:
             py_file = fp.readlines()
         fpath_meta = HelperCLI._meta_file(os.path.dirname(fpath))
         meta = yaml.safe_load(open(fpath_meta))
@@ -159,14 +179,15 @@ class HelperCLI:
             dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"),
             generated=datetime.now().isoformat(),
         )
-        meta['description'] = meta['description'].replace(os.linesep, f"{os.linesep}# ")
 
-        py_file = HelperCLI._replace_images(py_file, os.path.dirname(fpath))
+        meta["description"] = meta["description"].replace(os.linesep, f"{os.linesep}# ")
 
         header = TEMPLATE_HEADER % meta
         requires = set(default_requirements() + meta["requirements"])
         setup = TEMPLATE_SETUP % dict(requirements=" ".join([f'"{req}"' for req in requires]))
         py_file = [header + setup] + py_file + [TEMPLATE_FOOTER]
+
+        py_file = HelperCLI._replace_images(py_file, os.path.dirname(fpath))
 
         with open(fpath, "w") as fp:
             fp.writelines(py_file)
@@ -179,19 +200,35 @@ class HelperCLI:
             local_dir: relative path to the folder with script
         """
         md = os.linesep.join([ln.rstrip() for ln in lines])
-        imgs = []
+        p_imgs = []
+        # todo: add a rule to replace this paths only i md sections
         # because * is a greedy quantifier, trying to match as much as it can. Make it *?
-        imgs += re.findall(r"src=\"(.*?)\"", md)
-        imgs += re.findall(r"!\[.*?\]\((.*?)\)", md)
+        p_imgs += re.findall(r"src=\"(.*?)\"", md)
+        p_imgs += re.findall(r"!\[.*?\]\((.*?)\)", md)
 
         # update all images
-        for img in set(imgs):
-            url_path = '/'.join([URL_DOWNLOAD, local_dir, img])
-            # todo: add a rule to replace this paths only i md sections
-            md = md.replace(f'src="{img}"', f'src="{url_path}"')
-            md = md.replace(f']({img})', f']({url_path})')
+        for p_img in set(p_imgs):
+            if p_img.startswith("http://") or p_img.startswith("https://"):
+                url_path = p_img
+                im = requests.get(p_img, stream=True).raw.read()
+            else:
+                url_path = "/".join([URL_DOWNLOAD, local_dir, p_img])
+                p_local_img = os.path.join(local_dir, p_img)
+                with open(p_local_img, "rb") as fp:
+                    im = fp.read()
+            im_base64 = base64.b64encode(im).decode("utf-8")
+            _, ext = os.path.splitext(p_img)
+            md = md.replace(f'src="{p_img}"', f'src="{url_path}"')
+            md = md.replace(f"]({p_img})", f"](data:image/{ext[1:]};base64,{im_base64})")
 
         return [ln + os.linesep for ln in md.split(os.linesep)]
+
+    @staticmethod
+    def _is_ipynb_parent_dir(dir_path: str) -> bool:
+        if HelperCLI._meta_file(dir_path):
+            return True
+        sub_dirs = [d for d in glob.glob(os.path.join(dir_path, "*")) if os.path.isdir(d)]
+        return any(HelperCLI._is_ipynb_parent_dir(d) for d in sub_dirs)
 
     @staticmethod
     def group_folders(
@@ -200,6 +237,7 @@ class HelperCLI:
         fpath_drop_folders: str = "dropped-folders.txt",
         fpaths_actual_dirs: Sequence[str] = tuple(),
         strict: bool = True,
+        root_path: str = "",
     ) -> None:
         """Group changes by folders
         Args:
@@ -213,11 +251,12 @@ class HelperCLI:
             fpath_drop_folders: output file with deleted folders
             fpaths_actual_dirs: files with listed all folder in particular stat
             strict: raise error if some folder outside skipped does not have valid meta file
+            root_path: path to the root tobe added for all local folder paths in files
 
         Example:
             >> python helpers.py group-folders ../target-diff.txt --fpaths_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
         """
-        with open(fpath_gitdiff, "r") as fp:
+        with open(fpath_gitdiff) as fp:
             changed = [ln.strip() for ln in fp.readlines()]
         dirs = [os.path.dirname(ln) for ln in changed]
         # not empty paths
@@ -226,10 +265,12 @@ class HelperCLI:
         if fpaths_actual_dirs:
             assert isinstance(fpaths_actual_dirs, list)
             assert all(os.path.isfile(p) for p in fpaths_actual_dirs)
-            dir_sets = [set([ln.strip() for ln in open(fp).readlines()]) for fp in fpaths_actual_dirs]
+            dir_sets = [{ln.strip() for ln in open(fp).readlines()} for fp in fpaths_actual_dirs]
             # get only different
             dirs += list(set.union(*dir_sets) - set.intersection(*dir_sets))
 
+        if root_path:
+            dirs = [os.path.join(root_path, d) for d in dirs]
         # unique folders
         dirs = set(dirs)
         # drop folder with skip folder
@@ -238,9 +279,12 @@ class HelperCLI:
         dirs_exist = [d for d in dirs if os.path.isdir(d)]
         dirs_invalid = [d for d in dirs_exist if not HelperCLI._meta_file(d)]
         if strict and dirs_invalid:
-            raise FileNotFoundError(
-                f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}` \n {os.linesep.join(dirs_invalid)}"
-            )
+            msg = f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}`"
+            warn(f"{msg}: \n {os.linesep.join(dirs_invalid)}")
+            # check if there is other valid folder in its tree
+            dirs_invalid = [pd for pd in dirs_invalid if not HelperCLI._is_ipynb_parent_dir(pd)]
+            if dirs_invalid:
+                raise FileNotFoundError(f"{msg} nor sub-folder: \n {os.linesep.join(dirs_invalid)}")
 
         dirs_change = [d for d in dirs_exist if HelperCLI._meta_file(d)]
         with open(fpath_change_folders, "w") as fp:
@@ -261,15 +305,14 @@ class HelperCLI:
         meta = yaml.safe_load(open(fpath))
         pprint(meta)
 
-        req = meta.get('requirements', [])
+        req = meta.get("requirements", [])
         fname = os.path.join(dir_path, HelperCLI.REQUIREMENTS_FILE)
         print(f"File for requirements: {fname}")
         with open(fname, "w") as fp:
             fp.write(os.linesep.join(req))
 
         pip_args = {
-            k.replace(HelperCLI.META_PIP_KEY, ''): v
-            for k, v in meta.items() if k.startswith(HelperCLI.META_PIP_KEY)
+            k.replace(HelperCLI.META_PIP_KEY, ""): v for k, v in meta.items() if k.startswith(HelperCLI.META_PIP_KEY)
         }
         cmd_args = []
         for pip_key in pip_args:
@@ -285,26 +328,107 @@ class HelperCLI:
             fp.write(" ".join(cmd_args))
 
     @staticmethod
-    def copy_notebooks(path_root: str, path_docs_ipynb: str = "docs/source/notebooks"):
+    def _get_card_item_cell(path_ipynb: str, path_meta: str, path_thumb: Optional[str]) -> Dict[str, Any]:
+        """Build the card item cell for the given notebook path."""
+        meta = yaml.safe_load(open(path_meta))
+
+        # Clamp description length
+        wrapped_description = wrap(
+            meta.get("short_description", meta["description"]).strip().replace(os.linesep, " "), 175
+        )
+        suffix = "..." if len(wrapped_description) > 1 else ""
+        meta["short_description"] = wrapped_description[0] + suffix
+
+        # Resolve some default tags based on accelerators and directory name
+        meta["tags"] = meta.get("tags", [])
+
+        accelerators = meta.get("accelerator", ("CPU",))
+        if ("GPU" in accelerators) or ("TPU" in accelerators):
+            meta["tags"].append("GPU/TPU")
+
+        dirname = os.path.basename(os.path.dirname(path_ipynb))
+        if dirname != ".notebooks":
+            meta["tags"].append(HelperCLI.DIR_TO_TAG.get(dirname, dirname))
+
+        meta["tags"] = [tag.replace(" ", "-") for tag in meta["tags"]]
+        meta["tags"] = ",".join(meta["tags"])
+
+        # Build the notebook cell
+        rst_cell = TEMPLATE_CARD_ITEM % meta
+
+        # Split lines
+        rst_cell_lines = rst_cell.strip().splitlines(True)
+
+        if path_thumb is not None:
+            rst_cell_lines[-1] += "\n"
+            rst_cell_lines.append(f"   :image: {path_thumb}")
+
+        return {
+            "cell_type": "raw",
+            "metadata": {"raw_mimetype": "text/restructuredtext"},
+            "source": rst_cell_lines,
+        }
+
+    @staticmethod
+    def _resolve_path_thumb(path_ipynb: str, path_meta: str) -> Optional[str]:
+        """Find the thumbnail (assumes thumbnail to be any file that isn't metadata or notebook)."""
+        paths = list(set(glob.glob(path_ipynb.replace(".ipynb", ".*"))) - {path_ipynb, path_meta})
+        if len(paths) == 0:
+            return None
+        assert len(paths) == 1, f"Found multiple possible thumbnail paths for notebook: {path_ipynb}."
+        path_thumb = paths[0]
+        path_thumb = path_thumb.split(os.path.sep)
+        path_thumb = os.path.sep.join(path_thumb[path_thumb.index(HelperCLI.DIR_NOTEBOOKS) + 1 :])
+        return path_thumb
+
+    @staticmethod
+    def copy_notebooks(
+        path_root: str,
+        docs_root: str = "docs/source",
+        path_docs_ipynb: str = "notebooks",
+        path_docs_images: str = "_static/images",
+    ):
         """Copy all notebooks from a folder to doc folder.
+
         Args:
             path_root: source path to the project root in this tutorials
-            path_docs_ipynb: destination path to the notebooks location
+            docs_root: docs source directory
+            path_docs_ipynb: destination path to the notebooks location relative to ``docs_root``
+            path_docs_images: destination path to the images location relative to ``docs_root``
         """
         ls_ipynb = []
-        for sub in (['*.ipynb'], ['**', '*.ipynb']):
+        for sub in (["*.ipynb"], ["**", "*.ipynb"]):
             ls_ipynb += glob.glob(os.path.join(path_root, HelperCLI.DIR_NOTEBOOKS, *sub))
 
-        os.makedirs(path_docs_ipynb, exist_ok=True)
+        os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
         ipynb_content = []
         for path_ipynb in tqdm.tqdm(ls_ipynb):
             ipynb = path_ipynb.split(os.path.sep)
-            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(HelperCLI.DIR_NOTEBOOKS) + 1:])
-            new_ipynb = os.path.join(path_docs_ipynb, sub_ipynb)
+            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(HelperCLI.DIR_NOTEBOOKS) + 1 :])
+            new_ipynb = os.path.join(docs_root, path_docs_ipynb, sub_ipynb)
             os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
-            print(f'{path_ipynb} -> {new_ipynb}')
-            shutil.copy(path_ipynb, new_ipynb)
-            ipynb_content.append(os.path.join('notebooks', sub_ipynb))
+
+            path_meta = path_ipynb.replace(".ipynb", ".yaml")
+            path_thumb = HelperCLI._resolve_path_thumb(path_ipynb, path_meta)
+
+            if path_thumb is not None:
+                new_thumb = os.path.join(docs_root, path_docs_images, path_thumb)
+                old_path_thumb = os.path.join(path_root, HelperCLI.DIR_NOTEBOOKS, path_thumb)
+                os.makedirs(os.path.dirname(new_thumb), exist_ok=True)
+                copyfile(old_path_thumb, new_thumb)
+                path_thumb = os.path.join(path_docs_images, path_thumb)
+
+            print(f"{path_ipynb} -> {new_ipynb}")
+
+            with open(path_ipynb) as f:
+                ipynb = json.load(f)
+
+            ipynb["cells"].append(HelperCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb))
+
+            with open(new_ipynb, "w") as f:
+                json.dump(ipynb, f)
+
+            ipynb_content.append(os.path.join("notebooks", sub_ipynb))
 
     @staticmethod
     def valid_accelerator(dir_path: str):
@@ -316,7 +440,7 @@ class HelperCLI:
         assert fpath, f"Missing Meta file in {dir_path}"
         meta = yaml.safe_load(open(fpath))
         # default is CPU runtime
-        accels = [acc.lower() for acc in meta.get("accelerator", ('CPU'))]
+        accels = [acc.lower() for acc in meta.get("accelerator", ("CPU"))]
         dev_accels = DEVICE_ACCELERATOR.split(",")
         return int(any(ac in accels for ac in dev_accels))
 
@@ -332,24 +456,24 @@ class HelperCLI:
         # default is COU runtime
         with open(PATH_REQ_DEFAULT) as fp:
             req = fp.readlines()
-        req += meta.get('requirements', [])
+        req += meta.get("requirements", [])
         req = [r.strip() for r in req]
 
         def _parse(pkg: str, keys: str = " <=>") -> str:
-            """Parsing just the package name"""
+            """Parsing just the package name."""
             if any(c in pkg for c in keys):
-                ix = min([pkg.index(c) for c in keys if c in pkg])
+                ix = min(pkg.index(c) for c in keys if c in pkg)
                 pkg = pkg[:ix]
             return pkg
 
-        require = set([_parse(r) for r in req if r])
+        require = {_parse(r) for r in req if r}
         env = {_parse(p): p for p in freeze.freeze()}
-        meta['environment'] = [env[r] for r in require]
-        meta['published'] = datetime.now().isoformat()
+        meta["environment"] = [env[r] for r in require]
+        meta["published"] = datetime.now().isoformat()
 
         fmeta = os.path.join(HelperCLI.DIR_NOTEBOOKS, dir_path) + ".yaml"
-        yaml.safe_dump(meta, stream=open(fmeta, 'w'), sort_keys=False)
+        yaml.safe_dump(meta, stream=open(fmeta, "w"), sort_keys=False)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     fire.Fire(HelperCLI)
