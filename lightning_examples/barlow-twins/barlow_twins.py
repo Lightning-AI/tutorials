@@ -55,14 +55,7 @@ z_dim = 128
 
 # %%
 class BarlowTwinsTransform:
-    def __init__(
-        self,
-        train=True,
-        input_height=224,
-        gaussian_blur=True,
-        jitter_strength=1.0,
-        normalize=None
-    ):
+    def __init__(self, train=True, input_height=224, gaussian_blur=True, jitter_strength=1.0, normalize=None):
 
         self.input_height = input_height
         self.gaussian_blur = gaussian_blur
@@ -104,11 +97,13 @@ class BarlowTwinsTransform:
 
         self.finetune_transform = None
         if self.train:
-            self.finetune_transform = transforms.Compose([
-                transforms.RandomCrop(32, padding=4, padding_mode="reflect"),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-            ])
+            self.finetune_transform = transforms.Compose(
+                [
+                    transforms.RandomCrop(32, padding=4, padding_mode="reflect"),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.ToTensor(),
+                ]
+            )
         else:
             self.finetune_transform = transforms.ToTensor()
 
@@ -154,6 +149,7 @@ for batch in val_loader:
 
 img_grid = make_grid(img1, normalize=True)
 
+
 def show(imgs):
     if not isinstance(imgs, list):
         imgs = [imgs]
@@ -163,6 +159,7 @@ def show(imgs):
         img = VisionF.to_pil_image(img)
         axs[0, i].imshow(np.asarray(img))
         axs[0, i].set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
+
 
 show(img_grid)
 
@@ -335,7 +332,6 @@ class BarlowTwins(LightningModule):
 
 # %%
 class OnlineFineTuner(Callback):
-
     def __init__(
         self,
         encoder_output_dim: int,
@@ -348,16 +344,10 @@ class OnlineFineTuner(Callback):
         self.encoder_output_dim = encoder_output_dim
         self.num_classes = num_classes
 
-    def on_pretrain_routine_start(
-        self,
-        trainer: pl.Trainer,
-        pl_module: pl.LightningModule
-    ) -> None:
+    def on_pretrain_routine_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
 
         # add linear_eval layer and optimizer
-        pl_module.online_finetuner = nn.Linear(
-            self.encoder_output_dim, self.num_classes
-        ).to(pl_module.device)
+        pl_module.online_finetuner = nn.Linear(self.encoder_output_dim, self.num_classes).to(pl_module.device)
         self.optimizer = torch.optim.Adam(pl_module.online_finetuner.parameters(), lr=1e-4)
 
     def extract_online_finetuning_view(
@@ -392,8 +382,8 @@ class OnlineFineTuner(Callback):
         self.optimizer.zero_grad()
 
         acc = accuracy(F.softmax(preds, dim=1), y)
-        pl_module.log('online_train_acc', acc, on_step=True, on_epoch=False)
-        pl_module.log('online_train_loss', loss, on_step=True, on_epoch=False)
+        pl_module.log("online_train_acc", acc, on_step=True, on_epoch=False)
+        pl_module.log("online_train_loss", loss, on_step=True, on_epoch=False)
 
     def on_validation_batch_end(
         self,
@@ -414,8 +404,8 @@ class OnlineFineTuner(Callback):
         loss = F.cross_entropy(preds, y)
 
         acc = accuracy(F.softmax(preds, dim=1), y)
-        pl_module.log('online_val_acc', acc, on_step=False, on_epoch=True, sync_dist=True)
-        pl_module.log('online_val_loss', loss, on_step=False, on_epoch=True, sync_dist=True)
+        pl_module.log("online_val_acc", acc, on_step=False, on_epoch=True, sync_dist=True)
+        pl_module.log("online_val_loss", loss, on_step=False, on_epoch=True, sync_dist=True)
 
 
 # %% [markdown]
