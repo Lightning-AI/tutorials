@@ -20,18 +20,29 @@
 
 # %%
 from functools import partial
-from typing import Callable, List, Optional, Type, Union
+from typing import Callable, List, Optional, Type, Union, Sequence, Tuple
 
+import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+import torchvision.transforms.functional as VisionF
 import torchvision.transforms as transforms
-from pytorch_lightning import LightningModule, Trainer
+import pytorch_lightning as pl
+import matplotlib.pyplot as plt
+
 from torch import Tensor
 from torch.utils.data import DataLoader
+from torchvision.utils import make_grid
 from torchvision.datasets import CIFAR10
+from torchvision.models.resnet import resnet18
+from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning import Callback
+from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.metrics.functional import accuracy
 
 batch_size = 32
-num_workers = 4
+num_workers = 0  # to run notebook on CPU
 max_epochs = 200
 z_dim = 128
 
@@ -42,15 +53,25 @@ z_dim = 128
 # We first define the data augmentation pipeline used in Barlow Twins. Here, we use pipeline proposed in SimCLR, which generates two copies/views of an input image by applying the following transformations in a sequence.
 #
 # First it takes a random crop of the image and resizes it to a fixed pre-specified size. Then, it applies a left-to-right random flip with a probability of 0.5. This step is followed by a composition of color jitter, conversion to grayscale with a probability of 0.2 and the application of a Gaussian blur filter. Finally, we normalize the image and convert it to a tensor.
+#
+# Within this transform, we add a third view for our online finetuner, which we explain later on. But, to explain things quickly here, we add a another transform to perform perform test our encoder on a downstream classification task.
 
 # %%
 class BarlowTwinsTransform:
-    def __init__(self, input_height=224, gaussian_blur=True, jitter_strength=1.0, normalize=None):
+    def __init__(
+        self,
+        train=True,
+        input_height=224,
+        gaussian_blur=True,
+        jitter_strength=1.0,
+        normalize=None
+    ):
 
         self.input_height = input_height
         self.gaussian_blur = gaussian_blur
         self.jitter_strength = jitter_strength
         self.normalize = normalize
+        self.train = train
 
         color_jitter = transforms.ColorJitter(
             0.8 * self.jitter_strength,
@@ -84,8 +105,18 @@ class BarlowTwinsTransform:
             ]
         )
 
+        self.finetune_transform = None
+        if self.train:
+            self.finetune_transform = transforms.Compose([
+                transforms.RandomCrop(32, padding=4, padding_mode="reflect"),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+            ])
+        else:
+            self.finetune_transform = transforms.ToTensor()
+
     def __call__(self, sample):
-        return self.transform(sample), self.transform(sample)
+        return self.transform(sample), self.transform(sample), self.finetune_transform(sample)
 
 
 # %% [markdown]
@@ -102,21 +133,41 @@ def cifar10_normalization():
 
 
 train_transform = BarlowTwinsTransform(
-    input_height=32, gaussian_blur=False, jitter_strength=0.5, normalize=cifar10_normalization()
+    train=True, input_height=32, gaussian_blur=False, jitter_strength=0.5, normalize=cifar10_normalization()
 )
 train_dataset = CIFAR10(root=".", train=True, download=True, transform=train_transform)
 
 val_transform = BarlowTwinsTransform(
-    input_height=32, gaussian_blur=False, jitter_strength=0.5, normalize=cifar10_normalization()
+    train=False, input_height=32, gaussian_blur=False, jitter_strength=0.5, normalize=cifar10_normalization()
 )
 val_dataset = CIFAR10(root=".", train=False, download=True, transform=train_transform)
 
-train_loader = DataLoader(
-    train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, drop_last=True, pin_memory=True
-)
-val_loader = DataLoader(
-    val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, drop_last=True, pin_memory=True
-)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, drop_last=True)
+val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, drop_last=True)
+
+# %% [markdown]
+# ### Plot images
+#
+# To see how the CIFAR10 images look after the data augmentation pipeline, we load a few images from the dataloader and plot them here.
+
+# %%
+for batch in val_loader:
+    (img1, img2, _), label = batch
+    break
+
+img_grid = make_grid(img1, normalize=True)
+
+def show(imgs):
+    if not isinstance(imgs, list):
+        imgs = [imgs]
+    fix, axs = plt.subplots(ncols=len(imgs), squeeze=False)
+    for i, img in enumerate(imgs):
+        img = img.detach()
+        img = VisionF.to_pil_image(img)
+        axs[0, i].imshow(np.asarray(img))
+        axs[0, i].set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
+
+show(img_grid)
 
 
 # %% [markdown]
@@ -161,282 +212,14 @@ class BarlowTwinsLoss(nn.Module):
 # This is a standard Resnet backbone that we pre-train using the Barlow Twins method. To accommodate the 32x32 CIFAR10 images, we replace the first 7x7 convolution of the Resnet backbone by a 3x3 filter. We also remove the first Maxpool layer from the network for CIFAR10 images.
 
 # %%
-def conv3x3(in_planes: int, out_planes: int, stride: int = 1, groups: int = 1, dilation: int = 1) -> nn.Conv2d:
-    """3x3 convolution with padding."""
-    return nn.Conv2d(
-        in_planes,
-        out_planes,
-        kernel_size=3,
-        stride=stride,
-        padding=dilation,
-        groups=groups,
-        bias=False,
-        dilation=dilation,
-    )
+encoder = resnet18()
 
+# for CIFAR10, replace the first 7x7 conv with smaller 3x3 conv and remove the first maxpool
+encoder.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
+encoder.maxpool = nn.MaxPool2d(kernel_size=1, stride=1)
 
-def conv1x1(in_planes: int, out_planes: int, stride: int = 1) -> nn.Conv2d:
-    """1x1 convolution."""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
-
-
-class BasicBlock(nn.Module):
-    expansion: int = 1
-    __constants__ = ["downsample"]
-
-    def __init__(
-        self,
-        inplanes: int,
-        planes: int,
-        stride: int = 1,
-        downsample: Optional[nn.Module] = None,
-        groups: int = 1,
-        base_width: int = 64,
-        dilation: int = 1,
-        norm_layer: Optional[Callable[..., nn.Module]] = None,
-    ) -> None:
-        super().__init__()
-        if norm_layer is None:
-            norm_layer = nn.BatchNorm2d
-        if groups != 1 or base_width != 64:
-            raise ValueError("BasicBlock only supports groups=1 and base_width=64")
-        if dilation > 1:
-            raise NotImplementedError("Dilation > 1 not supported in BasicBlock")
-        # Both self.conv1 and self.downsample layers downsample the input when stride != 1
-        self.conv1 = conv3x3(inplanes, planes, stride)
-        self.bn1 = norm_layer(planes)
-        self.relu = nn.ReLU(inplace=True)
-        self.conv2 = conv3x3(planes, planes)
-        self.bn2 = norm_layer(planes)
-        self.downsample = downsample
-        self.stride = stride
-
-    def forward(self, x: Tensor) -> Tensor:
-        identity = x
-
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
-
-        out = self.conv2(out)
-        out = self.bn2(out)
-
-        if self.downsample is not None:
-            identity = self.downsample(x)
-
-        out += identity
-        out = self.relu(out)
-
-        return out
-
-
-class Bottleneck(nn.Module):
-    # Bottleneck in torchvision places the stride for downsampling at 3x3 convolution(self.conv2)
-    # while original implementation places the stride at the first 1x1 convolution(self.conv1)
-    # according to "Deep residual learning for image recognition"https://arxiv.org/abs/1512.03385.
-    # This variant is also known as ResNet V1.5 and improves accuracy according to
-    # https://ngc.nvidia.com/catalog/model-scripts/nvidia:resnet_50_v1_5_for_pytorch.
-
-    expansion: int = 4
-    __constants__ = ["downsample"]
-
-    def __init__(
-        self,
-        inplanes: int,
-        planes: int,
-        stride: int = 1,
-        downsample: Optional[nn.Module] = None,
-        groups: int = 1,
-        base_width: int = 64,
-        dilation: int = 1,
-        norm_layer: Optional[Callable[..., nn.Module]] = None,
-    ) -> None:
-        super().__init__()
-        if norm_layer is None:
-            norm_layer = nn.BatchNorm2d
-        width = int(planes * (base_width / 64.0)) * groups
-        # Both self.conv2 and self.downsample layers downsample the input when stride != 1
-        self.conv1 = conv1x1(inplanes, width)
-        self.bn1 = norm_layer(width)
-        self.conv2 = conv3x3(width, width, stride, groups, dilation)
-        self.bn2 = norm_layer(width)
-        self.conv3 = conv1x1(width, planes * self.expansion)
-        self.bn3 = norm_layer(planes * self.expansion)
-        self.relu = nn.ReLU(inplace=True)
-        self.downsample = downsample
-        self.stride = stride
-
-    def forward(self, x: Tensor) -> Tensor:
-        identity = x
-
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
-
-        out = self.conv2(out)
-        out = self.bn2(out)
-        out = self.relu(out)
-
-        out = self.conv3(out)
-        out = self.bn3(out)
-
-        if self.downsample is not None:
-            identity = self.downsample(x)
-
-        out += identity
-        out = self.relu(out)
-
-        return out
-
-
-class ResNet(nn.Module):
-    def __init__(
-        self,
-        block: Type[Union[BasicBlock, Bottleneck]],
-        layers: List[int],
-        zero_init_residual: bool = False,
-        groups: int = 1,
-        widen: int = 1,
-        width_per_group: int = 64,
-        replace_stride_with_dilation: Optional[List[bool]] = None,
-        norm_layer: Optional[Callable[..., nn.Module]] = None,
-        first_conv3x3: bool = False,
-        remove_first_maxpool: bool = False,
-    ) -> None:
-
-        super().__init__()
-
-        if norm_layer is None:
-            norm_layer = nn.BatchNorm2d
-        self._norm_layer = norm_layer
-
-        self.inplanes = width_per_group * widen
-        self.dilation = 1
-        if replace_stride_with_dilation is None:
-            # each element in the tuple indicates if we should replace
-            # the 2x2 stride with a dilated convolution instead
-            replace_stride_with_dilation = [False, False, False]
-        if len(replace_stride_with_dilation) != 3:
-            raise ValueError(
-                "replace_stride_with_dilation should be None "
-                "or a 3-element tuple, got {}".format(replace_stride_with_dilation)
-            )
-        self.groups = groups
-        self.base_width = width_per_group
-
-        num_out_filters = width_per_group * widen
-
-        if first_conv3x3:
-            self.conv1 = nn.Conv2d(3, num_out_filters, kernel_size=3, stride=1, padding=1, bias=False)
-        else:
-            self.conv1 = nn.Conv2d(3, num_out_filters, kernel_size=7, stride=2, padding=3, bias=False)
-
-        self.bn1 = norm_layer(num_out_filters)
-        self.relu = nn.ReLU(inplace=True)
-
-        if remove_first_maxpool:
-            self.maxpool = nn.MaxPool2d(kernel_size=1, stride=1)
-        else:
-            self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-
-        self.layer1 = self._make_layer(block, num_out_filters, layers[0])
-        num_out_filters *= 2
-        self.layer2 = self._make_layer(
-            block, num_out_filters, layers[1], stride=2, dilate=replace_stride_with_dilation[0]
-        )
-        num_out_filters *= 2
-        self.layer3 = self._make_layer(
-            block, num_out_filters, layers[2], stride=2, dilate=replace_stride_with_dilation[1]
-        )
-        num_out_filters *= 2
-        self.layer4 = self._make_layer(
-            block, num_out_filters, layers[3], stride=2, dilate=replace_stride_with_dilation[2]
-        )
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
-            elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
-                nn.init.constant_(m.weight, 1)
-                nn.init.constant_(m.bias, 0)
-
-        # Zero-initialize the last BN in each residual branch,
-        # so that the residual branch starts with zeros, and each residual block behaves like an identity.
-        # This improves the model by 0.2~0.3% according to https://arxiv.org/abs/1706.02677
-        if zero_init_residual:
-            for m in self.modules():
-                if isinstance(m, Bottleneck):
-                    nn.init.constant_(m.bn3.weight, 0)
-                elif isinstance(m, BasicBlock):
-                    nn.init.constant_(m.bn2.weight, 0)
-
-    def _make_layer(
-        self,
-        block: Type[Union[BasicBlock, Bottleneck]],
-        planes: int,
-        blocks: int,
-        stride: int = 1,
-        dilate: bool = False,
-    ) -> nn.Sequential:
-        norm_layer = self._norm_layer
-        downsample = None
-        previous_dilation = self.dilation
-        if dilate:
-            self.dilation *= stride
-            stride = 1
-        if stride != 1 or self.inplanes != planes * block.expansion:
-            downsample = nn.Sequential(
-                conv1x1(self.inplanes, planes * block.expansion, stride),
-                norm_layer(planes * block.expansion),
-            )
-
-        layers = []
-        layers.append(
-            block(
-                self.inplanes,
-                planes,
-                stride,
-                downsample,
-                self.groups,
-                self.base_width,
-                previous_dilation,
-                norm_layer,
-            )
-        )
-        self.inplanes = planes * block.expansion
-        for _ in range(1, blocks):
-            layers.append(
-                block(
-                    self.inplanes,
-                    planes,
-                    groups=self.groups,
-                    base_width=self.base_width,
-                    dilation=self.dilation,
-                    norm_layer=norm_layer,
-                )
-            )
-
-        return nn.Sequential(*layers)
-
-    def forward(self, x: Tensor) -> Tensor:
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
-        x = self.maxpool(x)
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = self.layer4(x)
-
-        x = self.avgpool(x)
-        x = torch.flatten(x, 1)
-
-        return x
-
-
-def resnet18(**kwargs):
-    return ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
+# replace classification fc layer of Resnet to obtain representations from the backbone
+encoder.fc = nn.Identity()
 
 
 # %% [markdown]
@@ -512,7 +295,7 @@ class BarlowTwins(LightningModule):
         return self.encoder(x)
 
     def shared_step(self, batch):
-        (x1, x2), _ = batch
+        (x1, x2, _), _ = batch
 
         z1 = self.projection_head(self.encoder(x1))
         z2 = self.projection_head(self.encoder(x2))
@@ -549,10 +332,99 @@ class BarlowTwins(LightningModule):
 
 
 # %% [markdown]
+# ### Evaluation
+#
+# We define a callback which appends a linear layer on top of the encoder and trains the classification evaluation head in an online manner. We make sure not to backpropagate the gradients back to the encoder while tuning the linear layer. This technique was used in SimCLR as well and they showed that the final downstream classification peformance is pretty much similar to the results on online finetuning as the training progresses.
+
+# %%
+class OnlineFineTuner(Callback):
+
+    def __init__(
+        self,
+        encoder_output_dim: int,
+        num_classes: int,
+    ) -> None:
+        super().__init__()
+
+        self.optimizer: torch.optim.Optimizer
+
+        self.encoder_output_dim = encoder_output_dim
+        self.num_classes = num_classes
+
+    def on_pretrain_routine_start(
+        self,
+        trainer: pl.Trainer,
+        pl_module: pl.LightningModule
+    ) -> None:
+
+        # add linear_eval layer and optimizer
+        pl_module.online_finetuner = nn.Linear(
+            self.encoder_output_dim, self.num_classes
+        ).to(pl_module.device)
+        self.optimizer = torch.optim.Adam(pl_module.online_finetuner.parameters(), lr=1e-4)
+
+    def extract_online_finetuning_view(
+        self, batch: Sequence, device: Union[str, torch.device]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        (_, _, finetune_view), y = batch
+        finetune_view = finetune_view.to(device)
+        y = y.to(device)
+
+        return finetune_view, y
+
+    def on_train_batch_end(
+        self,
+        trainer: pl.Trainer,
+        pl_module: pl.LightningModule,
+        outputs: Sequence,
+        batch: Sequence,
+        batch_idx: int,
+        dataloader_idx: int,
+    ) -> None:
+        x, y = self.extract_online_finetuning_view(batch, pl_module.device)
+
+        with torch.no_grad():
+            feats = pl_module(x)
+
+        feats = feats.detach()
+        preds = pl_module.online_finetuner(feats)
+        loss = F.cross_entropy(preds, y)
+
+        loss.backward()
+        self.optimizer.step()
+        self.optimizer.zero_grad()
+
+        acc = accuracy(F.softmax(preds, dim=1), y)
+        pl_module.log('online_train_acc', acc, on_step=True, on_epoch=False)
+        pl_module.log('online_train_loss', loss, on_step=True, on_epoch=False)
+
+    def on_validation_batch_end(
+        self,
+        trainer: pl.Trainer,
+        pl_module: pl.LightningModule,
+        outputs: Sequence,
+        batch: Sequence,
+        batch_idx: int,
+        dataloader_idx: int,
+    ) -> None:
+        x, y = self.extract_online_finetuning_view(batch, pl_module.device)
+
+        with torch.no_grad():
+            feats = pl_module(x)
+
+        feats = feats.detach()
+        preds = pl_module.online_finetuner(feats)
+        loss = F.cross_entropy(preds, y)
+
+        acc = accuracy(F.softmax(preds, dim=1), y)
+        pl_module.log('online_val_acc', acc, on_step=False, on_epoch=True, sync_dist=True)
+        pl_module.log('online_val_loss', loss, on_step=False, on_epoch=True, sync_dist=True)
+
+
+# %% [markdown]
 # Finally, we define the trainer for training the model. We pass in the ``train_loader`` and ``val_loader`` we had initialized earlier to the ``fit`` function.
 
 # %%
-encoder = resnet18(first_conv3x3=True, remove_first_maxpool=True)
 encoder_out_dim = 512
 
 model = BarlowTwins(
@@ -563,12 +435,37 @@ model = BarlowTwins(
     z_dim=z_dim,
 )
 
+online_finetuner = OnlineFineTuner(encoder_output_dim=encoder_out_dim, num_classes=10)
+checkpoint_callback = ModelCheckpoint(every_n_val_epochs=100, save_top_k=-1, save_last=True)
+
 trainer = Trainer(
     max_epochs=max_epochs,
     gpus=torch.cuda.device_count(),
     precision=16 if torch.cuda.device_count() > 0 else 32,
+    callbacks=[online_finetuner, checkpoint_callback],
     max_steps=3,  # this is done for the tutorial so that the notebook compiles
 )
+
 trainer.fit(model, train_loader, val_loader)
 
+# %% [markdown]
+# ### Using the trained encoder for downstream tasks
+#
+# Once the encoder is pretrained on CIFAR10, we can use it to get image embeddings and use them further downstream on tasks like classification, detection, segmentation etc.
+#
+# In this tutorial, we did not completely train our encoder for 100s of epochs using the Barlow Twins pretraining method. So, we will load the pretrained encoder weights from a checkpoint and show the image embeddings obtained from that.
+#
+# To create this checkpoint, the encoder was pretrained for 200 epochs, and obtained a online finetune accuracy of x% on CIFAR-10.
+
 # %%
+# ckpt_model = torch.load('')  # upload checkpoint to aws
+# encoder = ckpt_model.encoder
+encoder = model.encoder
+
+downstream_dataset = CIFAR10(root=".", train=False, transform=transforms.ToTensor())
+dataloader = DataLoader(downstream_dataset, batch_size=4, shuffle=False)
+
+for batch in dataloader:
+    img, label = batch
+    print(encoder(img).shape)
+    break
