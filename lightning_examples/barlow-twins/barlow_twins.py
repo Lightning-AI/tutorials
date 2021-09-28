@@ -20,7 +20,7 @@
 
 # %%
 from functools import partial
-from typing import Callable, List, Optional, Sequence, Tuple, Type, Union
+from typing import Sequence, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -33,7 +33,6 @@ import torchvision.transforms.functional as VisionF
 from pytorch_lightning import Callback, LightningModule, Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.metrics.functional import accuracy
-from torch import Tensor
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
 from torchvision.models.resnet import resnet18
