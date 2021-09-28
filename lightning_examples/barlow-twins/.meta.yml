@@ -15,6 +15,7 @@ description: |
   case study.
 requirements:
   - torchvision
+  - matplotlib
 accelerator:
   - GPU
   - CPU
