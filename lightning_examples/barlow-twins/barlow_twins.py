@@ -430,10 +430,11 @@ trainer = Trainer(
     gpus=torch.cuda.device_count(),
     precision=16 if torch.cuda.device_count() > 0 else 32,
     callbacks=[online_finetuner, checkpoint_callback],
-    max_steps=3,  # this is done for the tutorial so that the notebook compiles
 )
 
-trainer.fit(model, train_loader, val_loader)
+# uncomment this to train the model
+# this is done for the tutorial so that the notebook compiles
+# trainer.fit(model, train_loader, val_loader)
 
 # %% [markdown]
 # ### Using the trained encoder for downstream tasks
