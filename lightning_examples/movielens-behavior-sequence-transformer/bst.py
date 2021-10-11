@@ -505,24 +505,8 @@ class BST(pl.LightningModule):
         self.log("val/mae", avg_mae, on_step=False, on_epoch=True, prog_bar=False)
         self.log("val/rmse", avg_rmse, on_step=False, on_epoch=True, prog_bar=False)
 
-    def test_epoch_end(self, outputs):
-        users = torch.cat([x["users"] for x in outputs])
-        y_hat = torch.cat([x["top14"] for x in outputs])
-        users = users.tolist()
-        y_hat = y_hat.tolist()
-
-        data = {"users": users, "top14": y_hat}
-        df = pd.DataFrame.from_dict(data)
-        df.to_csv("lightning_logs/predict.csv", index=False)
-
     def configure_optimizers(self):
         return torch.optim.AdamW(self.parameters(), lr=0.0005)
-
-    @staticmethod
-    def add_model_specific_args(parent_parser):
-        parser = ArgumentParser(parents=[parent_parser], add_help=False)
-        parser.add_argument("--learning_rate", type=float, default=0.01)
-        return parser
 
     ####################
     # DATA RELATED HOOKS
