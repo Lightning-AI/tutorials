@@ -1,4 +1,5 @@
 # %% [markdown]
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/waVZDFR-06U" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 # Methods for self-supervised learning try to learn as much as possible from the data alone, so it can quickly be finetuned for a specific classification task.
 # The benefit of self-supervised learning is that a large dataset can often easily be obtained.
 # For instance, if we want to train a vision model on semantic segmentation for autonomous driving, we can collect large amounts of data by simply installing a camera in a car, and driving through a city for an hour.
@@ -426,6 +427,7 @@ simclr_model = train_simclr(
 # %% [markdown]
 # ## Logistic Regression
 #
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/o3FktysLLd4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 # After we have trained our model via contrastive learning, we can deploy it on downstream tasks and see how well it performs with little data.
 # A common setup, which also verifies whether the model has learned generalized representations, is to perform Logistic Regression on the features.
 # In other words, we learn a single, linear layer that maps the representations to a class prediction.

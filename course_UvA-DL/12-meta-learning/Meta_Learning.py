@@ -1,4 +1,5 @@
 # %% [markdown]
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/035rkmT8FfE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 # Meta-Learning offers solutions to these situations, and we will discuss three popular algorithms: __Prototypical Networks__ ([Snell et al., 2017](https://arxiv.org/pdf/1703.05175.pdf)), __Model-Agnostic Meta-Learning / MAML__ ([Finn et al., 2017](http://proceedings.mlr.press/v70/finn17a.html)), and __Proto-MAML__ ([Triantafillou et al., 2020](https://openreview.net/pdf?id=rkgAGAVKPr)).
 # We will focus on the task of few-shot classification where the training and test set have distinct sets of classes.
 # For instance, we would train the model on the binary classifications of cats-birds and flowers-bikes, but during test time, the model would need to learn from 4 examples each the difference between dogs and otters, two classes we have not seen during training (Figure credit - [Lilian Weng](https://lilianweng.github.io/lil-log/2018/11/30/meta-learning.html)).
@@ -401,6 +402,8 @@ plt.close(fig)
 
 # %% [markdown]
 # ## Prototypical Networks
+#
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/LhZGPOtTd_Y" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 
 # %% [markdown]
 # The Prototypical Network, or ProtoNet for short, is a metric-based meta-learning algorithm which operates similar to a nearest neighbor classification.
@@ -743,6 +746,8 @@ plt.close()
 
 # %% [markdown]
 # ## MAML and ProtoMAML
+#
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/xKcA6g-esH4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 
 # %% [markdown]
 # The second meta-learning algorithm we will look at is MAML, short for Model-Agnostic Meta-Learning.
