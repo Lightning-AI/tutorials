@@ -48,6 +48,9 @@ DATASET_URL = 'http://files.grouplens.org/datasets/movielens/ml-1m.zip'
 # %% [markdown]
 # # Data
 
+# %% [markdown]
+# Lets download the data and read it with pandas
+
 # %%
 urlretrieve(DATASET_URL, "movielens.zip")
 ZipFile("movielens.zip", "r").extractall()
@@ -71,6 +74,9 @@ movies = pd.read_csv(
 
 # %% [markdown]
 # ## Preprocessing data
+
+# %% [markdown]
+# Making sure all data types are as expected for our preprocessing
 
 # %%
 # Movies
@@ -98,17 +104,7 @@ users["zip_code"] = users.zip_code.cat.codes
 ratings['unix_timestamp'] = pd.to_datetime(ratings['unix_timestamp'], unit='s')
 
 
-# %%
-# Save primary csv's for later usage
-if not os.path.exists('data'):
-    os.makedirs('data')
-
-
-users.to_csv("data/users.csv", index=False)
-movies.to_csv("data/movies.csv", index=False)
-ratings.to_csv("data/ratings.csv", index=False)
-
-# %%
+# %% id="6_CC3yYCLxVN"
 # Movies
 movies["movie_id"] = movies["movie_id"].astype(str)
 # Users
@@ -117,7 +113,6 @@ users["user_id"] = users["user_id"].astype(str)
 ratings["movie_id"] = ratings["movie_id"].astype(str)
 ratings["user_id"] = ratings["user_id"].astype(str)
 
-# %% id="6_CC3yYCLxVN"
 genres = [
     "Action",
     "Adventure",
@@ -157,6 +152,40 @@ for genre in genres:
 # (sorted by rating datetime): the movies they have rated, and the ratings of these movies.
 
 # %% id="D5v700zTLxVN"
+# Transform all ids and ratings into strings to join them.
+# Movies
+movies["movie_id"] = movies["movie_id"].astype(str)
+# Users
+users["user_id"] = users["user_id"].astype(str)
+# Ratings
+ratings["movie_id"] = ratings["movie_id"].astype(str)
+ratings["user_id"] = ratings["user_id"].astype(str)
+
+genres = [
+    "Action",
+    "Adventure",
+    "Animation",
+    "Children's",
+    "Comedy",
+    "Crime",
+    "Documentary",
+    "Drama",
+    "Fantasy",
+    "Film-Noir",
+    "Horror",
+    "Musical",
+    "Mystery",
+    "Romance",
+    "Sci-Fi",
+    "Thriller",
+    "War",
+    "Western",
+]
+
+for genre in genres:
+    movies[genre] = movies["genres"].apply(
+        lambda values: int(genre in values.split("|"))
+    )
 ratings_grouped = ratings.sort_values(by=["unix_timestamp"]).groupby("user_id")
 
 ratings_ordered = pd.DataFrame(
@@ -173,8 +202,29 @@ ratings_ordered = pd.DataFrame(
 # We do the same for the `ratings`. Set the `WINDOW_SIZE` variable to change the length
 # of the input sequence to the model. You can also change the `step_size` to control the
 # number of sequences to generate for each user.
+#
+# Now that we have the ordered sequence of `movie_id/ratings` per each user we can split them into subsequences of fixed length for our model training. 
+#
+# In each of the subsequences we will use the latest rated movie as target, using previous ratings as input to the model. Here is an image to represent the processing 
+#
+# ![ratings.png](ratings.png)
+#
+#
 
 # %% id="XdhRJlxULxVN"
+# ##########
+# Transform a big sequence into fixed length smaller sequences given a window size
+# Example:
+#     a = [1,2,3,4,5,6,7,8,9,10]
+#     create_sequences(a. 5)
+#     output:     [[1, 2, 3, 4, 5],
+#                  [2, 3, 4, 5, 6],
+#                  [3, 4, 5, 6, 7],
+#                  [4, 5, 6, 7, 8],
+#                  [5, 6, 7, 8, 9],
+#                  [6, 7, 8, 9, 10]]
+# #########
+
 def create_sequences(values, window_size):
     sequences = []
     start = 0
@@ -241,6 +291,10 @@ train_data = ratings_data_transformed[grouped_ratings.cumcount(ascending=False) 
 test_data = grouped_ratings.tail(1)
 
 
+# Save primary csv's for later usage
+if not os.path.exists('data'):
+    os.makedirs('data')
+    
 train_data.to_csv("data/train_data.csv", index=False, sep=",")
 test_data.to_csv("data/test_data.csv", index=False, sep=",")
 
@@ -248,21 +302,8 @@ test_data.to_csv("data/test_data.csv", index=False, sep=",")
 # # BST Implementation and training
 
 
-# %%
-users = pd.read_csv(
-    "data/users.csv",
-    sep=",",
-)
-
-ratings = pd.read_csv(
-    "data/ratings.csv",
-    sep=",",
-)
-
-movies = pd.read_csv(
-    "data/movies.csv", sep=","
-)
-
+# %% [markdown]
+# We will implement all necessary pytorch code to run our experiment with BST. Lets start with the dataset that will load our sequences
 
 # %% [markdown]
 # ## Pytorch dataset
@@ -307,41 +348,27 @@ class MovieDataset(data.Dataset):
         return user_id, movie_history, target_movie_id, movie_history_ratings, target_movie_rating, sex, age_group, occupation
 
 
-# %%
-genres = [
-    "Action",
-    "Adventure",
-    "Animation",
-    "Children's",
-    "Comedy",
-    "Crime",
-    "Documentary",
-    "Drama",
-    "Fantasy",
-    "Film-Noir",
-    "Horror",
-    "Musical",
-    "Mystery",
-    "Romance",
-    "Sci-Fi",
-    "Thriller",
-    "War",
-    "Western",
-]
-
-for genre in genres:
-    movies[genre] = movies["genres"].apply(
-        lambda values: int(genre in values.split("|"))
-    )
-
-
 # %% [markdown]
 # # Model
 
 # %% [markdown]
-# We will now define the BST architecture from Alibaba with minor changes to accomodate movielens datas
+# The model consist on a set of embedding layers for both user and movie ID as well as embedding layers for all their features (genre, sex, occupation etc). It concatenates these embeddings to create vectors for each item of the sequence and pass them throught a Transformer layers that consist only on the encoder block of the transformer. Transformer output is then set to a multilayer feedforward and ends with a single neuron predicting the probability of a user clicking on an item. 
+#
+# We will change the sigmoid for a regular relu in order to predict the rating and do the neccesary changes on embeddings to accomodate movielens dataset.
+# This model relies heavily on embeddings for extra feature of the items, in our case this will be for both item data and user data.
 #
 # ![bst.png](BST.png)
+
+# %%
+# Cast to int again to check the maximum vale of each identifier when creating the embedding layers
+# Movies
+movies["movie_id"] = movies["movie_id"].astype(int)
+# Users
+users["user_id"] = users["user_id"].astype(int)
+# Ratings
+ratings["movie_id"] = ratings["movie_id"].astype(int)
+ratings["user_id"] = ratings["user_id"].astype(int)
+
 
 # %%
 class BST(pl.LightningModule):
@@ -557,3 +584,5 @@ class BST(pl.LightningModule):
 model = BST()
 trainer = pl.Trainer(gpus=1, max_epochs=5)
 trainer.fit(model)
+
+# %%
