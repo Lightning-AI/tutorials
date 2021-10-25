@@ -1,18 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.12.0
-#   kernelspec:
-#     display_name: Python 3.7.7 64-bit
-#     language: python
-#     name: python37764bitbf700d440ab14e1ba33cf063888ea5ad
-# ---
-
 # %% [markdown]
 # ## Barlow Twins
 #
