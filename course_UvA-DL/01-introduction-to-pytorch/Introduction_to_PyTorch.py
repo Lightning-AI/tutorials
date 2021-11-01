@@ -416,13 +416,13 @@ print("X", x)
 # %%
 x = torch.randn(5000, 5000)
 
-## CPU version
+# CPU version
 start_time = time.time()
 _ = torch.matmul(x, x)
 end_time = time.time()
 print(f"CPU time: {(end_time - start_time):6.5f}s")
 
-## GPU version
+# GPU version
 x = x.to(device)
 # CUDA is asynchronous, so we need to use different timing functions
 start = torch.cuda.Event(enable_timing=True)
@@ -960,7 +960,7 @@ def visualize_classification(model, data, label):
     preds = model(model_inputs)
     preds = torch.sigmoid(preds)
     # Specifying "None" in a dimension creates a new one
-    output_image = (1 - preds) * c0[None,None] + preds * c1[None,None]
+    output_image = (1 - preds) * c0[None, None] + preds * c1[None, None]
     output_image = (
         output_image.cpu().numpy()
     )  # Convert to numpy array. This only works for tensors on CPU, hence first push to CPU
