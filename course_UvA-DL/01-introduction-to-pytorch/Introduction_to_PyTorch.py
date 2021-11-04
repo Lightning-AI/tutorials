@@ -423,18 +423,19 @@ end_time = time.time()
 print(f"CPU time: {(end_time - start_time):6.5f}s")
 
 # GPU version
-x = x.to(device)
-# The first operation on a CUDA device can be slow as it has to establish a CPU-GPU communication first.
-# Hence, we run an arbitrary command first without timing it for a fair comparison.
 if torch.cuda.is_available():
-    _ = torch.matmul(x * 0.0, x)
-start_time = time.time()
-_ = torch.matmul(x, x)
-end_time = time.time()
-print(f"GPU time: {(end_time - start_time):6.5f}s")
+    x = x.to(device)
+    # CUDA is asynchronous, so we need to use different timing functions
+    start = torch.cuda.Event(enable_timing=True)
+    end = torch.cuda.Event(enable_timing=True)
+    start.record()
+    _ = torch.matmul(x, x)
+    end.record()
+    torch.cuda.synchronize()  # Waits for everything to finish running on the GPU
+    print(f"GPU time: {0.001 * start.elapsed_time(end):6.5f}s")  # Milliseconds to seconds
 
 # %% [markdown]
-# Depending on the size of the operation and the CPU/GPU in your system, the speedup of this operation can be >500x.
+# Depending on the size of the operation and the CPU/GPU in your system, the speedup of this operation can be >50x.
 # As `matmul` operations are very common in neural networks, we can already see the great benefit of training a NN on a GPU.
 # The time estimate can be relatively noisy here because we haven't run it for multiple times.
 # Feel free to extend this, but it also takes longer to run.
@@ -493,7 +494,7 @@ torch.backends.cudnn.benchmark = False
 # %% [markdown]
 # #### nn.Module
 #
-# In PyTorch, a neural network is build up out of modules.
+# In PyTorch, a neural network is built up out of modules.
 # Modules can contain other modules, and a neural network is considered to be a module itself as well.
 # The basic template of a module is as follows:
 
@@ -960,11 +961,11 @@ def visualize_classification(model, data, label):
     preds = model(model_inputs)
     preds = torch.sigmoid(preds)
     # Specifying "None" in a dimension creates a new one
-    output_image = preds * c0[None, None] + (1 - preds) * c1[None, None]
+    output_image = (1 - preds) * c0[None, None] + preds * c1[None, None]
     output_image = (
         output_image.cpu().numpy()
     )  # Convert to numpy array. This only works for tensors on CPU, hence first push to CPU
-    plt.imshow(output_image, origin="upper", extent=(-0.5, 1.5, -0.5, 1.5))
+    plt.imshow(output_image, origin="lower", extent=(-0.5, 1.5, -0.5, 1.5))
     plt.grid(False)
 
 
