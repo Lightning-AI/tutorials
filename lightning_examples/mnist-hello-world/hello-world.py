@@ -3,7 +3,7 @@ import os
 
 import torch
 from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.metrics.functional import accuracy
+from torchmetrics import Accuracy
 from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, random_split
@@ -126,6 +126,8 @@ class LitMNIST(LightningModule):
             nn.Dropout(0.1),
             nn.Linear(hidden_size, self.num_classes),
         )
+        
+        self.accuracy = Accuracy()
 
     def forward(self, x):
         x = self.model(x)
@@ -142,7 +144,7 @@ class LitMNIST(LightningModule):
         logits = self(x)
         loss = F.nll_loss(logits, y)
         preds = torch.argmax(logits, dim=1)
-        acc = accuracy(preds, y)
+        acc = self.accuracy(preds, y)
 
         # Calling self.log will surface up scalars for you in TensorBoard
         self.log("val_loss", loss, prog_bar=True)
