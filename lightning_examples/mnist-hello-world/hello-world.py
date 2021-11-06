@@ -3,10 +3,10 @@ import os
 
 import torch
 from pytorch_lightning import LightningModule, Trainer
-from torchmetrics import Accuracy
 from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, random_split
+from torchmetrics import Accuracy
 from torchvision import transforms
 from torchvision.datasets import MNIST
 
@@ -126,7 +126,7 @@ class LitMNIST(LightningModule):
             nn.Dropout(0.1),
             nn.Linear(hidden_size, self.num_classes),
         )
-        
+
         self.accuracy = Accuracy()
 
     def forward(self, x):
