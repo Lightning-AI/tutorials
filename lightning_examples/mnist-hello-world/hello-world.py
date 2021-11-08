@@ -148,7 +148,7 @@ class LitMNIST(LightningModule):
 
         # Calling self.log will surface up scalars for you in TensorBoard
         self.log("val_loss", loss, prog_bar=True)
-        self.log("val_acc", acc, prog_bar=True)
+        self.log("val_acc", self.accuracy, prog_bar=True)
         return loss
 
     def test_step(self, batch, batch_idx):
