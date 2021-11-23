@@ -8,9 +8,9 @@
 # Along the way, we'll see how the built-in tools from PyTorch Lightning, like the learning rate finder, can be used
 # seamlessly with Flash to help make the process of putting a model together as smooth as possible.
 
-import flash
-
 # %%
+
+import flash
 import matplotlib.pyplot as plt
 import pandas as pd
 import torch
