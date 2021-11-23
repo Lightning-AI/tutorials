@@ -14,7 +14,7 @@ description: |
   bonus, we show hat we can resample daily observations from the data to discover weekly trends instead.
 requirements:
   - pandas==1.1.5
-  - lightning-flash[tabular]>=0.5.2
+  - git+https://github.com/PyTorchLightning/lightning-flash.git#egg=lightning-flash[tabular]
 accelerator:
   - GPU
   - CPU
