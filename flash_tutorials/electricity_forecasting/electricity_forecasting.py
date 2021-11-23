@@ -129,9 +129,8 @@ model = TabularForecaster(
 # %%
 trainer = flash.Trainer(
     max_epochs=3,
-    gpus=torch.cuda.device_count(),
+    gpus=1 if torch.cuda.is_available() else 0,
     gradient_clip_val=0.01,
-    accelerator="dp" if torch.cuda.device_count() > 0 else None,
 )
 
 res = trainer.tuner.lr_find(model, datamodule=datamodule, min_lr=1e-5)
@@ -254,9 +253,8 @@ model = TabularForecaster(
 trainer = flash.Trainer(
     max_epochs=3 * 24,
     check_val_every_n_epoch=24,
-    gpus=torch.cuda.device_count(),
+    gpus=1 if torch.cuda.is_available() else 0,
     gradient_clip_val=0.01,
-    accelerator="dp" if torch.cuda.device_count() > 0 else None,
 )
 
 # %% [markdown]
