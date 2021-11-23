@@ -92,8 +92,7 @@ datamodule = TabularForecastingData.from_data_frame(
     time_varying_unknown_reals=["price actual"],
     train_data_frame=df_energy_hourly[lambda x: x.time_idx <= training_cutoff],
     val_data_frame=df_energy_hourly,
-    batch_size=512,
-    num_workers=2,
+    batch_size=256,
 )
 
 # %% [markdown]
@@ -231,8 +230,7 @@ datamodule = TabularForecastingData.from_data_frame(
     time_varying_unknown_reals=["price actual"],
     train_data_frame=df_energy_daily[lambda x: x.time_idx <= training_cutoff],
     val_data_frame=df_energy_daily,
-    batch_size=512,
-    num_workers=2,
+    batch_size=256,
 )
 
 # %% [markdown]
