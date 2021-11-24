@@ -21,7 +21,7 @@ from flash.tabular.forecasting import TabularForecaster, TabularForecastingData
 # %% [markdown]
 # ## Loading the data
 #
-# We'll use the Spanish electricity pricing data from this Kaggle data set:
+# We'll use the Spanish hourly energy demand generation and weather data set from Kaggle:
 # https://www.kaggle.com/nicholasjhana/energy-consumption-generation-prices-and-weather
 #
 # First, download the data:
@@ -38,44 +38,60 @@ download_data("https://pl-flash-data.s3.amazonaws.com/kaggle_electricity.zip", "
 df_energy_hourly = pd.read_csv("./data/energy_dataset.csv", parse_dates=["time"])
 
 # %% [markdown]
-# In order to load the data into Flash, there are a few preprocessing steps we need to take.
-# Next, we set the `time` field as the index (formatted as a datetime):
+# Before we can load the data into Flash, there are a few preprocessing steps we need to take.
+# The first preprocessing step is to set the `time` field as the index (formatted as a datetime).
+# The second step is to resample the data to the desired frequency in case it is different from the desired observation
+# frequency.
+# Since we are performing autoregressive modelling, we can remove all columns except for `"price actual"`.
+#
+# For the third preprocessing step, we need to create a "time_idx" column.
+# The "time_idx" column should contain integers corresponding to the observation index (e.g. in our case the difference
+# between two "time_idx" values is the number of hours between the observations).
+# To do this we convert the datetime to an index by taking the nanoseconds value and dividing by the number of
+# nanoseconds in a single unit of our chosen frequency.
+# We then subtract the minimum value so it starts at zero (although it would still work without this step).
+#
+# The Flash `TabularForecastingData` (which uses the `TimeSeriesDataSet` from PyTorch Forecasting internally) also
+# supports loading data from multiple time series (e.g. you may have electricity data from multiple countries).
+# To indicate that our data is all from the same series, we add a `constant` column with a constant value of zero.
+#
+# Here's the full preprocessing function:
 
 # %%
-df_energy_hourly["time"] = pd.to_datetime(df_energy_hourly["time"], utc=True, infer_datetime_format=True)
-df_energy_hourly = df_energy_hourly.set_index("time")
 
-# %% [markdown]
-# Since we are performing autoregressive modelling, we remove all columns except for `"price actual"`:
 
-# %%
-df_energy_hourly = df_energy_hourly.filter(["price actual"])
+def preprocess(df: pd.DataFrame, frequency: str = "1H") -> pd.DataFrame:
+    df["time"] = pd.to_datetime(df["time"], utc=True, infer_datetime_format=True)
+    df = df.set_index("time")
+
+    df = df.resample(frequency).mean()
+
+    df = df.filter(["price actual"])
+
+    df["time_idx"] = (df.index.view(int) / pd.Timedelta(frequency).value).astype(int)
+    df["time_idx"] -= df["time_idx"].min()
+
+    df["constant"] = 0
+
+    return df
+
+
+df_energy_hourly = preprocess(df_energy_hourly)
 
 # %% [markdown]
 # ## Creating the Flash DataModule
 #
-# Before we can load our data with Flash, we first need to create "time_idx" column.
-# The "time_idx" column should contain integers corresponding to the observation index (e.g. in our case the difference
-# between two "time_idx" values is the number of hours between the observations).
-# To do this we convert the datetime to an index (by taking the nanoseconds value and dividing by the number of
-# nanoseconds in an hour) then subtract the minimum value so it starts at zero:
-
-# %%
-df_energy_hourly["time_idx"] = (df_energy_hourly.index.view(int) / (1e9 * 60 * 60)).astype(int)
-df_energy_hourly["time_idx"] -= df_energy_hourly["time_idx"].min()
-
-# %% [markdown]
-# The Flash `TabularForecastingData` (which uses the `TimeSeriesDataSet` from PyTorch Forecasting internally) also
-# supports loading data from multiple time series (e.g. you may have electricity data from multiple countries).
-# To indicate that our data is all from the same series, we add a `constant` column with a constant value of zero:
-
-# %%
-df_energy_hourly["constant"] = 0
-
-# %% [markdown]
-# Now we can create our `TabularForecastingData`.
-# We choose two days (48 hours) as the encoder length (`max_encoder_length`) and one day (24 hours) as the prediction
-# length (`max_prediction_length`).
+# Now, we can create a `TabularForecastingData`.
+# The role of the `TabularForecastingData` is to split up our time series into windows which include a region to encode
+# (of size `max_encoder_length`) and a region to predict (of size `max_prediction_length`) which will be used to compute
+# the loss.
+# The size of the prediction window should be chosen depending on the kinds of trends we would like our model to
+# uncover.
+# In our case, we are interested in how electricity prices change throughout the day, so a one day prediction window
+# (`max_prediction_length = 24`) makes sense here.
+# The size of the encoding window can vary, however, in the [NBeats paper](https://arxiv.org/abs/1905.10437) the authors
+# suggest using an encoder length of between two and ten times the prediction length.
+# We therefore choose two days (`max_encoder_length = 48`) as the encoder length.
 
 # %%
 max_prediction_length = 24
@@ -98,33 +114,36 @@ datamodule = TabularForecastingData.from_data_frame(
 # %% [markdown]
 # ## Creating the Flash Task
 #
-# No we're ready to create our `TabularForecaster`.
-# `"widths"` and `"backcast_loss_ratio"` are hyper-parameters of the NBeats model that we are using.
-# The [PyTorch Forecasting Documentation](https://pytorch-forecasting.readthedocs.io/en/latest/api/pytorch_forecasting.models.nbeats.NBeats.html)
-# recommends `"widths"` of `[32, 512]` but since our data here is quite simple, we halve it to try to prevent
-# overfitting.
+# Now, we're ready to create a `TabularForecaster`.
+# The NBeats model has two primary hyper-parameters:`"widths"`, and `"backcast_loss_ratio"`.
+# In the [PyTorch Forecasting Documentation](https://pytorch-forecasting.readthedocs.io/en/latest/api/pytorch_forecasting.models.nbeats.NBeats.html),
+# the authors recommend using `"widths"` of `[32, 512]`.
+# In order to prevent overfitting with smaller datasets, a good rule of thumb is to limit the number of parameters of
+# your model.
+# For this reason, we use `"widths"` of `[16, 256]`.
 #
-# To understand the `"backcast_loss_ratio"`, take a look at this diagram of the model taken from
+# To understand the `"backcast_loss_ratio"`, let's take a look at this diagram of the model taken from
 # [the arXiv paper](https://arxiv.org/abs/1905.10437):
 #
 # <center width="100%" style="padding:10px"><img src="diagram.png" width="250px"></center>
 #
 # Each 'block' within the NBeats architecture includes a forecast output and a backcast which can each yield their own
 # loss.
-# The `"backcast_loss_ratio"` is the ratio of the backcast loss to the forecast loss, a value of `0.1` here meaning that
-# the forecast loss will be weighted ten times the backcast loss.
+# The `"backcast_loss_ratio"` is the ratio of the backcast loss to the forecast loss.
+# A value of `1.0` means that the loss function is simply the sum of the forecast and backcast losses.
 
 # %%
 model = TabularForecaster(
-    datamodule.parameters, backbone="n_beats", backbone_kwargs={"widths": [16, 256], "backcast_loss_ratio": 0.1}
+    datamodule.parameters, backbone="n_beats", backbone_kwargs={"widths": [16, 256], "backcast_loss_ratio": 1.0}
 )
 
 # %% [markdown]
 # ## Finding the learning rate
 #
 # Tabular models can be particularly sensitive to the choice of learning rate.
-# We can employ the learning rate finder from PyTorch Lightning to suggest a suitable learning rate automatically like
-# this:
+# Helpfully, PyTorch Lightning provides a built-in learning rate finder that suggests a suitable learning rate
+# automatically.
+# Here's how to use it:
 
 # %%
 trainer = flash.Trainer(
@@ -138,7 +157,7 @@ print(f"Suggested learning rate: {res.suggestion()}")
 res.plot(show=True, suggest=True).show()
 
 # %% [markdown]
-# And update our model with the suggested learning rate:
+# Once the suggest learning rate has been found, we can update our model with it:
 
 # %%
 model.learning_rate = res.suggestion()
@@ -153,74 +172,62 @@ trainer.fit(model, datamodule=datamodule)
 # %% [markdown]
 # ## Plot the interpretation
 #
-# An important feature of the NBeats model is that it can be configured to detect both low frequency 'trends' and high
-# frequency 'seasonality' in a single model.
-# PyTorch Forecasting includes the ability to plot this decomposition, a feature we can also use with our Flash
-# `TabularForecaster`.
+# An important feature of the NBeats model is that it can be configured to produce an interpretable prediction that is
+# split into both a low frequency (trend) component and a high frequency (seasonality) component.
+# For hourly observations, we might expect the trend component to show us how electricity prices are changing from one
+# day to the next (for example, whether prices were generally higher or lower than yesterday).
+# In contrast, the seasonality component would be expected to show us the general pattern in prices through the day
+# (for example, if there is typically a peak in price around lunch time or a drop at night).
 #
-# First, we load the best model from our training run and generate some predictions:
-
-# %%
-best_model_path = trainer.checkpoint_callback.best_model_path
-best_model = TabularForecaster.load_from_checkpoint(best_model_path)
-
-predictions = best_model.predict(df_energy_hourly)
-
-# %% [markdown]
+# It is often useful to visualize this decomposition and the `TabularForecaster` makes it simple.
+# First, we load the best model from our training run and generate some predictions.
 # Next, we convert the predictions to the format expected by PyTorch Forecasting using the `convert_predictions` utility
 # function.
+# Finally, we plot the interpretation using the `pytorch_forecasting_model` attribute.
+# Here's the full function:
 
 # %%
-predictions, inputs = convert_predictions(predictions)
+
+
+def plot_interpretation(model_path: str, predict_df: pd.DataFrame):
+    model = TabularForecaster.load_from_checkpoint(model_path)
+    predictions = model.predict(predict_df)
+    predictions, inputs = convert_predictions(predictions)
+    model.pytorch_forecasting_model.plot_interpretation(inputs, predictions, idx=0)
+    plt.show()
+
 
 # %% [markdown]
-# Finally, we plot the interpretation using the `pytorch_forecasting_model` attribute:
+# And now we run the function to plot the trend and seasonality curves:
 
 # %%
-best_model.pytorch_forecasting_model.plot_interpretation(inputs, predictions, idx=0)
-plt.show()
+plot_interpretation(trainer.checkpoint_callback.best_model_path, df_energy_hourly)
 
 # %% [markdown]
 # It worked! The plot shows that the `TabularForecaster` does a reasonable job of modelling the time series and also
 # breaks it down into a trend component and a seasonality component (in this case showing daily fluctuations in
 # electricity prices).
 #
-# ## Bonus: weekly trends
+# ## Bonus: Weekly trends
 #
 # The type of seasonality that the model learns to detect is dictated by the frequency of observations and the length of
 # the encoding / prediction window.
 # We might imagine that our pipeline could be changed to instead uncover weekly trends if we resample daily
-# observations from our data.
+# observations from our data instead of hourly.
 #
-# We can use pandas to do this.
-# First, we load the data as before and create the index:
+# We can use our preprocessing function to do this.
+# First, we load the data as before then preprocess it (this time setting `frequency = "1D"`).
 
 # %%
 df_energy_daily = pd.read_csv("./data/energy_dataset.csv", parse_dates=["time"])
-
-df_energy_daily["time"] = pd.to_datetime(df_energy_daily["time"], utc=True, infer_datetime_format=True)
-df_energy_daily = df_energy_daily.set_index("time")
+df_energy_daily = preprocess(df_energy_daily, frequency="1D")
 
 # %% [markdown]
-# Next, we use the `resample` method to give us the mean value for each day (you could experiment with taking a max
-# here):
-
-# %%
-df_energy_daily = df_energy_daily.resample("D").mean()
-
-# %% [markdown]
-# Now let's create our `TabularForecastingData` as before, this time with an four week encoding window and a two week
+# Now let's create our `TabularForecastingData` as before, this time with a four week encoding window and a one week
 # prediction window.
 
 # %%
-df_energy_daily = df_energy_daily.filter(["price actual"])
-
-df_energy_daily["time_idx"] = (df_energy_daily.index.view(int) / (1e9 * 60 * 60 * 24)).astype(int)
-df_energy_daily["time_idx"] -= df_energy_daily["time_idx"].min()
-
-df_energy_daily["constant"] = 0
-
-max_prediction_length = 2 * 7
+max_prediction_length = 1 * 7
 max_encoder_length = 4 * 7
 
 training_cutoff = df_energy_daily["time_idx"].max() - max_prediction_length
@@ -239,14 +246,14 @@ datamodule = TabularForecastingData.from_data_frame(
 
 # %% [markdown]
 # Now it's time to create a new model and trainer.
-# We reduce the widths even further and run for many more epochs this time as we now have even fewer observations.
+# We run for 24 times the number of epochs this time as we now have around 1/24th of the number of observations.
 # This time, instead of using the learning rate finder we just set the learning rate manually:
 
 # %%
 model = TabularForecaster(
     datamodule.parameters,
     backbone="n_beats",
-    backbone_kwargs={"widths": [8, 128], "backcast_loss_ratio": 0.1},
+    backbone_kwargs={"widths": [16, 256], "backcast_loss_ratio": 1.0},
     learning_rate=5e-4,
 )
 
@@ -267,13 +274,7 @@ trainer.fit(model, datamodule=datamodule)
 # Now let's look at what it learned:
 
 # %%
-best_model_path = trainer.checkpoint_callback.best_model_path
-best_model = TabularForecaster.load_from_checkpoint(best_model_path)
-
-predictions, inputs = convert_predictions(best_model.predict(df_energy_daily))
-
-best_model.pytorch_forecasting_model.plot_interpretation(inputs, predictions, idx=0)
-plt.show()
+plot_interpretation(trainer.checkpoint_callback.best_model_path, df_energy_daily)
 
 # %% [markdown]
 # Success! We can now also see weekly trends / seasonality uncovered by our new model.
