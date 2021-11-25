@@ -62,7 +62,7 @@ df_energy_hourly = pd.read_csv("./data/energy_dataset.csv", parse_dates=["time"]
 
 def preprocess(df: pd.DataFrame, frequency: str = "1H") -> pd.DataFrame:
     df["time"] = pd.to_datetime(df["time"], utc=True, infer_datetime_format=True)
-    df = df.set_index("time")
+    df.set_index("time", inplace=True)
 
     df = df.resample(frequency).mean()
 
@@ -148,7 +148,7 @@ model = TabularForecaster(
 # %%
 trainer = flash.Trainer(
     max_epochs=3,
-    gpus=1 if torch.cuda.is_available() else 0,
+    gpus=int(torch.cuda.is_available()),
     gradient_clip_val=0.01,
 )
 
@@ -260,7 +260,7 @@ model = TabularForecaster(
 trainer = flash.Trainer(
     max_epochs=3 * 24,
     check_val_every_n_epoch=24,
-    gpus=1 if torch.cuda.is_available() else 0,
+    gpus=int(torch.cuda.is_available()),
     gradient_clip_val=0.01,
 )
 
