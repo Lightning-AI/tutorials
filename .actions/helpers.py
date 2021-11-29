@@ -387,6 +387,7 @@ class HelperCLI:
         docs_root: str = "docs/source",
         path_docs_ipynb: str = "notebooks",
         path_docs_images: str = "_static/images",
+        patterns: Sequence[str] = (".", "**"),
     ):
         """Copy all notebooks from a folder to doc folder.
 
@@ -395,10 +396,11 @@ class HelperCLI:
             docs_root: docs source directory
             path_docs_ipynb: destination path to the notebooks location relative to ``docs_root``
             path_docs_images: destination path to the images location relative to ``docs_root``
+            patterns: patterns to use when glob-ing notebooks
         """
         ls_ipynb = []
-        for sub in (["*.ipynb"], ["**", "*.ipynb"]):
-            ls_ipynb += glob.glob(os.path.join(path_root, HelperCLI.DIR_NOTEBOOKS, *sub))
+        for sub in patterns:
+            ls_ipynb += glob.glob(os.path.join(path_root, HelperCLI.DIR_NOTEBOOKS, sub, "*.ipynb"))
 
         os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
         ipynb_content = []
