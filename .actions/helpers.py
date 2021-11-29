@@ -459,7 +459,7 @@ class HelperCLI:
         req += meta.get("requirements", [])
         req = [r.strip() for r in req]
 
-        def _parse(pkg: str, keys: str = " <=>") -> str:
+        def _parse(pkg: str, keys: str = " <=>[]") -> str:
             """Parsing just the package name."""
             if any(c in pkg for c in keys):
                 ix = min(pkg.index(c) for c in keys if c in pkg)
