@@ -1,14 +1,16 @@
 # %% [markdown]
 # In this tutorial we'll look at using [Lightning Flash](https://github.com/PyTorchLightning/lightning-flash) and it's
 # integration with [PyTorch Forecasting](https://github.com/jdb78/pytorch-forecasting) for autoregressive modelling of
-# electricity prices using the N_BEATS model.
-# We'll start by using N_BEATS to uncover daily patterns (seasonality) from hourly observations and then show how we can
+# electricity prices using [the N-BEATS model](https://arxiv.org/abs/1905.10437).
+# We'll start by using N-BEATS to uncover daily patterns (seasonality) from hourly observations and then show how we can
 # resample daily averages to uncover weekly patterns too.
 #
 # Along the way, we'll see how the built-in tools from PyTorch Lightning, like the learning rate finder, can be used
 # seamlessly with Flash to help make the process of putting a model together as smooth as possible.
 
 # %%
+
+import os
 
 import flash
 import matplotlib.pyplot as plt
@@ -17,6 +19,8 @@ import torch
 from flash.core.data.utils import download_data
 from flash.core.integrations.pytorch_forecasting import convert_predictions
 from flash.tabular.forecasting import TabularForecaster, TabularForecastingData
+
+DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 
 # %% [markdown]
 # ## Loading the data
@@ -27,7 +31,7 @@ from flash.tabular.forecasting import TabularForecaster, TabularForecastingData
 # First, download the data:
 
 # %%
-download_data("https://pl-flash-data.s3.amazonaws.com/kaggle_electricity.zip", "./data")
+download_data("https://pl-flash-data.s3.amazonaws.com/kaggle_electricity.zip", DATASET_PATH)
 
 # %% [markdown]
 # ## Data loading
@@ -35,7 +39,7 @@ download_data("https://pl-flash-data.s3.amazonaws.com/kaggle_electricity.zip", "
 # To load the data, we start by loading the CSV file into a pandas DataFrame:
 
 # %%
-df_energy_hourly = pd.read_csv("./data/energy_dataset.csv", parse_dates=["time"])
+df_energy_hourly = pd.read_csv(f"{DATASET_PATH}/energy_dataset.csv", parse_dates=["time"])
 
 # %% [markdown]
 # Before we can load the data into Flash, there are a few preprocessing steps we need to take.
@@ -89,7 +93,7 @@ df_energy_hourly = preprocess(df_energy_hourly)
 # uncover.
 # In our case, we are interested in how electricity prices change throughout the day, so a one day prediction window
 # (`max_prediction_length = 24`) makes sense here.
-# The size of the encoding window can vary, however, in the [N_BEATS paper](https://arxiv.org/abs/1905.10437) the
+# The size of the encoding window can vary, however, in the [N-BEATS paper](https://arxiv.org/abs/1905.10437) the
 # authors suggest using an encoder length of between two and ten times the prediction length.
 # We therefore choose two days (`max_encoder_length = 48`) as the encoder length.
 
@@ -106,7 +110,7 @@ datamodule = TabularForecastingData.from_data_frame(
     max_encoder_length=max_encoder_length,
     max_prediction_length=max_prediction_length,
     time_varying_unknown_reals=["price actual"],
-    train_data_frame=df_energy_hourly[lambda x: x.time_idx <= training_cutoff],
+    train_data_frame=df_energy_hourly[df_energy_hourly["time_idx"] <= training_cutoff],
     val_data_frame=df_energy_hourly,
     batch_size=256,
 )
@@ -115,7 +119,7 @@ datamodule = TabularForecastingData.from_data_frame(
 # ## Creating the Flash Task
 #
 # Now, we're ready to create a `TabularForecaster`.
-# The N_BEATS model has two primary hyper-parameters:`"widths"`, and `"backcast_loss_ratio"`.
+# The N-BEATS model has two primary hyper-parameters:`"widths"`, and `"backcast_loss_ratio"`.
 # In the [PyTorch Forecasting Documentation](https://pytorch-forecasting.readthedocs.io/en/latest/api/pytorch_forecasting.models.nbeats.NBeats.html),
 # the authors recommend using `"widths"` of `[32, 512]`.
 # In order to prevent overfitting with smaller datasets, a good rule of thumb is to limit the number of parameters of
@@ -125,9 +129,9 @@ datamodule = TabularForecastingData.from_data_frame(
 # To understand the `"backcast_loss_ratio"`, let's take a look at this diagram of the model taken from
 # [the arXiv paper](https://arxiv.org/abs/1905.10437):
 #
-# <center width="100%" style="padding:10px"><img src="diagram.png" width="250px"></center>
+# ![N-BEATS diagram](diagram.png)
 #
-# Each 'block' within the N_BEATS architecture includes a forecast output and a backcast which can each yield their own
+# Each 'block' within the N-BEATS architecture includes a forecast output and a backcast which can each yield their own
 # loss.
 # The `"backcast_loss_ratio"` is the ratio of the backcast loss to the forecast loss.
 # A value of `1.0` means that the loss function is simply the sum of the forecast and backcast losses.
@@ -143,7 +147,10 @@ model = TabularForecaster(
 # Tabular models can be particularly sensitive to the choice of learning rate.
 # Helpfully, PyTorch Lightning provides a built-in learning rate finder that suggests a suitable learning rate
 # automatically.
-# Here's how to use it:
+# To use it, we first create our Trainer.
+# We apply gradient clipping (a common technique for tabular tasks) with ``gradient_clip_val=0.01`` in order to help
+# prevent our model from over-fitting.
+# Here's how to find the learning rate:
 
 # %%
 trainer = flash.Trainer(
@@ -172,7 +179,7 @@ trainer.fit(model, datamodule=datamodule)
 # %% [markdown]
 # ## Plot the interpretation
 #
-# An important feature of the N_BEATS model is that it can be configured to produce an interpretable prediction that is
+# An important feature of the N-BEATS model is that it can be configured to produce an interpretable prediction that is
 # split into both a low frequency (trend) component and a high frequency (seasonality) component.
 # For hourly observations, we might expect the trend component to show us how electricity prices are changing from one
 # day to the next (for example, whether prices were generally higher or lower than yesterday).
@@ -219,7 +226,7 @@ plot_interpretation(trainer.checkpoint_callback.best_model_path, df_energy_hourl
 # First, we load the data as before then preprocess it (this time setting `frequency = "1D"`).
 
 # %%
-df_energy_daily = pd.read_csv("./data/energy_dataset.csv", parse_dates=["time"])
+df_energy_daily = pd.read_csv(f"{DATASET_PATH}/energy_dataset.csv", parse_dates=["time"])
 df_energy_daily = preprocess(df_energy_daily, frequency="1D")
 
 # %% [markdown]
@@ -239,7 +246,7 @@ datamodule = TabularForecastingData.from_data_frame(
     max_encoder_length=max_encoder_length,
     max_prediction_length=max_prediction_length,
     time_varying_unknown_reals=["price actual"],
-    train_data_frame=df_energy_daily[lambda x: x.time_idx <= training_cutoff],
+    train_data_frame=df_energy_daily[df_energy_daily["time_idx"] <= training_cutoff],
     val_data_frame=df_energy_daily,
     batch_size=256,
 )
@@ -282,7 +289,7 @@ plot_interpretation(trainer.checkpoint_callback.best_model_path, df_energy_daily
 # ## Closing thoughts and next steps!
 #
 # This tutorial has shown how Flash and PyTorch Forecasting can be used to train state-of-the-art auto-regressive
-# forecasting models (such as N_BEATS).
+# forecasting models (such as N-BEATS).
 # We've seen how we can influence the kinds of trends and patterns uncovered by the model by resampling the data and
 # changing the hyper-parameters.
 #
