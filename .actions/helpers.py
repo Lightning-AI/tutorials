@@ -6,7 +6,7 @@ from datetime import datetime
 from pprint import pprint
 from shutil import copyfile
 from textwrap import wrap
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, Optional, Sequence
 from warnings import warn
 
 import fire
@@ -387,7 +387,7 @@ class HelperCLI:
         docs_root: str = "docs/source",
         path_docs_ipynb: str = "notebooks",
         path_docs_images: str = "_static/images",
-        patterns: List[str] = None,
+        patterns: Sequence[str] = (".", "**"),
     ):
         """Copy all notebooks from a folder to doc folder.
 
@@ -398,9 +398,6 @@ class HelperCLI:
             path_docs_images: destination path to the images location relative to ``docs_root``
             patterns: patterns to use when glob-ing notebooks
         """
-        if patterns is None:
-            patterns = [".", "**"]
-
         ls_ipynb = []
         for sub in patterns:
             ls_ipynb += glob.glob(os.path.join(path_root, HelperCLI.DIR_NOTEBOOKS, sub, "*.ipynb"))
