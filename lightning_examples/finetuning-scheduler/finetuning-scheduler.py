@@ -15,7 +15,7 @@
 # ---
 
 # %% [markdown]
-# # Scheduled Finetuning
+# ## Scheduled Finetuning
 #
 # <div style="display:inline" id="a1">
 #
@@ -150,7 +150,7 @@
 # %% [markdown]
 # <div id="superglue"></div>
 #
-# # Scheduled Finetuning For SuperGLUE
+# ## Scheduled Finetuning For SuperGLUE
 #
 # The following example demonstrates the use of ``FinetuningScheduler`` to finetune a small foundational model on the [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task of [SuperGLUE](https://super.gluebenchmark.com/). Iterative early-stopping will be applied according to a user-specified schedule.
 #
