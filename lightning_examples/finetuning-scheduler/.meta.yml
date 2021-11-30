@@ -7,13 +7,14 @@ build: 1
 tags:
   - finetuning
 description: |
-  This notebook introduces the FinetuningScheduler callback and demonstrates the use of FinetuningScheduler to finetune 
-  a small foundational model on the [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task 
-  of [SuperGLUE](https://super.gluebenchmark.com/) with iterative earlystopping defined according to a user-specified 
-  schedule. It uses HuggingFace's ``datasets`` and ``transformers`` libraries to retrieve the relevant benchmark data and 
-  foundational model weights.
+  This notebook introduces the FinetuningScheduler callback and demonstrates the use of FinetuningScheduler to finetune
+  a small foundational model on the [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task
+  of [SuperGLUE](https://super.gluebenchmark.com/) with iterative early-stopping defined according to a user-specified
+  schedule. It uses HuggingFace's ``datasets`` and ``transformers`` libraries to retrieve the relevant benchmark data
+  and foundational model weights.
 requirements:
   - transformers
   - datasets
+  - scikit-learn
 accelerator:
   - GPU
