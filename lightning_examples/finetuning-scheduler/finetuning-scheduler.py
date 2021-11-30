@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -7,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.13.1
+#       jupytext_version: 1.13.2
 #   kernelspec:
 #     display_name: 'Python 3.7.11 64-bit (''pldev_tutorials'': conda)'
 #     language: python
@@ -84,7 +83,7 @@
 # ```
 
 # %% [markdown]
-# ## EarlyStopping and Epoch-Driven Phase Transition Criteria
+# ## Early-Stopping and Epoch-Driven Phase Transition Criteria
 #
 #
 # By default, ``FTSEarlyStopping`` and epoch-driven
@@ -155,27 +154,25 @@
 # The following example demonstrates the use of ``FinetuningScheduler`` to finetune a small foundational model on the [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task of [SuperGLUE](https://super.gluebenchmark.com/). Iterative early-stopping will be applied according to a user-specified schedule.
 #
 # ``FinetuningScheduler`` can be used to achieve non-trivial model performance improvements in both implicit and explicit scheduling contexts at an also non-trivial computational cost.
+#
 
 # %%
+import logging
 import os
 import warnings
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union
 from importlib import import_module
-import logging
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-import torch
-from torch.utils.data import DataLoader
-
+import datasets
 import pytorch_lightning as pl
+import torch
+from pytorch_lightning.loggers.tensorboard import TensorBoardLogger
 from pytorch_lightning.utilities import rank_zero_warn
 from pytorch_lightning.utilities.cli import CALLBACK_REGISTRY, _Registry
 from pytorch_lightning.utilities.exceptions import MisconfigurationException
-from pytorch_lightning.loggers.tensorboard import TensorBoardLogger
-
-import datasets
+from torch.utils.data import DataLoader
 from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
-
 
 # %%
 # a couple helper functions to prepare code to work with the forthcoming hub and user module registry
@@ -195,17 +192,13 @@ def module_hub_mock(key: str, require_fqn: bool = False) -> List:
             globals()[f"{n}"] = c
         registered_list = ", ".join([n for n in MOCK_HUB_REGISTRY.names])
     else:
-        registered_list = ", ".join(
-            [c.__module__ + "." + c.__name__ for c in MOCK_HUB_REGISTRY.classes]
-        )
+        registered_list = ", ".join([c.__module__ + "." + c.__name__ for c in MOCK_HUB_REGISTRY.classes])
     print(f"Imported and registered the following callbacks: {registered_list}")
 
 
-def instantiate_registered_class(
-    init: Dict[str, Any], args: Optional[Union[Any, Tuple[Any, ...]]] = None
-) -> Any:
-    """Instantiates a class with the given args and init. Accepts class definitions in the form
-    of a "class_path" or "callback_key" associated with a _Registry
+def instantiate_registered_class(init: Dict[str, Any], args: Optional[Union[Any, Tuple[Any, ...]]] = None) -> Any:
+    """Instantiates a class with the given args and init. Accepts class definitions in the form of a "class_path"
+    or "callback_key" associated with a _Registry.
 
     Args:
         init: Dict of the form {"class_path":... or "callback_key":..., "init_args":...}.
@@ -225,17 +218,16 @@ def instantiate_registered_class(
         else:  # class is expected to be locally defined
             args_class = globals()[init["class_path"]]
     elif init.get("callback_key", None):
-        callback_path = CALLBACK_REGISTRY.get(
+        callback_path = CALLBACK_REGISTRY.get(init["callback_key"], None) or MOCK_HUB_REGISTRY.get(
             init["callback_key"], None
-        ) or MOCK_HUB_REGISTRY.get(init["callback_key"], None)
+        )
         assert callback_path, MisconfigurationException(
             f'specified callback_key {init["callback_key"]} has not been registered'
         )
         class_module, class_name = callback_path.__module__, callback_path.__name__
     else:
         raise MisconfigurationException(
-            "Neither a class_path nor callback_key were included in a configuration that"
-            "requires one"
+            "Neither a class_path nor callback_key were included in a configuration that" "requires one"
         )
     if not shortcircuit_local:
         module = __import__(class_module, fromlist=[class_name])
@@ -266,7 +258,7 @@ rz_logger.handlers[0].setLevel("INFO")
 
 # %%
 class RteBoolqDataModule(pl.LightningDataModule):
-    """A ``LightningDataModule`` for using either the RTE or BoolQ SuperGLUE Hugging Face datasets"""
+    """A ``LightningDataModule`` for using either the RTE or BoolQ SuperGLUE Hugging Face datasets."""
 
     task_text_field_map = {"rte": ["premise", "hypothesis"], "boolq": ["question", "passage"]}
     loader_columns = [
@@ -306,12 +298,8 @@ class RteBoolqDataModule(pl.LightningDataModule):
         self.text_fields = self.task_text_field_map[self.task_name]
         self.num_labels = TASK_NUM_LABELS[self.task_name]
         os.environ["TOKENIZERS_PARALLELISM"] = "true" if self.tokenizers_parallelism else "false"
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            self.model_name_or_path, use_fast=True, local_files_only=False
-        )
-        if (
-            prep_on_init
-        ):  # useful if one wants to load datasets as soon as the ``LightningDataModule`` is
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name_or_path, use_fast=True, local_files_only=False)
+        if prep_on_init:  # useful if one wants to load datasets as soon as the ``LightningDataModule`` is
             # instantiated
             self.prepare_data()
             self.setup("fit")
@@ -322,9 +310,7 @@ class RteBoolqDataModule(pl.LightningDataModule):
             self.dataset[split] = self.dataset[split].map(
                 self.convert_to_features, batched=True, remove_columns=["label"]
             )
-            self.columns = [
-                c for c in self.dataset[split].column_names if c in self.loader_columns
-            ]
+            self.columns = [c for c in self.dataset[split].column_names if c in self.loader_columns]
             self.dataset[split].set_format(type="torch", columns=self.columns)
 
         self.eval_splits = [x for x in self.dataset.keys() if "validation" in x]
@@ -335,9 +321,7 @@ class RteBoolqDataModule(pl.LightningDataModule):
         datasets.load_dataset("super_glue", self.task_name)
 
     def train_dataloader(self):
-        return DataLoader(
-            self.dataset["train"], batch_size=self.train_batch_size, **self.dataloader_kwargs
-        )
+        return DataLoader(self.dataset["train"], batch_size=self.train_batch_size, **self.dataloader_kwargs)
 
     def val_dataloader(self):
         if len(self.eval_splits) == 1:
@@ -348,29 +332,21 @@ class RteBoolqDataModule(pl.LightningDataModule):
             )
         elif len(self.eval_splits) > 1:
             return [
-                DataLoader(
-                    self.dataset[x], batch_size=self.eval_batch_size, **self.dataloader_kwargs
-                )
+                DataLoader(self.dataset[x], batch_size=self.eval_batch_size, **self.dataloader_kwargs)
                 for x in self.eval_splits
             ]
 
     def test_dataloader(self):
         if len(self.eval_splits) == 1:
-            return DataLoader(
-                self.dataset["test"], batch_size=self.eval_batch_size, **self.dataloader_kwargs
-            )
+            return DataLoader(self.dataset["test"], batch_size=self.eval_batch_size, **self.dataloader_kwargs)
         elif len(self.eval_splits) > 1:
             return [
-                DataLoader(
-                    self.dataset[x], batch_size=self.eval_batch_size, **self.dataloader_kwargs
-                )
+                DataLoader(self.dataset[x], batch_size=self.eval_batch_size, **self.dataloader_kwargs)
                 for x in self.eval_splits
             ]
 
     def convert_to_features(self, example_batch):
-        text_pairs = list(
-            zip(example_batch[self.text_fields[0]], example_batch[self.text_fields[1]])
-        )
+        text_pairs = list(zip(example_batch[self.text_fields[0]], example_batch[self.text_fields[1]]))
         # Tokenize the text/text pairs
         features = self.tokenizer.batch_encode_plus(
             text_pairs, max_length=self.max_seq_length, padding="longest", truncation=True
@@ -382,10 +358,8 @@ class RteBoolqDataModule(pl.LightningDataModule):
 
 # %%
 class RteBoolqModule(pl.LightningModule):
-    """A ``LightningModule`` that can be used to finetune a foundational
-    model on either the RTE or BoolQ SuperGLUE tasks using Hugging Face
-    implementations of a given model and the `SuperGLUE Hugging Face dataset.
-    """
+    """A ``LightningModule`` that can be used to finetune a foundational model on either the RTE or BoolQ SuperGLUE
+    tasks using Hugging Face implementations of a given model and the `SuperGLUE Hugging Face dataset."""
 
     def __init__(
         self,
@@ -396,7 +370,6 @@ class RteBoolqModule(pl.LightningModule):
         model_cfg: Optional[Dict[str, Any]] = None,
         task_name: str = DEFAULT_TASK,
         experiment_tag: str = "default",
-        plot_liveloss: bool = False,
     ):
         """
         Args:
@@ -414,29 +387,20 @@ class RteBoolqModule(pl.LightningModule):
         super().__init__()
         self.optimizer_init = optimizer_init
         self.lr_scheduler_init = lr_scheduler_init
-        self.plot_liveloss = plot_liveloss
         self.pl_lrs_cfg = pl_lrs_cfg or {}
         if task_name in TASK_NUM_LABELS.keys():
             self.task_name = task_name
         else:
             self.task_name = DEFAULT_TASK
-            rank_zero_warn(
-                f"Invalid task_name '{task_name}'. Proceeding with the default task: '{DEFAULT_TASK}'"
-            )
+            rank_zero_warn(f"Invalid task_name '{task_name}'. Proceeding with the default task: '{DEFAULT_TASK}'")
         self.num_labels = TASK_NUM_LABELS[self.task_name]
         self.save_hyperparameters()
         self.experiment_id = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{experiment_tag}"
         self.model_cfg = model_cfg or {}
-        conf = AutoConfig.from_pretrained(
-            model_name_or_path, num_labels=self.num_labels, local_files_only=False
-        )
-        self.model = AutoModelForSequenceClassification.from_pretrained(
-            model_name_or_path, config=conf
-        )
+        conf = AutoConfig.from_pretrained(model_name_or_path, num_labels=self.num_labels, local_files_only=False)
+        self.model = AutoModelForSequenceClassification.from_pretrained(model_name_or_path, config=conf)
         self.model.config.update(self.model_cfg)  # apply model config overrides
-        self.metric = datasets.load_metric(
-            "super_glue", self.task_name, experiment_id=self.experiment_id
-        )
+        self.metric = datasets.load_metric("super_glue", self.task_name, experiment_id=self.experiment_id)
         self.no_decay = ["bias", "LayerNorm.weight"]
         self.finetuningscheduler_callback = None
 
@@ -476,8 +440,8 @@ class RteBoolqModule(pl.LightningModule):
         return loss
 
     def init_pgs(self) -> List[Dict]:
-        """Initialize the parameter groups. Used to ensure weight_decay is not applied
-        to our specified bias parameters when we initialize the optimizer.
+        """Initialize the parameter groups. Used to ensure weight_decay is not applied to our specified bias
+        parameters when we initialize the optimizer.
 
         Returns:
             List[Dict]: A list of parameter group dictionaries.
@@ -510,9 +474,7 @@ class RteBoolqModule(pl.LightningModule):
         # performance difference)
         optimizer = instantiate_registered_class(args=self.init_pgs(), init=self.optimizer_init)
         scheduler = {
-            "scheduler": instantiate_registered_class(
-                args=optimizer, init=self.lr_scheduler_init
-            ),
+            "scheduler": instantiate_registered_class(args=optimizer, init=self.lr_scheduler_init),
             **self.pl_lrs_cfg,
         }
         return [optimizer], [scheduler]
@@ -568,7 +530,7 @@ model = RteBoolqModule(
 callbacks = [
     FinetuningScheduler(ft_schedule=ft_schedule_name, max_depth=2),  # type: ignore # noqa
     FTSEarlyStopping(monitor="val_loss", min_delta=0.001, patience=2),  # type: ignore # noqa
-    FTSCheckpoint(monitor="val_loss", save_top_k=5), # type: ignore # noqa
+    FTSCheckpoint(monitor="val_loss", save_top_k=5),  # type: ignore # noqa
 ]
 example_logdir = "lightning_logs"
 logger = TensorBoardLogger(example_logdir, name="fts_explicit")
