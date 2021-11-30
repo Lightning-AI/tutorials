@@ -153,6 +153,7 @@ class HelperCLI:
     DIR_TO_TAG = {
         "course_UvA-DL": "UvA-DL-Course",
         "lightning_examples": "Lightning-Examples",
+        "flash_tutorials": "Kaggle",
     }
 
     @staticmethod
