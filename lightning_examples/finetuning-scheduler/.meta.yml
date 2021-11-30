@@ -1,20 +1,19 @@
 title: Finetuning Scheduler
-author: PL team
-created: 2021-01-31
-updated: 2021-06-21
+author: Dan Dale
+created: 2021-11-26
+updated: 2021-11-26
 license: CC BY-SA
 build: 1
 tags:
-  - Text
+  - finetuning
 description: |
-  This notebook will use HuggingFace's `datasets` library to get data, which will be wrapped in a `LightningDataModule`.
-  Then, we write a class to perform text classification on any dataset from the [GLUE Benchmark](https://gluebenchmark.com/).
-  (We just show CoLA and MRPC due to constraint on compute/disk)
+  This notebook introduces the FinetuningScheduler callback and demonstrates the use of FinetuningScheduler to finetune 
+  a small foundational model on the [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task 
+  of [SuperGLUE](https://super.gluebenchmark.com/) with iterative earlystopping defined according to a user-specified 
+  schedule. It uses HuggingFace's `datasets` and `transformers`` libraries to retrieve the relevant benchmark data and 
+  foundational model weights.
 requirements:
   - transformers
   - datasets
-  - scipy
-  - scikit-learn
 accelerator:
-  - CPU
   - GPU
