@@ -274,7 +274,7 @@ model = GLUETransformer(
 )
 
 trainer = Trainer(max_epochs=1, gpus=AVAIL_GPUS)
-trainer.fit(model, dm)
+trainer.fit(model, datamodule=dm)
 
 # %% [markdown]
 # ### MRPC
@@ -298,7 +298,7 @@ model = GLUETransformer(
 )
 
 trainer = Trainer(max_epochs=3, gpus=AVAIL_GPUS)
-trainer.fit(model, dm)
+trainer.fit(model, datamodule=dm)
 
 # %% [markdown]
 # ### MNLI
