@@ -6,9 +6,6 @@ docutils>=0.16
 sphinx-paramlinks>=0.4.0
 ipython[notebook]
 
-# temporarily included until hub available to evaluate finetuning_scheduler
-git+git://github.com/speediedan/pytorch-lightning.git@24d3e43568814ec381ac5be91627629808d62081#egg=pytorch-lightning
-
 https://github.com/PyTorchLightning/lightning_sphinx_theme/archive/master.zip#egg=pt-lightning-sphinx-theme
 
 -r ../.actions/requirements.txt
