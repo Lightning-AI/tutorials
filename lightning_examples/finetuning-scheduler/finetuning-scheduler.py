@@ -1,18 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.13.2
-#   kernelspec:
-#     display_name: 'Python 3.7.11 64-bit (''pldev_tutorials'': conda)'
-#     language: python
-#     name: python3
-# ---
-
 # %% [markdown]
 # ## Scheduled Finetuning
 #
@@ -34,7 +19,7 @@
 # final phase of the schedule has its stopping criteria met. See
 # the [early stopping documentation](https://pytorch-lightning.readthedocs.io/en/latest/extensions/generated/pytorch_lightning.callbacks.EarlyStopping.html) for more details on that callback's configuration.
 #
-# <img src="fts_explicit_loss_anim.gif" width="376px" height="272px">
+# ![FinetuningScheduler explicit loss animation](fts_explicit_loss_anim.gif)
 
 # %% [markdown]
 # ## Basic Usage
@@ -416,7 +401,7 @@ class RteBoolqModule(pl.LightningModule):
         loss = torch.stack([x["loss"] for x in outputs]).mean()
         self.log("train_loss", loss, prog_bar=True, sync_dist=True)
         if self.finetuningscheduler_callback:
-            self.log("finetuning_schedule_depth", self.finetuningscheduler_callback.curr_depth)
+            self.log("finetuning_schedule_depth", float(self.finetuningscheduler_callback.curr_depth))
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
         outputs = self(**batch)
