@@ -208,7 +208,7 @@ pl.seed_everything(42)
 # 5. Test loop (`test_step`) which is the same as validation, only on a test set.
 #
 # Therefore, we don't abstract the PyTorch code, but rather organize it and define some default operations that are commonly used.
-# If you need to change something else in your training/validation/test loop, there are many possible functions you can overwrite (see the [docs](https://pytorch-lightning.readthedocs.io/en/stable/lightning_module.html) for details).
+# If you need to change something else in your training/validation/test loop, there are many possible functions you can overwrite (see the [docs](https://pytorch-lightning.readthedocs.io/en/stable/common/lightning_module.html) for details).
 #
 # Now we can look at an example of how a Lightning Module for training a CNN looks like:
 
