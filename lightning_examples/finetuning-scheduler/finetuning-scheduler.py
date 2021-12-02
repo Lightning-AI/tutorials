@@ -24,7 +24,7 @@
 # %% [markdown]
 # ## Basic Usage
 #
-# If no finetuning schedule is user-provided, ``FinetuningScheduler`` will generate a
+# If no finetuning schedule is provided by the user, ``FinetuningScheduler`` will generate a
 # [default schedule](#The-Default-Finetuning-Schedule) and proceed to finetune according to the generated schedule, using default ``FTSEarlyStopping`` and ``FTSCheckpoint`` callbacks with ``monitor=val_loss``.
 #
 # ```python
@@ -268,9 +268,8 @@ class RteBoolqDataModule(pl.LightningDataModule):
         max_seq_length: int = 128,
         train_batch_size: int = 32,
         eval_batch_size: int = 32,
-        pin_memory: bool = False,
         tokenizers_parallelism: bool = True,
-        num_workers: int = 0,
+        **dataloader_kwargs: Any,
     ):
         super().__init__()
         self.model_name_or_path = model_name_or_path
@@ -399,7 +398,7 @@ class RteBoolqModule(pl.LightningModule):
 
     def training_epoch_end(self, outputs: List[Any]) -> None:
         loss = torch.stack([x["loss"] for x in outputs]).mean()
-        self.log("train_loss", loss, prog_bar=True, sync_dist=True)
+        self.log("train_loss", loss, prog_bar=True)
         if self.finetuningscheduler_callback:
             self.log("finetuning_schedule_depth", float(self.finetuningscheduler_callback.curr_depth))
 
@@ -424,14 +423,14 @@ class RteBoolqModule(pl.LightningModule):
         self.log_dict(metric_dict, prog_bar=True, sync_dist=True)
         return loss
 
-    def init_pgs(self) -> List[Dict]:
+    def _init_param_groups(self) -> List[Dict]:
         """Initialize the parameter groups. Used to ensure weight_decay is not applied to our specified bias
         parameters when we initialize the optimizer.
 
         Returns:
             List[Dict]: A list of parameter group dictionaries.
         """
-        pgs = [
+        return [
             {
                 "params": [
                     p
@@ -449,7 +448,6 @@ class RteBoolqModule(pl.LightningModule):
                 "weight_decay": 0.0,
             },
         ]
-        return pgs
 
     def configure_optimizers(self):
         # the phase 0 parameters will have been set to require gradients during setup
@@ -472,7 +470,7 @@ class RteBoolqModule(pl.LightningModule):
 
 
 # %%
-# let's create a finetuning schedule for our model and run an explicitly scheduled finetuning training scenario with it
+# Let's create a finetuning schedule for our model and run an explicitly scheduled finetuning training scenario with it
 # Please see the documentation for a full description of the schedule format
 ft_schedule_yaml = """
 0:
@@ -527,13 +525,14 @@ logger = TensorBoardLogger(example_logdir, name="fts_explicit")
 # # %load_ext tensorboard
 # # %tensorboard --logdir example_logdir
 # disable progress bar by default to focus on multi-phase training logs. Set to True to re-enable if desired
-show_progress = False
+enable_progress_bar = False
 
 # %%
 trainer = pl.Trainer(
-    enable_progress_bar=show_progress,
+    enable_progress_bar=enable_progress_bar,
     precision=16,
-    gpus=AVAIL_GPUS,
+    accelerator="auto",
+    devices="auto",
     callbacks=callbacks,
     logger=logger,
 )
