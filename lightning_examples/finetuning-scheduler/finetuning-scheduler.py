@@ -100,7 +100,8 @@
 # ```python
 # from pytorch_lightning import Trainer
 # from pytorch_lightning.callbacks.finetuning_scheduler import FinetuningScheduler
-# trainer = Trainer(callbacks=[FinetuningScheduler()], resume_from_checkpoint="some/path/to/my_checkpoint.ckpt")
+# trainer = Trainer(callbacks=[FinetuningScheduler()])
+# trainer.fit(..., ckpt_path="some/path/to/my_checkpoint.ckpt")
 # ```
 #
 # Training will resume at the depth/level of the provided checkpoint according the specified schedule. Schedules can be altered between training sessions but schedule compatibility is left to the user for maximal flexibility. If executing a user-defined schedule, typically the same schedule should be provided for the original and resumed training sessions.
@@ -108,10 +109,8 @@
 # By default (``FinetuningScheduler.restore_best`` is ``True``), ``FinetuningScheduler`` will attempt to restore the best available checkpoint before finetuning depth transitions.
 #
 # ```python
-# trainer = Trainer(
-#     callbacks=[FinetuningScheduler(new_incarnation_mode=True)],
-#     resume_from_checkpoint="some/path/to/my_kth_best_checkpoint.ckpt",
-# )
+# trainer = Trainer(callbacks=[FinetuningScheduler(new_incarnation_mode=True)])
+# trainer.fit(..., ckpt_path="some/path/to/my_kth_best_checkpoint.ckpt")
 # ```
 #
 # To handle the edge case wherein one is resuming scheduled finetuning from a non-best checkpoint and the previous best checkpoints may not be accessible, setting ``FinetuningScheduler.new_incarnation_mode`` to
@@ -120,14 +119,12 @@
 # %% [markdown]
 # <div class="alert alert-warning">
 #
-# **Note:** Currently, _FinetuningScheduler_ only supports the following _TrainingTypePlugins_:
-#
-# - ``DDPPlugin``
-# - ``DDPShardedPlugin``
-# - ``DDPSpawnPlugin``
-# - ``DDPSpawnShardedPlugin``
-# - ``DataParallelPlugin``
-# - ``SingleDevicePlugin``
+# **Note:** Currently, _FinetuningScheduler_ only supports the following ``StrategyType``s:
+# - ``DP``
+# - ``DDP``
+# - ``DDP_SPAWN``
+# - ``DDP_SHARDED``
+# - ``DDP_SHARDED_SPAWN``
 #
 # </div>
 
@@ -142,7 +139,6 @@
 #
 
 # %%
-import logging
 import os
 import warnings
 from datetime import datetime
@@ -160,24 +156,24 @@ from torch.utils.data import DataLoader
 from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
 
 # %%
-# a couple helper functions to prepare code to work with the forthcoming hub and user module registry
-MOCK_HUB_REGISTRY = _Registry()
+# a couple helper functions to prepare code to work with a user module registry
+MOCK_REGISTRY = _Registry()
 
 
-def module_hub_mock(key: str, require_fqn: bool = False) -> List:
+def mock_register_module(key: str, require_fqn: bool = False) -> List:
     if key.lower() == "finetuningscheduler":
         mod = import_module("pytorch_lightning.callbacks.finetuning_scheduler")
-        MOCK_HUB_REGISTRY.register_classes(mod, pl.callbacks.Callback)
+        MOCK_REGISTRY.register_classes(mod, pl.callbacks.Callback)
     else:
         raise MisconfigurationException(f"user module key '{key}' not found")
     registered_list = []
     # make registered class available by unqualified class name by default
     if not require_fqn:
-        for n, c in MOCK_HUB_REGISTRY.items():
+        for n, c in MOCK_REGISTRY.items():
             globals()[f"{n}"] = c
-        registered_list = ", ".join([n for n in MOCK_HUB_REGISTRY.names])
+        registered_list = ", ".join([n for n in MOCK_REGISTRY.names])
     else:
-        registered_list = ", ".join([c.__module__ + "." + c.__name__ for c in MOCK_HUB_REGISTRY.classes])
+        registered_list = ", ".join([c.__module__ + "." + c.__name__ for c in MOCK_REGISTRY.classes])
     print(f"Imported and registered the following callbacks: {registered_list}")
 
 
@@ -203,7 +199,7 @@ def instantiate_registered_class(init: Dict[str, Any], args: Optional[Union[Any,
         else:  # class is expected to be locally defined
             args_class = globals()[init["class_path"]]
     elif init.get("callback_key", None):
-        callback_path = CALLBACK_REGISTRY.get(init["callback_key"], None) or MOCK_HUB_REGISTRY.get(
+        callback_path = CALLBACK_REGISTRY.get(init["callback_key"], None) or MOCK_REGISTRY.get(
             init["callback_key"], None
         )
         assert callback_path, MisconfigurationException(
@@ -222,31 +218,24 @@ def instantiate_registered_class(init: Dict[str, Any], args: Optional[Union[Any,
 
 # %%
 # load the pl extension module we want to use. This will import all necessary callbacks.
-module_hub_mock("finetuningscheduler")
+mock_register_module("finetuningscheduler")
 # set notebook-level variables
-AVAIL_GPUS = min(1, torch.cuda.device_count())
+AVAIL_GPUS = torch.cuda.device_count()
 TASK_NUM_LABELS = {"boolq": 2, "rte": 2}
 DEFAULT_TASK = "rte"
 
-# narrow our logging to adapt it for a notebook environment
-for l_key in logging.Logger.manager.loggerDict.keys():
-    if "pytorch_lightning" in l_key:
-        logging.getLogger(l_key).setLevel("INFO")
-    else:
-        logging.getLogger(l_key).setLevel("CRITICAL")
-pl_logger = logging.getLogger("pytorch_lightning")
-pl_logger.removeHandler(pl_logger.handlers[0])
-rz_logger = logging.getLogger("pytorch_lightning.utilities.distributed")
-rz_logger.addHandler(logging.StreamHandler())
-rz_logger.handlers[0].setLevel("INFO")
+# ignore warnings related tokenizers_parallelism/DataLoader parallelism tradeoff and
+#  expected logging behavior
+for warnf in [".*does not have many workers*", ".*The number of training samples.*"]:
+    warnings.filterwarnings("ignore", warnf)
 
 
 # %%
 class RteBoolqDataModule(pl.LightningDataModule):
     """A ``LightningDataModule`` for using either the RTE or BoolQ SuperGLUE Hugging Face datasets."""
 
-    task_text_field_map = {"rte": ["premise", "hypothesis"], "boolq": ["question", "passage"]}
-    loader_columns = [
+    TASK_TEXT_FIELD_MAP = {"rte": ("premise", "hypothesis"), "boolq": ("question", "passage")}
+    LOADER_COLUMNS = (
         "datasets_idx",
         "input_ids",
         "token_type_ids",
@@ -254,17 +243,12 @@ class RteBoolqDataModule(pl.LightningDataModule):
         "start_positions",
         "end_positions",
         "labels",
-    ]
-    # ignore warnings related tokenizers_parallelism/DataLoader parallelism tradeoff and
-    #  expected logging behavior
-    for warnf in [".*does not have many workers*", ".*The number of training samples.*"]:
-        warnings.filterwarnings("ignore", warnf)
+    )
 
     def __init__(
         self,
         model_name_or_path: str,
         task_name: str = DEFAULT_TASK,
-        prep_on_init: bool = False,
         max_seq_length: int = 128,
         train_batch_size: int = 32,
         eval_batch_size: int = 32,
@@ -278,23 +262,22 @@ class RteBoolqDataModule(pl.LightningDataModule):
         self.train_batch_size = train_batch_size
         self.eval_batch_size = eval_batch_size
         self.tokenizers_parallelism = tokenizers_parallelism
-        self.dataloader_kwargs = {"num_workers": num_workers, "pin_memory": pin_memory}
-        self.text_fields = self.task_text_field_map[self.task_name]
+        self.dataloader_kwargs = {
+            "num_workers": dataloader_kwargs.get("num_workers", 0),
+            "pin_memory": dataloader_kwargs.get("pin_memory", False),
+        }
+        self.text_fields = self.TASK_TEXT_FIELD_MAP[self.task_name]
         self.num_labels = TASK_NUM_LABELS[self.task_name]
         os.environ["TOKENIZERS_PARALLELISM"] = "true" if self.tokenizers_parallelism else "false"
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name_or_path, use_fast=True, local_files_only=False)
-        if prep_on_init:  # useful if one wants to load datasets as soon as the ``LightningDataModule`` is
-            # instantiated
-            self.prepare_data()
-            self.setup("fit")
 
     def setup(self, stage):
         self.dataset = datasets.load_dataset("super_glue", self.task_name)
         for split in self.dataset.keys():
             self.dataset[split] = self.dataset[split].map(
-                self.convert_to_features, batched=True, remove_columns=["label"]
+                self._convert_to_features, batched=True, remove_columns=["label"]
             )
-            self.columns = [c for c in self.dataset[split].column_names if c in self.loader_columns]
+            self.columns = [c for c in self.dataset[split].column_names if c in self.LOADER_COLUMNS]
             self.dataset[split].set_format(type="torch", columns=self.columns)
 
         self.eval_splits = [x for x in self.dataset.keys() if "validation" in x]
@@ -329,7 +312,7 @@ class RteBoolqDataModule(pl.LightningDataModule):
                 for x in self.eval_splits
             ]
 
-    def convert_to_features(self, example_batch):
+    def _convert_to_features(self, example_batch):
         text_pairs = list(zip(example_batch[self.text_fields[0]], example_batch[self.text_fields[1]]))
         # Tokenize the text/text pairs
         features = self.tokenizer.batch_encode_plus(
@@ -412,15 +395,15 @@ class RteBoolqModule(pl.LightningModule):
             preds = logits.squeeze()
 
         labels = batch["labels"]
+        self.log("val_loss", val_loss, prog_bar=True)
         return {"loss": val_loss, "preds": preds, "labels": labels}
 
     def validation_epoch_end(self, outputs):
         preds = torch.cat([x["preds"] for x in outputs]).detach().cpu().numpy()
         labels = torch.cat([x["labels"] for x in outputs]).detach().cpu().numpy()
         loss = torch.stack([x["loss"] for x in outputs]).mean()
-        self.log("val_loss", loss, prog_bar=True, sync_dist=True)
         metric_dict = self.metric.compute(predictions=preds, references=labels)
-        self.log_dict(metric_dict, prog_bar=True, sync_dist=True)
+        self.log_dict(metric_dict, prog_bar=True)
         return loss
 
     def _init_param_groups(self) -> List[Dict]:
@@ -455,7 +438,7 @@ class RteBoolqModule(pl.LightningModule):
         # but in this case we pass a list of parameter groups to ensure weight_decay is
         # not applied to the bias parameter (for completeness, in this case it won't make much
         # performance difference)
-        optimizer = instantiate_registered_class(args=self.init_pgs(), init=self.optimizer_init)
+        optimizer = instantiate_registered_class(args=self._init_param_groups(), init=self.optimizer_init)
         scheduler = {
             "scheduler": instantiate_registered_class(args=optimizer, init=self.lr_scheduler_init),
             **self.pl_lrs_cfg,
@@ -485,6 +468,8 @@ ft_schedule_yaml = """
   - model.albert.encoder.*.ffn_output.*
 """
 ft_schedule_name = "RteBoolqModule_ft_schedule_albert_base.yaml"
+# Let's write the schedule to a file so we can simulate loading an explicitly defined finetuning
+# schedule.
 with open(ft_schedule_name, "w") as f:
     f.write(ft_schedule_yaml)
 
@@ -492,17 +477,52 @@ with open(ft_schedule_name, "w") as f:
 datasets.set_progress_bar_enabled(False)
 pl.seed_everything(42)
 dm = RteBoolqDataModule(model_name_or_path="albert-base-v2", tokenizers_parallelism=False)
-dm.setup("fit")
+
+# %% [markdown]
+# ### Optimizer Configuration
+#
+# <div id="a2">
+#
+# Though other optimizers can arguably yield some marginal advantage contingent on the context,
+# the Adam optimizer (and the [AdamW version](https://pytorch.org/docs/stable/_modules/torch/optim/adamw.html#AdamW) which
+# implements decoupled weight decay) remains robust to hyperparameter choices and is commonly used for finetuning
+# foundational language models.  See [(Sivaprasad et al., 2020)](#f2) and [(Mosbach, Andriushchenko & Klakow, 2020)](#f3) for theoretical and systematic empirical justifications of Adam and its use in finetuning
+# large transformer-based language models. The values used here have some justification
+# in the referenced literature but have been largely empirically determined and while a good
+# starting point could be could be further tuned.
+#
+# </div>
+
+# %%
 optimizer_init = {
     "class_path": "torch.optim.AdamW",
     "init_args": {"weight_decay": 1e-05, "eps": 1e-07, "lr": 1e-05},
 }
+
+# %% [markdown]
+# ### LR Scheduler Configuration
+#
+# <div id="a3">
+#
+# The [CosineAnnealingWarmRestarts scheduler](https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.CosineAnnealingWarmRestarts.html?highlight=cosineannealingwarm#torch.optim.lr_scheduler.CosineAnnealingWarmRestarts) nicely fits with our iterative finetuning since it does not depend upon a global max_epoch
+# value. The importance of initial warmup is reduced due to the innate warmup effect of Adam bias correction [[5]](#f3)
+# and the gradual thawing we are performing. Note that commonly used LR schedulers that depend on providing
+# max_iterations/epochs (e.g. the
+# [CosineWarmupScheduler](https://github.com/PyTorchLightning/lightning-tutorials/blob/0c325829101d5a6ebf32ed99bbf5b09badf04a59/course_UvA-DL/05-transformers-and-MH-attention/Transformers_MHAttention.py#L688)
+# used in other pytorch-lightning tutorials) also work with FinetuningScheduler. Though the LR scheduler is theoretically
+# justified [(Loshchilov & Hutter, 2016)](#f4), the particular values provided here are primarily empircally driven.
+#
+# </div>
+
+
+# %%
 lr_scheduler_init = {
     "class_path": "torch.optim.lr_scheduler.CosineAnnealingWarmRestarts",
     "init_args": {"T_0": 1, "T_mult": 2, "eta_min": 1e-07},
 }
 pl_lrs_cfg = {"interval": "epoch", "frequency": 1, "name": "CosineAnnealingWarmRestarts"}
 
+# %%
 model = RteBoolqModule(
     model_name_or_path="albert-base-v2",
     optimizer_init=optimizer_init,
@@ -528,15 +548,23 @@ logger = TensorBoardLogger(example_logdir, name="fts_explicit")
 enable_progress_bar = False
 
 # %%
-trainer = pl.Trainer(
-    enable_progress_bar=enable_progress_bar,
-    precision=16,
-    accelerator="auto",
-    devices="auto",
-    callbacks=callbacks,
-    logger=logger,
-)
-trainer.fit(model, datamodule=dm)
+def train() -> None:
+    trainer = pl.Trainer(
+        enable_progress_bar=enable_progress_bar,
+        precision=16,
+        gpus=1,
+        # accelerator="auto",
+        # devices="auto",
+        callbacks=callbacks,
+        logger=logger,
+    )
+    trainer.fit(model, datamodule=dm)
+
+
+if AVAIL_GPUS > 0:
+    train()
+else:
+    print("Given the multiple phases of finetuning demonstrated, this notebook is best used with a GPU")
 
 # %% [markdown]
 # ## Footnotes
@@ -560,5 +588,25 @@ trainer.fit(model, datamodule=dm)
 # [Peters, M. E., Ruder, S., & Smith, N. A. (2019)](https://arxiv.org/pdf/1903.05987.pdf). To tune or not to
 #  tune? adapting pretrained representations to diverse tasks. arXiv preprint arXiv:1903.05987. [↩](#a1)
 #
-#  </li>
-#  </ul>
+# </li>
+# <li id="f2">
+#
+# [Sivaprasad, P. T., Mai, F., Vogels, T., Jaggi, M., & Fleuret, F. (2020)](https://arxiv.org/pdf/1910.11758.pdf).
+#  Optimizer benchmarking needs to account for hyperparameter tuning. In International Conference on Machine Learning
+# (pp. 9036-9045). PMLR. [↩](#a2)
+#
+# </li>
+# <li id="f3">
+#
+# [Mosbach, M., Andriushchenko, M., & Klakow, D. (2020)](https://arxiv.org/pdf/2006.04884.pdf). On the stability of
+# fine-tuning bert: Misconceptions, explanations, and strong baselines. arXiv preprint arXiv:2006.04884. [↩](#a2)
+#
+# </li>
+# <li id="f4">
+#
+# [Loshchilov, I., & Hutter, F. (2016)](https://arxiv.org/pdf/1608.03983.pdf). Sgdr: Stochastic gradient descent with
+# warm restarts. arXiv preprint arXiv:1608.03983. [↩](#a3)
+#
+# </li>
+#
+# </ol>
