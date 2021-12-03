@@ -1,7 +1,7 @@
 # %%
 import os
 from collections import OrderedDict, deque, namedtuple
-from typing import List, Tuple, Iterator
+from typing import Iterator, List, Tuple
 
 import gym
 import numpy as np
@@ -29,7 +29,11 @@ class DQN(nn.Module):
             hidden_size: size of hidden layers
         """
         super().__init__()
-        self.net = nn.Sequential(nn.Linear(obs_size, hidden_size), nn.ReLU(), nn.Linear(hidden_size, n_actions),)
+        self.net = nn.Sequential(
+            nn.Linear(obs_size, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, n_actions),
+        )
 
     def forward(self, x):
         return self.net(x.float())
@@ -41,7 +45,10 @@ class DQN(nn.Module):
 # %%
 
 # Named tuple for storing experience steps gathered in training
-Experience = namedtuple("Experience", field_names=["state", "action", "reward", "done", "new_state"],)
+Experience = namedtuple(
+    "Experience",
+    field_names=["state", "action", "reward", "done", "new_state"],
+)
 
 
 # %%
@@ -147,7 +154,12 @@ class Agent:
         return action
 
     @torch.no_grad()
-    def play_step(self, net: nn.Module, epsilon: float = 0.0, device: str = "cpu",) -> Tuple[float, bool]:
+    def play_step(
+        self,
+        net: nn.Module,
+        epsilon: float = 0.0,
+        device: str = "cpu",
+    ) -> Tuple[float, bool]:
         """Carries out a single interaction step between the agent and the environment.
 
         Args:
@@ -332,7 +344,10 @@ class DQNLightning(LightningModule):
     def __dataloader(self) -> DataLoader:
         """Initialize the Replay Buffer dataset used for retrieving experiences."""
         dataset = RLDataset(self.buffer, self.hparams.episode_length)
-        dataloader = DataLoader(dataset=dataset, batch_size=self.hparams.batch_size,)
+        dataloader = DataLoader(
+            dataset=dataset,
+            batch_size=self.hparams.batch_size,
+        )
         return dataloader
 
     def train_dataloader(self) -> DataLoader:
@@ -351,7 +366,11 @@ class DQNLightning(LightningModule):
 
 model = DQNLightning()
 
-trainer = Trainer(gpus=AVAIL_GPUS, max_epochs=400, val_check_interval=100,)
+trainer = Trainer(
+    gpus=AVAIL_GPUS,
+    max_epochs=400,
+    val_check_interval=100,
+)
 
 trainer.fit(model)
 
