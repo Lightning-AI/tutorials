@@ -287,8 +287,7 @@ class DQNLightning(LightningModule):
     def get_epsilon(self, start: int, end: int, frames: int) -> float:
         if self.global_step > frames:
             return end
-        else:
-            return start - (self.global_step / frames) * (start - end)
+        return start - (self.global_step / frames) * (start - end)
 
     def training_step(self, batch: Tuple[Tensor, Tensor], nb_batch) -> OrderedDict:
         """Carries out a single step through the environment to update the replay buffer. Then calculates loss
