@@ -367,7 +367,7 @@ model = DQNLightning()
 
 trainer = Trainer(
     gpus=AVAIL_GPUS,
-    max_epochs=400,
+    max_epochs=200,
     val_check_interval=100,
 )
 
