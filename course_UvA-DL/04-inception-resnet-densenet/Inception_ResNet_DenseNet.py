@@ -208,7 +208,7 @@ pl.seed_everything(42)
 # 5. Test loop (`test_step`) which is the same as validation, only on a test set.
 #
 # Therefore, we don't abstract the PyTorch code, but rather organize it and define some default operations that are commonly used.
-# If you need to change something else in your training/validation/test loop, there are many possible functions you can overwrite (see the [docs](https://pytorch-lightning.readthedocs.io/en/stable/lightning_module.html) for details).
+# If you need to change something else in your training/validation/test loop, there are many possible functions you can overwrite (see the [docs](https://pytorch-lightning.readthedocs.io/en/stable/common/lightning_module.html) for details).
 #
 # Now we can look at an example of how a Lightning Module for training a CNN looks like:
 
@@ -322,7 +322,7 @@ act_fn_by_name = {"tanh": nn.Tanh, "relu": nn.ReLU, "leakyrelu": nn.LeakyReLU, "
 # Besides the Lightning module, the second most important module in PyTorch Lightning is the `Trainer`.
 # The trainer is responsible to execute the training steps defined in the Lightning module and completes the framework.
 # Similar to the Lightning module, you can override any key part that you don't want to be automated, but the default settings are often the best practice to do.
-# For a full overview, see the [documentation](https://pytorch-lightning.readthedocs.io/en/stable/trainer.html).
+# For a full overview, see the [documentation](https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html).
 # The most important functions we use below are:
 #
 # * `trainer.fit`: Takes as input a lightning module, a training dataset, and an (optional) validation dataset.
@@ -764,7 +764,7 @@ resnet_blocks_by_name = {"ResNetBlock": ResNetBlock, "PreActResNetBlock": PreAct
 #
 # The three groups operate on the resolutions $32\times32$, $16\times16$ and $8\times8$ respectively.
 # The blocks in orange denote ResNet blocks with downsampling.
-# The same notation is used by many other implementations such as in the [torchvision library](https://pytorch.org/docs/stable/_modules/torchvision/models/resnet.html#resnet18) from PyTorch.
+# The same notation is used by many other implementations such as in the [torchvision library](https://pytorch.org/vision/0.11/models.html#torchvision.models.resnet18) from PyTorch.
 # Thus, our code looks as follows:
 
 
