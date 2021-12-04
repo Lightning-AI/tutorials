@@ -79,7 +79,7 @@ TEMPLATE_FOOTER = """
 #
 # ### Great thanks from the entire Pytorch Lightning Team for your interest !
 #
-# ![Pytorch Lightning](https://github.com/PyTorchLightning/pytorch-lightning/blob/master/docs/source/_static/images/logo.png){height="60px" width="240px"}
+# [![Pytorch Lightning](https://raw.githubusercontent.com/PyTorchLightning/pytorch-lightning/master/docs/source/_static/images/logo.png){height="60px" width="240px"}](https://pytorchlightning.ai)
 
 """
 TEMPLATE_CARD_ITEM = """
@@ -153,6 +153,7 @@ class HelperCLI:
     DIR_TO_TAG = {
         "course_UvA-DL": "UvA-DL-Course",
         "lightning_examples": "Lightning-Examples",
+        "flash_tutorials": "Kaggle",
     }
 
     @staticmethod
@@ -387,6 +388,7 @@ class HelperCLI:
         docs_root: str = "docs/source",
         path_docs_ipynb: str = "notebooks",
         path_docs_images: str = "_static/images",
+        patterns: Sequence[str] = (".", "**"),
     ):
         """Copy all notebooks from a folder to doc folder.
 
@@ -395,10 +397,11 @@ class HelperCLI:
             docs_root: docs source directory
             path_docs_ipynb: destination path to the notebooks location relative to ``docs_root``
             path_docs_images: destination path to the images location relative to ``docs_root``
+            patterns: patterns to use when glob-ing notebooks
         """
         ls_ipynb = []
-        for sub in (["*.ipynb"], ["**", "*.ipynb"]):
-            ls_ipynb += glob.glob(os.path.join(path_root, HelperCLI.DIR_NOTEBOOKS, *sub))
+        for sub in patterns:
+            ls_ipynb += glob.glob(os.path.join(path_root, HelperCLI.DIR_NOTEBOOKS, sub, "*.ipynb"))
 
         os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
         ipynb_content = []
@@ -459,7 +462,7 @@ class HelperCLI:
         req += meta.get("requirements", [])
         req = [r.strip() for r in req]
 
-        def _parse(pkg: str, keys: str = " <=>") -> str:
+        def _parse(pkg: str, keys: str = " <=>[]") -> str:
             """Parsing just the package name."""
             if any(c in pkg for c in keys):
                 ix = min(pkg.index(c) for c in keys if c in pkg)

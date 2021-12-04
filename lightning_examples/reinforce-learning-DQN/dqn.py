@@ -1,7 +1,7 @@
 # %%
 import os
 from collections import OrderedDict, deque, namedtuple
-from typing import List, Tuple
+from typing import Iterator, List, Tuple
 
 import gym
 import numpy as np
@@ -99,7 +99,7 @@ class RLDataset(IterableDataset):
         self.buffer = buffer
         self.sample_size = sample_size
 
-    def __iter__(self) -> Tuple:
+    def __iter__(self) -> Iterator[Tuple]:
         states, actions, rewards, dones, new_states = self.buffer.sample(self.sample_size)
         for i in range(len(dones)):
             yield states[i], actions[i], rewards[i], dones[i], new_states[i]
@@ -247,7 +247,7 @@ class DQNLightning(LightningModule):
         Args:
             steps: number of random steps to populate the buffer with
         """
-        for i in range(steps):
+        for _ in range(steps):
             self.agent.play_step(self.net, epsilon=1.0)
 
     def forward(self, x: Tensor) -> Tensor:
@@ -273,7 +273,7 @@ class DQNLightning(LightningModule):
         """
         states, actions, rewards, dones, next_states = batch
 
-        state_action_values = self.net(states).gather(1, actions.unsqueeze(-1)).squeeze(-1)
+        state_action_values = self.net(states).gather(1, actions.long().unsqueeze(-1)).squeeze(-1)
 
         with torch.no_grad():
             next_state_values = self.target_net(next_states).max(1)[0]
@@ -283,6 +283,11 @@ class DQNLightning(LightningModule):
         expected_state_action_values = next_state_values * self.hparams.gamma + rewards
 
         return nn.MSELoss()(state_action_values, expected_state_action_values)
+
+    def get_epsilon(self, start: int, end: int, frames: int) -> float:
+        if self.global_step > frames:
+            return end
+        return start - (self.global_step / frames) * (start - end)
 
     def training_step(self, batch: Tuple[Tensor, Tensor], nb_batch) -> OrderedDict:
         """Carries out a single step through the environment to update the replay buffer. Then calculates loss
@@ -296,14 +301,13 @@ class DQNLightning(LightningModule):
             Training loss and log metrics
         """
         device = self.get_device(batch)
-        epsilon = max(
-            self.hparams.eps_end,
-            self.hparams.eps_start - self.global_step + 1 / self.hparams.eps_last_frame,
-        )
+        epsilon = self.get_epsilon(self.hparams.eps_start, self.hparams.eps_end, self.hparams.eps_last_frame)
+        self.log("epsilon", epsilon)
 
         # step through environment with agent
         reward, done = self.agent.play_step(self.net, epsilon, device)
         self.episode_reward += reward
+        self.log("episode reward", self.episode_reward)
 
         # calculates training loss
         loss = self.dqn_mse_loss(batch)

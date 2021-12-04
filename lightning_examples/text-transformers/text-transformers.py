@@ -220,7 +220,7 @@ class GLUETransformer(LightningModule):
         if stage != "fit":
             return
         # Get dataloader by calling it - train_dataloader() is called after setup() by default
-        train_loader = self.train_dataloader()
+        train_loader = self.trainer.datamodule.train_dataloader()
 
         # Calculate total steps
         tb_size = self.hparams.train_batch_size * max(1, self.trainer.gpus)
@@ -274,7 +274,7 @@ model = GLUETransformer(
 )
 
 trainer = Trainer(max_epochs=1, gpus=AVAIL_GPUS)
-trainer.fit(model, dm)
+trainer.fit(model, datamodule=dm)
 
 # %% [markdown]
 # ### MRPC
@@ -298,7 +298,7 @@ model = GLUETransformer(
 )
 
 trainer = Trainer(max_epochs=3, gpus=AVAIL_GPUS)
-trainer.fit(model, dm)
+trainer.fit(model, datamodule=dm)
 
 # %% [markdown]
 # ### MNLI
