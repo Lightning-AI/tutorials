@@ -1,3 +1,15 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.13.2
+# ---
+
 # %% [markdown]
 # ## Scheduled Finetuning
 #
@@ -396,6 +408,7 @@ class RteBoolqModule(pl.LightningModule):
 
         labels = batch["labels"]
         self.log("val_loss", val_loss, prog_bar=True)
+
         return {"loss": val_loss, "preds": preds, "labels": labels}
 
     def validation_epoch_end(self, outputs):
@@ -518,7 +531,8 @@ optimizer_init = {
 # %%
 lr_scheduler_init = {
     "class_path": "torch.optim.lr_scheduler.CosineAnnealingWarmRestarts",
-    "init_args": {"T_0": 1, "T_mult": 2, "eta_min": 1e-07},
+    # "init_args": {"T_0": 1, "T_mult": 2, "eta_min": 1e-07},
+    "init_args": {"T_0": 1, "T_mult": 2, "eta_min": 0},
 }
 pl_lrs_cfg = {"interval": "epoch", "frequency": 1, "name": "CosineAnnealingWarmRestarts"}
 
@@ -551,10 +565,10 @@ enable_progress_bar = False
 def train() -> None:
     trainer = pl.Trainer(
         enable_progress_bar=enable_progress_bar,
+        # max_epochs=1,
         precision=16,
-        gpus=1,
-        # accelerator="auto",
-        # devices="auto",
+        accelerator="gpu",
+        devices=1,
         callbacks=callbacks,
         logger=logger,
     )
