@@ -4,7 +4,7 @@
 # The following notebook is meant to give a short introduction to PyTorch basics, and get you setup for writing your own neural networks.
 # PyTorch is an open source machine learning framework that allows you to write your own neural networks and optimize them efficiently.
 # However, PyTorch is not the only framework of its kind.
-# Alternatives to PyTorch include [TensorFlow](https://www.tensorflow.org/), [JAX](https://github.com/google/jax#quickstart-colab-in-the-cloud) and [Caffe](http://caffe.berkeleyvision.org/).
+# Alternatives to PyTorch include [TensorFlow](https://www.tensorflow.org/), [JAX](https://github.com/google/jax) and [Caffe](http://caffe.berkeleyvision.org/).
 # We choose to teach PyTorch at the University of Amsterdam because it is well established, has a huge developer community (originally developed by Facebook), is very flexible and especially used in research.
 # Many current papers publish their code in PyTorch, and thus it is good to be familiar with PyTorch as well.
 # Meanwhile, TensorFlow (developed by Google) is usually known for being a production-grade deep learning library.
