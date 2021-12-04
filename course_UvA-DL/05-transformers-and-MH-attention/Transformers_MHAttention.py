@@ -669,10 +669,9 @@ plt.show()
 # Improved optimizers like [RAdam](https://arxiv.org/abs/1908.03265) have been shown to overcome this issue,
 # not requiring warm-up for training Transformers.
 # Secondly, the iteratively applied Layer Normalization across layers can lead to very high gradients during
-# the first iterations, which can be solved by using
-# [Pre-Layer Normalization](https://proceedings.icml.cc/static/paper_files/icml/2020/328-Paper.pdf)
+# the first iterations, which can be solved by using Pre-Layer Normalization
 # (similar to Pre-Activation ResNet), or replacing Layer Normalization by other techniques
-# ([Adaptive Normalization](https://proceedings.icml.cc/static/paper_files/icml/2020/328-Paper.pdf),
+# (Adaptive Normalization,
 # [Power Normalization](https://arxiv.org/abs/2003.07845)).
 #
 # Nevertheless, many applications and papers still use the original Transformer architecture with Adam,

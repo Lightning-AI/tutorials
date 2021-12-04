@@ -323,7 +323,7 @@ def visualize_activations(model, color="C0", print_variance=False):
 # %% [markdown]
 # ## Initialization
 #
-# Before starting our discussion about initialization, it should be noted that there exist many very good blog posts about the topic of neural network initialization (for example [deeplearning.ai](https://www.deeplearning.ai/ai-notes/initialization/), or a more [math-focused blog post](https://pouannes.github.io/blog/initialization/#mjx-eqn-eqfwd_K)).
+# Before starting our discussion about initialization, it should be noted that there exist many very good blog posts about the topic of neural network initialization (for example [deeplearning.ai](https://www.deeplearning.ai/ai-notes/initialization/), or a more [math-focused blog post](https://pouannes.github.io/blog/initialization)).
 # In case something remains unclear after this tutorial, we recommend skimming through these blog posts as well.
 #
 # When initializing a neural network, there are a few properties we would like to have.
@@ -457,7 +457,7 @@ visualize_activations(model, print_variance=True)
 # Besides the variance of the activations, another variance we would like to stabilize is the one of the gradients.
 # This ensures a stable optimization for deep networks.
 # It turns out that we can do the same calculation as above starting from $\Delta x=W\Delta y$, and come to the conclusion that we should initialize our layers with $1/d_y$ where $d_y$ is the number of output neurons.
-# You can do the calculation as a practice, or check a thorough explanation in [this blog post](https://pouannes.github.io/blog/initialization/#mjx-eqn-eqfwd_K).
+# You can do the calculation as a practice, or check a thorough explanation in [this blog post](https://pouannes.github.io/blog/initialization).
 # As a compromise between both constraints, [Glorot and Bengio (2010)](http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf?hc_location=ufi) proposed to use the harmonic mean of both values.
 # This leads us to the well-known Xavier initialization:
 #

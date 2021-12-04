@@ -805,7 +805,7 @@ test_dataset = tu_dataset[150:]
 # Torch geometric uses a different, more efficient approach: we can view the $N$ graphs in a batch as a single large graph with concatenated node and edge list.
 # As there is no edge between the $N$ graphs, running GNN layers on the large graph gives us the same output as running the GNN on each graph separately.
 # Visually, this batching strategy is visualized below (figure credit - PyTorch Geometric team,
-# [tutorial here](https://colab.research.google.com/drive/1I8a0DfQ3fI7Njc62__mVXUlcAleUclnb?usp=sharing#scrollTo=2owRWKcuoALo)).
+# [tutorial here](https://colab.research.google.com/drive/1I8a0DfQ3fI7Njc62__mVXUlcAleUclnb)).
 #
 # <center width="100%"><img src="torch_geometric_stacking_graphs.png" width="600px"></center>
 #

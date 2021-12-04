@@ -9,9 +9,9 @@ import os
 import torch
 import torch.nn.functional as F
 from pytorch_lightning import LightningDataModule, LightningModule, Trainer
-from pytorch_lightning.metrics.functional import accuracy
 from torch import nn
 from torch.utils.data import DataLoader, random_split
+from torchmetrics.functional import accuracy
 from torchvision import transforms
 
 # Note - you must have torchvision installed for this example

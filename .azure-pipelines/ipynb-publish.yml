@@ -18,7 +18,7 @@ jobs:
     # - For 60 minutes on Microsoft-hosted agents with a private project or private repository
     timeoutInMinutes: 0
 
-    pool: gridai-spot-pool
+    pool: azure-gpus-persist
     # this need to have installed docker in the base image...
     container:
       # base ML image: mcr.microsoft.com/azureml/openmpi3.1.2-cuda10.2-cudnn8-ubuntu18.04
