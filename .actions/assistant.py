@@ -191,7 +191,6 @@ class AssistantCLI:
         thumb_names = list(map(os.path.basename, thumb_files))
         if len(thumb_files) > 1:
             raise FileExistsError(f"Too many thumb files ({thumb_names}) found in folder: {folder}")
-        print(f"Found thumb: {thumb_names}")
         thumb = thumb_files[0] if thumb_files else ""
         return nb_files[0], meta_files[0], thumb
 
@@ -207,7 +206,7 @@ class AssistantCLI:
         return any(ac in meta_accels for ac in device_accels)
 
     @staticmethod
-    def _parse_requirements(folder: str) -> Tuple[list, list]:
+    def _parse_requirements(folder: str) -> Tuple[str, str]:
         """Parse standard requirements from meta file
         Args:
             folder: path to the folder
@@ -228,7 +227,7 @@ class AssistantCLI:
                 arg = arg % _RUNTIME_VERSIONS
                 pip_args.append(f"--{pip_key} {arg}")
 
-        return req, pip_args
+        return " ".join(req), " ".join(pip_args)
 
     @staticmethod
     def bash_render(folder: str) -> str:
