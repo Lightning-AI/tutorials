@@ -19,6 +19,11 @@ from wcmatch import glob
 _PATH_HERE = os.path.dirname(__file__)
 _PATH_ROOT = os.path.dirname(_PATH_HERE)
 PATH_REQ_DEFAULT = os.path.join(_PATH_ROOT, "requirements", "default.txt")
+REPO_NAME = "lightning-tutorials"
+COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
+BRANCH_DEFAULT = "main"
+BRANCH_PUBLISHED = "publication"
+URL_PL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{BRANCH_DEFAULT}"
 TEMPLATE_HEADER = f"""# %%%% [markdown]
 #
 # # %(title)s
@@ -30,7 +35,7 @@ TEMPLATE_HEADER = f"""# %%%% [markdown]
 # %(description)s
 #
 # ---
-# Open in [![Open In Colab](https://colab.research.google.com/assets/colab-badge.png){{height="20px" width="117px"}}]({COLAB_REPO_LINK}/{REPO_NAME}/blob/{PUBLIC_BRANCH}/.notebooks/%(local_ipynb)s)
+# Open in [![Open In Colab](https://colab.research.google.com/assets/colab-badge.png){{height="20px" width="117px"}}]({COLAB_REPO_LINK}/{REPO_NAME}/blob/{BRANCH_PUBLISHED}/.notebooks/%(local_ipynb)s)
 #
 # Give us a ⭐ [on Github](https://www.github.com/PytorchLightning/pytorch-lightning/)
 # | Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/latest/)
@@ -125,11 +130,6 @@ _RUNTIME_VERSIONS = dict(
 
 class AssistantCLI:
 
-    REPO_NAME = "lightning-tutorials"
-    COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
-    BRANCH_DEFAULT = "main"
-    BRANCH_PUBLISHED = "publication"
-    URL_PL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{BRANCH_DEFAULT}"
     DEVICE_ACCELERATOR = os.environ.get("ACCELERATOR", "cpu").lower()
     _DIR_NOTEBOOKS = ".notebooks"
     _META_REQUIRED_FIELDS = ("title", "author", "license", "description")
@@ -222,7 +222,7 @@ class AssistantCLI:
                 url_path = p_img
                 im = requests.get(p_img, stream=True).raw.read()
             else:
-                url_path = "/".join([AssistantCLI.URL_PL_DOWNLOAD, local_dir, p_img])
+                url_path = "/".join([URL_PL_DOWNLOAD, local_dir, p_img])
                 p_local_img = os.path.join(local_dir, p_img)
                 with open(p_local_img, "rb") as fp:
                     im = fp.read()

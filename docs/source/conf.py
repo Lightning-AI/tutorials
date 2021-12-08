@@ -20,7 +20,7 @@ _PATH_ROOT = os.path.realpath(os.path.join(_PATH_HERE, "..", ".."))
 sys.path.insert(0, os.path.abspath(_PATH_ROOT))
 sys.path.append(os.path.join(_PATH_ROOT, ".actions"))
 
-from helpers import HelperCLI  # noqa: E402
+from assistant import AssistantCLI  # noqa: E402
 
 # -- Project information -----------------------------------------------------
 
@@ -42,7 +42,7 @@ github_repo = project
 
 # -- Project documents -------------------------------------------------------
 
-HelperCLI.copy_notebooks(_PATH_ROOT, _PATH_HERE)
+AssistantCLI.copy_notebooks(_PATH_ROOT, _PATH_HERE)
 
 # with open(os.path.join(_PATH_HERE, 'ipynb_content.rst'), 'w') as fp:
 #     fp.write(os.linesep.join(ipynb_content))
