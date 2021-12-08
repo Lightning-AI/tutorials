@@ -388,7 +388,7 @@ class AssistantCLI:
         assert len(paths) == 1, f"Found multiple possible thumbnail paths for notebook: {path_ipynb}."
         path_thumb = paths[0]
         path_thumb = path_thumb.split(os.path.sep)
-        path_thumb = os.path.sep.join(path_thumb[path_thumb.index(AssistantCLI._DIR_NOTEBOOKS) + 1:])
+        path_thumb = os.path.sep.join(path_thumb[path_thumb.index(AssistantCLI._DIR_NOTEBOOKS) + 1 :])
         return path_thumb
 
     @staticmethod
@@ -416,7 +416,7 @@ class AssistantCLI:
         ipynb_content = []
         for path_ipynb in tqdm.tqdm(ls_ipynb):
             ipynb = path_ipynb.split(os.path.sep)
-            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(AssistantCLI._DIR_NOTEBOOKS) + 1:])
+            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(AssistantCLI._DIR_NOTEBOOKS) + 1 :])
             new_ipynb = os.path.join(docs_root, path_docs_ipynb, sub_ipynb)
             os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
 
