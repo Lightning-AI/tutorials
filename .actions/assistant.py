@@ -16,16 +16,9 @@ import yaml
 from pip._internal.operations import freeze
 from wcmatch import glob
 
-PATH_HERE = os.path.dirname(__file__)
-PATH_ROOT = os.path.dirname(PATH_HERE)
-PATH_REQ_DEFAULT = os.path.join(PATH_ROOT, "requirements", "default.txt")
-REPO_NAME = "lightning-tutorials"
-COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
-DEFAULT_BRANCH = "main"
-PUBLIC_BRANCH = "publication"
-URL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{DEFAULT_BRANCH}"
-ENV_DEVICE = "ACCELERATOR"
-DEVICE_ACCELERATOR = os.environ.get(ENV_DEVICE, "cpu").lower()
+_PATH_HERE = os.path.dirname(__file__)
+_PATH_ROOT = os.path.dirname(_PATH_HERE)
+PATH_REQ_DEFAULT = os.path.join(_PATH_ROOT, "requirements", "default.txt")
 TEMPLATE_HEADER = f"""# %%%% [markdown]
 #
 # # %(title)s
@@ -118,23 +111,29 @@ def get_running_torch_version():
         return ""
 
 
-TORCH_VERSION = get_running_torch_version()
-CUDA_VERSION = get_running_cuda_version()
-RUNTIME_VERSIONS = dict(
-    TORCH_VERSION_FULL=TORCH_VERSION,
-    TORCH_VERSION=TORCH_VERSION[: TORCH_VERSION.index("+")] if "+" in TORCH_VERSION else TORCH_VERSION,
-    TORCH_MAJOR_DOT_MINOR=".".join(TORCH_VERSION.split(".")[:2]),
-    CUDA_VERSION=CUDA_VERSION,
-    CUDA_MAJOR_MINOR=CUDA_VERSION.replace(".", ""),
-    DEVICE=f"cu{CUDA_VERSION.replace('.', '')}" if CUDA_VERSION else "cpu",
+_TORCH_VERSION = get_running_torch_version()
+_CUDA_VERSION = get_running_cuda_version()
+_RUNTIME_VERSIONS = dict(
+    TORCH_VERSION_FULL=_TORCH_VERSION,
+    TORCH_VERSION=_TORCH_VERSION[: _TORCH_VERSION.index("+")] if "+" in _TORCH_VERSION else _TORCH_VERSION,
+    TORCH_MAJOR_DOT_MINOR=".".join(_TORCH_VERSION.split(".")[:2]),
+    CUDA_VERSION=_CUDA_VERSION,
+    CUDA_MAJOR_MINOR=_CUDA_VERSION.replace(".", ""),
+    DEVICE=f"cu{_CUDA_VERSION.replace('.', '')}" if _CUDA_VERSION else "cpu",
 )
 
 
 class AssistantCLI:
 
-    DIR_NOTEBOOKS = ".notebooks"
-    META_REQUIRED_FIELDS = ("title", "author", "license", "description")
-    SKIP_DIRS = (
+    REPO_NAME = "lightning-tutorials"
+    COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
+    BRANCH_DEFAULT = "main"
+    BRANCH_PUBLISHED = "publication"
+    URL_PL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{BRANCH_DEFAULT}"
+    DEVICE_ACCELERATOR = os.environ.get("ACCELERATOR", "cpu").lower()
+    _DIR_NOTEBOOKS = ".notebooks"
+    _META_REQUIRED_FIELDS = ("title", "author", "license", "description")
+    _SKIP_DIRS = (
         ".actions",
         ".azure-pipelines",
         ".datasets",
@@ -142,25 +141,38 @@ class AssistantCLI:
         "docs",
         "_TEMP",
         "requirements",
-        DIR_NOTEBOOKS,
+        _DIR_NOTEBOOKS,
     )
-    META_FILE_REGEX = ".meta.{yaml,yml}"
-    REQUIREMENTS_FILE = "requirements.txt"
-    PIP_ARGS_FILE = "pip_arguments.txt"
-    META_PIP_KEY = "pip__"
+    _META_FILE_REGEX = ".meta.{yaml,yml}"
+    _REQUIREMENTS_FILE = "requirements.txt"
+    _PIP_ARGS_FILE = "pip_arguments.txt"
+    _META_PIP_KEY = "pip__"
 
     # Map directory names to tag names. Note that dashes will be replaced with spaces in rendered tags in the docs.
-    DIR_TO_TAG = {
+    _DIR_TO_TAG = {
         "course_UvA-DL": "UvA-DL-Course",
         "lightning_examples": "Lightning-Examples",
         "flash_tutorials": "Kaggle",
     }
 
     @staticmethod
-    def _meta_file(folder: str) -> str:
-        files = glob.glob(os.path.join(folder, AssistantCLI.META_FILE_REGEX), flags=glob.BRACE)
+    def _find_meta(folder: str) -> str:
+        files = glob.glob(os.path.join(folder, AssistantCLI._META_FILE_REGEX), flags=glob.BRACE)
         if len(files) == 1:
             return files[0]
+        return ""
+
+    @staticmethod
+    def _load_meta(folder: str, strict: bool = False) -> Optional[dict]:
+        fpath = AssistantCLI._find_meta(folder)
+        assert fpath, f"Missing meta file in folder: {folder}"
+        meta = yaml.safe_load(open(fpath))
+
+        if strict:
+            meta_miss = [fl for fl in AssistantCLI._META_REQUIRED_FIELDS if fl not in meta]
+            if meta_miss:
+                raise ValueError(f"Meta file '{fpath}' is missing the following fields: {meta_miss}")
+        return meta
 
     @staticmethod
     def augment_script(fpath: str):
@@ -169,13 +181,10 @@ class AssistantCLI:
         Args:
             fpath: path to python script
         """
+        assert os.path.isfile(fpath), f"Missing script: {fpath}"
         with open(fpath) as fp:
             py_file = fp.readlines()
-        fpath_meta = AssistantCLI._meta_file(os.path.dirname(fpath))
-        meta = yaml.safe_load(open(fpath_meta))
-        meta_miss = [fl for fl in AssistantCLI.META_REQUIRED_FIELDS if fl not in meta]
-        if meta_miss:
-            raise ValueError(f"Meta file '{fpath_meta}' is missing the following fields: {meta_miss}")
+        meta = AssistantCLI._load_meta(os.path.dirname(fpath), strict=True)
         meta.update(
             dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"),
             generated=datetime.now().isoformat(),
@@ -213,7 +222,7 @@ class AssistantCLI:
                 url_path = p_img
                 im = requests.get(p_img, stream=True).raw.read()
             else:
-                url_path = "/".join([URL_DOWNLOAD, local_dir, p_img])
+                url_path = "/".join([AssistantCLI.URL_PL_DOWNLOAD, local_dir, p_img])
                 p_local_img = os.path.join(local_dir, p_img)
                 with open(p_local_img, "rb") as fp:
                     im = fp.read()
@@ -226,7 +235,7 @@ class AssistantCLI:
 
     @staticmethod
     def _is_ipynb_parent_dir(dir_path: str) -> bool:
-        if AssistantCLI._meta_file(dir_path):
+        if AssistantCLI._load_meta(dir_path):
             return True
         sub_dirs = [d for d in glob.glob(os.path.join(dir_path, "*")) if os.path.isdir(d)]
         return any(AssistantCLI._is_ipynb_parent_dir(d) for d in sub_dirs)
@@ -275,19 +284,19 @@ class AssistantCLI:
         # unique folders
         dirs = set(dirs)
         # drop folder with skip folder
-        dirs = [pd for pd in dirs if not any(nd in AssistantCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]
+        dirs = [pd for pd in dirs if not any(nd in AssistantCLI._SKIP_DIRS for nd in pd.split(os.path.sep))]
         # valid folder has meta
         dirs_exist = [d for d in dirs if os.path.isdir(d)]
-        dirs_invalid = [d for d in dirs_exist if not AssistantCLI._meta_file(d)]
+        dirs_invalid = [d for d in dirs_exist if not AssistantCLI._find_meta(d)]
         if strict and dirs_invalid:
-            msg = f"Following folders do not have valid `{AssistantCLI.META_FILE_REGEX}`"
+            msg = f"Following folders do not have valid `{AssistantCLI._META_FILE_REGEX}`"
             warn(f"{msg}: \n {os.linesep.join(dirs_invalid)}")
             # check if there is other valid folder in its tree
             dirs_invalid = [pd for pd in dirs_invalid if not AssistantCLI._is_ipynb_parent_dir(pd)]
             if dirs_invalid:
                 raise FileNotFoundError(f"{msg} nor sub-folder: \n {os.linesep.join(dirs_invalid)}")
 
-        dirs_change = [d for d in dirs_exist if AssistantCLI._meta_file(d)]
+        dirs_change = [d for d in dirs_exist if AssistantCLI._find_meta(d)]
         with open(fpath_change_folders, "w") as fp:
             fp.write(os.linesep.join(sorted(dirs_change)))
 
@@ -301,31 +310,29 @@ class AssistantCLI:
         Args:
             dir_path: path to the folder
         """
-        fpath = AssistantCLI._meta_file(dir_path)
-        assert fpath, f"Missing Meta file in {dir_path}"
-        meta = yaml.safe_load(open(fpath))
+        meta = AssistantCLI._load_meta(dir_path)
         pprint(meta)
 
         req = meta.get("requirements", [])
-        fname = os.path.join(dir_path, AssistantCLI.REQUIREMENTS_FILE)
+        fname = os.path.join(dir_path, AssistantCLI._REQUIREMENTS_FILE)
         print(f"File for requirements: {fname}")
         with open(fname, "w") as fp:
             fp.write(os.linesep.join(req))
 
         pip_args = {
-            k.replace(AssistantCLI.META_PIP_KEY, ""): v
+            k.replace(AssistantCLI._META_PIP_KEY, ""): v
             for k, v in meta.items()
-            if k.startswith(AssistantCLI.META_PIP_KEY)
+            if k.startswith(AssistantCLI._META_PIP_KEY)
         }
         cmd_args = []
         for pip_key in pip_args:
             if not isinstance(pip_args[pip_key], (list, tuple, set)):
                 pip_args[pip_key] = [pip_args[pip_key]]
             for arg in pip_args[pip_key]:
-                arg = arg % RUNTIME_VERSIONS
+                arg = arg % _RUNTIME_VERSIONS
                 cmd_args.append(f"--{pip_key} {arg}")
 
-        fname = os.path.join(dir_path, AssistantCLI.PIP_ARGS_FILE)
+        fname = os.path.join(dir_path, AssistantCLI._PIP_ARGS_FILE)
         print(f"File for PIP arguments: {fname}")
         with open(fname, "w") as fp:
             fp.write(" ".join(cmd_args))
@@ -351,7 +358,7 @@ class AssistantCLI:
 
         dirname = os.path.basename(os.path.dirname(path_ipynb))
         if dirname != ".notebooks":
-            meta["tags"].append(AssistantCLI.DIR_TO_TAG.get(dirname, dirname))
+            meta["tags"].append(AssistantCLI._DIR_TO_TAG.get(dirname, dirname))
 
         meta["tags"] = [tag.replace(" ", "-") for tag in meta["tags"]]
         meta["tags"] = ",".join(meta["tags"])
@@ -381,7 +388,7 @@ class AssistantCLI:
         assert len(paths) == 1, f"Found multiple possible thumbnail paths for notebook: {path_ipynb}."
         path_thumb = paths[0]
         path_thumb = path_thumb.split(os.path.sep)
-        path_thumb = os.path.sep.join(path_thumb[path_thumb.index(AssistantCLI.DIR_NOTEBOOKS) + 1 :])
+        path_thumb = os.path.sep.join(path_thumb[path_thumb.index(AssistantCLI._DIR_NOTEBOOKS) + 1:])
         return path_thumb
 
     @staticmethod
@@ -403,13 +410,13 @@ class AssistantCLI:
         """
         ls_ipynb = []
         for sub in patterns:
-            ls_ipynb += glob.glob(os.path.join(path_root, AssistantCLI.DIR_NOTEBOOKS, sub, "*.ipynb"))
+            ls_ipynb += glob.glob(os.path.join(path_root, AssistantCLI._DIR_NOTEBOOKS, sub, "*.ipynb"))
 
         os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
         ipynb_content = []
         for path_ipynb in tqdm.tqdm(ls_ipynb):
             ipynb = path_ipynb.split(os.path.sep)
-            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(AssistantCLI.DIR_NOTEBOOKS) + 1 :])
+            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(AssistantCLI._DIR_NOTEBOOKS) + 1:])
             new_ipynb = os.path.join(docs_root, path_docs_ipynb, sub_ipynb)
             os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
 
@@ -418,7 +425,7 @@ class AssistantCLI:
 
             if path_thumb is not None:
                 new_thumb = os.path.join(docs_root, path_docs_images, path_thumb)
-                old_path_thumb = os.path.join(path_root, AssistantCLI.DIR_NOTEBOOKS, path_thumb)
+                old_path_thumb = os.path.join(path_root, AssistantCLI._DIR_NOTEBOOKS, path_thumb)
                 os.makedirs(os.path.dirname(new_thumb), exist_ok=True)
                 copyfile(old_path_thumb, new_thumb)
                 path_thumb = os.path.join(path_docs_images, path_thumb)
@@ -441,12 +448,10 @@ class AssistantCLI:
         Args:
             dir_path: path to the folder
         """
-        fpath = AssistantCLI._meta_file(dir_path)
-        assert fpath, f"Missing Meta file in {dir_path}"
-        meta = yaml.safe_load(open(fpath))
+        meta = AssistantCLI._load_meta(dir_path)
         # default is CPU runtime
         accels = [acc.lower() for acc in meta.get("accelerator", ("CPU"))]
-        dev_accels = DEVICE_ACCELERATOR.split(",")
+        dev_accels = AssistantCLI.DEVICE_ACCELERATOR.split(",")
         return int(any(ac in accels for ac in dev_accels))
 
     @staticmethod
@@ -455,9 +460,7 @@ class AssistantCLI:
         Args:
              dir_path: path to the folder
         """
-        fpath = AssistantCLI._meta_file(dir_path)
-        assert fpath, f"Missing Meta file in {dir_path}"
-        meta = yaml.safe_load(open(fpath))
+        meta = AssistantCLI._load_meta(dir_path)
         # default is COU runtime
         with open(PATH_REQ_DEFAULT) as fp:
             req = fp.readlines()
@@ -476,7 +479,7 @@ class AssistantCLI:
         meta["environment"] = [env[r] for r in require]
         meta["published"] = datetime.now().isoformat()
 
-        fmeta = os.path.join(AssistantCLI.DIR_NOTEBOOKS, dir_path) + ".yaml"
+        fmeta = os.path.join(AssistantCLI._DIR_NOTEBOOKS, dir_path) + ".yaml"
         yaml.safe_dump(meta, stream=open(fmeta, "w"), sort_keys=False)
 
 
