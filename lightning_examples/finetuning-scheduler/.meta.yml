@@ -16,5 +16,6 @@ requirements:
   - transformers
   - datasets
   - scikit-learn
+  - sentencepiece
 accelerator:
   - GPU
