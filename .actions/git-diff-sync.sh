@@ -30,7 +30,7 @@ cat "dirs-$b2.txt"
 printf "\n\n"
 git merge --ff -s resolve origin/$1
 
-python .actions/helpers.py group-folders target-diff.txt --fpaths_actual_dirs "['dirs-$b1.txt', 'dirs-$b2.txt']"
+python .actions/assistant.py group-folders target-diff.txt --fpaths_actual_dirs "['dirs-$b1.txt', 'dirs-$b2.txt']"
 printf "\n\nChanged folders:\n"
 cat changed-folders.txt
 printf "\n\nDropped folders:\n"

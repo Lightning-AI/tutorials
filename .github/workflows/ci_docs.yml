@@ -40,7 +40,7 @@ jobs:
         run: |
           head=$(git rev-parse origin/"${{ github.base_ref }}")
           git diff --name-only $head --output=master-diff.txt
-          python .actions/helpers.py group-folders master-diff.txt
+          python .actions/assistant.py group-folders master-diff.txt
           printf "Changed folders:\n"
           cat changed-folders.txt
         shell: bash

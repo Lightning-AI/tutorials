@@ -48,7 +48,7 @@ jobs:
         head=$(git rev-parse origin/main)
         printf "Head: $head\n"
         git diff --name-only $head --output=target-diff.txt
-        python .actions/helpers.py group-folders target-diff.txt
+        python .actions/assistant.py group-folders target-diff.txt
         printf "Changed folders:\n"
         cat changed-folders.txt
       displayName: 'Process folders'

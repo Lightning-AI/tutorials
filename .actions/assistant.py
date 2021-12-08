@@ -130,7 +130,7 @@ RUNTIME_VERSIONS = dict(
 )
 
 
-class HelperCLI:
+class AssistantCLI:
 
     DIR_NOTEBOOKS = ".notebooks"
     META_REQUIRED_FIELDS = ("title", "author", "license", "description")
@@ -158,7 +158,7 @@ class HelperCLI:
 
     @staticmethod
     def _meta_file(folder: str) -> str:
-        files = glob.glob(os.path.join(folder, HelperCLI.META_FILE_REGEX), flags=glob.BRACE)
+        files = glob.glob(os.path.join(folder, AssistantCLI.META_FILE_REGEX), flags=glob.BRACE)
         if len(files) == 1:
             return files[0]
 
@@ -171,9 +171,9 @@ class HelperCLI:
         """
         with open(fpath) as fp:
             py_file = fp.readlines()
-        fpath_meta = HelperCLI._meta_file(os.path.dirname(fpath))
+        fpath_meta = AssistantCLI._meta_file(os.path.dirname(fpath))
         meta = yaml.safe_load(open(fpath_meta))
-        meta_miss = [fl for fl in HelperCLI.META_REQUIRED_FIELDS if fl not in meta]
+        meta_miss = [fl for fl in AssistantCLI.META_REQUIRED_FIELDS if fl not in meta]
         if meta_miss:
             raise ValueError(f"Meta file '{fpath_meta}' is missing the following fields: {meta_miss}")
         meta.update(
@@ -188,7 +188,7 @@ class HelperCLI:
         setup = TEMPLATE_SETUP % dict(requirements=" ".join([f'"{req}"' for req in requires]))
         py_file = [header + setup] + py_file + [TEMPLATE_FOOTER]
 
-        py_file = HelperCLI._replace_images(py_file, os.path.dirname(fpath))
+        py_file = AssistantCLI._replace_images(py_file, os.path.dirname(fpath))
 
         with open(fpath, "w") as fp:
             fp.writelines(py_file)
@@ -226,10 +226,10 @@ class HelperCLI:
 
     @staticmethod
     def _is_ipynb_parent_dir(dir_path: str) -> bool:
-        if HelperCLI._meta_file(dir_path):
+        if AssistantCLI._meta_file(dir_path):
             return True
         sub_dirs = [d for d in glob.glob(os.path.join(dir_path, "*")) if os.path.isdir(d)]
-        return any(HelperCLI._is_ipynb_parent_dir(d) for d in sub_dirs)
+        return any(AssistantCLI._is_ipynb_parent_dir(d) for d in sub_dirs)
 
     @staticmethod
     def group_folders(
@@ -255,7 +255,7 @@ class HelperCLI:
             root_path: path to the root tobe added for all local folder paths in files
 
         Example:
-            >> python helpers.py group-folders ../target-diff.txt --fpaths_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
+            >> python assistant.py group-folders ../target-diff.txt --fpaths_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
         """
         with open(fpath_gitdiff) as fp:
             changed = [ln.strip() for ln in fp.readlines()]
@@ -275,19 +275,19 @@ class HelperCLI:
         # unique folders
         dirs = set(dirs)
         # drop folder with skip folder
-        dirs = [pd for pd in dirs if not any(nd in HelperCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]
+        dirs = [pd for pd in dirs if not any(nd in AssistantCLI.SKIP_DIRS for nd in pd.split(os.path.sep))]
         # valid folder has meta
         dirs_exist = [d for d in dirs if os.path.isdir(d)]
-        dirs_invalid = [d for d in dirs_exist if not HelperCLI._meta_file(d)]
+        dirs_invalid = [d for d in dirs_exist if not AssistantCLI._meta_file(d)]
         if strict and dirs_invalid:
-            msg = f"Following folders do not have valid `{HelperCLI.META_FILE_REGEX}`"
+            msg = f"Following folders do not have valid `{AssistantCLI.META_FILE_REGEX}`"
             warn(f"{msg}: \n {os.linesep.join(dirs_invalid)}")
             # check if there is other valid folder in its tree
-            dirs_invalid = [pd for pd in dirs_invalid if not HelperCLI._is_ipynb_parent_dir(pd)]
+            dirs_invalid = [pd for pd in dirs_invalid if not AssistantCLI._is_ipynb_parent_dir(pd)]
             if dirs_invalid:
                 raise FileNotFoundError(f"{msg} nor sub-folder: \n {os.linesep.join(dirs_invalid)}")
 
-        dirs_change = [d for d in dirs_exist if HelperCLI._meta_file(d)]
+        dirs_change = [d for d in dirs_exist if AssistantCLI._meta_file(d)]
         with open(fpath_change_folders, "w") as fp:
             fp.write(os.linesep.join(sorted(dirs_change)))
 
@@ -301,19 +301,21 @@ class HelperCLI:
         Args:
             dir_path: path to the folder
         """
-        fpath = HelperCLI._meta_file(dir_path)
+        fpath = AssistantCLI._meta_file(dir_path)
         assert fpath, f"Missing Meta file in {dir_path}"
         meta = yaml.safe_load(open(fpath))
         pprint(meta)
 
         req = meta.get("requirements", [])
-        fname = os.path.join(dir_path, HelperCLI.REQUIREMENTS_FILE)
+        fname = os.path.join(dir_path, AssistantCLI.REQUIREMENTS_FILE)
         print(f"File for requirements: {fname}")
         with open(fname, "w") as fp:
             fp.write(os.linesep.join(req))
 
         pip_args = {
-            k.replace(HelperCLI.META_PIP_KEY, ""): v for k, v in meta.items() if k.startswith(HelperCLI.META_PIP_KEY)
+            k.replace(AssistantCLI.META_PIP_KEY, ""): v
+            for k, v in meta.items()
+            if k.startswith(AssistantCLI.META_PIP_KEY)
         }
         cmd_args = []
         for pip_key in pip_args:
@@ -323,7 +325,7 @@ class HelperCLI:
                 arg = arg % RUNTIME_VERSIONS
                 cmd_args.append(f"--{pip_key} {arg}")
 
-        fname = os.path.join(dir_path, HelperCLI.PIP_ARGS_FILE)
+        fname = os.path.join(dir_path, AssistantCLI.PIP_ARGS_FILE)
         print(f"File for PIP arguments: {fname}")
         with open(fname, "w") as fp:
             fp.write(" ".join(cmd_args))
@@ -349,7 +351,7 @@ class HelperCLI:
 
         dirname = os.path.basename(os.path.dirname(path_ipynb))
         if dirname != ".notebooks":
-            meta["tags"].append(HelperCLI.DIR_TO_TAG.get(dirname, dirname))
+            meta["tags"].append(AssistantCLI.DIR_TO_TAG.get(dirname, dirname))
 
         meta["tags"] = [tag.replace(" ", "-") for tag in meta["tags"]]
         meta["tags"] = ",".join(meta["tags"])
@@ -379,7 +381,7 @@ class HelperCLI:
         assert len(paths) == 1, f"Found multiple possible thumbnail paths for notebook: {path_ipynb}."
         path_thumb = paths[0]
         path_thumb = path_thumb.split(os.path.sep)
-        path_thumb = os.path.sep.join(path_thumb[path_thumb.index(HelperCLI.DIR_NOTEBOOKS) + 1 :])
+        path_thumb = os.path.sep.join(path_thumb[path_thumb.index(AssistantCLI.DIR_NOTEBOOKS) + 1 :])
         return path_thumb
 
     @staticmethod
@@ -401,22 +403,22 @@ class HelperCLI:
         """
         ls_ipynb = []
         for sub in patterns:
-            ls_ipynb += glob.glob(os.path.join(path_root, HelperCLI.DIR_NOTEBOOKS, sub, "*.ipynb"))
+            ls_ipynb += glob.glob(os.path.join(path_root, AssistantCLI.DIR_NOTEBOOKS, sub, "*.ipynb"))
 
         os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
         ipynb_content = []
         for path_ipynb in tqdm.tqdm(ls_ipynb):
             ipynb = path_ipynb.split(os.path.sep)
-            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(HelperCLI.DIR_NOTEBOOKS) + 1 :])
+            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(AssistantCLI.DIR_NOTEBOOKS) + 1 :])
             new_ipynb = os.path.join(docs_root, path_docs_ipynb, sub_ipynb)
             os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
 
             path_meta = path_ipynb.replace(".ipynb", ".yaml")
-            path_thumb = HelperCLI._resolve_path_thumb(path_ipynb, path_meta)
+            path_thumb = AssistantCLI._resolve_path_thumb(path_ipynb, path_meta)
 
             if path_thumb is not None:
                 new_thumb = os.path.join(docs_root, path_docs_images, path_thumb)
-                old_path_thumb = os.path.join(path_root, HelperCLI.DIR_NOTEBOOKS, path_thumb)
+                old_path_thumb = os.path.join(path_root, AssistantCLI.DIR_NOTEBOOKS, path_thumb)
                 os.makedirs(os.path.dirname(new_thumb), exist_ok=True)
                 copyfile(old_path_thumb, new_thumb)
                 path_thumb = os.path.join(path_docs_images, path_thumb)
@@ -426,7 +428,7 @@ class HelperCLI:
             with open(path_ipynb) as f:
                 ipynb = json.load(f)
 
-            ipynb["cells"].append(HelperCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb))
+            ipynb["cells"].append(AssistantCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb))
 
             with open(new_ipynb, "w") as f:
                 json.dump(ipynb, f)
@@ -439,7 +441,7 @@ class HelperCLI:
         Args:
             dir_path: path to the folder
         """
-        fpath = HelperCLI._meta_file(dir_path)
+        fpath = AssistantCLI._meta_file(dir_path)
         assert fpath, f"Missing Meta file in {dir_path}"
         meta = yaml.safe_load(open(fpath))
         # default is CPU runtime
@@ -453,7 +455,7 @@ class HelperCLI:
         Args:
              dir_path: path to the folder
         """
-        fpath = HelperCLI._meta_file(dir_path)
+        fpath = AssistantCLI._meta_file(dir_path)
         assert fpath, f"Missing Meta file in {dir_path}"
         meta = yaml.safe_load(open(fpath))
         # default is COU runtime
@@ -474,9 +476,9 @@ class HelperCLI:
         meta["environment"] = [env[r] for r in require]
         meta["published"] = datetime.now().isoformat()
 
-        fmeta = os.path.join(HelperCLI.DIR_NOTEBOOKS, dir_path) + ".yaml"
+        fmeta = os.path.join(AssistantCLI.DIR_NOTEBOOKS, dir_path) + ".yaml"
         yaml.safe_dump(meta, stream=open(fmeta, "w"), sort_keys=False)
 
 
 if __name__ == "__main__":
-    fire.Fire(HelperCLI)
+    fire.Fire(AssistantCLI)
