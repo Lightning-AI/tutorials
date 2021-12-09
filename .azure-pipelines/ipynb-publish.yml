@@ -92,6 +92,7 @@ jobs:
       displayName: 'Generate notebook'
 
     - bash: |
+        mkdir $(PATH_DATASETS)
         # render the actual notebooks
         while IFS= read -r line; do
             python .actions/assistant.py bash-render $line > .actions/_ipynb-render.sh
