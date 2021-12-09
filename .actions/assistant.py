@@ -245,7 +245,7 @@ class AssistantCLI:
         files = [f"{name}.zip" for name in data_kaggle]
         data_web = datasets.get("web", [])
         cmd += [f"wget {web} --progress=bar:force:noscroll" for web in data_web]
-        files += [os.path.splitext(web) for web in data_web]
+        files += [os.path.splitext(os.path.basename(web))[0] for web in data_web]
         for fn in files:
             name, ext = os.path.splitext(fn)
             if ext not in AssistantCLI._EXT_ARCHIVE:
