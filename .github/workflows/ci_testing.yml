@@ -41,13 +41,8 @@ jobs:
           pip list
         shell: bash
 
-      - name: Cache Data
-        id: cache-data
-        uses: actions/cache@v2
-        with:
-          path: $PATH_DATASETS
-          key: ${{ runner.os }}-datasets
-          restore-keys: ${{ runner.os }}-datasets
+      - name: Create Data dir
+        run: mkdir ${PATH_DATASETS}
 
       - name: Process folders
         run: |
