@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 from shutil import copyfile
 from textwrap import wrap
-from typing import Any, Dict, Optional, Sequence, Tuple, List
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 from warnings import warn
 
 import fire
@@ -155,7 +155,7 @@ class AssistantCLI:
         "flash_tutorials": "Kaggle",
     }
     _BASH_SCRIPT_BASE = ("#!/bin/bash", "set -e", "")
-    _EXT_ARCHIVE_ZIP = (".zip", )
+    _EXT_ARCHIVE_ZIP = (".zip",)
     _EXT_ARCHIVE_TAR = (".tar", ".gz")
     _EXT_ARCHIVE = _EXT_ARCHIVE_ZIP + _EXT_ARCHIVE_TAR
 
