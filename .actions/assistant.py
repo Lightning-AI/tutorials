@@ -300,7 +300,7 @@ class AssistantCLI:
         with open(fpath, "w") as fp:
             fp.writelines(py_script)
 
-        os.system('python -m jupytext --set-formats "ipynb,py:percent" {fpath}')
+        os.system(f'python -m jupytext --set-formats "ipynb,py:percent" {fpath}')
 
     @staticmethod
     def _replace_images(lines: list, local_dir: str) -> list:
