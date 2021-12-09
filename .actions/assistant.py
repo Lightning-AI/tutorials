@@ -144,8 +144,6 @@ class AssistantCLI:
         _DIR_NOTEBOOKS,
     )
     _META_FILE_REGEX = ".meta.{yaml,yml}"
-    _REQUIREMENTS_FILE = "requirements.txt"  # fixme: remove when refactor is done
-    _PIP_ARGS_FILE = "pip_arguments.txt"  # fixme: remove when refactor is done
     _META_PIP_KEY = "pip__"
     _META_ACCEL_DEFAULT = ("CPU",)
 
