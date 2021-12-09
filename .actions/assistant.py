@@ -246,7 +246,7 @@ class AssistantCLI:
         pub_thumb = os.path.join(AssistantCLI._DIR_NOTEBOOKS, f"{folder}{thumb_ext}") if thumb_file else ""
         cmd.append(f"mkdir -p {pub_dir}")
         pip_req, pip_args = AssistantCLI._parse_requirements(folder)
-        cmd.append(f"pip install {pip_req} {pip_args}")
+        cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
         if AssistantCLI.DRY_RUN:
             # dry run does not execute the notebooks just takes them as they are
             cmd.append(f"cp {ipynb_file} {pub_ipynb}")
@@ -255,11 +255,7 @@ class AssistantCLI:
             if AssistantCLI._valid_accelerator(folder):
                 cmd.append(f"python -m papermill.cli {ipynb_file} {pub_ipynb} --kernel python")
             else:
-                warn(
-                    f"Invalid notebook's accelerator for this device with {AssistantCLI.DEVICE_ACCELERATOR}.\n"
-                    " So no outputs will be generated.",
-                    RuntimeWarning,
-                )
+                warn("Invalid notebook's accelerator for this device. So no outputs will be generated.", RuntimeWarning)
                 cmd.append(f"cp {ipynb_file} {pub_ipynb}")
         # Export the actual packages used in runtime
         cmd.append(f"python .actions/assistant.py update-env-details {folder}")
@@ -270,6 +266,31 @@ class AssistantCLI:
             cmd += [f"cp {thumb_file} {pub_thumb}", f"git add {pub_thumb}"]
         # add the generated notebook to version
         cmd.append(f"git add {pub_ipynb}")
+        return os.linesep.join(cmd)
+
+    @staticmethod
+    def bash_test(folder: str) -> str:
+        print(f"Testing: {folder}\n")
+        cmd = list(AssistantCLI._BASH_SCRIPT_BASE)
+        ipynb_file, _, _ = AssistantCLI._valid_folder(folder, ext=".ipynb")
+
+        # prepare isolated environment with inheriting the global packages
+        cmd += [
+            f"python -m virtualenv --system-site-packages {os.path.join(folder, 'venv')}",
+            f"source {os.path.join(folder, 'venv', 'bin', 'activate')}",
+            "pip --version",
+        ]
+        # and install specific packages
+        pip_req, pip_args = AssistantCLI._parse_requirements(folder)
+        cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
+
+        print(f"available: {AssistantCLI.DEVICE_ACCELERATOR}\n")
+        if AssistantCLI._valid_accelerator(folder):
+            cmd.append(f"python -m pytest {ipynb_file} -v --nbval")
+        else:
+            warn("Invalid notebook's accelerator for this device. So no tests will be run!!!", RuntimeWarning)
+        # deactivate and clean local environment
+        cmd += ["deactivate", f"rm -rf {os.path.join(folder, 'venv')}"]
         return os.linesep.join(cmd)
 
     @staticmethod
