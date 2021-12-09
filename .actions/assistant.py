@@ -3,7 +3,6 @@ import json
 import os
 import re
 from datetime import datetime
-from pprint import pprint
 from shutil import copyfile
 from textwrap import wrap
 from typing import Any, Dict, Optional, Sequence, Tuple
@@ -426,39 +425,6 @@ class AssistantCLI:
             fp.write(os.linesep.join(sorted(dirs_drop)))
 
     @staticmethod
-    def parse_requirements(dir_path: str):
-        """Parse standard requirements from meta file
-        Args:
-            dir_path: path to the folder
-        """
-        meta = AssistantCLI._load_meta(dir_path)
-        pprint(meta)
-
-        req = meta.get("requirements", [])
-        fname = os.path.join(dir_path, AssistantCLI._REQUIREMENTS_FILE)
-        print(f"File for requirements: {fname}")
-        with open(fname, "w") as fp:
-            fp.write(os.linesep.join(req))
-
-        pip_args = {
-            k.replace(AssistantCLI._META_PIP_KEY, ""): v
-            for k, v in meta.items()
-            if k.startswith(AssistantCLI._META_PIP_KEY)
-        }
-        cmd_args = []
-        for pip_key in pip_args:
-            if not isinstance(pip_args[pip_key], (list, tuple, set)):
-                pip_args[pip_key] = [pip_args[pip_key]]
-            for arg in pip_args[pip_key]:
-                arg = arg % _RUNTIME_VERSIONS
-                cmd_args.append(f"--{pip_key} {arg}")
-
-        fname = os.path.join(dir_path, AssistantCLI._PIP_ARGS_FILE)
-        print(f"File for PIP arguments: {fname}")
-        with open(fname, "w") as fp:
-            fp.write(" ".join(cmd_args))
-
-    @staticmethod
     def _get_card_item_cell(path_ipynb: str, path_meta: str, path_thumb: Optional[str]) -> Dict[str, Any]:
         """Build the card item cell for the given notebook path."""
         meta = yaml.safe_load(open(path_meta))
@@ -562,18 +528,6 @@ class AssistantCLI:
                 json.dump(ipynb, f)
 
             ipynb_content.append(os.path.join("notebooks", sub_ipynb))
-
-    @staticmethod
-    def valid_accelerator(dir_path: str) -> int:
-        """Parse standard requirements from meta file
-        Args:
-            dir_path: path to the folder
-        """
-        meta = AssistantCLI._load_meta(dir_path)
-        # default is CPU runtime
-        accels = [acc.lower() for acc in meta.get("accelerator", ("CPU"))]
-        dev_accels = AssistantCLI.DEVICE_ACCELERATOR.split(",")
-        return int(any(ac in accels for ac in dev_accels))
 
     @staticmethod
     def update_env_details(dir_path: str):
