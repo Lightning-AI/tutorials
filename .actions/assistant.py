@@ -260,8 +260,7 @@ class AssistantCLI:
 
     @staticmethod
     def bash_render(folder: str) -> str:
-        print(f"Rendering: {folder}\n")
-        cmd = list(AssistantCLI._BASH_SCRIPT_BASE)
+        cmd = list(AssistantCLI._BASH_SCRIPT_BASE) + [f"# Rendering: {folder}"]
         cmd += AssistantCLI._bash_download_data(folder)
         ipynb_file, meta_file, thumb_file = AssistantCLI._valid_folder(folder, ext=".ipynb")
         pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
@@ -276,7 +275,7 @@ class AssistantCLI:
             # dry run does not execute the notebooks just takes them as they are
             cmd.append(f"cp {ipynb_file} {pub_ipynb}")
         else:
-            print(f"available: {AssistantCLI.DEVICE_ACCELERATOR}\n")
+            cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}\n")
             if AssistantCLI._valid_accelerator(folder):
                 cmd.append(f"python -m papermill.cli {ipynb_file} {pub_ipynb} --kernel python")
             else:
@@ -295,8 +294,7 @@ class AssistantCLI:
 
     @staticmethod
     def bash_test(folder: str) -> str:
-        print(f"Testing: {folder}\n")
-        cmd = list(AssistantCLI._BASH_SCRIPT_BASE)
+        cmd = list(AssistantCLI._BASH_SCRIPT_BASE) + [f"# Testing: {folder}"]
         cmd += AssistantCLI._bash_download_data(folder)
         ipynb_file, _, _ = AssistantCLI._valid_folder(folder, ext=".ipynb")
 
@@ -310,7 +308,7 @@ class AssistantCLI:
         pip_req, pip_args = AssistantCLI._parse_requirements(folder)
         cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
 
-        print(f"available: {AssistantCLI.DEVICE_ACCELERATOR}\n")
+        cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}")
         if AssistantCLI._valid_accelerator(folder):
             cmd.append(f"python -m pytest {ipynb_file} -v --nbval")
         else:
