@@ -41,11 +41,9 @@ jobs:
           pip list
         shell: bash
 
-      - name: Create Data dir
-        run: mkdir ${PATH_DATASETS}
-
       - name: Process folders
         run: |
+          mkdir ${PATH_DATASETS}
           head=$(git rev-parse origin/${{ github.base_ref }})
           git diff --name-only $head --output=target-diff.txt
           python .actions/assistant.py group-folders target-diff.txt

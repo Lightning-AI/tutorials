@@ -241,6 +241,8 @@ class AssistantCLI:
         meta = AssistantCLI._load_meta(folder)
         datasets = meta.get("datasets", {})
         data_kaggle = datasets.get("kaggle", [])
+        if data_kaggle:
+            cmd += ["pip install -q kaggle"]
         cmd += [f"kaggle competitions download -c {name}" for name in data_kaggle]
         files = [f"{name}.zip" for name in data_kaggle]
         data_web = datasets.get("web", [])
