@@ -72,7 +72,7 @@ jobs:
 
     - bash: |
         while IFS= read -r line; do
-            bash .actions/ipynb-generate.sh $line
+            python .actions/assistant.py augment-script $line
         done <<< $(cat changed-folders.txt)
       condition: gt(variables['changed.folders'], 0)
       displayName: 'Generate notebook'

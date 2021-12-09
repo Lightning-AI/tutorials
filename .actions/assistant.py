@@ -178,11 +178,7 @@ class AssistantCLI:
         return meta
 
     @staticmethod
-    def _valid_nb_folder(folder: str) -> Tuple[str, str, str]:
-        nb_files = glob.glob(os.path.join(folder, "*.ipynb"))
-        if len(nb_files) != 1:
-            names = list(map(os.path.basename, nb_files))
-            raise FileNotFoundError(f"Missing any notebook file in folder: {folder} among {names}")
+    def _valid_conf_folder(folder: str) -> Tuple[str, str]:
         meta_files = [os.path.join(folder, f".meta.{ext}") for ext in ("yml", "yaml")]
         meta_files = [pf for pf in meta_files if os.path.isfile(pf)]
         if len(meta_files) != 1:
@@ -192,7 +188,16 @@ class AssistantCLI:
         if len(thumb_files) > 1:
             raise FileExistsError(f"Too many thumb files ({thumb_names}) found in folder: {folder}")
         thumb = thumb_files[0] if thumb_files else ""
-        return nb_files[0], meta_files[0], thumb
+        return meta_files[0], thumb
+
+    @staticmethod
+    def _valid_folder(folder: str, ext: str) -> Tuple[str, str, str]:
+        files = glob.glob(os.path.join(folder, f"*{ext}"))
+        if len(files) != 1:
+            names = list(map(os.path.basename, files))
+            raise FileNotFoundError(f"Missing required '{ext}' file in folder: {folder} among {names}")
+        meta_file, thumb_file = AssistantCLI._valid_conf_folder(folder)
+        return files[0], meta_file, thumb_file
 
     @staticmethod
     def _valid_accelerator(folder: str) -> bool:
@@ -233,7 +238,7 @@ class AssistantCLI:
     def bash_render(folder: str) -> str:
         print(f"Rendering: {folder}\n")
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE)
-        ipynb_file, meta_file, thumb_file = AssistantCLI._valid_nb_folder(folder)
+        ipynb_file, meta_file, thumb_file = AssistantCLI._valid_folder(folder, ext=".ipynb")
         pub_ipynb = os.path.join(AssistantCLI._DIR_NOTEBOOKS, f"{folder}.ipynb")
         pub_dir = os.path.dirname(pub_ipynb)
         pub_meta = os.path.join(AssistantCLI._DIR_NOTEBOOKS, f"{folder}.yaml")
@@ -268,32 +273,34 @@ class AssistantCLI:
         return os.linesep.join(cmd)
 
     @staticmethod
-    def augment_script(fpath: str):
+    def augment_script(folder: str) -> None:
         """Add template header and footer to the python base script.
 
         Args:
-            fpath: path to python script
+            folder: folder with python script
         """
-        assert os.path.isfile(fpath), f"Missing script: {fpath}"
+        fpath, _, _ = AssistantCLI._valid_folder(folder, ext=".py")
         with open(fpath) as fp:
-            py_file = fp.readlines()
-        meta = AssistantCLI._load_meta(os.path.dirname(fpath), strict=True)
+            py_script = fp.readlines()
+
+        meta = AssistantCLI._load_meta(folder, strict=True)
         meta.update(
-            dict(local_ipynb=f"{os.path.dirname(fpath)}.ipynb"),
+            dict(local_ipynb=f"{folder}.ipynb"),
             generated=datetime.now().isoformat(),
         )
-
         meta["description"] = meta["description"].replace(os.linesep, f"{os.linesep}# ")
 
         header = TEMPLATE_HEADER % meta
         requires = set(default_requirements() + meta["requirements"])
         setup = TEMPLATE_SETUP % dict(requirements=" ".join([f'"{req}"' for req in requires]))
-        py_file = [header + setup] + py_file + [TEMPLATE_FOOTER]
+        py_script = [header + setup] + py_script + [TEMPLATE_FOOTER]
 
-        py_file = AssistantCLI._replace_images(py_file, os.path.dirname(fpath))
+        py_script = AssistantCLI._replace_images(py_script, folder)
 
         with open(fpath, "w") as fp:
-            fp.writelines(py_file)
+            fp.writelines(py_script)
+
+        os.system('python -m jupytext --set-formats "ipynb,py:percent" {fpath}')
 
     @staticmethod
     def _replace_images(lines: list, local_dir: str) -> list:
