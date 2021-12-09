@@ -70,7 +70,7 @@ jobs:
         if: steps.changed.outputs.dirs != 0
         run: |
           while IFS= read -r line; do
-              bash .actions/ipynb-generate.sh $line
+              python .actions/assistant.py augment-script $line
           done <<< $(cat changed-folders.txt)
         shell: bash
 
@@ -78,6 +78,8 @@ jobs:
         if: success() && steps.changed.outputs.dirs != 0
         run: |
           while IFS= read -r line; do
-              bash .actions/ipynb-test.sh $line
+              python .actions/assistant.py bash-test $line > .actions/_ipynb-test.sh
+              cat .actions/_ipynb-test.sh
+              bash .actions/_ipynb-test.sh
           done <<< $(cat changed-folders.txt)
         shell: bash

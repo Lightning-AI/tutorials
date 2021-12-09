@@ -60,8 +60,10 @@ jobs:
         if: steps.changed.outputs.dirs != 0
         run: |
           while IFS= read -r line; do
-              bash .actions/ipynb-generate.sh $line
-              bash .actions/ipynb-render.sh $line
+              python .actions/assistant.py augment-script $line
+              python .actions/assistant.py bash-render $line > .actions/_ipynb-render.sh
+              cat .actions/_ipynb-render.sh
+              bash .actions/_ipynb-render.sh
           done <<< $(cat changed-folders.txt)
         env:
           DRY_RUN: 1

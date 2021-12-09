@@ -91,7 +91,7 @@ jobs:
 
     - bash: |
         while IFS= read -r line; do
-            bash .actions/ipynb-generate.sh $line
+            python .actions/assistant.py augment-script $line
         done <<< $(cat changed-folders.txt)
       condition: gt(variables['changed.folders'], 0)
       displayName: 'Generate notebook'
@@ -99,7 +99,9 @@ jobs:
     - bash: |
         # render the actual notebooks
         while IFS= read -r line; do
-            bash .actions/ipynb-render.sh $line
+            python .actions/assistant.py bash-render $line > .actions/_ipynb-render.sh
+            cat .actions/_ipynb-render.sh
+            bash .actions/_ipynb-render.sh
         done <<< $(cat changed-folders.txt)
         git status
         git commit -m "publish [GPU]: $(COMMIT_HASH)"
