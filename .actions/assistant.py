@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 from shutil import copyfile
 from textwrap import wrap
-from typing import Any, Dict, Optional, Sequence, Tuple
+from typing import Any, Dict, Optional, Sequence, Tuple, List
 from warnings import warn
 
 import fire
@@ -131,6 +131,7 @@ _RUNTIME_VERSIONS = dict(
 class AssistantCLI:
 
     DEVICE_ACCELERATOR = os.environ.get("ACCELERATOR", "cpu").lower()
+    DATASET_FOLDER = os.environ.get("PATH_DATASETS", "_datasets").lower()
     DRY_RUN = bool(int(os.environ.get("DRY_RUN", 0)))
     _META_REQUIRED_FIELDS = ("title", "author", "license", "description")
     _SKIP_DIRS = (
@@ -154,6 +155,9 @@ class AssistantCLI:
         "flash_tutorials": "Kaggle",
     }
     _BASH_SCRIPT_BASE = ("#!/bin/bash", "set -e", "")
+    _EXT_ARCHIVE_ZIP = (".zip", )
+    _EXT_ARCHIVE_TAR = (".tar", ".gz")
+    _EXT_ARCHIVE = _EXT_ARCHIVE_ZIP + _EXT_ARCHIVE_TAR
 
     @staticmethod
     def _find_meta(folder: str) -> str:
@@ -232,9 +236,33 @@ class AssistantCLI:
         return " ".join(req), " ".join(pip_args)
 
     @staticmethod
+    def _bash_download_data(folder: str) -> List[str]:
+        cmd = ["HERE=$PWD", f"cd {AssistantCLI.DATASET_FOLDER}"]
+        meta = AssistantCLI._load_meta(folder)
+        datasets = meta.get("datasets", {})
+        data_kaggle = datasets.get("kaggle", [])
+        cmd += [f"kaggle competitions download -c {name}" for name in data_kaggle]
+        files = [f"{name}.zip" for name in data_kaggle]
+        data_web = datasets.get("web", [])
+        cmd += [f"wget {web} --progress=bar:force:noscroll" for web in data_web]
+        files += [os.path.splitext(web) for web in data_web]
+        for fn in files:
+            name, ext = os.path.splitext(fn)
+            if ext not in AssistantCLI._EXT_ARCHIVE:
+                continue
+            if ext in AssistantCLI._EXT_ARCHIVE_ZIP:
+                cmd += [f"mkdir {name}", f"unzip {fn} -d {name}"]
+            else:
+                cmd += [f"tar -zxvf {fn}"]
+            cmd += [f"rm {fn}"]
+        cmd += ["ls -l", "cd $HERE"]
+        return cmd
+
+    @staticmethod
     def bash_render(folder: str) -> str:
         print(f"Rendering: {folder}\n")
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE)
+        cmd += AssistantCLI._bash_download_data(folder)
         ipynb_file, meta_file, thumb_file = AssistantCLI._valid_folder(folder, ext=".ipynb")
         pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
         pub_dir = os.path.dirname(pub_ipynb)
@@ -269,6 +297,7 @@ class AssistantCLI:
     def bash_test(folder: str) -> str:
         print(f"Testing: {folder}\n")
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE)
+        cmd += AssistantCLI._bash_download_data(folder)
         ipynb_file, _, _ = AssistantCLI._valid_folder(folder, ext=".ipynb")
 
         # prepare isolated environment with inheriting the global packages
