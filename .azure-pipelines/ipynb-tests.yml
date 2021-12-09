@@ -61,14 +61,10 @@ jobs:
 
     - task: Cache@2
       inputs:
-        key: data | .actions/data-download.sh
+        key: data
         restoreKeys: data
         path: $(PATH_DATASETS)
         cacheHitVar: DATA_RESTORED
-
-    - script: bash .actions/data-download.sh $(PATH_DATASETS)
-      condition: ne(variables.DATA_RESTORED, 'true')
-      displayName: 'Pull datasets'
 
     - bash: |
         while IFS= read -r line; do
