@@ -15,8 +15,9 @@ ipynb: init ${IPYNB}
 
 %.ipynb: %/.meta.y*ml
 	@echo $<
-	bash .actions/ipynb-generate.sh $(shell dirname $<)
-	bash .actions/ipynb-render.sh $(shell dirname $<)
+	python .actions/assistant.py augment-script $(shell dirname $<)
+	python .actions/assistant.py bash-render $(shell dirname $<) > .actions/_ipynb-render.sh
+	bash .actions/_ipynb-render.sh
 
 docs: clean
 	pip install --quiet -r docs/requirements.txt
