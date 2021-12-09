@@ -22,6 +22,7 @@ REPO_NAME = "lightning-tutorials"
 COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
 BRANCH_DEFAULT = "main"
 BRANCH_PUBLISHED = "publication"
+DIR_NOTEBOOKS = ".notebooks"
 URL_PL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{BRANCH_DEFAULT}"
 TEMPLATE_HEADER = f"""# %%%% [markdown]
 #
@@ -34,7 +35,7 @@ TEMPLATE_HEADER = f"""# %%%% [markdown]
 # %(description)s
 #
 # ---
-# Open in [![Open In Colab](https://colab.research.google.com/assets/colab-badge.png){{height="20px" width="117px"}}]({COLAB_REPO_LINK}/{REPO_NAME}/blob/{BRANCH_PUBLISHED}/.notebooks/%(local_ipynb)s)
+# Open in [![Open In Colab](https://colab.research.google.com/assets/colab-badge.png){{height="20px" width="117px"}}]({COLAB_REPO_LINK}/{REPO_NAME}/blob/{BRANCH_PUBLISHED}/{DIR_NOTEBOOKS}/%(local_ipynb)s)
 #
 # Give us a ⭐ [on Github](https://www.github.com/PytorchLightning/pytorch-lightning/)
 # | Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/latest/)
@@ -131,7 +132,6 @@ class AssistantCLI:
 
     DEVICE_ACCELERATOR = os.environ.get("ACCELERATOR", "cpu").lower()
     DRY_RUN = bool(int(os.environ.get("DRY_RUN", 0)))
-    _DIR_NOTEBOOKS = ".notebooks"
     _META_REQUIRED_FIELDS = ("title", "author", "license", "description")
     _SKIP_DIRS = (
         ".actions",
@@ -141,7 +141,7 @@ class AssistantCLI:
         "docs",
         "_TEMP",
         "requirements",
-        _DIR_NOTEBOOKS,
+        DIR_NOTEBOOKS,
     )
     _META_FILE_REGEX = ".meta.{yaml,yml}"
     _META_PIP_KEY = "pip__"
@@ -236,11 +236,11 @@ class AssistantCLI:
         print(f"Rendering: {folder}\n")
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE)
         ipynb_file, meta_file, thumb_file = AssistantCLI._valid_folder(folder, ext=".ipynb")
-        pub_ipynb = os.path.join(AssistantCLI._DIR_NOTEBOOKS, f"{folder}.ipynb")
+        pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
         pub_dir = os.path.dirname(pub_ipynb)
-        pub_meta = os.path.join(AssistantCLI._DIR_NOTEBOOKS, f"{folder}.yaml")
+        pub_meta = os.path.join(DIR_NOTEBOOKS, f"{folder}.yaml")
         thumb_ext = os.path.splitext(thumb_file)[-1] if thumb_file else "."
-        pub_thumb = os.path.join(AssistantCLI._DIR_NOTEBOOKS, f"{folder}{thumb_ext}") if thumb_file else ""
+        pub_thumb = os.path.join(DIR_NOTEBOOKS, f"{folder}{thumb_ext}") if thumb_file else ""
         cmd.append(f"mkdir -p {pub_dir}")
         pip_req, pip_args = AssistantCLI._parse_requirements(folder)
         cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
@@ -353,7 +353,7 @@ class AssistantCLI:
 
     @staticmethod
     def _is_ipynb_parent_dir(dir_path: str) -> bool:
-        if AssistantCLI._load_meta(dir_path):
+        if AssistantCLI._find_meta(dir_path):
             return True
         sub_dirs = [d for d in glob.glob(os.path.join(dir_path, "*")) if os.path.isdir(d)]
         return any(AssistantCLI._is_ipynb_parent_dir(d) for d in sub_dirs)
@@ -473,7 +473,7 @@ class AssistantCLI:
         assert len(paths) == 1, f"Found multiple possible thumbnail paths for notebook: {path_ipynb}."
         path_thumb = paths[0]
         path_thumb = path_thumb.split(os.path.sep)
-        path_thumb = os.path.sep.join(path_thumb[path_thumb.index(AssistantCLI._DIR_NOTEBOOKS) + 1 :])
+        path_thumb = os.path.sep.join(path_thumb[path_thumb.index(DIR_NOTEBOOKS) + 1 :])
         return path_thumb
 
     @staticmethod
@@ -495,13 +495,13 @@ class AssistantCLI:
         """
         ls_ipynb = []
         for sub in patterns:
-            ls_ipynb += glob.glob(os.path.join(path_root, AssistantCLI._DIR_NOTEBOOKS, sub, "*.ipynb"))
+            ls_ipynb += glob.glob(os.path.join(path_root, DIR_NOTEBOOKS, sub, "*.ipynb"))
 
         os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
         ipynb_content = []
         for path_ipynb in tqdm.tqdm(ls_ipynb):
             ipynb = path_ipynb.split(os.path.sep)
-            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(AssistantCLI._DIR_NOTEBOOKS) + 1 :])
+            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(DIR_NOTEBOOKS) + 1 :])
             new_ipynb = os.path.join(docs_root, path_docs_ipynb, sub_ipynb)
             os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
 
@@ -510,7 +510,7 @@ class AssistantCLI:
 
             if path_thumb is not None:
                 new_thumb = os.path.join(docs_root, path_docs_images, path_thumb)
-                old_path_thumb = os.path.join(path_root, AssistantCLI._DIR_NOTEBOOKS, path_thumb)
+                old_path_thumb = os.path.join(path_root, DIR_NOTEBOOKS, path_thumb)
                 os.makedirs(os.path.dirname(new_thumb), exist_ok=True)
                 copyfile(old_path_thumb, new_thumb)
                 path_thumb = os.path.join(path_docs_images, path_thumb)
@@ -552,7 +552,7 @@ class AssistantCLI:
         meta["environment"] = [env[r] for r in require]
         meta["published"] = datetime.now().isoformat()
 
-        fmeta = os.path.join(AssistantCLI._DIR_NOTEBOOKS, dir_path) + ".yaml"
+        fmeta = os.path.join(DIR_NOTEBOOKS, dir_path) + ".yaml"
         yaml.safe_dump(meta, stream=open(fmeta, "w"), sort_keys=False)
 
 
