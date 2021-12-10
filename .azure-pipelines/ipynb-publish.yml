@@ -58,6 +58,7 @@ jobs:
     - bash: |
         pip --version
         pip install --requirement requirements.txt
+        pip install --requirement requirements/data.txt
         pip list
       displayName: 'Install dependencies'
 
@@ -85,10 +86,6 @@ jobs:
         echo "##vso[task.setvariable variable=folders;isOutput=true]$COUNT"
       name: dropped
 
-    - script: |
-        bash .actions/data-download.sh $(PATH_DATASETS)
-      displayName: 'Pull datasets'
-
     - bash: |
         while IFS= read -r line; do
             python .actions/assistant.py augment-script $line
@@ -97,6 +94,7 @@ jobs:
       displayName: 'Generate notebook'
 
     - bash: |
+        mkdir $(PATH_DATASETS)
         # render the actual notebooks
         while IFS= read -r line; do
             python .actions/assistant.py bash-render $line > .actions/_ipynb-render.sh
@@ -106,6 +104,9 @@ jobs:
         git status
         git commit -m "publish [GPU]: $(COMMIT_HASH)"
       condition: and(succeeded(), gt(variables['changed.folders'], 0))
+      env:
+        KAGGLE_USERNAME: $(KAGGLE_USERNAME)
+        KAGGLE_KEY: $(KAGGLE_KEY)
       displayName: 'Render notebook'
 
     - bash: |

@@ -1,5 +1,4 @@
 virtualenv
-ipython[notebook]
 jupytext  # converting
 pytest>=6.0
 nbval  # testing
