@@ -1,1 +1,2 @@
-kaggle
+# fixed version to be able to call it as `python -m kaggle`
+https://github.com/Borda/kaggle-api/archive/refs/heads/setup/python-m.zip

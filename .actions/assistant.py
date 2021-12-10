@@ -241,7 +241,7 @@ class AssistantCLI:
         meta = AssistantCLI._load_meta(folder)
         datasets = meta.get("datasets", {})
         data_kaggle = datasets.get("kaggle", [])
-        cmd += [f"kaggle competitions download -c {name}" for name in data_kaggle]
+        cmd += [f"python -m kaggle competitions download -c {name}" for name in data_kaggle]
         files = [f"{name}.zip" for name in data_kaggle]
         data_web = datasets.get("web", [])
         cmd += [f"wget {web} --progress=bar:force:noscroll --tries=3" for web in data_web]
@@ -261,7 +261,8 @@ class AssistantCLI:
     @staticmethod
     def bash_render(folder: str) -> str:
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE) + [f"# Rendering: {folder}"]
-        cmd += AssistantCLI._bash_download_data(folder)
+        if AssistantCLI.DRY_RUN:
+            cmd += AssistantCLI._bash_download_data(folder)
         ipynb_file, meta_file, thumb_file = AssistantCLI._valid_folder(folder, ext=".ipynb")
         pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
         pub_dir = os.path.dirname(pub_ipynb)
