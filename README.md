@@ -70,6 +70,8 @@ data_path = os.environ.get("PATH_DATASETS", "_datasets")
 path_titanic = os.path.join(data_path, "titatnic")
 ```
 
+**Warning:** some Kaggle datasets can be quite large and the process is - downloading and extracting, which means that particular runner needs to have double free space. For this reason, the CPU runner is limited to 3GB datasets.
+
 ### Suggestions
 
 - For inserting images into text cells use MarkDown formatting, so we can insert inline images to the notebooks directly and drop eventual dependency on internet connection -> generated notebooks could be better shared offline
