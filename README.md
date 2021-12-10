@@ -45,12 +45,13 @@ The addition has to formed as new folder
   accelerator:
     - CPU
   ```
-  
+
 ### Using datasets
 
 It is quite common to use some public or competition's dataset for your example.
 We facilitate this via defining the data sources in the metafile.
 There are two basic options, download a file from web or pul Kaggle dataset:
+
 ```yaml
 datasets:
   web:
@@ -58,15 +59,16 @@ datasets:
   kaggle:
     - titanic
 ```
+
 In both cases, the downloaded archive (Kaggle dataset is originally downloaded as zip file) is extracted to the default dataset folder under sub-folder with the same name as the downloaded file.
 To get path to this dataset folder, please use environment variable `PATH_DATASETS`, so in your script use:
+
 ```py
 import os
 
 data_path = os.environ.get("PATH_DATASETS", "_datasets")
 path_titanic = os.path.join(data_path, "titatnic")
 ```
-
 
 ### Suggestions
 
