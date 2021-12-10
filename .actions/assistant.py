@@ -88,7 +88,8 @@ TEMPLATE_CARD_ITEM = """
 """
 
 
-def default_requirements(path_req: str = PATH_REQ_DEFAULT) -> list:
+def load_requirements(path_req: str = PATH_REQ_DEFAULT) -> list:
+    """Load the requirements from a file."""
     with open(path_req) as fp:
         req = fp.readlines()
     req = [r[: r.index("#")] if "#" in r else r for r in req]
@@ -98,6 +99,7 @@ def default_requirements(path_req: str = PATH_REQ_DEFAULT) -> list:
 
 
 def get_running_cuda_version() -> str:
+    """Extract the version of actual CUDA for this runtime."""
     try:
         import torch
 
@@ -107,6 +109,7 @@ def get_running_cuda_version() -> str:
 
 
 def get_running_torch_version():
+    """Extract the version of actual PyTorch for this runtime."""
     try:
         import torch
 
@@ -129,6 +132,7 @@ _RUNTIME_VERSIONS = dict(
 
 
 class AssistantCLI:
+    """Collection of handy CLI commands."""
 
     DEVICE_ACCELERATOR = os.environ.get("ACCELERATOR", "cpu").lower()
     DATASET_FOLDER = os.environ.get("PATH_DATASETS", "_datasets").lower()
@@ -161,6 +165,11 @@ class AssistantCLI:
 
     @staticmethod
     def _find_meta(folder: str) -> str:
+        """Search for a meta file in given folder and return its path.
+
+        Args:
+            folder: path to the folder with python script, meta and artefacts
+        """
         files = glob.glob(os.path.join(folder, AssistantCLI._META_FILE_REGEX), flags=glob.BRACE)
         if len(files) == 1:
             return files[0]
@@ -168,6 +177,12 @@ class AssistantCLI:
 
     @staticmethod
     def _load_meta(folder: str, strict: bool = False) -> Optional[dict]:
+        """Loading meta data for a particular notebook with given folder path.
+
+        Args:
+            folder: path to the folder with python script, meta and artefacts
+            strict: raise error if meta is missing required feilds
+        """
         fpath = AssistantCLI._find_meta(folder)
         assert fpath, f"Missing meta file in folder: {folder}"
         meta = yaml.safe_load(open(fpath))
@@ -180,6 +195,11 @@ class AssistantCLI:
 
     @staticmethod
     def _valid_conf_folder(folder: str) -> Tuple[str, str]:
+        """Validate notebook folder if it has required meta file and optional thumb.
+
+        Args:
+            folder: path to the folder with python script, meta and artefacts
+        """
         meta_files = [os.path.join(folder, f".meta.{ext}") for ext in ("yml", "yaml")]
         meta_files = [pf for pf in meta_files if os.path.isfile(pf)]
         if len(meta_files) != 1:
@@ -193,6 +213,13 @@ class AssistantCLI:
 
     @staticmethod
     def _valid_folder(folder: str, ext: str) -> Tuple[str, str, str]:
+        """Validate notebook folder if it has required meta file, python script or ipython notebook (depending on
+        the stage) and optional thumb.
+
+        Args:
+            folder: path to the folder with python script, meta and artefacts
+            ext: extension determining the stage - ".py" for python script nad ".ipynb" for notebook
+        """
         files = glob.glob(os.path.join(folder, f"*{ext}"))
         if len(files) != 1:
             names = list(map(os.path.basename, files))
@@ -202,9 +229,10 @@ class AssistantCLI:
 
     @staticmethod
     def _valid_accelerator(folder: str) -> bool:
-        """Parse standard requirements from meta file
+        """Parse standard requirements from meta file.
+
         Args:
-            folder: path to the folder
+            folder: path to the folder with python script, meta and artefacts
         """
         meta = AssistantCLI._load_meta(folder)
         meta_accels = [acc.lower() for acc in meta.get("accelerator", AssistantCLI._META_ACCEL_DEFAULT)]
@@ -213,9 +241,10 @@ class AssistantCLI:
 
     @staticmethod
     def _parse_requirements(folder: str) -> Tuple[str, str]:
-        """Parse standard requirements from meta file
+        """Parse standard requirements from meta file.
+
         Args:
-            folder: path to the folder
+            folder: path to the folder with python script, meta and artefacts
         """
         meta = AssistantCLI._load_meta(folder)
         req = meta.get("requirements", [])
@@ -237,6 +266,11 @@ class AssistantCLI:
 
     @staticmethod
     def _bash_download_data(folder: str) -> List[str]:
+        """Generate sequence of commands fro optional downloading dataset specified in the meta file.
+
+        Args:
+            folder: path to the folder with python script, meta and artefacts
+        """
         cmd = ["HERE=$PWD", f"cd {AssistantCLI.DATASET_FOLDER}"]
         meta = AssistantCLI._load_meta(folder)
         datasets = meta.get("datasets", {})
@@ -260,6 +294,14 @@ class AssistantCLI:
 
     @staticmethod
     def bash_render(folder: str) -> str:
+        """Prepare bash script for running rendering of a particular notebook.
+
+        Args:
+            folder: name/path to a folder with notebook files
+
+        Returns:
+            string with nash script content
+        """
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE) + [f"# Rendering: {folder}"]
         if not AssistantCLI.DRY_RUN:
             cmd += AssistantCLI._bash_download_data(folder)
@@ -295,6 +337,14 @@ class AssistantCLI:
 
     @staticmethod
     def bash_test(folder: str) -> str:
+        """Prepare bash script for running tests of a particular notebook.
+
+        Args:
+            folder: name/path to a folder with notebook files
+
+        Returns:
+            string with nash script content
+        """
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE) + [f"# Testing: {folder}"]
         cmd += AssistantCLI._bash_download_data(folder)
         ipynb_file, _, _ = AssistantCLI._valid_folder(folder, ext=".ipynb")
@@ -337,7 +387,7 @@ class AssistantCLI:
         meta["description"] = meta["description"].replace(os.linesep, f"{os.linesep}# ")
 
         header = TEMPLATE_HEADER % meta
-        requires = set(default_requirements() + meta["requirements"])
+        requires = set(load_requirements() + meta["requirements"])
         setup = TEMPLATE_SETUP % dict(requirements=" ".join([f'"{req}"' for req in requires]))
         py_script = [header + setup] + py_script + [TEMPLATE_FOOTER]
 
@@ -350,7 +400,8 @@ class AssistantCLI:
 
     @staticmethod
     def _replace_images(lines: list, local_dir: str) -> list:
-        """Update images by URL to GitHub raw source
+        """Update images by URL to GitHub raw source.
+
         Args:
             lines: string lines from python script
             local_dir: relative path to the folder with script
@@ -381,6 +432,7 @@ class AssistantCLI:
 
     @staticmethod
     def _is_ipynb_parent_dir(dir_path: str) -> bool:
+        """Determine in recursive fasion of a folder is valid notebook file or any of sub-folders is."""
         if AssistantCLI._find_meta(dir_path):
             return True
         sub_dirs = [d for d in glob.glob(os.path.join(dir_path, "*")) if os.path.isdir(d)]
@@ -395,7 +447,8 @@ class AssistantCLI:
         strict: bool = True,
         root_path: str = "",
     ) -> None:
-        """Group changes by folders
+        """Group changes by folders.
+
         Args:
             fpath_gitdiff: raw git changes
 
@@ -557,7 +610,8 @@ class AssistantCLI:
 
     @staticmethod
     def update_env_details(dir_path: str):
-        """Export the actual packages used in runtime
+        """Export the actual packages used in runtime.
+
         Args:
              dir_path: path to the folder
         """
