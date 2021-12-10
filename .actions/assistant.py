@@ -261,7 +261,7 @@ class AssistantCLI:
     @staticmethod
     def bash_render(folder: str) -> str:
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE) + [f"# Rendering: {folder}"]
-        if AssistantCLI.DRY_RUN:
+        if not AssistantCLI.DRY_RUN:
             cmd += AssistantCLI._bash_download_data(folder)
         ipynb_file, meta_file, thumb_file = AssistantCLI._valid_folder(folder, ext=".ipynb")
         pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
