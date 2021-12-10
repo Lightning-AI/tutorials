@@ -5,6 +5,9 @@ trigger:
 pr: none
 #stages:
 #- stage: testing
+env:
+  KAGGLE_USERNAME: $(KAGGLE_USERNAME)
+  KAGGLE_KEY: $(KAGGLE_KEY)
 
 jobs:
 
