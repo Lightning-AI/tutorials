@@ -15,6 +15,5 @@ datasets:
   web:
     # starting with http is downloaded
     - https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
-# ToDo
-#  kaggle:
-#    - titanic
+  kaggle:
+    - titanic
