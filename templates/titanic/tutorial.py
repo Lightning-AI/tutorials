@@ -46,14 +46,14 @@ model = TabularClassifier.from_data(
     gamma=0.3,
 )
 
-# %%
+# %% [markdown]
 # ## 3. Create the trainer and train the model
 
-from pytorch_lightning import seed_everything
-from pytorch_lightning.callbacks import StochasticWeightAveraging
+from pytorch_lightning import seed_everything  # noqa: E402]
+from pytorch_lightning.callbacks import StochasticWeightAveraging  # noqa: E402]
 
 # %%
-from pytorch_lightning.loggers import CSVLogger
+from pytorch_lightning.loggers import CSVLogger  # noqa: E402]
 
 seed_everything(7)
 swa = StochasticWeightAveraging(swa_epoch_start=0.6)
@@ -67,7 +67,7 @@ trainer = flash.Trainer(
     auto_lr_find=True,
 )
 
-# ==============================
+# %%
 
 trainer.tune(
     model,
@@ -76,15 +76,13 @@ trainer.tune(
 )
 print(f"Learning Rate: {model.learning_rate}")
 
-# ==============================
+# %%
 
 trainer.fit(model, datamodule=datamodule)
 
 # %%
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-sns.set()
+import matplotlib.pyplot as plt  # noqa: E402]
+import seaborn as sns  # noqa: E402]
 
 metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
 metrics.set_index("step", inplace=True)
@@ -99,16 +97,14 @@ plt.gcf().set_size_inches(10, 5)
 # %%
 df_test = pd.read_csv("/kaggle/input/titanic/test.csv")
 
-# %%
 predictions = model.predict("/kaggle/input/titanic/test.csv")
 print(predictions[0])
 
 # %%
-import numpy as np
+import numpy as np  # noqa: E402]
 
 assert len(df_test) == len(predictions)
 
 df_test["Survived"] = np.argmax(predictions, axis=-1)
 df_test.set_index("PassengerId", inplace=True)
 df_test["Survived"].hist(bins=5)
-df_test[["Survived"]].to_csv("submission.csv")
