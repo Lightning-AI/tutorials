@@ -1,6 +1,6 @@
-import torch
 import flash
 import pandas as pd
+import torch
 from flash.tabular import TabularClassificationData, TabularClassifier
 
 # %% [markdown]
@@ -49,14 +49,15 @@ model = TabularClassifier.from_data(
 # %%
 # ## 3. Create the trainer and train the model
 
+from pytorch_lightning import seed_everything
+from pytorch_lightning.callbacks import StochasticWeightAveraging
+
 # %%
 from pytorch_lightning.loggers import CSVLogger
-from pytorch_lightning.callbacks import StochasticWeightAveraging
-from pytorch_lightning import seed_everything
 
 seed_everything(7)
 swa = StochasticWeightAveraging(swa_epoch_start=0.6)
-logger = CSVLogger(save_dir='logs/')
+logger = CSVLogger(save_dir="logs/")
 trainer = flash.Trainer(
     max_epochs=75,
     gpus=torch.cuda.device_count(),
@@ -68,7 +69,11 @@ trainer = flash.Trainer(
 
 # ==============================
 
-trainer.tune(model, datamodule=datamodule, lr_find_kwargs=dict(min_lr=1e-5, max_lr=0.1, num_training=65),)
+trainer.tune(
+    model,
+    datamodule=datamodule,
+    lr_find_kwargs=dict(min_lr=1e-5, max_lr=0.1, num_training=65),
+)
 print(f"Learning Rate: {model.learning_rate}")
 
 # ==============================
@@ -78,9 +83,10 @@ trainer.fit(model, datamodule=datamodule)
 # %%
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 sns.set()
 
-metrics = pd.read_csv(f'{trainer.logger.log_dir}/metrics.csv')
+metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
 metrics.set_index("step", inplace=True)
 del metrics["epoch"]
 sns.relplot(data=metrics, kind="line")
@@ -99,6 +105,7 @@ print(predictions[0])
 
 # %%
 import numpy as np
+
 assert len(df_test) == len(predictions)
 
 df_test["Survived"] = np.argmax(predictions, axis=-1)
