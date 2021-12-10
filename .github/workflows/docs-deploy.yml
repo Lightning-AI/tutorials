@@ -30,6 +30,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          mkdir ${PATH_DATASETS}
           # install Texlive, see https://linuxconfig.org/how-to-install-latex-on-ubuntu-20-04-focal-fossa-linux
           sudo apt-get update
           sudo apt-get install -y cmake pandoc

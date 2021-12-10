@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       PUB_BRANCH: publication
+      PATH_DATASETS: ${{ github.workspace }}/.datasets
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v2
@@ -38,6 +39,7 @@ jobs:
 
       - name: Process folders
         run: |
+          mkdir ${PATH_DATASETS}
           head=$(git rev-parse origin/"${{ github.base_ref }}")
           git diff --name-only $head --output=master-diff.txt
           python .actions/assistant.py group-folders master-diff.txt

@@ -38,23 +38,13 @@ jobs:
         run: |
           pip --version
           pip install --requirement requirements.txt --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
+          pip install --requirement requirements/data.txt
           pip list
         shell: bash
 
-      - name: Cache Data
-        id: cache-data
-        uses: actions/cache@v2
-        with:
-          path: $PATH_DATASETS
-          key: ${{ runner.os }}-datasets-${{ hashFiles('.actions/data-download.sh') }}
-          restore-keys: ${{ runner.os }}-datasets-
-
-      - name: Download Data
-        if: steps.cache-data.outputs.cache-hit != 'true'
-        run: bash .actions/data-download.sh $PATH_DATASETS
-
       - name: Process folders
         run: |
+          mkdir ${PATH_DATASETS}
           head=$(git rev-parse origin/${{ github.base_ref }})
           git diff --name-only $head --output=target-diff.txt
           python .actions/assistant.py group-folders target-diff.txt
@@ -76,6 +66,9 @@ jobs:
 
       - name: PyTest notebook
         if: success() && steps.changed.outputs.dirs != 0
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         run: |
           while IFS= read -r line; do
               python .actions/assistant.py bash-test $line > .actions/_ipynb-test.sh
