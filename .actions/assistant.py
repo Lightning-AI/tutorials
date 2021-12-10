@@ -246,16 +246,16 @@ class AssistantCLI:
         cmd += [f"kaggle competitions download -c {name}" for name in data_kaggle]
         files = [f"{name}.zip" for name in data_kaggle]
         data_web = datasets.get("web", [])
-        cmd += [f"wget {web} --progress=bar:force:noscroll" for web in data_web]
+        cmd += [f"wget {web} --progress=bar:force:noscroll --tries=3" for web in data_web]
         files += [os.path.basename(web) for web in data_web]
         for fn in files:
             name, ext = os.path.splitext(fn)
             if ext not in AssistantCLI._EXT_ARCHIVE:
                 continue
             if ext in AssistantCLI._EXT_ARCHIVE_ZIP:
-                cmd += [f"mkdir {name}", f"unzip {fn} -d {name}"]
+                cmd += [f"mkdir -p {name}", f"unzip {fn} -o -d {name}"]
             else:
-                cmd += [f"tar -zxvf {fn}"]
+                cmd += [f"tar -zxvf {fn} --overwrite"]
             cmd += [f"rm {fn}"]
         cmd += ["ls -l", "cd $HERE"]
         return cmd
