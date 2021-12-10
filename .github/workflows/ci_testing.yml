@@ -65,6 +65,9 @@ jobs:
 
       - name: PyTest notebook
         if: success() && steps.changed.outputs.dirs != 0
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         run: |
           while IFS= read -r line; do
               python .actions/assistant.py bash-test $line > .actions/_ipynb-test.sh
