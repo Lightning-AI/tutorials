@@ -4,9 +4,6 @@ pr:
     include: [ main ]
   autoCancel: true
   drafts: true
-env:
-  KAGGLE_USERNAME: $(KAGGLE_USERNAME)
-  KAGGLE_KEY: $(KAGGLE_KEY)
 
 jobs:
 
@@ -77,4 +74,7 @@ jobs:
             bash .actions/_ipynb-test.sh
         done <<< $(cat changed-folders.txt)
       condition: and(succeeded(), gt(variables['changed.folders'], 0))
+      env:
+        KAGGLE_USERNAME: $(KAGGLE_USERNAME)
+        KAGGLE_KEY: $(KAGGLE_KEY)
       displayName: 'PyTest notebook'

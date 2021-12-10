@@ -251,7 +251,7 @@ class AssistantCLI:
             if ext not in AssistantCLI._EXT_ARCHIVE:
                 continue
             if ext in AssistantCLI._EXT_ARCHIVE_ZIP:
-                cmd += [f"mkdir -p {name}", f"unzip {fn} -o -d {name}"]
+                cmd += [f"mkdir -p {name}", f"unzip -o {fn} -d {name}"]
             else:
                 cmd += [f"tar -zxvf {fn} --overwrite"]
             cmd += [f"rm {fn}"]
