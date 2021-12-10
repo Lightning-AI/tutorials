@@ -57,6 +57,7 @@ jobs:
     - bash: |
         pip --version
         pip install --requirement requirements.txt
+        pip install --requirement requirements/data.txt
         pip list
       displayName: 'Install dependencies'
 
