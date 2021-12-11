@@ -133,6 +133,7 @@
 # <div class="alert alert-warning">
 #
 # **Note:** Currently, _FinetuningScheduler_ only supports the following ``StrategyType``s:
+#
 # - ``DP``
 # - ``DDP``
 # - ``DDP_SPAWN``
@@ -600,6 +601,8 @@ logger = TensorBoardLogger(example_logdir, name="fts_explicit")
 enable_progress_bar = False
 
 # %%
+
+
 def train() -> None:
     trainer = pl.Trainer(
         enable_progress_bar=enable_progress_bar,
@@ -622,13 +625,15 @@ else:
 # ### Running the Baseline and Implicit Finetuning Scenarios
 #
 # Let's now compare our ``nofts_baseline`` and ``fts_implicit`` scenarios with the ``fts_explicit`` one we just ran.
+#
 # We'll need to update our callbacks list, using the core PL ``EarlyStopping`` and ``ModelCheckpoint`` callbacks for the
 # ``nofts_baseline`` (which operate identically to their FTS analogs apart from the recursive training support).
 # For both core PyTorch Lightning and user-registered callbacks, we can define our callbacks using a dictionary as we do
 # with the LightningCLI. This allows us to avoid managing imports and support more complex configuration separated from
 # code.
-# We'll be using identical callback configurations to the ``fts_explicit`` scenario. Keeping ``max_depth`` for the
-# implicit schedule will limit finetuning to just the last 4 parameters of the model, which is only a small fraction
+#
+# Note that we'll be using identical callback configurations to the ``fts_explicit`` scenario. Keeping ``max_depth`` for
+# the implicit schedule will limit finetuning to just the last 4 parameters of the model, which is only a small fraction
 # of the parameters you'd want to tune for maximum performance. Since the implicit schedule is quite computationally
 # intensive and most useful for exploring model behavior, leaving ``max_depth`` 1 allows us to demo implicit mode
 # behavior while keeping the computational cost and runtime of this notebook reasonable. To review how a full implicit
@@ -686,8 +691,8 @@ else:
 # which uses DDP_SPAWN and 1 GPU.
 #
 # ``FinetuningScheduler`` expands the space of possible finetuning schedules and the composition of more sophisticated schedules can
-# yield mariginal finetuning performance gains. That stated, it should be emphasized the primary utility of ``FinetuningScheduler`` is to grant
-# greater finetuning flexibility for model exploration in research. For example, glancing at DeBERTav3's implicit training
+# yield marginal finetuning performance gains. That stated, it should be emphasized the primary utility of ``FinetuningScheduler`` is to grant
+# greater finetuning flexibility for model exploration in research. For example, glancing at DeBERTa-v3's implicit training
 # run, a critical tuning transition point is immediately apparent:
 #
 # [![implicit_training_transition](implicit_training_transition.png)](https://tensorboard.dev/experiment/n7U8XhrzRbmvVzC4SQSpWw/#scalars&_smoothingWeight=0&runSelectionState=eyJmdHNfZXhwbGljaXQiOmZhbHNlLCJub2Z0c19iYXNlbGluZSI6ZmFsc2UsImZ0c19pbXBsaWNpdCI6dHJ1ZX0%3D)
