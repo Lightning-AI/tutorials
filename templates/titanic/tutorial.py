@@ -25,7 +25,7 @@ from flash.tabular import TabularClassificationData, TabularClassifier
 
 # %%
 data_path = os.environ.get("PATH_DATASETS", "_datasets")
-path_titanic = os.path.join(data_path, "titatnic")
+path_titanic = os.path.join(data_path, "titanic")
 csv_train = os.path.join(path_titanic, "train.csv")
 csv_test = os.path.join(path_titanic, "test.csv")
 
