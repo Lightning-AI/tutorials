@@ -58,12 +58,12 @@ model = TabularClassifier.from_data(
 # %% [markdown]
 # ## 3. Create the trainer and train the model
 
-from pytorch_lightning import seed_everything  # noqa: E402]
+# %%
+from flash import Trainer
 from pytorch_lightning.loggers import CSVLogger  # noqa: E402]
 
-seed_everything(7)
 logger = CSVLogger(save_dir="logs/")
-trainer = flash.Trainer(
+trainer = Trainer(
     max_epochs=75,
     gpus=torch.cuda.device_count(),
     logger=logger,
