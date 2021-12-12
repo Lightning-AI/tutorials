@@ -1,10 +1,10 @@
 import os
 
-import flash
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import torch
+from flash import Trainer
 from flash.tabular import TabularClassificationData, TabularClassifier
 
 # %% [markdown]
@@ -59,7 +59,6 @@ model = TabularClassifier.from_data(
 # ## 3. Create the trainer and train the model
 
 # %%
-from flash import Trainer
 from pytorch_lightning.loggers import CSVLogger  # noqa: E402]
 
 logger = CSVLogger(save_dir="logs/")
