@@ -39,7 +39,7 @@ datamodule = TabularClassificationData.from_csv(
     target_fields="Survived",
     train_file=csv_train,
     val_split=0.1,
-    batch_size=64,
+    batch_size=8,
 )
 
 # %% [markdown]
@@ -50,7 +50,6 @@ model = TabularClassifier.from_data(
     datamodule,
     learning_rate=0.1,
     optimizer="Adam",
-    lr_scheduler=("StepLR", {"step_size": 100}),
     n_a=8,
     gamma=0.3,
 )
@@ -63,12 +62,11 @@ from pytorch_lightning.loggers import CSVLogger  # noqa: E402]
 
 logger = CSVLogger(save_dir="logs/")
 trainer = Trainer(
-    max_epochs=75,
+    max_epochs=10,
     gpus=torch.cuda.device_count(),
     logger=logger,
-    accumulate_grad_batches=4,
+    accumulate_grad_batches=12,
     gradient_clip_val=0.1,
-    auto_lr_find=True,
 )
 
 # %%
