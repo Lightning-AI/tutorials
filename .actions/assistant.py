@@ -625,7 +625,7 @@ class AssistantCLI:
         def _parse_package_name(pkg: str, keys: str = " <=>[]", egg_name: str = "#egg=") -> str:
             """Parsing just the package name."""
             if egg_name in pkg:
-                pkg = pkg[pkg.index(egg_name) + len(egg_name):]
+                pkg = pkg[pkg.index(egg_name) + len(egg_name) :]
             if any(c in pkg for c in keys):
                 ix = min(pkg.index(c) for c in keys if c in pkg)
                 pkg = pkg[:ix]
