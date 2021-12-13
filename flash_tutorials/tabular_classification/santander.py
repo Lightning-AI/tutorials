@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import torch
 from flash.core.data.utils import download_data
-from flash.core.integrations.pytorch_forecasting import convert_predictions
 from flash.tabular.classification import TabularClassifier, TabularClassificationData
 from flash import Trainer
 from flash.core.classification import LabelsOutput
@@ -27,6 +26,10 @@ import torch
 DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 
 # %%
+#todo: to be changed
+download_data("https://pl-flash-data.s3.amazonaws.com/kaggle_electricity.zip", DATASET_PATH)
+
+# %%
 # ## Download the data
 df_train = pd.read_csv(f"{DATASET_PATH}/train.csv")
 df_predict = pd.read_csv(f"{DATASET_PATH}/test.csv")
@@ -34,7 +37,6 @@ df_predict = pd.read_csv(f"{DATASET_PATH}/test.csv")
 # %%
 
 # Some data inspection
-
 # %%
 datamodule = TabularClassificationData.from_data_frame(
     numerical_fields=['var_'+str(i) for i in range(200)],
