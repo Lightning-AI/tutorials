@@ -16,13 +16,11 @@ import flash
 import matplotlib.pyplot as plt
 import pandas as pd
 import torch
-from flash.core.data.utils import download_data
-from flash.core.integrations.pytorch_forecasting import convert_predictions
-from flash.tabular.classification import TabularClassifier, TabularClassificationData
 from flash import Trainer
 from flash.core.classification import LabelsOutput
-
-import torch
+from flash.core.data.utils import download_data
+from flash.core.integrations.pytorch_forecasting import convert_predictions
+from flash.tabular.classification import TabularClassificationData, TabularClassifier
 
 DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 
@@ -37,11 +35,11 @@ df_predict = pd.read_csv(f"{DATASET_PATH}/test.csv")
 
 # %%
 datamodule = TabularClassificationData.from_data_frame(
-    numerical_fields=['var_'+str(i) for i in range(200)],
+    numerical_fields=["var_" + str(i) for i in range(200)],
     target_fields="target",
     train_data_frame=df_train,
     predict_data_frame=df_predict,
-    batch_size = 256
+    batch_size=256,
 )
 
 # %%
@@ -69,18 +67,18 @@ predictions = trainer.predict(model, datamodule=datamodule)
 # ## We create another datamodule for predictions
 
 predict_datamodule = TabularClassificationData.from_data_frame(
-    numerical_fields=['var_'+str(i) for i in range(200)],
+    numerical_fields=["var_" + str(i) for i in range(200)],
     predict_data_frame=df_predict,
-    batch_size = df_predict.shape[0],
-    parameters = datamodule.parameters
+    batch_size=df_predict.shape[0],
+    parameters=datamodule.parameters,
 )
 
 predictions = trainer.predict(model, datamodule=predict_datamodule)
 
 # %%
 
-id_code = ['test_'+str(i) for i in range(len(predictions[0]))]
-data = {'ID_code': id_code,'target': predictions[0]}
+id_code = ["test_" + str(i) for i in range(len(predictions[0]))]
+data = {"ID_code": id_code, "target": predictions[0]}
 pred_df = pd.DataFrame(data)
 
-pred_df.to_csv('submission.csv', index=False)
+pred_df.to_csv("submission.csv", index=False)
