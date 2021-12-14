@@ -16,16 +16,13 @@ import flash
 import matplotlib.pyplot as plt
 import pandas as pd
 import torch
+import torchmetrics
 from flash import Trainer
 from flash.core.classification import LabelsOutput
 from flash.core.data.utils import download_data
-
-from flash.tabular.classification import TabularClassifier, TabularClassificationData
-
-import torchmetrics
-
-from sklearn.utils import resample
+from flash.tabular.classification import TabularClassificationData, TabularClassifier
 from imblearn.over_sampling import SMOTE
+from sklearn.utils import resample
 
 DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 
@@ -38,7 +35,7 @@ download_data("https://pl-flash-data.s3.amazonaws.com/kaggle_electricity.zip", D
 df_train = pd.read_csv(f"{DATASET_PATH}/train.csv")
 df_predict = pd.read_csv(f"{DATASET_PATH}/test.csv")
 
-df_train = df_train.drop('ID_code', axis = 1)
+df_train = df_train.drop("ID_code", axis=1)
 
 # %%
 
@@ -46,9 +43,9 @@ df_train = df_train.drop('ID_code', axis = 1)
 
 # %%
 
-sm = SMOTE(sampling_strategy='auto', random_state=42)
+sm = SMOTE(sampling_strategy="auto", random_state=42)
 
-oversampled_X, oversampled_Y = sm.fit_resample(df_train.drop('target', axis = 1), df_train['target'])
+oversampled_X, oversampled_Y = sm.fit_resample(df_train.drop("target", axis=1), df_train["target"])
 df_upsampled = pd.concat([pd.DataFrame(oversampled_Y), pd.DataFrame(oversampled_X)], axis=1)
 # %%
 
@@ -64,10 +61,10 @@ datamodule = TabularClassificationData.from_data_frame(
 
 # %%
 
+
 # It is important that one uses the modular, not the function form of the metric. That is, do not use torchmetrics.functional.auroc()
 
-model = TabularClassifier.from_data(datamodule,
-                                metrics = [torchmetrics.AUROC(num_classes=datamodule.num_classes)])
+model = TabularClassifier.from_data(datamodule, metrics=[torchmetrics.AUROC(num_classes=datamodule.num_classes)])
 model.output = LabelsOutput()
 
 # %%
@@ -99,7 +96,7 @@ predict_datamodule = TabularClassificationData.from_data_frame(
 predictions = trainer.predict(model, datamodule=predict_datamodule)
 
 # %%
-#todo: warning, the order of the predictions might not be ordered!
+# todo: warning, the order of the predictions might not be ordered!
 id_code = ["test_" + str(i) for i in range(len(predictions[0]))]
 data = {"ID_code": id_code, "target": predictions[0]}
 pred_df = pd.DataFrame(data)
