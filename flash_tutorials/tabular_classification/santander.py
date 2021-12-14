@@ -30,7 +30,7 @@ from imblearn.over_sampling import SMOTE
 DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 
 # %%
-#todo: to be changed
+# todo: to be changed
 download_data("https://pl-flash-data.s3.amazonaws.com/kaggle_electricity.zip", DATASET_PATH)
 
 # %%
