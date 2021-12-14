@@ -64,6 +64,8 @@ datamodule = TabularClassificationData.from_data_frame(
 
 # %%
 
+# It is important that one uses the modular, not the function form of the metric. That is, do not use torchmetrics.functional.auroc()
+
 model = TabularClassifier.from_data(datamodule,
                                 metrics = [torchmetrics.AUROC(num_classes=datamodule.num_classes)])
 model.output = LabelsOutput()
