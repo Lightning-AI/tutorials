@@ -1,0 +1,18 @@
+title: Biwi Kinect Head Pose Dataset Challenge
+author: Max Pietsch (mail@maxpietsch.com) ADD YOURSELF HERE
+created: 2021-12-15
+updated: 2021-12-15
+license: CC BY-SA
+build: 1
+tags:
+  - Image
+  - KeyPoint
+description: |
+  This tutorial shows how to load the BIWI head pose dataset in Lightning Flash for keypoint estimation audio classification using the Biwi Kinect Head Pose Database. The dataset contains RGB images of persons and an assocated landmark marking the center of the face projected from 3D space onto the RGB image pane.
+requirements:
+  - pandas==1.1.5
+  - icevision
+  - lightning-flash[image]
+accelerator:
+  - GPU
+  - CPU
