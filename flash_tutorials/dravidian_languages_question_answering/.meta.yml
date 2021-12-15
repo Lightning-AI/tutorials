@@ -1,0 +1,18 @@
+title: Question Answering for Dravidian Languages
+author: Karthik Rangasai Sivaraman (karthikrangasai@gmail.com)
+created: 2021-12-15
+updated: 2021-12-15
+license: CC BY-SA
+build: 3
+tags:
+  - Text
+  - Question Answering
+description: |
+  This tutorial covers using Lightning Flash and it's integration with Hugging Face Transformers to train a Transformer
+  model (XLM-RoBERTa) on SQuAD type dataset for the dravidian languages. We show how easy it is to use a Hugging Face
+  Transformers model with the all goodness provided by PyTorch Lightning using Flash.
+requirements:
+  - lightning-flash[text]>=0.5.2
+accelerator:
+  - GPU
+  - CPU
