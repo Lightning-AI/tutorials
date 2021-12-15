@@ -31,8 +31,8 @@ seed_everything(1234)
 
 # %%
 
-DATASET_LOC = 'data'
-AUDIO_FOLDER = 'train_short_audio'
+DATASET_LOC = "data"
+AUDIO_FOLDER = "train_short_audio"
 
 # %% [markdown]
 # #### Sneak peak of the data
@@ -91,7 +91,7 @@ datamodule = AudioClassificationData.from_folders(
     input_cls=AudioClassificationFileInputToSpectrogram,
     batch_size=64,
     transform_kwargs=dict(spectrogram_size=(64, 64)),
-    val_split=0.2
+    val_split=0.2,
 )
 
 # %%
