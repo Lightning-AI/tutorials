@@ -30,7 +30,8 @@ seed_everything(1234)
 # #### Audio parameters change as per your data location
 
 # %%
-DATASET_LOC = 'birdclef-2021'
+
+DATASET_LOC = 'data'
 AUDIO_FOLDER = 'train_short_audio'
 
 # %% [markdown]
@@ -88,7 +89,8 @@ datamodule = AudioClassificationData.from_folders(
     train_folder=os.path.join(DATASET_LOC, AUDIO_FOLDER),
     input_cls=AudioClassificationFileInputToSpectrogram,
     batch_size=64,
-    transform_kwargs=dict(spectrogram_size=(64, 64))
+    transform_kwargs=dict(spectrogram_size=(64, 64)),
+    val_split=0.2
 )
 
 # %%
@@ -110,6 +112,9 @@ trainer = flash.Trainer(max_epochs=3, gpus=torch.cuda.device_count())
 trainer.finetune(model, datamodule=datamodule, strategy=("freeze_unfreeze", 1))
 
 # %%
+trainer.save_checkpoint("audio_classification_model.pt")
 
+
+# %%
 
 # %%
