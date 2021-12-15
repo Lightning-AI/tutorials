@@ -1,0 +1,17 @@
+title: Audio Classifcation BIRD CLEF Challenge
+author: Shivam Mehta (shivam.mehta007@gmail.com), Birger Moëll (birger.moell@gmail.com)
+created: 2021-12-15
+updated: 2021-12-15
+license: CC BY-SA
+build: 1
+tags:
+  - Audio
+  - Classification
+description: |
+  This tutorial convers how to use Lightning Flash for audio classification with the Bird CLEF Dataset Challenge. The dataset consists of recordings of birds in the Bird CLEF Challenge. The challenge is to predict the species of the birds.
+requirements:
+  - pandas==1.1.5
+  - lightning-flash[tabular]>=0.5.2
+accelerator:
+  - GPU
+  - CPU
