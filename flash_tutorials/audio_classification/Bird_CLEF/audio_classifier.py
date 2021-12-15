@@ -47,6 +47,7 @@ train_metadata.head()
 # %%
 AUDIO_EXTENSIONS = ('.wav', '.mp3', '.flac', '.ogg')
 
+
 def waveform_loader(filepath: str):
     if has_file_allowed_extension(filepath, AUDIO_EXTENSIONS):
         waveform, sr = torchaudio.load(filepath)
@@ -56,6 +57,8 @@ def waveform_loader(filepath: str):
     return waveform, sr
 
 # %%
+
+
 class AudioClassificationFileInputToSpectrogram(AudioClassificationInput):
     def load_data(self, folder: PATH_TYPE) -> List[Dict[str, Any]]:
 
@@ -79,13 +82,14 @@ class AudioClassificationFileInputToSpectrogram(AudioClassificationInput):
         # plot_specgram(sample[DataKeys.INPUT])
         return sample
 
+
 # %%
 datamodule = AudioClassificationData.from_folders(
     train_folder=os.path.join(DATASET_LOC, AUDIO_FOLDER),
     input_cls=AudioClassificationFileInputToSpectrogram,
     batch_size=64,
     transform_kwargs=dict(spectrogram_size=(64, 64))
-)   
+)
 
 # %%
 len(datamodule.train_dataset)
@@ -94,7 +98,7 @@ len(datamodule.train_dataset)
 # ## Model
 
 # %%
-model = ImageClassifier(backbone="resnet18", 
+model = ImageClassifier(backbone="resnet18",
                         num_classes=datamodule.num_classes,
                         backbone_kwargs={"in_chans": 1})
 
@@ -109,6 +113,3 @@ trainer.finetune(model, datamodule=datamodule, strategy=("freeze_unfreeze", 1))
 
 
 # %%
-
-
-
