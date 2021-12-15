@@ -30,14 +30,14 @@ seed_everything(1234)
 # #### Audio parameters change as per your data location
 
 # %%
-DATASET_LOC = 'birdclef-2021'
-AUDIO_FOLDER = 'train_short_audio'
+DATASET_LOC = "birdclef-2021"
+AUDIO_FOLDER = "train_short_audio"
 
 # %% [markdown]
 # #### Sneak peak of the data
 
 # %%
-train_metadata = pd.read_csv(os.path.join(DATASET_LOC, 'train_metadata.csv'))
+train_metadata = pd.read_csv(os.path.join(DATASET_LOC, "train_metadata.csv"))
 print(train_metadata.shape)
 train_metadata.head()
 
@@ -45,16 +45,17 @@ train_metadata.head()
 # ## Adding Dataloader
 
 # %%
-AUDIO_EXTENSIONS = ('.wav', '.mp3', '.flac', '.ogg')
+AUDIO_EXTENSIONS = (".wav", ".mp3", ".flac", ".ogg")
 
 
 def waveform_loader(filepath: str):
     if has_file_allowed_extension(filepath, AUDIO_EXTENSIONS):
         waveform, sr = torchaudio.load(filepath)
     else:
-        raise Exception(f'File {filepath} has unsupported extension. Can only load {AUDIO_EXTENSIONS}')
+        raise Exception(f"File {filepath} has unsupported extension. Can only load {AUDIO_EXTENSIONS}")
 
     return waveform, sr
+
 
 # %%
 
@@ -88,7 +89,7 @@ datamodule = AudioClassificationData.from_folders(
     train_folder=os.path.join(DATASET_LOC, AUDIO_FOLDER),
     input_cls=AudioClassificationFileInputToSpectrogram,
     batch_size=64,
-    transform_kwargs=dict(spectrogram_size=(64, 64))
+    transform_kwargs=dict(spectrogram_size=(64, 64)),
 )
 
 # %%
@@ -98,9 +99,7 @@ len(datamodule.train_dataset)
 # ## Model
 
 # %%
-model = ImageClassifier(backbone="resnet18",
-                        num_classes=datamodule.num_classes,
-                        backbone_kwargs={"in_chans": 1})
+model = ImageClassifier(backbone="resnet18", num_classes=datamodule.num_classes, backbone_kwargs={"in_chans": 1})
 
 # %% [markdown]
 # ## Training
