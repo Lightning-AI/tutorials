@@ -1,20 +1,19 @@
 #!/usr/bin/env python
-# coding: utf-8
 
 import os
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
-import scipy as sp
-import flash
 from pathlib import Path
 
+import flash
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import scipy as sp
 
-datadir = Path('/kaggle/input')
+datadir = Path("/kaggle/input")
 
 
 from flash.core.utilities.imports import _ICEVISION_AVAILABLE
-from flash.image.data import image_loader, IMG_EXTENSIONS, NP_EXTENSIONS
+from flash.image.data import IMG_EXTENSIONS, NP_EXTENSIONS, image_loader
 
 if _ICEVISION_AVAILABLE:
     from icevision.core.record import BaseRecord
@@ -28,61 +27,64 @@ else:
 # In[108]:
 
 
-from icevision.all import *
-from icevision.core.record_defaults import KeypointsRecord
 from pathlib import Path
 
+from icevision.all import *
+from icevision.core.record_defaults import KeypointsRecord
+
+
 class CustomBIWIKeypointsMetadata(KeypointsMetadata):
-    labels = ["center"] # , "apex", "root"]
-    
-    
+    labels = ["center"]  # , "apex", "root"]
+
+
 class BiwiPNG:
     # TODO cache calibration for each subject (avoid loading for every frame)
-    
+
     def load_keypoints(self, impath):
         name = str(impath)[:-8]
-        
-        pose = np.loadtxt(name + "_pose.txt")
-        R = pose[:3,:3] # pose rotation from standard pose to this
-        centre_biwi = pose[3,:]
 
-        cal_rgb = os.path.join(os.path.split(name)[0], 'rgb.cal')
+        pose = np.loadtxt(name + "_pose.txt")
+        R = pose[:3, :3]  # pose rotation from standard pose to this
+        centre_biwi = pose[3, :]
+
+        cal_rgb = os.path.join(os.path.split(name)[0], "rgb.cal")
         cal_rgb_P = np.eye(4)
-        cal_rgb_P[:3,:3] = np.genfromtxt(cal_rgb, skip_header=5, skip_footer=2)
-        cal_rgb_P[:3,3] = np.genfromtxt(cal_rgb, skip_header=9, skip_footer=1)
+        cal_rgb_P[:3, :3] = np.genfromtxt(cal_rgb, skip_header=5, skip_footer=2)
+        cal_rgb_P[:3, 3] = np.genfromtxt(cal_rgb, skip_header=9, skip_footer=1)
         cal_rgb = np.genfromtxt(cal_rgb, skip_footer=6)
 
         def biwi2img(vec, camera_cal=True):
-            if camera_cal: # RGB camera calibration
-                x, y, z = cal_rgb_P[:3,:3] @ vec + cal_rgb_P[:3,3] 
+            if camera_cal:  # RGB camera calibration
+                x, y, z = cal_rgb_P[:3, :3] @ vec + cal_rgb_P[:3, 3]
             else:
                 x, y, z = vec
-            # BIWI world to image conversion
+            # BIWI world to image conversion
             # x <--> v
             # y <--> u
             # z  ==  d
-            v = x * cal_rgb[0,0] / z + cal_rgb[0,2]
-            u = y * cal_rgb[1,1] / z + cal_rgb[1,2]
+            v = x * cal_rgb[0, 0] / z + cal_rgb[0, 2]
+            u = y * cal_rgb[1, 1] / z + cal_rgb[1, 2]
             return u, v
 
         centre = biwi2img(centre_biwi)
-        # assuming the standard orientation of the nose is frontal upright, apex and root distance and directions are guesses
-        dist = 50.
-        apex = biwi2img(centre_biwi + dist * R @ np.array([0,0,-1.0]))
-        root = biwi2img(centre_biwi + dist / np.sqrt(2) * R @ np.array([0,-1.0,-1.0])) # guessed 45 degree angle towards root
-        
+        # assuming the standard orientation of the nose is frontal upright, apex and root distance and directions are guesses
+        dist = 50.0
+        apex = biwi2img(centre_biwi + dist * R @ np.array([0, 0, -1.0]))
+        root = biwi2img(
+            centre_biwi + dist / np.sqrt(2) * R @ np.array([0, -1.0, -1.0])
+        )  # guessed 45 degree angle towards root
+
         return {"center": centre, "apex": apex, "root": root}
-        
-        
+
 
 class CustomParser(Parser):
     def __init__(self, img_dir: Union[str, Path], imgID_annotations: Dict, idmap=None):
         super().__init__(template_record=self.template_record(), idmap=idmap)
-        
+
         self.img_dir = Path(img_dir)
 
         self.class_map = ClassMap(CustomBIWIKeypointsMetadata().labels)
-        
+
         self.annotations_dict = imgID_annotations
 
     def __iter__(self):
@@ -101,7 +103,9 @@ class CustomParser(Parser):
         return self.img_dir / o[0]
 
     def keypoints(self, o):
-        return [KeyPoints.from_xyv([x, y, 1], CustomBIWIKeypointsMetadata) for y, x in o[1]] # TODO check coordinate flip
+        return [
+            KeyPoints.from_xyv([x, y, 1], CustomBIWIKeypointsMetadata) for y, x in o[1]
+        ]  # TODO check coordinate flip
 
     def image_width_height(self, o) -> Tuple[int, int]:
         return get_img_size(self.filepath(o))
@@ -123,20 +127,20 @@ class CustomParser(Parser):
         record.detection.add_bboxes(self.bboxes(o))
         record.detection.add_keypoints(self.keypoints(o))
 
-        
-        
+
 def parser(data_dir: Path):
-    
-    images = sorted(Path(data_dir).glob("??/frame_*_rgb.png"))[:100] # TODO remove truncation
-        
+
+    images = sorted(Path(data_dir).glob("??/frame_*_rgb.png"))[:100]  # TODO remove truncation
+
     imgID_annotations = {}
-    
+
     biwi = BiwiPNG()
     for im in images:
         keypoints = biwi.load_keypoints(im)
-        imgID_annotations[str(im.relative_to(data_dir))] = [keypoints['center']] # TODO add other keypoints
-        
+        imgID_annotations[str(im.relative_to(data_dir))] = [keypoints["center"]]  # TODO add other keypoints
+
     return CustomParser(img_dir=data_dir, imgID_annotations=imgID_annotations)
+
 
 if True:
     p = parser(datadir)
@@ -185,24 +189,16 @@ sample
 from flash.core.data.io.input import DataKeys
 
 plt.imshow(sample[DataKeys.INPUT])
-plt.scatter(sample[DataKeys.TARGET]['keypoints'][0][0]['x'], sample[DataKeys.TARGET]['keypoints'][0][0]['y'], marker='+')
+plt.scatter(
+    sample[DataKeys.TARGET]["keypoints"][0][0]["x"], sample[DataKeys.TARGET]["keypoints"][0][0]["y"], marker="+"
+)
 sample
 
 
 # In[ ]:
 
 
-
-
-
 # In[ ]:
 
 
-
-
-
 # In[ ]:
-
-
-
-
