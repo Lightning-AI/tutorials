@@ -232,7 +232,7 @@ def instantiate_registered_class(init: Dict[str, Any], args: Optional[Union[Any,
 
 
 # %%
-# load the pl extension module we want to use. This will import all necessary callbacks.
+# Load the `FinetuningScheduler` PyTorch Lightning extension module we want to use. This will import all necessary callbacks.
 mock_register_module("finetuningscheduler")
 # set notebook-level variables
 AVAIL_GPUS = torch.cuda.device_count()
@@ -240,15 +240,15 @@ TASK_NUM_LABELS = {"boolq": 2, "rte": 2}
 DEFAULT_TASK = "rte"
 
 transformers_logging.set_verbosity_error()
-# ignore warnings related tokenizers_parallelism/DataLoader parallelism tradeoff and
-#  expected logging behavior
+# ignore warnings related tokenizers_parallelism/DataLoader parallelism trade-off and
+# expected logging behavior
 for warnf in [".*does not have many workers*", ".*The number of training samples.*"]:
     warnings.filterwarnings("ignore", warnf)
 
 
 # %%
 class RteBoolqDataModule(pl.LightningDataModule):
-    """A ``LightningDataModule`` for using either the RTE or BoolQ SuperGLUE Hugging Face datasets."""
+    """A ``LightningDataModule`` designed for both the RTE or BoolQ SuperGLUE Hugging Face datasets."""
 
     TASK_TEXT_FIELD_MAP = {"rte": ("premise", "hypothesis"), "boolq": ("question", "passage")}
     LOADER_COLUMNS = (
@@ -287,6 +287,11 @@ class RteBoolqDataModule(pl.LightningDataModule):
         os.environ["TOKENIZERS_PARALLELISM"] = "true" if self.tokenizers_parallelism else "false"
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name_or_path, use_fast=True, local_files_only=False)
 
+    def prepare_data(self):
+        # N.B. PL calls prepare_data from a single process (rank 0) so do not use it to assign
+        # state (e.g. self.x=y)
+        datasets.load_dataset("super_glue", self.task_name)
+
     def setup(self, stage):
         self.dataset = datasets.load_dataset("super_glue", self.task_name)
         for split in self.dataset.keys():
@@ -297,11 +302,6 @@ class RteBoolqDataModule(pl.LightningDataModule):
             self.dataset[split].set_format(type="torch", columns=self.columns)
 
         self.eval_splits = [x for x in self.dataset.keys() if "validation" in x]
-
-    def prepare_data(self):
-        # N.B. PL calls prepare_data from a single process (rank 0) so do not use it to assign
-        # state (e.g. self.x=y)
-        datasets.load_dataset("super_glue", self.task_name)
 
     def train_dataloader(self):
         return DataLoader(self.dataset["train"], batch_size=self.train_batch_size, **self.dataloader_kwargs)
@@ -402,11 +402,10 @@ class RteBoolqModule(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         outputs = self(**batch)
         loss = outputs[0]
+        self.log("train_loss", loss, prog_bar=True)
         return loss
 
     def training_epoch_end(self, outputs: List[Any]) -> None:
-        loss = torch.stack([x["loss"] for x in outputs]).mean()
-        self.log("train_loss", loss, prog_bar=True)
         if self.finetuningscheduler_callback:
             self.log("finetuning_schedule_depth", float(self.finetuningscheduler_callback.curr_depth))
 
@@ -516,7 +515,7 @@ with open(ft_schedule_name, "w") as f:
 # %%
 datasets.set_progress_bar_enabled(False)
 pl.seed_everything(42)
-dm = RteBoolqDataModule(model_name_or_path="microsoft/deberta-v3-base", tokenizers_parallelism=False)
+dm = RteBoolqDataModule(model_name_or_path="microsoft/deberta-v3-base", tokenizers_parallelism=True)
 
 # %% [markdown]
 # ### Optimizer Configuration
@@ -581,22 +580,18 @@ model = RteBoolqModule(**lightning_module_kwargs, experiment_tag="fts_explicit")
 # including example configurations of all three callbacks below.
 
 # %%
-earlystopping_kwargs = {"monitor": "val_loss", "min_delta": 0.001, "patience": 2}
-checkpoint_kwargs = {"monitor": "val_loss", "save_top_k": 1}
-fts_kwargs = {"max_depth": 1}
 callbacks = [
-    FinetuningScheduler(ft_schedule=ft_schedule_name, **fts_kwargs),  # type: ignore # noqa
-    FTSEarlyStopping(**earlystopping_kwargs),  # type: ignore # noqa
-    FTSCheckpoint(**checkpoint_kwargs),  # type: ignore # noqa
+    FinetuningScheduler(ft_schedule=ft_schedule_name, max_depth=1),  # type: ignore # noqa
+    FTSEarlyStopping(monitor="val_loss", min_delta=0.001, patience=2),  # type: ignore # noqa
+    FTSCheckpoint(monitor="val_loss", save_top_k=1),  # type: ignore # noqa
 ]
 # %%
-example_logdir = "lightning_logs"
-logger = TensorBoardLogger(example_logdir, name="fts_explicit")
+logger = TensorBoardLogger("lightning_logs", name="fts_explicit")
 # optionally start tensorboard and monitor progress graphically while viewing multi-phase finetuning specific training
 # logs in the cell output below by uncommenting the next 3 lines
 # # !mkdir -p $example_logdir
 # # %load_ext tensorboard
-# # %tensorboard --logdir example_logdir
+# # %tensorboard --logdir lightning_logs
 # disable progress bar by default to focus on multi-phase training logs. Set to True to re-enable if desired
 enable_progress_bar = False
 
@@ -697,7 +692,7 @@ else:
 #
 # [![implicit_training_transition](implicit_training_transition.png)](https://tensorboard.dev/experiment/n7U8XhrzRbmvVzC4SQSpWw/#scalars&_smoothingWeight=0&runSelectionState=eyJmdHNfZXhwbGljaXQiOmZhbHNlLCJub2Z0c19iYXNlbGluZSI6ZmFsc2UsImZ0c19pbXBsaWNpdCI6dHJ1ZX0%3D)
 #
-# Our val_loss begins a precipitous decline at step 3119 which corresponds to phase 17 in the schedule. Referring to our
+# Our `val_loss` begins a precipitous decline at step 3119 which corresponds to phase 17 in the schedule. Referring to our
 # schedule, in phase 17 we're beginning tuning the attention parameters of our 10th encoder layer (of 11). Interesting!
 # Though beyond the scope of this tutorial, it might be worth investigating these dynamics further and
 # ``FinetuningScheduler`` allows one to do just that quite easily.
