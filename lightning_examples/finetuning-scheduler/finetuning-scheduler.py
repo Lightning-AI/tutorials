@@ -155,18 +155,22 @@ import os
 import warnings
 from datetime import datetime
 from importlib import import_module
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 import datasets
 import pytorch_lightning as pl
 import torch
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers.tensorboard import TensorBoardLogger
 from pytorch_lightning.utilities import rank_zero_warn
-from pytorch_lightning.utilities.cli import CALLBACK_REGISTRY, _Registry
+from pytorch_lightning.utilities.cli import _Registry
 from pytorch_lightning.utilities.exceptions import MisconfigurationException
+from torch.optim.adamw import AdamW
+from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
 from torch.utils.data import DataLoader
 from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
 from transformers import logging as transformers_logging
+from transformers.tokenization_utils_base import BatchEncoding
 
 # %%
 # a couple helper functions to prepare code to work with a user module registry
@@ -188,47 +192,6 @@ def mock_register_module(key: str, require_fqn: bool = False) -> List:
     else:
         registered_list = ", ".join([c.__module__ + "." + c.__name__ for c in MOCK_REGISTRY.classes])
     print(f"Imported and registered the following callbacks: {registered_list}")
-
-
-def instantiate_registered_class(init: Dict[str, Any], args: Optional[Union[Any, Tuple[Any, ...]]] = None) -> Any:
-    """Instantiates a class with the given args and init. Accepts class definitions in the form of a "class_path"
-    or "callback_key" associated with a _Registry.
-
-    Args:
-        init: Dict of the form {"class_path":... or "callback_key":..., "init_args":...}.
-        args: Positional arguments required for instantiation.
-
-    Returns:
-        The instantiated class object.
-    """
-    class_module, class_name, args_class = None, None, None
-    shortcircuit_local = False
-    kwargs = init.get("init_args", {})
-    class_path = init.get("class_path", None)
-    if args and not isinstance(args, tuple):
-        args = (args,)
-    if class_path:
-        shortcircuit_local = False if "." in class_path else True
-        if not shortcircuit_local:
-            class_module, class_name = init["class_path"].rsplit(".", 1)
-        else:  # class is expected to be locally defined
-            args_class = globals()[init["class_path"]]
-    elif init.get("callback_key", None):
-        callback_path = CALLBACK_REGISTRY.get(init["callback_key"], None) or MOCK_REGISTRY.get(
-            init["callback_key"], None
-        )
-        assert callback_path, MisconfigurationException(
-            f'specified callback_key {init["callback_key"]} has not been registered'
-        )
-        class_module, class_name = callback_path.__module__, callback_path.__name__
-    else:
-        raise MisconfigurationException(
-            "Neither a class_path nor callback_key were included in a configuration that" "requires one"
-        )
-    if not shortcircuit_local:
-        module = __import__(class_module, fromlist=[class_name])
-        args_class = getattr(module, class_name)
-    return args_class(**kwargs) if not args else args_class(*args, **kwargs)
 
 
 # %%
@@ -271,6 +234,24 @@ class RteBoolqDataModule(pl.LightningDataModule):
         tokenizers_parallelism: bool = True,
         **dataloader_kwargs: Any,
     ):
+        """Initialize this ``LightningDataModule`` designed for both the RTE or BoolQ SuperGLUE Hugging Face
+        datasets.
+
+        Args:
+            model_name_or_path (str):
+                Can be either:
+                    - A string, the ``model id`` of a pretrained model hosted inside a model repo on huggingface.co.
+                        Valid model ids can be located at the root-level, like ``bert-base-uncased``, or namespaced under
+                        a user or organization name, like ``dbmdz/bert-base-german-cased``.
+                    - A path to a ``directory`` containing model weights saved using
+                        :meth:`~transformers.PreTrainedModel.save_pretrained`, e.g., ``./my_model_directory/``.
+            task_name (str, optional): Name of the SuperGLUE task to execute. This module supports 'rte' or 'boolq'.
+                Defaults to DEFAULT_TASK which is 'rte'.
+            max_seq_length (int, optional): Length to which we will pad sequences or truncate input. Defaults to 128.
+            train_batch_size (int, optional): Training batch size. Defaults to 16.
+            eval_batch_size (int, optional): Batch size to use for validation and testing splits. Defaults to 16.
+            tokenizers_parallelism (bool, optional): Whether to use parallelism in the tokenizer. Defaults to True.
+        """
         super().__init__()
         self.model_name_or_path = model_name_or_path
         self.task_name = task_name if task_name in TASK_NUM_LABELS.keys() else DEFAULT_TASK
@@ -288,11 +269,13 @@ class RteBoolqDataModule(pl.LightningDataModule):
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name_or_path, use_fast=True, local_files_only=False)
 
     def prepare_data(self):
+        """Load the SuperGLUE dataset."""
         # N.B. PL calls prepare_data from a single process (rank 0) so do not use it to assign
         # state (e.g. self.x=y)
         datasets.load_dataset("super_glue", self.task_name)
 
     def setup(self, stage):
+        """Setup our dataset splits for training/validation/testing."""
         self.dataset = datasets.load_dataset("super_glue", self.task_name)
         for split in self.dataset.keys():
             self.dataset[split] = self.dataset[split].map(
@@ -307,28 +290,22 @@ class RteBoolqDataModule(pl.LightningDataModule):
         return DataLoader(self.dataset["train"], batch_size=self.train_batch_size, **self.dataloader_kwargs)
 
     def val_dataloader(self):
-        if len(self.eval_splits) == 1:
-            return DataLoader(
-                self.dataset["validation"],
-                batch_size=self.eval_batch_size,
-                **self.dataloader_kwargs,
-            )
-        elif len(self.eval_splits) > 1:
-            return [
-                DataLoader(self.dataset[x], batch_size=self.eval_batch_size, **self.dataloader_kwargs)
-                for x in self.eval_splits
-            ]
+        return DataLoader(self.dataset["validation"], batch_size=self.eval_batch_size, **self.dataloader_kwargs)
 
     def test_dataloader(self):
-        if len(self.eval_splits) == 1:
-            return DataLoader(self.dataset["test"], batch_size=self.eval_batch_size, **self.dataloader_kwargs)
-        elif len(self.eval_splits) > 1:
-            return [
-                DataLoader(self.dataset[x], batch_size=self.eval_batch_size, **self.dataloader_kwargs)
-                for x in self.eval_splits
-            ]
+        return DataLoader(self.dataset["test"], batch_size=self.eval_batch_size, **self.dataloader_kwargs)
 
-    def _convert_to_features(self, example_batch):
+    def _convert_to_features(self, example_batch) -> BatchEncoding:
+        """Convert raw text examples to a :class:`~transformers.tokenization_utils_base.BatchEncoding` container
+        (derived from python dict) of features that includes helpful methods for translating between word/character
+        space and token space.
+
+        Args:
+            example_batch ([type]): The set of examples to convert to token space.
+
+        Returns:
+            ``BatchEncoding``: A batch of encoded examples (note default tokenizer batch_size=1000)
+        """
         text_pairs = list(zip(example_batch[self.text_fields[0]], example_batch[self.text_fields[1]]))
         # Tokenize the text/text pairs
         features = self.tokenizer.batch_encode_plus(
@@ -349,7 +326,6 @@ class RteBoolqModule(pl.LightningModule):
         model_name_or_path: str,
         optimizer_init: Dict[str, Any],
         lr_scheduler_init: Dict[str, Any],
-        pl_lrs_cfg: Optional[Dict[str, Any]] = None,
         model_cfg: Optional[Dict[str, Any]] = None,
         task_name: str = DEFAULT_TASK,
         experiment_tag: str = "default",
@@ -359,8 +335,6 @@ class RteBoolqModule(pl.LightningModule):
             model_name_or_path (str): Path to pretrained model or identifier from https://huggingface.co/models
             optimizer_init (Dict[str, Any]): The desired optimizer configuration.
             lr_scheduler_init (Dict[str, Any]): The desired learning rate scheduler config
-            pl_lrs_cfg (Optional[Dict[str, Any]]): Defines custom overrides of pytorch lightning lr_scheduler defaults
-                defined in ``_get_default_scheduler_config``
             model_cfg (Optional[Dict[str, Any]], optional): Defines overrides of the default model config. Defaults to
                 ``None``.
             task_name (str, optional): The SuperGLUE task to execute, one of ``'rte'``, ``'boolq'``. Defaults to "rte".
@@ -370,7 +344,6 @@ class RteBoolqModule(pl.LightningModule):
         super().__init__()
         self.optimizer_init = optimizer_init
         self.lr_scheduler_init = lr_scheduler_init
-        self.pl_lrs_cfg = pl_lrs_cfg or {}
         if task_name in TASK_NUM_LABELS.keys():
             self.task_name = task_name
         else:
@@ -385,7 +358,6 @@ class RteBoolqModule(pl.LightningModule):
         self.init_hparams = {
             "optimizer": self.optimizer_init,
             "lr_scheduler": self.lr_scheduler_init,
-            "pl_lrs_cfg": self.pl_lrs_cfg,
             "model_config": self.model.config,
             "model_name_or_path": model_name_or_path,
             "task_name": self.task_name,
@@ -435,7 +407,7 @@ class RteBoolqModule(pl.LightningModule):
                     for n, p in self.model.named_parameters()
                     if not any(nd in n for nd in self.no_decay) and p.requires_grad
                 ],
-                "weight_decay": self.optimizer_init["init_args"]["weight_decay"],
+                "weight_decay": self.optimizer_init["weight_decay"],
             },
             {
                 "params": [
@@ -453,11 +425,8 @@ class RteBoolqModule(pl.LightningModule):
         # but in this case we pass a list of parameter groups to ensure weight_decay is
         # not applied to the bias parameter (for completeness, in this case it won't make much
         # performance difference)
-        optimizer = instantiate_registered_class(args=self._init_param_groups(), init=self.optimizer_init)
-        scheduler = {
-            "scheduler": instantiate_registered_class(args=optimizer, init=self.lr_scheduler_init),
-            **self.pl_lrs_cfg,
-        }
+        optimizer = AdamW(params=self._init_param_groups(), **self.optimizer_init)
+        scheduler = {"scheduler": CosineAnnealingWarmRestarts(optimizer, **self.lr_scheduler_init)}
         return [optimizer], [scheduler]
 
     def configure_callbacks(self):
@@ -533,10 +502,7 @@ dm = RteBoolqDataModule(model_name_or_path="microsoft/deberta-v3-base", tokenize
 # </div>
 
 # %%
-optimizer_init = {
-    "class_path": "torch.optim.AdamW",
-    "init_args": {"weight_decay": 1e-05, "eps": 1e-07, "lr": 1e-05},
-}
+optimizer_init = {"weight_decay": 1e-05, "eps": 1e-07, "lr": 1e-05}
 
 # %% [markdown]
 # ### LR Scheduler Configuration
@@ -555,11 +521,7 @@ optimizer_init = {
 
 
 # %%
-lr_scheduler_init = {
-    "class_path": "torch.optim.lr_scheduler.CosineAnnealingWarmRestarts",
-    "init_args": {"T_0": 1, "T_mult": 2, "eta_min": 1e-07},
-}
-pl_lrs_cfg = {"interval": "epoch", "frequency": 1, "name": "CosineAnnealingWarmRestarts"}
+lr_scheduler_init = {"T_0": 1, "T_mult": 2, "eta_min": 1e-07}
 
 # %%
 # Load our lightning module...
@@ -567,7 +529,6 @@ lightning_module_kwargs = {
     "model_name_or_path": "microsoft/deberta-v3-base",
     "optimizer_init": optimizer_init,
     "lr_scheduler_init": lr_scheduler_init,
-    "pl_lrs_cfg": pl_lrs_cfg,
 }
 model = RteBoolqModule(**lightning_module_kwargs, experiment_tag="fts_explicit")
 
@@ -580,16 +541,22 @@ model = RteBoolqModule(**lightning_module_kwargs, experiment_tag="fts_explicit")
 # including example configurations of all three callbacks below.
 
 # %%
+# let's save our callback configurations for the explicit scenario since we'll be reusing the same
+# configurations for the implicit and nofts_baseline scenarios (except the  config for the
+# FinetuningScheduler callback itself of course in the case of nofts_baseline)
+earlystopping_kwargs = {"monitor": "val_loss", "min_delta": 0.001, "patience": 2}
+checkpoint_kwargs = {"monitor": "val_loss", "save_top_k": 1}
+fts_kwargs = {"max_depth": 1}
 callbacks = [
-    FinetuningScheduler(ft_schedule=ft_schedule_name, max_depth=1),  # type: ignore # noqa
-    FTSEarlyStopping(monitor="val_loss", min_delta=0.001, patience=2),  # type: ignore # noqa
-    FTSCheckpoint(monitor="val_loss", save_top_k=1),  # type: ignore # noqa
+    FinetuningScheduler(ft_schedule=ft_schedule_name, **fts_kwargs),  # type: ignore # noqa
+    FTSEarlyStopping(**earlystopping_kwargs),  # type: ignore # noqa
+    FTSCheckpoint(**checkpoint_kwargs),  # type: ignore # noqa
 ]
+
 # %%
 logger = TensorBoardLogger("lightning_logs", name="fts_explicit")
 # optionally start tensorboard and monitor progress graphically while viewing multi-phase finetuning specific training
-# logs in the cell output below by uncommenting the next 3 lines
-# # !mkdir -p $example_logdir
+# logs in the cell output below by uncommenting the next 2 lines
 # # %load_ext tensorboard
 # # %tensorboard --logdir lightning_logs
 # disable progress bar by default to focus on multi-phase training logs. Set to True to re-enable if desired
@@ -637,31 +604,19 @@ else:
 
 
 # %%
-
-# reference the core callbacks using the relevant callback_key
-nofts_callback_cfg = [
-    {"callback_key": "EarlyStopping", "init_args": earlystopping_kwargs},
-    {"callback_key": "ModelCheckpoint", "init_args": checkpoint_kwargs},
+nofts_callbacks = [EarlyStopping(**earlystopping_kwargs), ModelCheckpoint(**checkpoint_kwargs)]
+fts_implicit_callbacks = [
+    FinetuningScheduler(**fts_kwargs),  # type: ignore # noqa
+    FTSEarlyStopping(**earlystopping_kwargs),  # type: ignore # noqa
+    FTSCheckpoint(**checkpoint_kwargs),  # type: ignore # noqa
 ]
-# we can use class_paths, class names or fully qualified names for referencing user-registered callbacks as well
-fts_implicit_cfg = [
-    {"callback_key": "FinetuningScheduler", "init_args": fts_kwargs},  # use the callback_key
-    {"class_path": "FTSEarlyStopping", "init_args": earlystopping_kwargs},  # just the class_name
-    # or the fully qualified name
-    {
-        "class_path": "pytorch_lightning.callbacks.finetuning_scheduler.fts_supporters.FTSCheckpoint",
-        "init_args": checkpoint_kwargs,
-    },
-]
-nofts_callbacks = [instantiate_registered_class(c) for c in nofts_callback_cfg]
-fts_implicit_callbacks = [instantiate_registered_class(c) for c in fts_implicit_cfg]
 scenario_callbacks = {"nofts_baseline": nofts_callbacks, "fts_implicit": fts_implicit_callbacks}
 
 # %%
 if AVAIL_GPUS > 0:
     for scenario_name, scenario_callbacks in scenario_callbacks.items():
         model = RteBoolqModule(**lightning_module_kwargs, experiment_tag=scenario_name)
-        logger = TensorBoardLogger(example_logdir, name=scenario_name)
+        logger = TensorBoardLogger("lightning_logs", name=scenario_name)
         callbacks = scenario_callbacks
         print(f"Beginning training the '{scenario_name}' scenario")
         train()
