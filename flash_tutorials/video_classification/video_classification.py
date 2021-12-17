@@ -1,7 +1,7 @@
 # %% [markdown]
 # ## Video Classification
 #
-# 
+#
 
 # %% [markdown]
 # ## Downloading the data
@@ -111,12 +111,11 @@
 #
 # Now we use the example code from Flash to start training our video classifier.
 
+import flash
+
 # %%
 import torch
-
-import flash
 from flash.video import VideoClassificationData, VideoClassifier
-
 
 datamodule = VideoClassificationData.from_folders(
     train_folder="train_sample_videos/train",
