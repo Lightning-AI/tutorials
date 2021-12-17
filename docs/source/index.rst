@@ -18,7 +18,6 @@ Lightning-Sandbox documentation
    :caption: Start here
    :glob:
 
-   notebooks/*
    notebooks/**/*
 
 .. raw:: html

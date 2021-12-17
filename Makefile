@@ -29,3 +29,9 @@ clean:
 	rm -rf ./docs/build
 	rm -rf ./docs/source/notebooks
 	rm -rf ./docs/source/api
+	rm -f ./dirs-*.txt
+	rm -f ./*-folders.txt
+	rm -f ./*/**/*.ipynb
+	rm -rf ./*/**/.ipynb_checkpoints
+	rm -rf ./*/**/lightning_logs
+	rm -f ./*/**/requirements.txt
