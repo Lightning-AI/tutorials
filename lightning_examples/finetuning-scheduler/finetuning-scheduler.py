@@ -291,7 +291,7 @@ class RteBoolqDataModule(pl.LightningDataModule):
         # N.B. PL calls prepare_data from a single process (rank 0) so do not use it to assign
         # state (e.g. self.x=y)
         datasets.load_dataset("super_glue", self.task_name)
- 
+
     def setup(self, stage):
         self.dataset = datasets.load_dataset("super_glue", self.task_name)
         for split in self.dataset.keys():
