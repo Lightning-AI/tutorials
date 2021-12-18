@@ -8,7 +8,7 @@ tags:
   - Tabular
   - Classification
 description: |
-  This tutorial covers using Lightning Flash to predict whether some users will make a 
+  This tutorial covers using Lightning Flash to predict whether some users will make a
   transaction based on numerical tabular data. Since it is an inbalanced dataset, we use
   SMOTE to balance the dataset. We then use native TabNet to train the model.
 requirements:
