@@ -22,8 +22,8 @@ from flash.core.classification import LabelsOutput
 from flash.core.data.utils import download_data
 from flash.tabular.classification import TabularClassificationData, TabularClassifier
 from imblearn.over_sampling import SMOTE
-from sklearn.model_selection import train_test_split
 from pytorch_lightning.utilities.seed import seed_everything
+from sklearn.model_selection import train_test_split
 
 DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 
@@ -80,11 +80,11 @@ df_upsampled = pd.concat([pd.DataFrame(oversampled_Y), pd.DataFrame(oversampled_
 datamodule = TabularClassificationData.from_data_frame(
     numerical_fields=["var_" + str(i) for i in range(200)],
     target_fields="target",
-    train_data_frame = df_upsampled,
-    val_data_frame = validation,
-    test_data_frame = test,
+    train_data_frame=df_upsampled,
+    val_data_frame=validation,
+    test_data_frame=test,
     predict_data_frame=df_predict,
-    batch_size = 256
+    batch_size=256,
 )
 
 # %% [markdown]
@@ -93,10 +93,12 @@ datamodule = TabularClassificationData.from_data_frame(
 # %%
 # It is important that one uses the modular, not the function form of the metric. That is, do not use torchmetrics.functional.auroc()
 
-model = TabularClassifier.from_data(datamodule, 
-                                    metrics=[torchmetrics.AUROC(num_classes=datamodule.num_classes)], 
-                                    lr_scheduler=("ExponentialLR", {"gamma": 0.95}),
-                                    optimizer = 'adamw')
+model = TabularClassifier.from_data(
+    datamodule,
+    metrics=[torchmetrics.AUROC(num_classes=datamodule.num_classes)],
+    lr_scheduler=("ExponentialLR", {"gamma": 0.95}),
+    optimizer="adamw",
+)
 model.output = LabelsOutput()
 
 # %% [markdown]
@@ -104,14 +106,14 @@ model.output = LabelsOutput()
 
 # %%
 
-trainer = Trainer(max_epochs = 10, gpus=torch.cuda.device_count())
+trainer = Trainer(max_epochs=10, gpus=torch.cuda.device_count())
 
 res = trainer.tuner.lr_find(model, datamodule=datamodule, min_lr=1e-5)
 print(f"Suggested learning rate: {res.suggestion()}")
 res.plot(show=True, suggest=True).show()
 
 # Automatic learning rate suggestion seems unstable, so we'll use a fixed learning rate
-model.learning_rate = 5e-3 #res.suggestion()
+model.learning_rate = 5e-3  # res.suggestion()
 
 # %% [markdown]
 # ## Training
@@ -124,7 +126,7 @@ trainer.fit(model, datamodule=datamodule)
 trainer.validate(model, datamodule=datamodule)
 
 # %%
-trainer.test(model, datamodule = datamodule)
+trainer.test(model, datamodule=datamodule)
 
 # %% [markdown]
 # ## Predictions
@@ -147,7 +149,7 @@ predictions = trainer.predict(model, datamodule=predict_datamodule)
 # %%
 
 df_predict["target"] = predictions[0]
-id_code = ['test_'+str(i) for i in range(len(predictions[0]))]
-df_predict['ID_code'] = id_code
+id_code = ["test_" + str(i) for i in range(len(predictions[0]))]
+df_predict["ID_code"] = id_code
 
-df_predict.to_csv('submission.csv',columns = ['ID_code','target'], index=False)
+df_predict.to_csv("submission.csv", columns=["ID_code", "target"], index=False)
