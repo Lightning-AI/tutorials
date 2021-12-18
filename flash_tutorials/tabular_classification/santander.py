@@ -138,7 +138,7 @@ trainer.test(model, datamodule=datamodule)
 predictions = trainer.predict(model, datamodule=datamodule)
 
 # %%
-# ## While we can directly use the predictions above, we create another datamodule for predictions where we set batch_size equal to the number of rows in the df. 
+# ## While we can directly use the predictions above, we create another datamodule for predictions where we set batch_size equal to the number of rows in the df.
 
 predict_datamodule = TabularClassificationData.from_data_frame(
     numerical_fields=["var_" + str(i) for i in range(200)],
