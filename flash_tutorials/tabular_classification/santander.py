@@ -36,8 +36,14 @@ seed_everything(seed=42)
 
 # %%
 # ## Download the data
-df_train = pd.read_csv(f"{DATASET_PATH}/train.csv")
-df_predict = pd.read_csv(f"{DATASET_PATH}/test.csv")
+data_path = os.environ.get("PATH_DATASETS", "_datasets")
+path_santander = os.path.join(data_path, "santander")
+
+csv_train = os.path.join(path_santander, "train.csv")
+csv_test = os.path.join(path_santander, "test.csv")
+
+df_train = pd.read_csv(csv_train)
+df_predict = pd.read_csv(csv_test)
 
 df_train = df_train.drop("ID_code", axis=1)
 
