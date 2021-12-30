@@ -31,7 +31,8 @@ seed_everything(1234)
 
 # %%
 
-DATASET_LOC = "data"
+DATA_PATH = os.environ.get("PATH_DATASETS", "_datasets")
+DATASET_LOC =  = os.path.join(DATA_PATH, "birdclef-2021")
 AUDIO_FOLDER = "train_short_audio"
 
 # %% [markdown]
