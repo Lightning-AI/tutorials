@@ -37,7 +37,7 @@ seed_everything(seed=42)
 # %%
 # ## Download the data
 data_path = os.environ.get("PATH_DATASETS", "_datasets")
-path_santander = os.path.join(data_path, "santander")
+path_santander = os.path.join(data_path, "santander-customer-transaction-prediction")
 
 csv_train = os.path.join(path_santander, "train.csv")
 csv_test = os.path.join(path_santander, "test.csv")
