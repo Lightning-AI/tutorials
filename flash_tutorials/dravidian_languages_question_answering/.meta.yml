@@ -16,3 +16,6 @@ requirements:
 accelerator:
   - GPU
   - CPU
+datasets:
+  kaggle:
+    - chaii-hindi-and-tamil-question-answering

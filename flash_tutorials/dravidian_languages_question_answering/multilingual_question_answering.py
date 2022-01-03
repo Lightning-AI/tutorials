@@ -10,21 +10,7 @@ import os
 import pandas as pd
 import torch
 from flash import Trainer
-from flash.core.data.utils import download_data
 from flash.text import QuestionAnsweringData, QuestionAnsweringTask
-
-DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
-
-# %% [markdown]
-# ## Loading the data
-#
-# We'll use the Chaii question answering in Hindi and Tamil dataset from Kaggle:
-# https://www.kaggle.com/c/chaii-hindi-and-tamil-question-answering
-#
-# First, download the data:
-
-# %%
-download_data("https://pl-flash-data.s3.amazonaws.com/kaggle_chaii.zip", DATASET_PATH)
 
 # %% [markdown]
 # ## Loading the Data and generating splits
@@ -32,10 +18,12 @@ download_data("https://pl-flash-data.s3.amazonaws.com/kaggle_chaii.zip", DATASET
 # To load the data, we start by creating a train, validation, and test splits:
 
 # %%
-INPUT_DATA_PATH = os.path.join(DATASET_PATH, "train.csv")
-TRAIN_DATA_PATH = os.path.join(DATASET_PATH, "_train.csv")
-VAL_DATA_PATH = os.path.join(DATASET_PATH, "_val.csv")
-PREDICT_DATA_PATH = os.path.join(DATASET_PATH, "test.csv")
+DATASET_PATH = os.environ.get("PATH_DATASETS", "_datasets")
+CHAII_DATASET_PATH = os.path.join(DATASET_PATH, "chaii-hindi-and-tamil-question-answering")
+INPUT_DATA_PATH = os.path.join(CHAII_DATASET_PATH, "train.csv")
+TRAIN_DATA_PATH = os.path.join(CHAII_DATASET_PATH, "_train.csv")
+VAL_DATA_PATH = os.path.join(CHAII_DATASET_PATH, "_val.csv")
+PREDICT_DATA_PATH = os.path.join(CHAII_DATASET_PATH, "test.csv")
 
 df = pd.read_csv(INPUT_DATA_PATH)
 fraction = 0.9
