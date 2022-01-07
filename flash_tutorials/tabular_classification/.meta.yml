@@ -18,6 +18,3 @@ requirements:
 accelerator:
   - GPU
   - CPU
-datasets:
-  kaggle:
-    - santander-customer-transaction-prediction
