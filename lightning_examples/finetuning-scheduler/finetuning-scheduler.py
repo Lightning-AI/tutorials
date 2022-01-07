@@ -68,7 +68,7 @@
 #
 # 2. Alter the schedule as desired.
 #
-# <img src="side_by_side_yaml.svg" style="width: 100%; height: auto; max-width:800px;">
+# ![side_by_side_yaml](side_by_side_yaml.png)
 #
 # 3. Once the finetuning schedule has been altered as desired, pass it to
 #    ``FinetuningScheduler`` to commence scheduled training:
@@ -94,7 +94,7 @@
 #
 # **Tip:** Use of regex expressions can be convenient for specifying more complex schedules:
 #
-# <img src="emphasized_yaml.svg" style="width: 100%; height: auto; max-width:800px;">
+# ![emphasized_yaml](emphasized_yaml.png)
 #
 # </div>
 #
