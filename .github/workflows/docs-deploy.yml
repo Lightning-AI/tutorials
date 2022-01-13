@@ -12,6 +12,8 @@ jobs:
   # https://github.com/marketplace/actions/deploy-to-github-pages
   build-docs-deploy:
     runs-on: ubuntu-20.04
+    env:
+      PATH_DATASETS: ${{ github.workspace }}/.datasets
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v2
@@ -30,7 +32,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          mkdir ${PATH_DATASETS}
+          mkdir -p ${PATH_DATASETS}
           # install Texlive, see https://linuxconfig.org/how-to-install-latex-on-ubuntu-20-04-focal-fossa-linux
           sudo apt-get update
           sudo apt-get install -y cmake pandoc
