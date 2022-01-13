@@ -92,7 +92,7 @@
 #
 # <div class="alert alert-info">
 #
-# **Tip:** Use of regex expressions can be convenient for specifying more complex schedules:
+# **Tip:** Use of regex expressions can be convenient for specifying more complex schedules. Also, a per-phase base lr can be specified:
 #
 # ![emphasized_yaml](emphasized_yaml.png)
 #
