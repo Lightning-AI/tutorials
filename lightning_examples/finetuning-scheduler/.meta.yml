@@ -17,5 +17,6 @@ requirements:
   - datasets
   - scikit-learn
   - sentencepiece
+  - git+git://github.com/speediedan/pytorch-lightning.git@9079069a7bb3bbc20f7c68fe7932b46bf76b21cf#egg=pytorch-lightning
 accelerator:
   - GPU

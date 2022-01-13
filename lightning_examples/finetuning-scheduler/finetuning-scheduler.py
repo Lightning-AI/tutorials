@@ -51,6 +51,7 @@
 #
 # Schedule definition is facilitated via the ``gen_ft_schedule`` method which dumps a default finetuning schedule (by default using a naive, 2-parameters per level heuristic) which can be adjusted as
 # desired by the user and/or subsequently passed to the callback. Using the default/implicitly generated schedule will likely be less computationally efficient than a user-defined finetuning schedule but is useful for exploring a model's finetuning behavior and can serve as a good baseline for subsquent explicit schedule refinement.
+# While the current version of ``FinetuningScheduler`` only supports single optimizer and (optional) lr_scheduler configurations, per-phase maximum learning rates can be set as demonstrated in the next section.
 
 # %% [markdown]
 # ## Specifying a Finetuning Schedule
@@ -92,7 +93,7 @@
 #
 # <div class="alert alert-info">
 #
-# **Tip:** Use of regex expressions can be convenient for specifying more complex schedules. Also, a per-phase base lr can be specified:
+# **Tip:** Use of regex expressions can be convenient for specifying more complex schedules. Also, a per-phase base maximum lr can be specified:
 #
 # ![emphasized_yaml](emphasized_yaml.png)
 #
