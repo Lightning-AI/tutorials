@@ -320,7 +320,7 @@ class AssistantCLI:
         else:
             cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}\n")
             if AssistantCLI._valid_accelerator(folder):
-                cmd.append(f"python -m papermill.cli {ipynb_file} {pub_ipynb} --kernel python")
+                cmd.append(f"python -m papermill {ipynb_file} {pub_ipynb} --kernel python")
             else:
                 warn("Invalid notebook's accelerator for this device. So no outputs will be generated.", RuntimeWarning)
                 cmd.append(f"cp {ipynb_file} {pub_ipynb}")
