@@ -639,6 +639,13 @@ class AssistantCLI:
         fmeta = os.path.join(DIR_NOTEBOOKS, dir_path) + ".yaml"
         yaml.safe_dump(meta, stream=open(fmeta, "w"), sort_keys=False)
 
+    @staticmethod
+    def list_dirs(folder: str = ".notebooks") -> str:
+        """List all sub-folders in a given tree including any ipynb."""
+        ipynbs = glob.glob(os.path.join(folder, "*.ipynb")) + glob.glob(os.path.join(folder, "**", "*.ipynb"))
+        ipynbs = sorted(os.path.splitext(os.path.sep.join(p.split(os.path.sep)[1:]))[0] for p in ipynbs)
+        return os.linesep.join(ipynbs)
+
 
 if __name__ == "__main__":
     fire.Fire(AssistantCLI)

@@ -1,4 +1,4 @@
-#!/bin/bash
+git#!/bin/bash
 
 set -e
 printf "Detect changes for: $1 >> $2\n\n"
@@ -18,13 +18,7 @@ git checkout $2
 b2="${2//'/'/'_'}"
 printf "Branch alias: $b2\n"
 # list all dirs in target branch
-python -c "
-import os
-from glob import glob
-from os.path import sep, splitext
-ipynbs = glob('.notebooks/*.ipynb') + glob('.notebooks/**/*.ipynb')
-ipynbs = sorted([splitext(sep.join(p.split(sep)[1:]))[0] for p in ipynbs])
-print(os.linesep.join(ipynbs))" > "dirs-$b2.txt"
+python .actions/assistant.py list_dirs > "dirs-$b2.txt"
 cat "dirs-$b2.txt"
 
 printf "\n\n"
