@@ -1,0 +1,59 @@
+name: CI internal
+
+# see: https://help.github.com/en/actions/reference/events-that-trigger-workflows
+on:  # Trigger the workflow on push or pull request, but only for the main branch
+  push: {}
+  pull_request:
+    branches: [main]
+
+jobs:
+  pytest-internal:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04 ]
+        python-version: ["3.9"]
+    # Timeout: https://stackoverflow.com/a/59076067/4521646
+    timeout-minutes: 10
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install requirements
+      run: |
+        pip install -q -r .actions/requirements.txt
+
+    - name: Testing
+      run: |
+        coverage run -m pytest .actions -v --junitxml="junit/test-results-${{ runner.os }}-${{ matrix.python-version }}.xml"
+
+    - name: Upload pytest test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: pytest-results-${{ runner.os }}-${{ matrix.python-version }}
+        path: junit/test-results-${{ runner.os }}-${{ matrix.python-version }}.xml
+      if: failure()
+
+    - name: Statistics
+      if: success()
+      run: |
+        coverage report
+        coverage xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      if: always()
+      # see: https://github.com/actions/toolkit/issues/399
+      continue-on-error: true
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: coverage.xml
+        flags: cpu,pytest,${{ runner.os }}
+        name: CLI-coverage
+        fail_ci_if_error: false
