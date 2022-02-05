@@ -140,7 +140,7 @@ class AssistantCLI:
     _META_REQUIRED_FIELDS = ("title", "author", "license", "description")
     _SKIP_DIRS = (
         ".actions",
-        ".azure-pipelines",
+        ".azure",
         ".datasets",
         ".github",
         "docs",
