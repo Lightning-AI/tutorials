@@ -38,7 +38,7 @@ TEMPLATE_HEADER = f"""# %%%% [markdown]
 # Open in [![Open In Colab](https://colab.research.google.com/assets/colab-badge.png){{height="20px" width="117px"}}]({COLAB_REPO_LINK}/{REPO_NAME}/blob/{BRANCH_PUBLISHED}/{DIR_NOTEBOOKS}/%(local_ipynb)s)
 #
 # Give us a ⭐ [on Github](https://www.github.com/PytorchLightning/pytorch-lightning/)
-# | Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/latest/)
+# | Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/stable/)
 # | Join us [on Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)
 
 """
@@ -140,7 +140,7 @@ class AssistantCLI:
     _META_REQUIRED_FIELDS = ("title", "author", "license", "description")
     _SKIP_DIRS = (
         ".actions",
-        ".azure-pipelines",
+        ".azure",
         ".datasets",
         ".github",
         "docs",
@@ -320,7 +320,7 @@ class AssistantCLI:
         else:
             cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}\n")
             if AssistantCLI._valid_accelerator(folder):
-                cmd.append(f"python -m papermill.cli {ipynb_file} {pub_ipynb} --kernel python")
+                cmd.append(f"python -m papermill {ipynb_file} {pub_ipynb} --kernel python")
             else:
                 warn("Invalid notebook's accelerator for this device. So no outputs will be generated.", RuntimeWarning)
                 cmd.append(f"cp {ipynb_file} {pub_ipynb}")
