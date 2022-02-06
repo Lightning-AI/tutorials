@@ -361,7 +361,7 @@ class AssistantCLI:
 
         cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}")
         if AssistantCLI._valid_accelerator(folder):
-            cmd.append(f"python -m pytest {ipynb_file} -v --nbval")
+            cmd.append(f"python -m pytest {ipynb_file} -v --nbval --nbval-cell-timeout=300")
         else:
             warn("Invalid notebook's accelerator for this device. So no tests will be run!!!", RuntimeWarning)
         # deactivate and clean local environment
