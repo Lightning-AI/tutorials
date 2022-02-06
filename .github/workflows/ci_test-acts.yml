@@ -28,7 +28,12 @@ jobs:
     - name: Install requirements
       run: |
         pip install -q -r .actions/requirements.txt
-        pip install -q "pytest==6.*" coverage
+        pip install -q "pytest==6.*" coverage jupytext
+
+    - name: Convert templates
+      run: |
+        jupytext --set-formats ipynb,py:percent templates/simple/template.py
+        # mv templates/simple/template.ipynb templates/simple.ipynb
 
     - name: Testing
       run: |
@@ -55,6 +60,6 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: coverage.xml
-        flags: cpu,pytest,${{ runner.os }}
+        flags: pytest,${{ runner.os }}
         name: CLI-coverage
         fail_ci_if_error: false
