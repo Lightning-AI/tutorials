@@ -6,6 +6,7 @@ from assistant import AssistantCLI
 _PATH_ROOT = os.path.dirname(os.path.dirname(__file__))
 _PATH_TEMPLATES = os.path.join(_PATH_ROOT, "templates")
 _PATH_DIR_SIMPLE = os.path.join(_PATH_TEMPLATES, "simple")
+_PATH_DIR_TITANIC = os.path.join(_PATH_TEMPLATES, "titanic")
 
 
 @pytest.mark.parametrize(

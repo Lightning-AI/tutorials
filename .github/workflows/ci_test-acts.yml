@@ -28,11 +28,12 @@ jobs:
     - name: Install requirements
       run: |
         pip install -q -r .actions/requirements.txt
-        pip install -q "pytest==6.*" coverage jupytext
+        pip install -q "pytest==6.*" coverage jupytext matplotlib
 
     - name: Convert templates
       run: |
         jupytext --set-formats ipynb,py:percent templates/simple/template.py
+        jupytext --set-formats ipynb,py:percent templates/titanic/tutorial.py
         # mv templates/simple/template.ipynb templates/simple.ipynb
 
     - name: Testing
