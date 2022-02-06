@@ -79,7 +79,7 @@ jobs:
         working-directory: ./docs
         run: |
           # First run the same pipeline as Read-The-Docs
-          make html --debug --jobs $(nproc) SPHINXOPTS="-W --keep-going" -b linkcheck
+          make html --debug SPHINXOPTS="-W --keep-going" -b linkcheck
 
       - name: Upload built docs
         uses: actions/upload-artifact@v2
