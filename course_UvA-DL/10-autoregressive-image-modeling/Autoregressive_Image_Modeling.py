@@ -26,7 +26,7 @@
 #
 # First of all, we need to import our standard libraries. Similarly as in
 # the last couple of tutorials, we will use [PyTorch
-# Lightning](https://pytorch-lightning.readthedocs.io/en/latest/) here as
+# Lightning](https://pytorch-lightning.readthedocs.io/en/stable/) here as
 # well.
 
 # %%
