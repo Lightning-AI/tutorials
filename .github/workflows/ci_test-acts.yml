@@ -28,6 +28,7 @@ jobs:
     - name: Install requirements
       run: |
         pip install -q -r .actions/requirements.txt
+        pip install -q "pytest==6.*" coverage
 
     - name: Testing
       run: |

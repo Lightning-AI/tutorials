@@ -1,7 +1,6 @@
 import os
 
 import pytest
-
 from assistant import AssistantCLI
 
 _PATH_DIR = os.path.dirname(__file__)
