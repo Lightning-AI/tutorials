@@ -27,14 +27,16 @@ jobs:
 
     - name: Install requirements
       run: |
+        pip --version
         pip install -q -r .actions/requirements.txt
-        pip install -q "pytest==6.*" coverage jupytext matplotlib
+        pip install -q "pytest==6.*" coverage jupytext
 
     - name: Convert templates
       run: |
         jupytext --set-formats ipynb,py:percent templates/simple/template.py
         jupytext --set-formats ipynb,py:percent templates/titanic/tutorial.py
         # mv templates/simple/template.ipynb templates/simple.ipynb
+        pip install -q matplotlib -r requirements/default.txt --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
 
     - name: Testing
       run: |
