@@ -2,7 +2,7 @@ virtualenv
 jupytext  # converting
 pytest>=6.0
 nbval  # testing
-papermill  # render
+papermill>=2.3.4  # render
 black
 flake8
 isort
