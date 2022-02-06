@@ -38,7 +38,7 @@ TEMPLATE_HEADER = f"""# %%%% [markdown]
 # Open in [![Open In Colab](https://colab.research.google.com/assets/colab-badge.png){{height="20px" width="117px"}}]({COLAB_REPO_LINK}/{REPO_NAME}/blob/{BRANCH_PUBLISHED}/{DIR_NOTEBOOKS}/%(local_ipynb)s)
 #
 # Give us a ⭐ [on Github](https://www.github.com/PytorchLightning/pytorch-lightning/)
-# | Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/latest/)
+# | Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/stable/)
 # | Join us [on Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)
 
 """

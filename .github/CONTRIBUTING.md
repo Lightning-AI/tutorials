@@ -58,7 +58,7 @@ ______________________________________________________________________
 
 ## Guidelines
 
-For this section, we refer to read the [parent PL guidelines](https://pytorch-lightning.readthedocs.io/en/latest/CONTRIBUTING.html)
+For this section, we refer to read the [parent PL guidelines](https://pytorch-lightning.readthedocs.io/en/stable/CONTRIBUTING.html)
 
 **Reminder**
 
