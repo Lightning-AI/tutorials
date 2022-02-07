@@ -328,7 +328,7 @@ class AssistantCLI:
         cmd.append(f"python .actions/assistant.py update-env-details {folder}")
         # copy and add to version the enriched meta config
         cmd += [f"cp {meta_file} {pub_meta}", f"git add {pub_meta}"]
-        # if thumb image is linked to to the notebook, copy and version it too
+        # if thumb image is linked to the notebook, copy and version it too
         if thumb_file:
             cmd += [f"cp {thumb_file} {pub_thumb}", f"git add {pub_thumb}"]
         # add the generated notebook to version
@@ -361,7 +361,7 @@ class AssistantCLI:
 
         cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}")
         if AssistantCLI._valid_accelerator(folder):
-            cmd.append(f"python -m pytest {ipynb_file} -v --nbval")
+            cmd.append(f"python -m pytest {ipynb_file} -v --nbval --nbval-cell-timeout=300")
         else:
             warn("Invalid notebook's accelerator for this device. So no tests will be run!!!", RuntimeWarning)
         # deactivate and clean local environment
@@ -443,7 +443,7 @@ class AssistantCLI:
         fpath_gitdiff: str,
         fpath_change_folders: str = "changed-folders.txt",
         fpath_drop_folders: str = "dropped-folders.txt",
-        fpaths_actual_dirs: Sequence[str] = tuple(),
+        fpath_actual_dirs: Sequence[str] = tuple(),
         strict: bool = True,
         root_path: str = "",
     ) -> None:
@@ -458,12 +458,12 @@ class AssistantCLI:
 
             fpath_change_folders: output file with changed folders
             fpath_drop_folders: output file with deleted folders
-            fpaths_actual_dirs: files with listed all folder in particular stat
+            fpath_actual_dirs: files with listed all folder in particular stat
             strict: raise error if some folder outside skipped does not have valid meta file
             root_path: path to the root tobe added for all local folder paths in files
 
         Example:
-            >> python assistant.py group-folders ../target-diff.txt --fpaths_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
+            >> python assistant.py group-folders ../target-diff.txt --fpath_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
         """
         with open(fpath_gitdiff) as fp:
             changed = [ln.strip() for ln in fp.readlines()]
@@ -471,10 +471,10 @@ class AssistantCLI:
         # not empty paths
         dirs = [ln for ln in dirs if ln]
 
-        if fpaths_actual_dirs:
-            assert isinstance(fpaths_actual_dirs, list)
-            assert all(os.path.isfile(p) for p in fpaths_actual_dirs)
-            dir_sets = [{ln.strip() for ln in open(fp).readlines()} for fp in fpaths_actual_dirs]
+        if fpath_actual_dirs:
+            assert isinstance(fpath_actual_dirs, list)
+            assert all(os.path.isfile(p) for p in fpath_actual_dirs)
+            dir_sets = [{ln.strip() for ln in open(fp).readlines()} for fp in fpath_actual_dirs]
             # get only different
             dirs += list(set.union(*dir_sets) - set.intersection(*dir_sets))
 
@@ -564,7 +564,7 @@ class AssistantCLI:
         path_docs_ipynb: str = "notebooks",
         path_docs_images: str = "_static/images",
         patterns: Sequence[str] = (".", "**"),
-    ):
+    ) -> None:
         """Copy all notebooks from a folder to doc folder.
 
         Args:
@@ -609,13 +609,13 @@ class AssistantCLI:
             ipynb_content.append(os.path.join("notebooks", sub_ipynb))
 
     @staticmethod
-    def update_env_details(dir_path: str):
+    def update_env_details(folder: str) -> None:
         """Export the actual packages used in runtime.
 
         Args:
-             dir_path: path to the folder
+             folder: path to the folder
         """
-        meta = AssistantCLI._load_meta(dir_path)
+        meta = AssistantCLI._load_meta(folder)
         # default is COU runtime
         with open(PATH_REQ_DEFAULT) as fp:
             req = fp.readlines()
@@ -636,8 +636,21 @@ class AssistantCLI:
         meta["environment"] = [env[r] for r in require]
         meta["published"] = datetime.now().isoformat()
 
-        fmeta = os.path.join(DIR_NOTEBOOKS, dir_path) + ".yaml"
+        fmeta = os.path.join(DIR_NOTEBOOKS, folder) + ".yaml"
         yaml.safe_dump(meta, stream=open(fmeta, "w"), sort_keys=False)
+
+    @staticmethod
+    def list_dirs(folder: str = "", include_file_ext: str = "") -> str:
+        """List all sub-folders in a given tree including any ipynb."""
+        dirs = glob.glob(os.path.join(folder, "*" + include_file_ext))
+        dirs += glob.glob(os.path.join(folder, "**", "*" + include_file_ext))
+        if include_file_ext:
+            _ignore_base_dir = lambda p: os.path.sep.join(p.split(os.path.sep)[1:])  # noqa: E731
+            # Take the notebook as a folder (notebook are on teh same level as the raw tutorial file mix)
+            dirs = [os.path.splitext(_ignore_base_dir(p))[0] for p in dirs]
+        else:
+            dirs = [p for p in dirs if os.path.isdir(p)]
+        return os.linesep.join(sorted(dirs))
 
 
 if __name__ == "__main__":
