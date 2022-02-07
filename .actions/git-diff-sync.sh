@@ -1,4 +1,4 @@
-git#!/bin/bash
+#!/bin/bash
 
 set -e
 printf "Detect changes for: $1 >> $2\n\n"
