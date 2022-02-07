@@ -1,0 +1,69 @@
+name: CI internal
+
+# see: https://help.github.com/en/actions/reference/events-that-trigger-workflows
+on:  # Trigger the workflow on push or pull request, but only for the main branch
+  push: {}
+  pull_request:
+    branches: [main]
+
+jobs:
+  pytest-internal:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04 ]
+        python-version: ["3.9"]
+    # Timeout: https://stackoverflow.com/a/59076067/4521646
+    timeout-minutes: 10
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install requirements
+      run: |
+        pip --version
+        pip install -q -r .actions/requirements.txt
+        pip install -q "pytest==6.*" coverage jupytext
+        # this is needed to be able to run package version parsing test
+        pip install -q matplotlib -r requirements/default.txt --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
+
+    - name: Convert templates
+      run: |
+        jupytext --set-formats ipynb,py:percent templates/simple/template.py
+        jupytext --set-formats ipynb,py:percent templates/titanic/tutorial.py
+        # mv templates/simple/template.ipynb templates/simple.ipynb
+
+    - name: Testing
+      run: |
+        coverage run -m pytest .actions -v --junitxml="junit/test-results-${{ runner.os }}-${{ matrix.python-version }}.xml"
+
+    - name: Upload pytest test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: pytest-results-${{ runner.os }}-${{ matrix.python-version }}
+        path: junit/test-results-${{ runner.os }}-${{ matrix.python-version }}.xml
+      if: failure()
+
+    - name: Statistics
+      if: success()
+      run: |
+        coverage report
+        coverage xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      if: always()
+      # see: https://github.com/actions/toolkit/issues/399
+      continue-on-error: true
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: coverage.xml
+        flags: pytest,${{ runner.os }}
+        name: CLI-coverage
+        fail_ci_if_error: false
