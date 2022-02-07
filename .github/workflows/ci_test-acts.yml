@@ -6,6 +6,10 @@ on:  # Trigger the workflow on push or pull request, but only for the main branc
   pull_request:
     branches: [main]
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   pytest-internal:
 
@@ -14,16 +18,31 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04 ]
-        python-version: ["3.9"]
+        python-version: ["3.7", "3.9"]
     # Timeout: https://stackoverflow.com/a/59076067/4521646
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # fetch all history for all branches and tags
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+
+    # Note: This uses an internal pip API and may not always work
+    # https://github.com/actions/cache/blob/master/examples.md#multiple-oss-in-a-workflow
+    - name: Get pip cache dir
+      id: pip-cache
+      run: echo "::set-output name=dir::$(pip cache dir)"
+
+    - name: pip cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.pip-cache.outputs.dir }}
+        key: ${{ runner.os }}-pip-py${{ matrix.python-version }}-${{ hashFiles('.actions/requirements.txt') }}-${{ hashFiles('requirements/default.txt') }}
+        restore-keys: ${{ runner.os }}-pip-py${{ matrix.python-version }}-
 
     - name: Install requirements
       run: |
@@ -33,22 +52,18 @@ jobs:
         # this is needed to be able to run package version parsing test
         pip install -q matplotlib -r requirements/default.txt --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
 
-    - name: Convert templates
+    - name: Prepare dummy inputs
       run: |
         jupytext --set-formats ipynb,py:percent templates/simple/template.py
         jupytext --set-formats ipynb,py:percent templates/titanic/tutorial.py
         # mv templates/simple/template.ipynb templates/simple.ipynb
+        git diff --name-only HEAD~3 > master-diff.txt
+        python .actions/assistant.py list_dirs ""  > dirs-b1.txt
+        python .actions/assistant.py list_dirs --include_file_ext=".ipynb"  > dirs-b2.txt
 
     - name: Testing
       run: |
-        coverage run -m pytest .actions -v --junitxml="junit/test-results-${{ runner.os }}-${{ matrix.python-version }}.xml"
-
-    - name: Upload pytest test results
-      uses: actions/upload-artifact@v2
-      with:
-        name: pytest-results-${{ runner.os }}-${{ matrix.python-version }}
-        path: junit/test-results-${{ runner.os }}-${{ matrix.python-version }}.xml
-      if: failure()
+        coverage run -m pytest .actions -v
 
     - name: Statistics
       if: success()
