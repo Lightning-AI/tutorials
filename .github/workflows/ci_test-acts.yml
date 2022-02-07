@@ -30,6 +30,7 @@ jobs:
         pip --version
         pip install -q -r .actions/requirements.txt
         pip install -q "pytest==6.*" coverage jupytext
+        # this is needed to be able to run package version parsing test
         pip install -q matplotlib -r requirements/default.txt --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
 
     - name: Convert templates
