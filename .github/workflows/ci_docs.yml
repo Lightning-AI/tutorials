@@ -3,6 +3,10 @@ name: validate Docs
 on:  # Trigger the workflow on push or pull request
   pull_request: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
 jobs:
   build-docs:
     runs-on: ubuntu-20.04
@@ -39,7 +43,7 @@ jobs:
 
       - name: Process folders
         run: |
-          mkdir ${PATH_DATASETS}
+          mkdir -p ${PATH_DATASETS}
           head=$(git rev-parse origin/"${{ github.base_ref }}")
           git diff --name-only $head --output=master-diff.txt
           python .actions/assistant.py group-folders master-diff.txt
@@ -75,7 +79,7 @@ jobs:
         working-directory: ./docs
         run: |
           # First run the same pipeline as Read-The-Docs
-          make html --debug --jobs $(nproc) SPHINXOPTS="-W --keep-going" -b linkcheck
+          make html --debug SPHINXOPTS="-W --keep-going" -b linkcheck
 
       - name: Upload built docs
         uses: actions/upload-artifact@v2

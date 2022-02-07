@@ -18,19 +18,13 @@ git checkout $2
 b2="${2//'/'/'_'}"
 printf "Branch alias: $b2\n"
 # list all dirs in target branch
-python -c "
-import os
-from glob import glob
-from os.path import sep, splitext
-ipynbs = glob('.notebooks/*.ipynb') + glob('.notebooks/**/*.ipynb')
-ipynbs = sorted([splitext(sep.join(p.split(sep)[1:]))[0] for p in ipynbs])
-print(os.linesep.join(ipynbs))" > "dirs-$b2.txt"
+python .actions/assistant.py list_dirs > "dirs-$b2.txt"
 cat "dirs-$b2.txt"
 
 printf "\n\n"
 git merge --ff -s resolve origin/$1
 
-python .actions/assistant.py group-folders target-diff.txt --fpaths_actual_dirs "['dirs-$b1.txt', 'dirs-$b2.txt']"
+python .actions/assistant.py group-folders target-diff.txt --fpath_actual_dirs "['dirs-$b1.txt', 'dirs-$b2.txt']"
 printf "\n\nChanged folders:\n"
 cat changed-folders.txt
 printf "\n\nDropped folders:\n"
