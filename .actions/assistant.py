@@ -640,11 +640,17 @@ class AssistantCLI:
         yaml.safe_dump(meta, stream=open(fmeta, "w"), sort_keys=False)
 
     @staticmethod
-    def list_dirs(folder: str = ".notebooks") -> str:
+    def list_dirs(folder: str = "", include_file_ext: str = "") -> str:
         """List all sub-folders in a given tree including any ipynb."""
-        ipynbs = glob.glob(os.path.join(folder, "*.ipynb")) + glob.glob(os.path.join(folder, "**", "*.ipynb"))
-        ipynbs = sorted(os.path.splitext(os.path.sep.join(p.split(os.path.sep)[1:]))[0] for p in ipynbs)
-        return os.linesep.join(ipynbs)
+        dirs = glob.glob(os.path.join(folder, "*" + include_file_ext))
+        dirs += glob.glob(os.path.join(folder, "**", "*" + include_file_ext))
+        if include_file_ext:
+            _ignore_base_dir = lambda p: os.path.sep.join(p.split(os.path.sep)[1:])  # noqa: E731
+            # Take the notebook as a folder (notebook are on teh same level as the raw tutorial file mix)
+            dirs = [os.path.splitext(_ignore_base_dir(p))[0] for p in dirs]
+        else:
+            dirs = [p for p in dirs if os.path.isdir(p)]
+        return os.linesep.join(sorted(dirs))
 
 
 if __name__ == "__main__":

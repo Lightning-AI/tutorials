@@ -13,6 +13,7 @@ _PATH_DIR_TITANIC = os.path.join(_PATH_TEMPLATES, "titanic")
     "cmd,args",
     [
         ("list_dirs", []),
+        ("list_dirs", [".", ".ipynb"]),
         ("bash_render", [_PATH_DIR_SIMPLE]),
         ("bash_test", [_PATH_DIR_SIMPLE]),
         # ("group_folders", [_PATH_SIMPLE]),
