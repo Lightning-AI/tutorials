@@ -7,17 +7,13 @@ build: 1
 tags:
   - finetuning
 description: |
-  This notebook introduces the [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/latest/api/pytorch_lightning.callbacks.finetuning_scheduler.fts.html#pytorch_lightning.callbacks.finetuning_scheduler.fts.FinetuningScheduler)
+  This notebook introduces the [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/latest/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler)
   callback and demonstrates the use of it to finetune a small foundational model on the
   [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task of
   [SuperGLUE](https://super.gluebenchmark.com/) with iterative early-stopping defined according to a user-specified
   schedule. It uses HuggingFace's ``datasets`` and ``transformers`` libraries to retrieve the relevant benchmark data
   and foundational model weights.
 requirements:
-  - transformers
-  - datasets
-  - scikit-learn
-  - sentencepiece
-  - git+https://github.com/speediedan/pytorch-lightning.git@90e1976a0099f100b1acefcb9b9cc69ab7ec7ac1#egg=pytorch-lightning
+  - git+https://github.com/speediedan/finetuning-scheduler.git@736ae0e481729ca2519fc7abf0d38b7f9ba425fe#egg=finetuning-scheduler[examples]
 accelerator:
   - GPU
