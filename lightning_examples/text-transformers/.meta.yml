@@ -3,7 +3,7 @@ author: PL team
 created: 2021-01-31
 updated: 2022-02-08
 license: CC BY-SA
-build: 2
+build: 0
 tags:
   - Text
 description: |
@@ -17,5 +17,4 @@ requirements:
   - scikit-learn
   - torchtext>=0.9
 accelerator:
-  - CPU
   - GPU
