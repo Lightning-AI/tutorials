@@ -11,9 +11,9 @@ description: |
   callback and demonstrates the use of it to finetune a small foundational model on the
   [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task of
   [SuperGLUE](https://super.gluebenchmark.com/) with iterative early-stopping defined according to a user-specified
-  schedule. It uses HuggingFace's ``datasets`` and ``transformers`` libraries to retrieve the relevant benchmark data
-  and foundational model weights.
+  schedule. It uses Hugging Face's ``datasets`` and ``transformers`` libraries to retrieve the relevant benchmark data
+  and foundational model weights. The required dependencies are installed via the finetuning-scheduler ``[examples]`` extra.
 requirements:
-  - git+https://github.com/speediedan/finetuning-scheduler.git@736ae0e481729ca2519fc7abf0d38b7f9ba425fe#egg=finetuning-scheduler[examples]
+  - git+https://github.com/speediedan/finetuning-scheduler.git@ff8c9f7176de4a10bb3d0d682fef5658b83d9462#egg=finetuning-scheduler[examples]
 accelerator:
   - GPU
