@@ -224,8 +224,8 @@ class GLUETransformer(LightningModule):
 
         # Calculate total steps
         tb_size = self.hparams.train_batch_size * max(1, self.trainer.gpus)
-        ab_size = self.trainer.accumulate_grad_batches * float(self.trainer.max_epochs)
-        self.total_steps = (len(train_loader.dataset) // tb_size) // ab_size
+        ab_size = tb_size * self.trainer.accumulate_grad_batches
+        self.total_steps = int((len(train_loader.dataset) / ab_size) * float(self.trainer.max_epochs))
 
     def configure_optimizers(self):
         """Prepare optimizer and schedule (linear warmup and decay)"""
