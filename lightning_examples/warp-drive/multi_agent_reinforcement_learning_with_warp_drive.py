@@ -113,14 +113,18 @@ run_config = dict(
             algorithm="A2C",  # algorithm used to train the policy
             gamma=0.98,  # discount rate
             lr=0.005,  # learning rate
-            model=dict(type="fully_connected", fc_dims=[256, 256], model_ckpt_filepath=""),  # policy model settings
+            model=dict(
+                type="fully_connected", fc_dims=[256, 256], model_ckpt_filepath=""
+            ),  # policy model settings
         ),
         tagger=dict(
             to_train=True,
             algorithm="A2C",
             gamma=0.98,
             lr=0.002,
-            model=dict(type="fully_connected", fc_dims=[256, 256], model_ckpt_filepath=""),
+            model=dict(
+                type="fully_connected", fc_dims=[256, 256], model_ckpt_filepath=""
+            ),
         ),
     ),
     # Checkpoint saving setting.
@@ -179,12 +183,12 @@ perf_stats_callback = PerfStatsCallback(
 
 # Instantiate the PytorchLightning trainer with the callbacks and the number of gpus.
 num_gpus = 1
-assert num_gpus <= _NUM_AVAILABLE_GPUS, f"Only {_NUM_AVAILABLE_GPUS} GPU(s) are available!"
-num_epochs = (
-    run_config["trainer"]["num_episodes"]
-    * run_config["env"]["episode_length"]
-    / (run_config["trainer"]["train_batch_size"])
-)
+assert (
+    num_gpus <= _NUM_AVAILABLE_GPUS
+), f"Only {_NUM_AVAILABLE_GPUS} GPU(s) are available!"
+num_epochs = run_config["trainer"]["num_episodes"] * \
+             run_config["env"]["episode_length"] / \
+             run_config["trainer"]["train_batch_size"]
 
 trainer = Trainer(
     gpus=num_gpus,
