@@ -355,7 +355,8 @@ num_epochs = (
 )
 
 trainer = Trainer(
-    gpus=num_gpus,
+    accelerator="gpu",
+    devices=num_gpus,
     callbacks=[perf_stats_callback],
     max_epochs=num_epochs,
 )
