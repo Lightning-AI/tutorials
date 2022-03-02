@@ -42,10 +42,10 @@
 # %%
 # ! pip install --quiet 'rl_warp_drive>=1.5' 'pytorch_lightning>=1.5.10'
 
-# %%
-import torch
 import logging
 
+# %%
+import torch
 from example_envs.tag_continuous.tag_continuous import TagContinuous
 from pytorch_lightning import Trainer
 from warp_drive.env_wrapper import EnvWrapper
