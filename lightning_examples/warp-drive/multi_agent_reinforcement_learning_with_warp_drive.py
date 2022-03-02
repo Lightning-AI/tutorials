@@ -51,7 +51,6 @@ assert _NUM_AVAILABLE_GPUS > 0, "This notebook needs a GPU to run!"
 from example_envs.tag_continuous.tag_continuous import TagContinuous
 from warp_drive.env_wrapper import EnvWrapper
 from warp_drive.training.lightning_trainer import WarpDriveModule, PerfStatsCallback
-from warp_drive.training.utils.data_loader import create_and_push_data_placeholders
 
 from pytorch_lightning import Trainer
 
