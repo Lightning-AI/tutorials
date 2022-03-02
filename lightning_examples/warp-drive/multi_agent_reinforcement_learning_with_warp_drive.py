@@ -44,12 +44,6 @@
 
 # %%
 import torch
-
-_NUM_AVAILABLE_GPUS = torch.cuda.device_count()
-assert _NUM_AVAILABLE_GPUS > 0, "This notebook needs a GPU to run!"
-
-# %%
-# Set logger level e.g., DEBUG, INFO, WARNING, ERROR.
 import logging
 
 from example_envs.tag_continuous.tag_continuous import TagContinuous
@@ -58,6 +52,12 @@ from warp_drive.env_wrapper import EnvWrapper
 from warp_drive.training.lightning_trainer import PerfStatsCallback, WarpDriveModule
 from warp_drive.training.utils.data_loader import create_and_push_data_placeholders
 
+# %%
+_NUM_AVAILABLE_GPUS = torch.cuda.device_count()
+assert _NUM_AVAILABLE_GPUS > 0, "This notebook needs a GPU to run!"
+
+# %%
+# Set logger level e.g., DEBUG, INFO, WARNING, ERROR.
 logging.getLogger().setLevel(logging.ERROR)
 
 # %% [markdown]
