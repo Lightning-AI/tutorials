@@ -48,15 +48,15 @@ import torch
 _NUM_AVAILABLE_GPUS = torch.cuda.device_count()
 assert _NUM_AVAILABLE_GPUS > 0, "This notebook needs a GPU to run!"
 
-from example_envs.tag_continuous.tag_continuous import TagContinuous
-from warp_drive.env_wrapper import EnvWrapper
-from warp_drive.training.lightning_trainer import WarpDriveModule, PerfStatsCallback
-
-from pytorch_lightning import Trainer
-
 # %%
 # Set logger level e.g., DEBUG, INFO, WARNING, ERROR.
 import logging
+
+from example_envs.tag_continuous.tag_continuous import TagContinuous
+from pytorch_lightning import Trainer
+from warp_drive.env_wrapper import EnvWrapper
+from warp_drive.training.lightning_trainer import PerfStatsCallback, WarpDriveModule
+from warp_drive.training.utils.data_loader import create_and_push_data_placeholders
 
 logging.getLogger().setLevel(logging.ERROR)
 
@@ -113,18 +113,14 @@ run_config = dict(
             algorithm="A2C",  # algorithm used to train the policy
             gamma=0.98,  # discount rate
             lr=0.005,  # learning rate
-            model=dict(
-                type="fully_connected", fc_dims=[256, 256], model_ckpt_filepath=""
-            ),  # policy model settings
+            model=dict(type="fully_connected", fc_dims=[256, 256], model_ckpt_filepath=""),  # policy model settings
         ),
         tagger=dict(
             to_train=True,
             algorithm="A2C",
             gamma=0.98,
             lr=0.002,
-            model=dict(
-                type="fully_connected", fc_dims=[256, 256], model_ckpt_filepath=""
-            ),
+            model=dict(type="fully_connected", fc_dims=[256, 256], model_ckpt_filepath=""),
         ),
     ),
     # Checkpoint saving setting.
@@ -183,14 +179,16 @@ perf_stats_callback = PerfStatsCallback(
 
 # Instantiate the PytorchLightning trainer with the callbacks and the number of gpus.
 num_gpus = 1
-assert (
-    num_gpus <= _NUM_AVAILABLE_GPUS
-), f"Only {_NUM_AVAILABLE_GPUS} GPU(s) are available!"
-num_epochs = run_config["trainer"]["num_episodes"] * run_config["env"]["episode_length"] / (run_config["trainer"]["train_batch_size"])
+assert num_gpus <= _NUM_AVAILABLE_GPUS, f"Only {_NUM_AVAILABLE_GPUS} GPU(s) are available!"
+num_epochs = (
+    run_config["trainer"]["num_episodes"]
+    * run_config["env"]["episode_length"]
+    / (run_config["trainer"]["train_batch_size"])
+)
 
 trainer = Trainer(
-    gpus=num_gpus, 
-    callbacks=[perf_stats_callback], 
+    gpus=num_gpus,
+    callbacks=[perf_stats_callback],
     max_epochs=num_epochs,
 )
 
