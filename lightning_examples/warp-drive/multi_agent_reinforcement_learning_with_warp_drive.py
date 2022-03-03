@@ -269,11 +269,11 @@ def generate_tag_env_rollout_animation(
 
     def _get_label(timestep, n_runners_alive, init_n_runners):
         return (
-            "Continuous Tag\n" +
-            "Time Step:".ljust(14) +
-            f"{timestep:4.0f}\n" +
-            "Runners Left:".ljust(14) +
-            f"{n_runners_alive:4} ({n_runners_alive / init_n_runners * 100:.0f}%)"
+            "Continuous Tag\n"
+            + "Time Step:".ljust(14)
+            + f"{timestep:4.0f}\n"
+            + "Runners Left:".ljust(14)
+            + f"{n_runners_alive:4} ({n_runners_alive / init_n_runners * 100:.0f}%)"
         )
 
     label = ax.text(
@@ -339,9 +339,9 @@ perf_stats_callback = PerfStatsCallback(
 num_gpus = 1
 assert num_gpus <= _NUM_AVAILABLE_GPUS, f"Only {_NUM_AVAILABLE_GPUS} GPU(s) are available!"
 num_epochs = (
-    run_config["trainer"]["num_episodes"] *
-    run_config["env"]["episode_length"] /
-    run_config["trainer"]["train_batch_size"]
+    run_config["trainer"]["num_episodes"]
+    * run_config["env"]["episode_length"]
+    / run_config["trainer"]["train_batch_size"]
 )
 
 trainer = Trainer(
