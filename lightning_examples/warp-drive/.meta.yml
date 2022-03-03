@@ -19,7 +19,7 @@ description: This notebook introduces multi-agent reinforcement learning (MARL) 
     white paper - https://arxiv.org/abs/2108.13976.
 
 requirements:
-  - rl_warp_drive>=1.5
+  - rl_warp_drive>=1.5.1
   - ffmpeg
 accelerator:
   - GPU
