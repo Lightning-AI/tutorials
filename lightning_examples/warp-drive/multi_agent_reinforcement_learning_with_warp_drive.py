@@ -45,7 +45,6 @@
 # %%
 import logging
 
-# Imports for visualizations
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.art3d as art3d
 import numpy as np
@@ -56,8 +55,7 @@ from matplotlib import animation
 from matplotlib.patches import Polygon
 from pytorch_lightning import Trainer
 from warp_drive.env_wrapper import EnvWrapper
-from warp_drive.training.lightning_trainer import PerfStatsCallback, WarpDriveModule
-from warp_drive.training.utils.data_loader import create_and_push_data_placeholders
+from warp_drive.training.pytorch_lightning_trainer import CudaCallback, PerfStatsCallback, WarpDriveModule
 
 # %%
 _NUM_AVAILABLE_GPUS = torch.cuda.device_count()
@@ -165,37 +163,27 @@ wd_module = WarpDriveModule(
     verbose=True,
 )
 
+
 # %% [markdown]
 # # Visualizing an episode roll-out before training
 
 # %% [markdown]
-# Let us visualize an episode rollout before training begins. Note that at any time during training, we can fetch the data arrays on the GPU using the API `fetch_episode_states`.
-#
-# Below, we fetch the state arrays pertaining to agents' x and y locations on the plane and indicators on which agents are still active in the game, and will use these to visualize an episode roll-out.
-
-# %%
-episode_states = wd_module.fetch_episode_states(["loc_x", "loc_y", "still_in_the_game"])
-
-
-# %% [markdown]
-# Below is a helper function we will use for generating visualizations of an episode roll-out for the tag environment.
+# We have created a helper function (see below) to visualize an episode rollout. Internally, this function uses the WarpDrive module's `fetch_episode_states` API to fetch the data arrays on the GPU for the duration of an entire episode. Specifically, we fetch the state arrays pertaining to agents' x and y locations on the plane and indicators on which agents are still active in the game. Note that this function may be invoked at any time during training, and it will use the state of the policy models at that time to sample actions and generate the visualization.
 
 # %%
 def generate_tag_env_rollout_animation(
-    env,
-    episode_states=None,
-    fps=60,
+    warp_drive_module,
+    fps=25,
     tagger_color="#C843C3",
     runner_color="#245EB6",
     runner_not_in_game_color="#666666",
     fig_width=6,
     fig_height=6,
 ):
-    assert episode_states is not None
+    assert warp_drive_module is not None
+    episode_states = warp_drive_module.fetch_episode_states(["loc_x", "loc_y", "still_in_the_game"])
     assert isinstance(episode_states, dict)
-    assert "loc_x" in episode_states
-    assert "loc_y" in episode_states
-    assert "still_in_the_game" in episode_states
+    env = warp_drive_module.cuda_envs.env
 
     fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))  # , constrained_layout=True
     ax.remove()
@@ -268,13 +256,12 @@ def generate_tag_env_rollout_animation(
     init_num_runners = env.num_agents - env.num_taggers
 
     def _get_label(timestep, n_runners_alive, init_n_runners):
-        return (
-            "Continuous Tag\n"
-            + "Time Step:".ljust(14)
-            + f"{timestep:4.0f}\n"
-            + "Runners Left:".ljust(14)
-            + f"{n_runners_alive:4} ({n_runners_alive / init_n_runners * 100:.0f}%)"
-        )
+        line1 = "Continuous Tag\n"
+        line2 = "Time Step:".ljust(14) + f"{timestep:4.0f}\n"
+        frac_runners_alive = n_runners_alive / init_n_runners
+        pct_runners_alive = f"{n_runners_alive:4} ({frac_runners_alive * 100:.0f}%)"
+        line3 = "Runners Left:".ljust(14) + pct_runners_alive
+        return line1 + line2 + line3
 
     label = ax.text(
         0,
@@ -316,7 +303,7 @@ def generate_tag_env_rollout_animation(
 # The animation below shows a sample realization of the game episode before training, i.e., with randomly chosen agent actions. The $5$ taggers are marked in pink, while the $100$ blue agents are the runners. Both the taggers and runners move around randomly and about half the runners remain at the end of the episode.
 
 # %%
-anim = generate_tag_env_rollout_animation(env_wrapper.env, episode_states)
+anim = generate_tag_env_rollout_animation(wd_module)
 HTML(anim.to_html5_video())
 
 # %% [markdown]
@@ -329,6 +316,7 @@ HTML(anim.to_html5_video())
 log_freq = run_config["saving"]["metrics_log_freq"]
 
 # Define callbacks.
+cuda_callback = CudaCallback(module=wd_module)
 perf_stats_callback = PerfStatsCallback(
     batch_size=wd_module.training_batch_size,
     num_iters=wd_module.num_iters,
@@ -338,16 +326,15 @@ perf_stats_callback = PerfStatsCallback(
 # Instantiate the PytorchLightning trainer with the callbacks and the number of gpus.
 num_gpus = 1
 assert num_gpus <= _NUM_AVAILABLE_GPUS, f"Only {_NUM_AVAILABLE_GPUS} GPU(s) are available!"
-num_epochs = (
-    run_config["trainer"]["num_episodes"]
-    * run_config["env"]["episode_length"]
-    / run_config["trainer"]["train_batch_size"]
-)
+num_episodes = run_config["trainer"]["num_episodes"]
+episode_length = run_config["env"]["episode_length"]
+training_batch_size = run_config["trainer"]["train_batch_size"]
+num_epochs = num_episodes * episode_length / training_batch_size
 
 trainer = Trainer(
     accelerator="gpu",
     devices=num_gpus,
-    callbacks=[perf_stats_callback],
+    callbacks=[cuda_callback, perf_stats_callback],
     max_epochs=num_epochs,
 )
 
@@ -371,13 +358,15 @@ trainer.fit(wd_module)
 # ## Visualize an episode-rollout after training
 
 # %%
-episode_states = wd_module.fetch_episode_states(["loc_x", "loc_y", "still_in_the_game"])
-
-anim = generate_tag_env_rollout_animation(env_wrapper.env, episode_states)
+anim = generate_tag_env_rollout_animation(wd_module)
 HTML(anim.to_html5_video())
 
 # %% [markdown]
 # Note: In the configuration above, we have set the trainer to only train on $50000$ rollout episodes, but you can increase the `num_episodes` configuration parameter to train further. As more training happens, the runners learn to escape the taggers, and the taggers learn to chase after the runner. Sometimes, the taggers also collaborate to team-tag runners. A good number of episodes to train on (for the configuration we have used) is $2$M or higher.
+
+# %%
+# Finally, close the WarpDrive module to clear up the CUDA memory heap
+wd_module.graceful_close()
 
 # %% [markdown]
 # # Learn More about WarpDrive and explore our tutorials!
