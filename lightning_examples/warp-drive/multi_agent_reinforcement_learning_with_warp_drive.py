@@ -44,20 +44,20 @@
 
 # %%
 import logging
-import numpy as np
-import torch
-from example_envs.tag_continuous.tag_continuous import TagContinuous
-from pytorch_lightning import Trainer
-from warp_drive.env_wrapper import EnvWrapper
-from warp_drive.training.lightning_trainer import PerfStatsCallback, WarpDriveModule
-from warp_drive.training.utils.data_loader import create_and_push_data_placeholders
 
 # Imports for visualizations
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d.art3d as art3d
+import numpy as np
+import torch
+from example_envs.tag_continuous.tag_continuous import TagContinuous
+from IPython.display import HTML
 from matplotlib import animation
 from matplotlib.patches import Polygon
-from IPython.display import HTML
+from pytorch_lightning import Trainer
+from warp_drive.env_wrapper import EnvWrapper
+from warp_drive.training.lightning_trainer import PerfStatsCallback, WarpDriveModule
+from warp_drive.training.utils.data_loader import create_and_push_data_placeholders
 
 # %%
 _NUM_AVAILABLE_GPUS = torch.cuda.device_count()
@@ -117,18 +117,14 @@ run_config = dict(
             algorithm="A2C",  # algorithm used to train the policy
             gamma=0.98,  # discount rate
             lr=0.005,  # learning rate
-            model=dict(
-                type="fully_connected", fc_dims=[256, 256], model_ckpt_filepath=""
-            ),  # policy model settings
+            model=dict(type="fully_connected", fc_dims=[256, 256], model_ckpt_filepath=""),  # policy model settings
         ),
         tagger=dict(
             to_train=True,
             algorithm="A2C",
             gamma=0.98,
             lr=0.002,
-            model=dict(
-                type="fully_connected", fc_dims=[256, 256], model_ckpt_filepath=""
-            ),
+            model=dict(type="fully_connected", fc_dims=[256, 256], model_ckpt_filepath=""),
         ),
     ),
     # Checkpoint saving setting.
@@ -201,9 +197,7 @@ def generate_tag_env_rollout_animation(
     assert "loc_y" in episode_states
     assert "still_in_the_game" in episode_states
 
-    fig, ax = plt.subplots(
-        1, 1, figsize=(fig_width, fig_height)  # , constrained_layout=True
-    )
+    fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))  # , constrained_layout=True
     ax.remove()
     ax = fig.add_subplot(1, 1, 1, projection="3d")
 
@@ -298,7 +292,7 @@ def generate_tag_env_rollout_animation(
             line.set_data_3d(
                 episode_states["loc_x"][i : i + 1, idx] / env.grid_length,
                 episode_states["loc_y"][i : i + 1, idx] / env.grid_length,
-                np.zeros((1)),
+                np.zeros(1),
             )
 
             still_in_game = episode_states["still_in_the_game"][i, idx]
@@ -312,9 +306,7 @@ def generate_tag_env_rollout_animation(
         n_runners_alive = episode_states["still_in_the_game"][i].sum() - env.num_taggers
         label.set_text(_get_label(i, n_runners_alive, init_num_runners).lower())
 
-    ani = animation.FuncAnimation(
-        fig, animate, np.arange(0, env.episode_length + 1), interval=1000.0 / fps
-    )
+    ani = animation.FuncAnimation(fig, animate, np.arange(0, env.episode_length + 1), interval=1000.0 / fps)
     plt.close()
 
     return ani
@@ -345,9 +337,7 @@ perf_stats_callback = PerfStatsCallback(
 
 # Instantiate the PytorchLightning trainer with the callbacks and the number of gpus.
 num_gpus = 1
-assert (
-    num_gpus <= _NUM_AVAILABLE_GPUS
-), f"Only {_NUM_AVAILABLE_GPUS} GPU(s) are available!"
+assert num_gpus <= _NUM_AVAILABLE_GPUS, f"Only {_NUM_AVAILABLE_GPUS} GPU(s) are available!"
 num_epochs = (
     run_config["trainer"]["num_episodes"]
     * run_config["env"]["episode_length"]
