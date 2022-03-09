@@ -352,4 +352,3 @@ HTML(anim.to_html5_video())
 # %%
 # Finally, close the WarpDrive module to clear up the CUDA memory heap
 wd_module.graceful_close()
-
