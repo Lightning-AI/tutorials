@@ -1,18 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.13.7
-#   kernelspec:
-#     display_name: Python 3
-#     language: python
-#     name: python3
-# ---
-
 # %% [markdown]
 # # Fast Multi-agent Reinforcement Learning on a GPU using WarpDrive and Pytorch Lightning
 
@@ -368,13 +353,3 @@ HTML(anim.to_html5_video())
 # Finally, close the WarpDrive module to clear up the CUDA memory heap
 wd_module.graceful_close()
 
-# %% [markdown]
-# # Learn More about WarpDrive and explore our tutorials!
-
-# %% [markdown]
-# 1. [WarpDrive basics](https://www.github.com/salesforce/warp-drive/blob/master/tutorials/tutorial-1-warp_drive_basics.ipynb)
-# 2. [WarpDrive sampler](https://www.github.com/salesforce/warp-drive/blob/master/tutorials/tutorial-2-warp_drive_sampler.ipynb)
-# 3. [WarpDrive reset and log](https://www.github.com/salesforce/warp-drive/blob/master/tutorials/tutorial-3-warp_drive_reset_and_log.ipynb)
-# 4. [Creating custom environments](https://www.github.com/salesforce/warp-drive/blob/master/tutorials/tutorial-4-create_custom_environments.md)
-# 5. [Training with WarpDrive](https://www.github.com/salesforce/warp-drive/blob/master/tutorials/tutorial-5-training_with_warp_drive.ipynb)
-# 6. [Scaling Up training with WarpDrive](https://www.github.com/salesforce/warp-drive/blob/master/tutorials/tutorial-6-scaling_up_training_with_warp_drive.md)
