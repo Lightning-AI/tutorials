@@ -17,6 +17,7 @@ requirements:
   - torchaudio<=0.10
   - torchtext<=0.10
   - gym
+  - pygame
 accelerator:
   - CPU
   - GPU
