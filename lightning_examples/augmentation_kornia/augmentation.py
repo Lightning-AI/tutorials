@@ -162,12 +162,12 @@ class CoolSystem(LightningModule):
         CIFAR10(os.getcwd(), train=False, download=True, transform=self.preprocess)
 
     def train_dataloader(self):
-        dataset = CIFAR10(os.getcwd(), train=True, download=False, transform=self.preprocess)
+        dataset = CIFAR10(os.getcwd(), train=True, download=True, transform=self.preprocess)
         loader = DataLoader(dataset, batch_size=32)
         return loader
 
     def val_dataloader(self):
-        dataset = CIFAR10(os.getcwd(), train=False, download=False, transform=self.preprocess)
+        dataset = CIFAR10(os.getcwd(), train=False, download=True, transform=self.preprocess)
         loader = DataLoader(dataset, batch_size=32)
         return loader
 
