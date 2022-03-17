@@ -214,7 +214,6 @@ class GLUETransformer(LightningModule):
         loss = torch.stack([x["loss"] for x in outputs]).mean()
         self.log("val_loss", loss, prog_bar=True)
         self.log_dict(self.metric.compute(predictions=preds, references=labels), prog_bar=True)
-        return loss
 
     def setup(self, stage=None) -> None:
         if stage != "fit":
@@ -273,7 +272,7 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(max_epochs=1, gpus=AVAIL_GPUS)
+trainer = Trainer(max_epochs=1, accelerator="gpu", devices=AVAIL_GPUS)
 trainer.fit(model, datamodule=dm)
 
 # %% [markdown]
@@ -297,7 +296,7 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(max_epochs=3, gpus=AVAIL_GPUS)
+trainer = Trainer(max_epochs=3, accelerator="gpu", devices=AVAIL_GPUS)
 trainer.fit(model, datamodule=dm)
 
 # %% [markdown]
@@ -322,5 +321,5 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(gpus=AVAIL_GPUS, progress_bar_refresh_rate=20)
-trainer.validate(model, dm.val_dataloader())
+trainer = Trainer(max_epochs=3, accelerator="gpu", devices=AVAIL_GPUS)
+trainer.validate(model, dm)

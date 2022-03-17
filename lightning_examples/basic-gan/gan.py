@@ -1,6 +1,5 @@
 # %%
 import os
-from collections import OrderedDict
 
 import numpy as np
 import torch
@@ -9,6 +8,7 @@ import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
 from pytorch_lightning import LightningDataModule, LightningModule, Trainer
+from pytorch_lightning.callbacks.progress import TQDMProgressBar
 from torch.utils.data import DataLoader, random_split
 from torchvision.datasets import MNIST
 
@@ -205,9 +205,8 @@ class GAN(LightningModule):
 
             # adversarial loss is binary cross-entropy
             g_loss = self.adversarial_loss(self.discriminator(self(z)), valid)
-            tqdm_dict = {"g_loss": g_loss}
-            output = OrderedDict({"loss": g_loss, "progress_bar": tqdm_dict, "log": tqdm_dict})
-            return output
+            self.log("g_loss", g_loss, prog_bar=True)
+            return g_loss
 
         # train discriminator
         if optimizer_idx == 1:
@@ -227,9 +226,8 @@ class GAN(LightningModule):
 
             # discriminator loss is the average of these
             d_loss = (real_loss + fake_loss) / 2
-            tqdm_dict = {"d_loss": d_loss}
-            output = OrderedDict({"loss": d_loss, "progress_bar": tqdm_dict, "log": tqdm_dict})
-            return output
+            self.log("d_loss", d_loss, prog_bar=True)
+            return d_loss
 
     def configure_optimizers(self):
         lr = self.hparams.lr
@@ -240,7 +238,7 @@ class GAN(LightningModule):
         opt_d = torch.optim.Adam(self.discriminator.parameters(), lr=lr, betas=(b1, b2))
         return [opt_g, opt_d], []
 
-    def on_epoch_end(self):
+    def on_validation_epoch_end(self):
         z = self.validation_z.type_as(self.generator.model[0].weight)
 
         # log sampled images
@@ -252,7 +250,12 @@ class GAN(LightningModule):
 # %%
 dm = MNISTDataModule()
 model = GAN(*dm.size())
-trainer = Trainer(gpus=AVAIL_GPUS, max_epochs=5, progress_bar_refresh_rate=20)
+trainer = Trainer(
+    accelerator="gpu",
+    devices=AVAIL_GPUS,
+    max_epochs=5,
+    callbacks=[TQDMProgressBar(refresh_rate=20)],
+)
 trainer.fit(model, dm)
 
 # %%

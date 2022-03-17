@@ -323,22 +323,21 @@ class DQNLightning(LightningModule):
         if self.global_step % self.hparams.sync_rate == 0:
             self.target_net.load_state_dict(self.net.state_dict())
 
-        log = {
-            "total_reward": torch.tensor(self.total_reward).to(device),
-            "reward": torch.tensor(reward).to(device),
-            "train_loss": loss,
-        }
-        status = {
-            "steps": torch.tensor(self.global_step).to(device),
-            "total_reward": torch.tensor(self.total_reward).to(device),
-        }
+        self.log_dict(
+            {
+                "reward": reward,
+                "train_loss": loss,
+            }
+        )
+        self.log("total_reward", self.total_reward, prog_bar=True)
+        self.log("steps", self.global_step, logger=False, prog_bar=True)
 
-        return OrderedDict({"loss": loss, "log": log, "progress_bar": status})
+        return loss
 
     def configure_optimizers(self) -> List[Optimizer]:
         """Initialize Adam optimizer."""
         optimizer = Adam(self.net.parameters(), lr=self.hparams.lr)
-        return [optimizer]
+        return optimizer
 
     def __dataloader(self) -> DataLoader:
         """Initialize the Replay Buffer dataset used for retrieving experiences."""
@@ -366,7 +365,8 @@ class DQNLightning(LightningModule):
 model = DQNLightning()
 
 trainer = Trainer(
-    gpus=AVAIL_GPUS,
+    accelerator="gpu",
+    devices=AVAIL_GPUS,
     max_epochs=200,
     val_check_interval=100,
 )

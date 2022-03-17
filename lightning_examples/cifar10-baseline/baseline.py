@@ -13,6 +13,7 @@ from pl_bolts.datamodules import CIFAR10DataModule
 from pl_bolts.transforms.dataset_normalizations import cifar10_normalization
 from pytorch_lightning import LightningModule, Trainer, seed_everything
 from pytorch_lightning.callbacks import LearningRateMonitor
+from pytorch_lightning.callbacks.progress import TQDMProgressBar
 from pytorch_lightning.loggers import TensorBoardLogger
 from torch.optim.lr_scheduler import OneCycleLR
 from torch.optim.swa_utils import AveragedModel, update_bn
@@ -137,14 +138,13 @@ class LitResnet(LightningModule):
 
 # %%
 model = LitResnet(lr=0.05)
-model.datamodule = cifar10_dm
 
 trainer = Trainer(
-    progress_bar_refresh_rate=10,
     max_epochs=30,
-    gpus=AVAIL_GPUS,
+    accelerator="gpu",
+    devices=AVAIL_GPUS,
     logger=TensorBoardLogger("lightning_logs/", name="resnet"),
-    callbacks=[LearningRateMonitor(logging_interval="step")],
+    callbacks=[LearningRateMonitor(logging_interval="step"), TQDMProgressBar(refresh_rate=10)],
 )
 
 trainer.fit(model, cifar10_dm)
@@ -189,7 +189,7 @@ class SWAResnet(LitResnet):
         return optimizer
 
     def on_train_end(self):
-        update_bn(self.datamodule.train_dataloader(), self.swa_model, device=self.device)
+        update_bn(self.trainer.datamodule.train_dataloader(), self.swa_model, device=self.device)
 
 
 # %%
@@ -197,10 +197,11 @@ swa_model = SWAResnet(model.model, lr=0.01)
 swa_model.datamodule = cifar10_dm
 
 swa_trainer = Trainer(
-    progress_bar_refresh_rate=20,
     max_epochs=20,
-    gpus=AVAIL_GPUS,
+    accelerator="gpu",
+    devices=AVAIL_GPUS,
     logger=TensorBoardLogger("lightning_logs/", name="swa_resnet"),
+    callbacks=[TQDMProgressBar(refresh_rate=20)],
 )
 
 swa_trainer.fit(swa_model, cifar10_dm)

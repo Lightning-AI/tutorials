@@ -283,15 +283,12 @@ class BarlowTwins(LightningModule):
 
     def training_step(self, batch, batch_idx):
         loss = self.shared_step(batch)
-
-        self.log("train_loss", loss.item(), on_step=True, on_epoch=False)
+        self.log("train_loss", loss, on_step=True, on_epoch=False)
         return loss
 
     def validation_step(self, batch, batch_idx):
         loss = self.shared_step(batch)
-
         self.log("val_loss", loss, on_step=False, on_epoch=True)
-        return loss
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
@@ -329,7 +326,7 @@ class OnlineFineTuner(Callback):
         self.encoder_output_dim = encoder_output_dim
         self.num_classes = num_classes
 
-    def on_pretrain_routine_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
+    def on_fit_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
 
         # add linear_eval layer and optimizer
         pl_module.online_finetuner = nn.Linear(self.encoder_output_dim, self.num_classes).to(pl_module.device)
@@ -412,7 +409,8 @@ checkpoint_callback = ModelCheckpoint(every_n_val_epochs=100, save_top_k=-1, sav
 
 trainer = Trainer(
     max_epochs=max_epochs,
-    gpus=torch.cuda.device_count(),
+    accelerator="gpu",
+    devices=torch.cuda.device_count(),
     precision=16 if torch.cuda.device_count() > 0 else 32,
     callbacks=[online_finetuner, checkpoint_callback],
 )
