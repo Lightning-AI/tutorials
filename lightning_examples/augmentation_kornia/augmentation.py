@@ -189,7 +189,7 @@ model.show_batch(win_size=(14, 14))
 # Initialize a trainer
 trainer = Trainer(
     callbacks=[TQDMProgressBar(refresh_rate=20)],
-    accelerator="gpu",
+    accelerator="auto",
     devices=AVAIL_GPUS,
     strategy="ddp",
     max_epochs=10,
