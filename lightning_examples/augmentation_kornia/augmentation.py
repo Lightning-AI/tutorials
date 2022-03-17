@@ -191,7 +191,6 @@ trainer = Trainer(
     callbacks=[TQDMProgressBar(refresh_rate=20)],
     accelerator="auto",
     devices=AVAIL_GPUS,
-    strategy="ddp",
     max_epochs=10,
     logger=CSVLogger(save_dir="logs/", name="cifar10-resnet18"),
 )
