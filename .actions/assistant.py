@@ -247,7 +247,7 @@ class AssistantCLI:
             folder: path to the folder with python script, meta and artefacts
         """
         meta = AssistantCLI._load_meta(folder)
-        req = meta.get("requirements", [])
+        reqs = meta.get("requirements", [])
 
         meta_pip_args = {
             k.replace(AssistantCLI._META_PIP_KEY, ""): v
@@ -262,7 +262,7 @@ class AssistantCLI:
                 arg = arg % _RUNTIME_VERSIONS
                 pip_args.append(f"--{pip_key} {arg}")
 
-        return " ".join(req), " ".join(pip_args)
+        return " ".join([f'"{req}"' for req in reqs]), " ".join(pip_args)
 
     @staticmethod
     def _bash_download_data(folder: str) -> List[str]:
