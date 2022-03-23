@@ -17,8 +17,8 @@ import torchvision.transforms as transforms
 import torchvision.transforms.functional as VisionF
 from pytorch_lightning import Callback, LightningModule, Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
-from pytorch_lightning.metrics.functional import accuracy
 from torch.utils.data import DataLoader
+from torchmetrics.functional import accuracy
 from torchvision.datasets import CIFAR10
 from torchvision.models.resnet import resnet18
 from torchvision.utils import make_grid
