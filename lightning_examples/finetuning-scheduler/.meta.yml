@@ -14,6 +14,7 @@ description: |
   schedule. It uses Hugging Face's ``datasets`` and ``transformers`` libraries to retrieve the relevant benchmark data
   and foundational model weights. The required dependencies are installed via the finetuning-scheduler ``[examples]`` extra.
 requirements:
-  - git+https://github.com/speediedan/finetuning-scheduler.git@ff8c9f7176de4a10bb3d0d682fef5658b83d9462#egg=finetuning-scheduler[examples]
+  - git+https://github.com/speediedan/finetuning-scheduler.git@ce4f44acdbb741317370c23ed9c70b131d36540e#egg=finetuning-scheduler[examples]
+  - git+https://github.com/huggingface/transformers.git@2f4cea0899b0f2c2988f3da30dc89deaf6af7fcb#egg=transformers
 accelerator:
   - GPU

@@ -26,7 +26,7 @@
 # criteria (a multi-phase extension of ``EarlyStopping``), user-specified epoch transitions or a composition of the two (the default mode).
 # A [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/latest/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) training session completes when the
 # final phase of the schedule has its stopping criteria met. See
-# the [early stopping documentation](https://pytorch-lightning.readthedocs.io/en/latest/extensions/generated/pytorch_lightning.callbacks.EarlyStopping.html) for more details on that callback's configuration.
+# the [early stopping documentation](https://pytorch-lightning.readthedocs.io/en/latest/api/pytorch_lightning.callbacks.EarlyStopping.html) for more details on that callback's configuration.
 #
 # ![FinetuningScheduler explicit loss animation](fts_explicit_loss_anim.gif)
 
@@ -126,12 +126,13 @@
 # By default ([FinetuningScheduler.restore_best](https://finetuning-scheduler.readthedocs.io/en/latest/api/finetuning_scheduler.fts.html?highlight=restore_best#finetuning_scheduler.fts.FinetuningScheduler.params.restore_best) is ``True``), [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/latest/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) will attempt to restore the best available checkpoint before finetuning depth transitions.
 #
 # ```python
-# trainer = Trainer(callbacks=[FinetuningScheduler(new_incarnation_mode=True)])
+# trainer = Trainer(callbacks=[FinetuningScheduler()])
 # trainer.fit(..., ckpt_path="some/path/to/my_kth_best_checkpoint.ckpt")
 # ```
 #
-# To handle the edge case wherein one is resuming scheduled finetuning from a non-best checkpoint and the previous best checkpoints may not be accessible, setting [FinetuningScheduler.new_incarnation_mode](https://finetuning-scheduler.readthedocs.io/en/latest/api/finetuning_scheduler.fts.html?highlight=new_Incarnation_mode#finetuning_scheduler.fts.FinetuningScheduler.params.new_incarnation_mode) to
-# ``True`` as above will re-intialize the checkpoint state with a new best checkpoint at the resumption depth.
+# Note that similar to the behavior of [ModelCheckpoint](https://pytorch-lightning.readthedocs.io/en/latest/api/pytorch_lightning.callbacks.ModelCheckpoint.html), (specifically [this PR](https://github.com/PyTorchLightning/pytorch-lightning/pull/12045)),
+# when resuming training with a different [FTSCheckpoint](https://finetuning-scheduler.readthedocs.io/en/latest/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSCheckpoint) ``dirpath`` from the provided
+# checkpoint, the new training session's checkpoint state will be re-initialized at the resumption depth with the provided checkpoint being set as the best checkpoint.
 
 # %% [markdown]
 # <div class="alert alert-warning">
@@ -486,7 +487,7 @@ with open(ft_schedule_name, "w") as f:
     f.write(ft_schedule_yaml)
 
 # %%
-datasets.set_progress_bar_enabled(False)
+datasets.logging.disable_progress_bar()
 pl.seed_everything(42)
 dm = RteBoolqDataModule(model_name_or_path="microsoft/deberta-v3-base", tokenizers_parallelism=True)
 
