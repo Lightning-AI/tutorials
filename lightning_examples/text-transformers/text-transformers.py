@@ -215,17 +215,6 @@ class GLUETransformer(LightningModule):
         self.log("val_loss", loss, prog_bar=True)
         self.log_dict(self.metric.compute(predictions=preds, references=labels), prog_bar=True)
 
-    def setup(self, stage=None) -> None:
-        if stage != "fit":
-            return
-        # Get dataloader by calling it - train_dataloader() is called after setup() by default
-        train_loader = self.trainer.datamodule.train_dataloader()
-
-        # Calculate total steps
-        tb_size = self.hparams.train_batch_size * max(1, self.trainer.gpus)
-        ab_size = tb_size * self.trainer.accumulate_grad_batches
-        self.total_steps = int((len(train_loader.dataset) / ab_size) * float(self.trainer.max_epochs))
-
     def configure_optimizers(self):
         """Prepare optimizer and schedule (linear warmup and decay)"""
         model = self.model
@@ -245,7 +234,7 @@ class GLUETransformer(LightningModule):
         scheduler = get_linear_schedule_with_warmup(
             optimizer,
             num_warmup_steps=self.hparams.warmup_steps,
-            num_training_steps=self.total_steps,
+            num_training_steps=self.trainer.estimated_stepping_batches,
         )
         scheduler = {"scheduler": scheduler, "interval": "step", "frequency": 1}
         return [optimizer], [scheduler]
