@@ -2,6 +2,9 @@ name: validate Docs
 
 on:  # Trigger the workflow on push or pull request
   pull_request: {}
+  schedule:
+    # At the end of every day
+    - cron: "0 0 * * *"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
