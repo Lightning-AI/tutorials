@@ -308,7 +308,6 @@ class AssistantCLI:
         ipynb_file, meta_file, thumb_file = AssistantCLI._valid_folder(folder, ext=".ipynb")
         pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
         pub_dir = os.path.dirname(pub_ipynb)
-        pub_meta = os.path.join(DIR_NOTEBOOKS, f"{folder}.yaml")
         thumb_ext = os.path.splitext(thumb_file)[-1] if thumb_file else "."
         pub_thumb = os.path.join(DIR_NOTEBOOKS, f"{folder}{thumb_ext}") if thumb_file else ""
         cmd.append(f"mkdir -p {pub_dir}")
@@ -373,7 +372,7 @@ class AssistantCLI:
         return os.linesep.join(cmd)
 
     @staticmethod
-    def augment_script(folder: str) -> None:
+    def convert_ipynb(folder: str) -> None:
         """Add template header and footer to the python base script.
 
         Args:
