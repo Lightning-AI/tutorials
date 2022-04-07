@@ -327,7 +327,7 @@ class AssistantCLI:
         # Export the actual packages used in runtime
         cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder})")
         # copy and add to version the enriched meta config
-        cmd += [f"cp $meta_file {pub_meta}", f"git add {pub_meta}"]
+        cmd += [f"echo $meta_file", f"git add $meta_file"]
         # if thumb image is linked to the notebook, copy and version it too
         if thumb_file:
             cmd += [f"cp {thumb_file} {pub_thumb}", f"git add {pub_thumb}"]
@@ -359,7 +359,7 @@ class AssistantCLI:
         pip_req, pip_args = AssistantCLI._parse_requirements(folder)
         cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
         # Export the actual packages used in runtime
-        cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder})")
+        cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
         # show created meta config
         cmd += [f"echo $meta_file"]
 
@@ -613,7 +613,7 @@ class AssistantCLI:
             ipynb_content.append(os.path.join("notebooks", sub_ipynb))
 
     @staticmethod
-    def update_env_details(folder: str) -> str:
+    def update_env_details(folder: str, base_path: str = DIR_NOTEBOOKS) -> str:
         """Export the actual packages used in runtime.
 
         Args:
@@ -640,7 +640,7 @@ class AssistantCLI:
         meta["environment"] = [env[r] for r in require]
         meta["published"] = datetime.now().isoformat()
 
-        fmeta = os.path.join(DIR_NOTEBOOKS, folder) + ".yaml"
+        fmeta = os.path.join(base_path, folder) + ".yaml"
         yaml.safe_dump(meta, stream=open(fmeta, "w"), sort_keys=False)
         return fmeta
 
