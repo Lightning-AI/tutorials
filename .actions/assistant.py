@@ -327,7 +327,7 @@ class AssistantCLI:
         # Export the actual packages used in runtime
         cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder})")
         # copy and add to version the enriched meta config
-        cmd += [f"echo $meta_file", f"git add $meta_file"]
+        cmd += ["echo $meta_file", "cat $meta_file", "git add $meta_file"]
         # if thumb image is linked to the notebook, copy and version it too
         if thumb_file:
             cmd += [f"cp {thumb_file} {pub_thumb}", f"git add {pub_thumb}"]
@@ -361,7 +361,7 @@ class AssistantCLI:
         # Export the actual packages used in runtime
         cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
         # show created meta config
-        cmd += [f"echo $meta_file"]
+        cmd += ["echo $meta_file", "cat $meta_file"]
 
         cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}")
         if AssistantCLI._valid_accelerator(folder):
