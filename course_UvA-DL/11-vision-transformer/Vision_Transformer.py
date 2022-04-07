@@ -403,8 +403,8 @@ def train_model(**kwargs):
         model = ViT.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
 
     # Test best model on validation and test set
-    val_result = trainer.test(model, test_dataloaders=val_loader, verbose=False)
-    test_result = trainer.test(model, test_dataloaders=test_loader, verbose=False)
+    val_result = trainer.test(model, dataloaders=val_loader, verbose=False)
+    test_result = trainer.test(model, dataloaders=test_loader, verbose=False)
     result = {"test": test_result[0]["test_acc"], "val": val_result[0]["test_acc"]}
 
     return model, result
