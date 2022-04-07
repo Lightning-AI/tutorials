@@ -12,8 +12,7 @@ from torchvision import transforms
 from torchvision.datasets import MNIST
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
-AVAIL_GPUS = min(1, torch.cuda.device_count())
-BATCH_SIZE = 256 if AVAIL_GPUS else 64
+BATCH_SIZE = 64
 
 # %% [markdown]
 # ## Simplest example
@@ -58,8 +57,7 @@ train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE)
 
 # Initialize a trainer
 trainer = Trainer(
-    accelerator="gpu",
-    devices=AVAIL_GPUS,
+    accelerator="auto",
     max_epochs=3,
     callbacks=[TQDMProgressBar(refresh_rate=20)],
 )
@@ -201,8 +199,7 @@ class LitMNIST(LightningModule):
 # %%
 model = LitMNIST()
 trainer = Trainer(
-    accelerator="gpu",
-    devices=AVAIL_GPUS,
+    accelerator="auto",
     max_epochs=3,
     callbacks=[TQDMProgressBar(refresh_rate=20)],
 )

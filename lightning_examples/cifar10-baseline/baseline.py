@@ -22,8 +22,7 @@ from torchmetrics.functional import accuracy
 seed_everything(7)
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
-AVAIL_GPUS = min(1, torch.cuda.device_count())
-BATCH_SIZE = 256 if AVAIL_GPUS else 64
+BATCH_SIZE = 64
 NUM_WORKERS = int(os.cpu_count() / 2)
 
 # %% [markdown]
@@ -142,7 +141,6 @@ model = LitResnet(lr=0.05)
 trainer = Trainer(
     max_epochs=30,
     accelerator="auto",
-    devices=AVAIL_GPUS,
     logger=TensorBoardLogger("lightning_logs/", name="resnet"),
     callbacks=[LearningRateMonitor(logging_interval="step"), TQDMProgressBar(refresh_rate=10)],
 )
@@ -199,7 +197,6 @@ swa_model.datamodule = cifar10_dm
 swa_trainer = Trainer(
     max_epochs=20,
     accelerator="auto",
-    devices=AVAIL_GPUS,
     logger=TensorBoardLogger("lightning_logs/", name="swa_resnet"),
     callbacks=[TQDMProgressBar(refresh_rate=20)],
 )

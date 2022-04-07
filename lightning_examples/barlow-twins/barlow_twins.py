@@ -23,7 +23,6 @@ from torchvision.datasets import CIFAR10
 from torchvision.models.resnet import resnet18
 from torchvision.utils import make_grid
 
-AVAIL_GPUS = min(1, torch.cuda.device_count())
 batch_size = 32
 num_workers = 0  # to run notebook on CPU
 max_epochs = 200
@@ -411,8 +410,7 @@ checkpoint_callback = ModelCheckpoint(every_n_val_epochs=100, save_top_k=-1, sav
 trainer = Trainer(
     max_epochs=max_epochs,
     accelerator="auto",
-    devices=AVAIL_GPUS,
-    precision=16 if torch.cuda.device_count() > 0 else 32,
+    precision=16,
     callbacks=[online_finetuner, checkpoint_callback],
 )
 

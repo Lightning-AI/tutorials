@@ -18,8 +18,6 @@ from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
 
-AVAIL_GPUS = min(1, torch.cuda.device_count())
-
 # %% [markdown]
 # ## Define Data Augmentations module
 #
@@ -190,7 +188,6 @@ model.show_batch(win_size=(14, 14))
 trainer = Trainer(
     callbacks=[TQDMProgressBar(refresh_rate=20)],
     accelerator="auto",
-    devices=AVAIL_GPUS,
     max_epochs=10,
     logger=CSVLogger(save_dir="logs/", name="cifar10-resnet18"),
 )

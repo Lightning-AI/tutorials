@@ -14,8 +14,6 @@ from transformers import (
     get_linear_schedule_with_warmup,
 )
 
-AVAIL_GPUS = min(1, torch.cuda.device_count())
-
 # %% [markdown]
 # ## Training BERT with Lightning
 
@@ -261,7 +259,7 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(max_epochs=1, accelerator="gpu", devices=AVAIL_GPUS)
+trainer = Trainer(max_epochs=1, accelerator="auto")
 trainer.fit(model, datamodule=dm)
 
 # %% [markdown]
@@ -285,7 +283,7 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(max_epochs=3, accelerator="gpu", devices=AVAIL_GPUS)
+trainer = Trainer(max_epochs=3, accelerator="auto")
 trainer.fit(model, datamodule=dm)
 
 # %% [markdown]
@@ -310,5 +308,5 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(max_epochs=3, accelerator="gpu", devices=AVAIL_GPUS)
+trainer = Trainer(max_epochs=3, accelerator="auto")
 trainer.validate(model, dm)

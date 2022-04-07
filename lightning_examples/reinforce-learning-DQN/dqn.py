@@ -14,7 +14,6 @@ from torch.utils.data import DataLoader
 from torch.utils.data.dataset import IterableDataset
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
-AVAIL_GPUS = min(1, torch.cuda.device_count())
 
 
 # %%
@@ -365,8 +364,7 @@ class DQNLightning(LightningModule):
 model = DQNLightning()
 
 trainer = Trainer(
-    accelerator="gpu",
-    devices=AVAIL_GPUS,
+    accelerator="auto",
     max_epochs=200,
     val_check_interval=100,
 )

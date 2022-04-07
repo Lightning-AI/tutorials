@@ -13,8 +13,7 @@ from torch.utils.data import DataLoader, random_split
 from torchvision.datasets import MNIST
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
-AVAIL_GPUS = min(1, torch.cuda.device_count())
-BATCH_SIZE = 256 if AVAIL_GPUS else 64
+BATCH_SIZE = 64
 NUM_WORKERS = int(os.cpu_count() / 2)
 
 # %% [markdown]
@@ -251,8 +250,7 @@ class GAN(LightningModule):
 dm = MNISTDataModule()
 model = GAN(*dm.size())
 trainer = Trainer(
-    accelerator="gpu",
-    devices=AVAIL_GPUS,
+    accelerator="auto",
     max_epochs=5,
     callbacks=[TQDMProgressBar(refresh_rate=20)],
 )

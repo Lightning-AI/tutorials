@@ -19,8 +19,7 @@ from torchvision import transforms
 from torchvision.datasets import CIFAR10, MNIST
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
-AVAIL_GPUS = min(1, torch.cuda.device_count())
-BATCH_SIZE = 256 if AVAIL_GPUS else 64
+BATCH_SIZE = 64
 
 # %% [markdown]
 # ### Defining the LitMNISTModel
@@ -127,8 +126,7 @@ class LitMNIST(LightningModule):
 model = LitMNIST()
 trainer = Trainer(
     max_epochs=2,
-    accelerator="gpu",
-    devices=AVAIL_GPUS,
+    accelerator="auto",
     callbacks=[TQDMProgressBar(refresh_rate=20)],
 )
 trainer.fit(model)
@@ -280,8 +278,7 @@ model = LitModel(*dm.size(), dm.num_classes)
 trainer = Trainer(
     max_epochs=3,
     callbacks=[TQDMProgressBar(refresh_rate=20)],
-    accelerator="gpu",
-    devices=AVAIL_GPUS,
+    accelerator="auto",
 )
 # Pass the datamodule as arg to trainer.fit to override model hooks :)
 trainer.fit(model, dm)
@@ -346,8 +343,7 @@ model = LitModel(*dm.size(), dm.num_classes, hidden_size=256)
 tqdm_progress_bar = TQDMProgressBar(refresh_rate=20)
 trainer = Trainer(
     max_epochs=5,
-    accelerator="gpu",
-    devices=AVAIL_GPUS,
+    accelerator="auto",
     callbacks=[tqdm_progress_bar],
 )
 trainer.fit(model, dm)
