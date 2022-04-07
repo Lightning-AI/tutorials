@@ -325,9 +325,9 @@ class AssistantCLI:
                 warn("Invalid notebook's accelerator for this device. So no outputs will be generated.", RuntimeWarning)
                 cmd.append(f"cp {ipynb_file} {pub_ipynb}")
         # Export the actual packages used in runtime
-        cmd.append(f"python .actions/assistant.py update-env-details {folder}")
+        cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder})")
         # copy and add to version the enriched meta config
-        cmd += [f"cp {meta_file} {pub_meta}", f"git add {pub_meta}"]
+        cmd += [f"cp $meta_file {pub_meta}", f"git add {pub_meta}"]
         # if thumb image is linked to the notebook, copy and version it too
         if thumb_file:
             cmd += [f"cp {thumb_file} {pub_thumb}", f"git add {pub_thumb}"]
@@ -358,6 +358,10 @@ class AssistantCLI:
         # and install specific packages
         pip_req, pip_args = AssistantCLI._parse_requirements(folder)
         cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
+        # Export the actual packages used in runtime
+        cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder})")
+        # show created meta config
+        cmd += [f"echo $meta_file"]
 
         cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}")
         if AssistantCLI._valid_accelerator(folder):
@@ -609,7 +613,7 @@ class AssistantCLI:
             ipynb_content.append(os.path.join("notebooks", sub_ipynb))
 
     @staticmethod
-    def update_env_details(folder: str) -> None:
+    def update_env_details(folder: str) -> str:
         """Export the actual packages used in runtime.
 
         Args:
@@ -638,6 +642,7 @@ class AssistantCLI:
 
         fmeta = os.path.join(DIR_NOTEBOOKS, folder) + ".yaml"
         yaml.safe_dump(meta, stream=open(fmeta, "w"), sort_keys=False)
+        return fmeta
 
     @staticmethod
     def list_dirs(folder: str = "", include_file_ext: str = "") -> str:
