@@ -86,6 +86,28 @@ TEMPLATE_CARD_ITEM = """
    :card_description: %(short_description)s
    :tags: %(tags)s
 """
+REQUIREMENT_LOCK = "requirements/locked.yaml"
+
+
+class Requirements:
+    """Manipulation with requirements file."""
+
+    def __init__(self, fname: str, show_final: bool = False):
+        self._fname = fname
+        with open(self._fname) as fp:
+            self.lines = fp.readlines()
+        self.lines = [ln.strip() for ln in self.lines]
+        self._show_final = show_final
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type_, value_, traceback_):
+        if self._show_final:
+            print(os.linesep.join(self.lines))
+        self.lines = [f"{ln}{os.linesep}" for ln in self.lines]
+        with open(self._fname, "w") as fp:
+            fp.writelines(self.lines)
 
 
 def load_requirements(path_req: str = PATH_REQ_DEFAULT) -> list:
