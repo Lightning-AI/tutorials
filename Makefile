@@ -15,13 +15,14 @@ ipynb: init ${IPYNB}
 
 %.ipynb: %/.meta.y*ml
 	@echo $<
-	python .actions/assistant.py augment-script $(shell dirname $<)
+	python .actions/assistant.py convert-ipynb $(shell dirname $<)
 	python .actions/assistant.py bash-render $(shell dirname $<) > .actions/_ipynb-render.sh
 	bash .actions/_ipynb-render.sh
 
 docs: clean
 	pip install --quiet -r docs/requirements.txt
-	python -m sphinx -b html -W --keep-going docs/source docs/build
+	python -m sphinx -b linkcheck -W docs/source docs/build
+	python -m sphinx -b html -W docs/source docs/build
 
 clean:
 	rm -rf ./.datasets

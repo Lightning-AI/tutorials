@@ -97,3 +97,18 @@ pytest -v notebook.ipynb  --nbval
 # 3) generating notebooks outputs
 papermill in-notebook.ipynb out-notebook.ipynb
 ```
+
+## Development tips
+
+### Local Docs build
+
+You may want to build the documentation local without need to excrete all notebooks.
+In such case you can convert all scripts to ipython notebooks as dry run...
+```bash
+# set skip notebooks execution, just conversion
+export DRY_RUN=1
+# generate notebooks from scripts
+make ipynb
+# build the documentation
+make docs
+```
