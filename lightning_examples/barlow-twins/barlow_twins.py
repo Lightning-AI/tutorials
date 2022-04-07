@@ -410,7 +410,6 @@ checkpoint_callback = ModelCheckpoint(every_n_epochs=100, save_top_k=-1, save_la
 trainer = Trainer(
     max_epochs=max_epochs,
     accelerator="auto",
-    precision=16,
     callbacks=[online_finetuner, checkpoint_callback],
 )
 
