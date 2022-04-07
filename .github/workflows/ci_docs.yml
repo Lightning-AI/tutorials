@@ -1,6 +1,8 @@
 name: validate Docs
 
 on:  # Trigger the workflow on push or pull request
+  push:
+    branches: [main]
   pull_request: {}
   schedule:
     # At the end of every day
