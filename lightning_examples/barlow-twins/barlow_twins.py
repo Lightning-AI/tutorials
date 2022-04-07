@@ -405,7 +405,7 @@ model = BarlowTwins(
 )
 
 online_finetuner = OnlineFineTuner(encoder_output_dim=encoder_out_dim, num_classes=10)
-checkpoint_callback = ModelCheckpoint(every_n_val_epochs=100, save_top_k=-1, save_last=True)
+checkpoint_callback = ModelCheckpoint(every_n_epochs=100, save_top_k=-1, save_last=True)
 
 trainer = Trainer(
     max_epochs=max_epochs,
