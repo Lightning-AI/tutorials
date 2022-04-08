@@ -21,7 +21,7 @@ def _path_in_dir(fname: str, folder: str = _PATH_ROOT) -> str:
         ("bash_render", [_PATH_DIR_SIMPLE]),
         ("bash_test", [_PATH_DIR_SIMPLE]),
         ("group_folders", [_path_in_dir("master-diff.txt"), _path_in_dir("dirs-b1.txt"), _path_in_dir("dirs-b2.txt")]),
-        ("augment_script", [_PATH_DIR_SIMPLE]),
+        ("convert_ipynb", [_PATH_DIR_SIMPLE]),
         ("copy_notebooks", [_PATH_ROOT]),
         ("update_env_details", [_PATH_DIR_SIMPLE]),
     ],

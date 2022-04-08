@@ -947,9 +947,9 @@ def train_flow(flow, model_name="MNISTFlow"):
     # Test best model on validation and test set if no result has been found
     # Testing can be expensive due to the importance sampling.
     if result is None:
-        val_result = trainer.test(flow, test_dataloaders=val_loader, verbose=False)
+        val_result = trainer.test(flow, dataloaders=val_loader, verbose=False)
         start_time = time.time()
-        test_result = trainer.test(flow, test_dataloaders=test_loader, verbose=False)
+        test_result = trainer.test(flow, dataloaders=test_loader, verbose=False)
         duration = time.time() - start_time
         result = {"test": test_result, "val": val_result, "time": duration / len(test_loader) / flow.import_samples}
 
