@@ -7,7 +7,6 @@ import gym
 import numpy as np
 import torch
 from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.utilities import DistributedType
 from torch import Tensor, nn
 from torch.optim import Adam, Optimizer
 from torch.utils.data import DataLoader
@@ -80,7 +79,7 @@ class ReplayBuffer:
             np.array(states),
             np.array(actions),
             np.array(rewards, dtype=np.float32),
-            np.array(dones, dtype=np.bool),
+            np.array(dones, dtype=bool),
             np.array(next_states),
         )
 
@@ -310,9 +309,6 @@ class DQNLightning(LightningModule):
 
         # calculates training loss
         loss = self.dqn_mse_loss(batch)
-
-        if self.trainer._distrib_type in {DistributedType.DP, DistributedType.DDP2}:
-            loss = loss.unsqueeze(0)
 
         if done:
             self.total_reward = self.episode_reward
