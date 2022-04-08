@@ -996,8 +996,8 @@ def train_reverse(**kwargs):
         trainer.fit(model, train_loader, val_loader)
 
     # Test best model on validation and test set
-    val_result = trainer.test(model, test_dataloaders=val_loader, verbose=False)
-    test_result = trainer.test(model, test_dataloaders=test_loader, verbose=False)
+    val_result = trainer.test(model, dataloaders=val_loader, verbose=False)
+    test_result = trainer.test(model, dataloaders=test_loader, verbose=False)
     result = {"test_acc": test_result[0]["test_acc"], "val_acc": val_result[0]["test_acc"]}
 
     model = model.to(device)
@@ -1457,9 +1457,9 @@ def train_anomaly(**kwargs):
         model = AnomalyPredictor.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
 
     # Test best model on validation and test set
-    train_result = trainer.test(model, test_dataloaders=train_anom_loader, verbose=False)
-    val_result = trainer.test(model, test_dataloaders=val_anom_loader, verbose=False)
-    test_result = trainer.test(model, test_dataloaders=test_anom_loader, verbose=False)
+    train_result = trainer.test(model, dataloaders=train_anom_loader, verbose=False)
+    val_result = trainer.test(model, dataloaders=val_anom_loader, verbose=False)
+    test_result = trainer.test(model, dataloaders=test_anom_loader, verbose=False)
     result = {
         "test_acc": test_result[0]["test_acc"],
         "val_acc": val_result[0]["test_acc"],
