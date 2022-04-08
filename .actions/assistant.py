@@ -308,7 +308,6 @@ class AssistantCLI:
         ipynb_file, meta_file, thumb_file = AssistantCLI._valid_folder(folder, ext=".ipynb")
         pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
         pub_dir = os.path.dirname(pub_ipynb)
-        pub_meta = os.path.join(DIR_NOTEBOOKS, f"{folder}.yaml")
         thumb_ext = os.path.splitext(thumb_file)[-1] if thumb_file else "."
         pub_thumb = os.path.join(DIR_NOTEBOOKS, f"{folder}{thumb_ext}") if thumb_file else ""
         cmd.append(f"mkdir -p {pub_dir}")
@@ -325,9 +324,9 @@ class AssistantCLI:
                 warn("Invalid notebook's accelerator for this device. So no outputs will be generated.", RuntimeWarning)
                 cmd.append(f"cp {ipynb_file} {pub_ipynb}")
         # Export the actual packages used in runtime
-        cmd.append(f"python .actions/assistant.py update-env-details {folder}")
+        cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder})")
         # copy and add to version the enriched meta config
-        cmd += [f"cp {meta_file} {pub_meta}", f"git add {pub_meta}"]
+        cmd += ["echo $meta_file", "cat $meta_file", "git add $meta_file"]
         # if thumb image is linked to the notebook, copy and version it too
         if thumb_file:
             cmd += [f"cp {thumb_file} {pub_thumb}", f"git add {pub_thumb}"]
@@ -358,6 +357,10 @@ class AssistantCLI:
         # and install specific packages
         pip_req, pip_args = AssistantCLI._parse_requirements(folder)
         cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
+        # Export the actual packages used in runtime
+        cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
+        # show created meta config
+        cmd += ["echo $meta_file", "cat $meta_file"]
 
         cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}")
         if AssistantCLI._valid_accelerator(folder):
@@ -369,7 +372,7 @@ class AssistantCLI:
         return os.linesep.join(cmd)
 
     @staticmethod
-    def augment_script(folder: str) -> None:
+    def convert_ipynb(folder: str) -> None:
         """Add template header and footer to the python base script.
 
         Args:
@@ -609,7 +612,7 @@ class AssistantCLI:
             ipynb_content.append(os.path.join("notebooks", sub_ipynb))
 
     @staticmethod
-    def update_env_details(folder: str) -> None:
+    def update_env_details(folder: str, base_path: str = DIR_NOTEBOOKS) -> str:
         """Export the actual packages used in runtime.
 
         Args:
@@ -636,8 +639,9 @@ class AssistantCLI:
         meta["environment"] = [env[r] for r in require]
         meta["published"] = datetime.now().isoformat()
 
-        fmeta = os.path.join(DIR_NOTEBOOKS, folder) + ".yaml"
+        fmeta = os.path.join(base_path, folder) + ".yaml"
         yaml.safe_dump(meta, stream=open(fmeta, "w"), sort_keys=False)
+        return fmeta
 
     @staticmethod
     def list_dirs(folder: str = "", include_file_ext: str = "") -> str:
