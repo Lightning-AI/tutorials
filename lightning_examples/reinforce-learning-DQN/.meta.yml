@@ -13,9 +13,6 @@ description: |
   2. Handle unsupervised learning by using an IterableDataset where the dataset itself is constantly updated during training
   3. Each training step carries has the agent taking an action in the environment and storing the experience in the IterableDataset
 requirements:
-  - torchvision<=0.10
-  - torchaudio<=0.10
-  - torchtext<=0.10
   - gym
   - pygame
 accelerator:
