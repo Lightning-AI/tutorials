@@ -670,7 +670,7 @@ def train_node_classifier(model_name, dataset, **model_kwargs):
         model = NodeLevelGNN.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
 
     # Test best model on the test set
-    test_result = trainer.test(model, test_dataloaders=node_data_loader, verbose=False)
+    test_result = trainer.test(model, dataloaders=node_data_loader, verbose=False)
     batch = next(iter(node_data_loader))
     batch = batch.to(model.device)
     _, train_acc = model.forward(batch, mode="train")
@@ -953,8 +953,8 @@ def train_graph_classifier(model_name, **model_kwargs):
         model = GraphLevelGNN.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
 
     # Test best model on validation and test set
-    train_result = trainer.test(model, test_dataloaders=graph_train_loader, verbose=False)
-    test_result = trainer.test(model, test_dataloaders=graph_test_loader, verbose=False)
+    train_result = trainer.test(model, dataloaders=graph_train_loader, verbose=False)
+    test_result = trainer.test(model, dataloaders=graph_test_loader, verbose=False)
     result = {"test": test_result[0]["test_acc"], "train": train_result[0]["test_acc"]}
     return model, result
 
