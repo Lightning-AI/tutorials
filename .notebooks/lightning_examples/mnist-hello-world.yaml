@@ -3,13 +3,20 @@ author: PL team
 created: 2020-12-21
 updated: 2021-06-16
 license: CC BY-SA
-build: 2
+build: 4
 tags:
-  - Image
+- Image
 description: In this notebook, we'll go over the basics of lightning by preparing
   models to train on the [MNIST Handwritten Digits dataset](https://en.wikipedia.org/wiki/MNIST_database).
 requirements:
-  - torchvision
+- torchvision
 accelerator:
-  - CPU
-  - GPU
+- CPU
+- GPU
+environment:
+- torch==1.8.1
+- torchvision==0.9.1
+- pytorch-lightning==1.6.0
+- torchmetrics==0.7.3
+- ipython==8.2.0
+published: '2022-04-10T04:26:52.223864'
