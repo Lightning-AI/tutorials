@@ -1,4 +1,4 @@
-# Before submitting
+## Before submitting
 
 - [ ] Was this discussed/approved via a Github issue? (no need for typos and docs improvements)
 - [ ] Did you make sure to update the docs?
