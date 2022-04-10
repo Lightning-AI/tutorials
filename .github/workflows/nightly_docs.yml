@@ -1,11 +1,14 @@
-name: validate Docs
+name: Recurent Docs check
 
 on:  # Trigger the workflow on push or pull request
-  pull_request: {}
+  push:
+    branches: [main]
+  schedule:
+    # At the end of every day
+    - cron: "0 0 * * *"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
-  cancel-in-progress: true
 
 jobs:
   build-docs:
@@ -42,45 +45,15 @@ jobs:
           pip list
         shell: bash
 
-      - name: Process folders
-        run: |
-          mkdir -p ${PATH_DATASETS}
-          head=$(git rev-parse origin/"${{ github.base_ref }}")
-          git diff --name-only $head --output=master-diff.txt
-          python .actions/assistant.py group-folders master-diff.txt
-          printf "Changed folders:\n"
-          cat changed-folders.txt
-        shell: bash
-
-      - name: ">> output"
-        id: changed
-        run: python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
-      - uses: oleksiyrudenko/gha-git-credentials@v2.1
-        with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
-          global: true
-
-      - name: Sync to pub
-        run: git merge -s resolve origin/$PUB_BRANCH
-
       - name: Generate notebook
-        if: steps.changed.outputs.dirs != 0
-        run: |
-          while IFS= read -r line; do
-              python .actions/assistant.py convert-ipynb $line
-              python .actions/assistant.py bash-render $line > .actions/_ipynb-render.sh
-              cat .actions/_ipynb-render.sh
-              bash .actions/_ipynb-render.sh
-          done <<< $(cat changed-folders.txt)
+        run: make ipynb
         env:
           DRY_RUN: 1
         shell: bash
 
       - name: Make Documentation
         working-directory: ./docs
-        run: |
-          # First run the same pipeline as Read-The-Docs
-          make html --debug SPHINXOPTS="-W --keep-going" -b linkcheck
+        run: make docs
 
       - name: Upload built docs
         uses: actions/upload-artifact@v2
