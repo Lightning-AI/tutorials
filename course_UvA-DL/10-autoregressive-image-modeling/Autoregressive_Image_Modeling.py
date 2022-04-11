@@ -698,8 +698,8 @@ def train_model(**kwargs):
 
     if result is None:
         # Test best model on validation and test set
-        val_result = trainer.test(model, test_dataloaders=val_loader, verbose=False)
-        test_result = trainer.test(model, test_dataloaders=test_loader, verbose=False)
+        val_result = trainer.test(model, dataloaders=val_loader, verbose=False)
+        test_result = trainer.test(model, dataloaders=test_loader, verbose=False)
         result = {"test": test_result, "val": val_result}
     return model, result
 

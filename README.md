@@ -1,7 +1,8 @@
 # PytorchLightning Tutorials
 
+[![CI internal](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/ci_test-acts.yml/badge.svg?event=push)](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/ci_test-acts.yml)
 [![Build Status](https://dev.azure.com/PytorchLightning/Tutorials/_apis/build/status/PyTorchLightning.Tutorials-publishing?branchName=main)](https://dev.azure.com/PytorchLightning/Tutorials/_build/latest?definitionId=11&branchName=main)
-[![Code formatting](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/ci_code-format.yml/badge.svg?event=push)](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/ci_code-format.yml)
+[![codecov](https://codecov.io/gh/PyTorchLightning/lightning-tutorials/branch/main/graph/badge.svg?token=C6T3XOOR56)](https://codecov.io/gh/PyTorchLightning/lightning-tutorials)
 [![Deploy Docs](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/docs-deploy.yml/badge.svg)](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/docs-deploy.yml)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/PyTorchLightning/lightning-tutorials/main.svg)](https://results.pre-commit.ci/latest/github/PyTorchLightning/lightning-tutorials/main)
 

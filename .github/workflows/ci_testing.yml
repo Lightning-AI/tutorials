@@ -64,7 +64,7 @@ jobs:
         if: steps.changed.outputs.dirs != 0
         run: |
           while IFS= read -r line; do
-              python .actions/assistant.py augment-script $line
+              python .actions/assistant.py convert-ipynb $line
           done <<< $(cat changed-folders.txt)
         shell: bash
 
