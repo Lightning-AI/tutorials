@@ -22,7 +22,6 @@ from torchmetrics.functional import accuracy
 seed_everything(7)
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
-BATCH_SIZE = 64
 BATCH_SIZE = 256 if torch.cuda.is_available() else 64
 NUM_WORKERS = int(os.cpu_count() / 2)
 
