@@ -361,8 +361,8 @@ model = DQNLightning()
 
 trainer = Trainer(
     accelerator="auto",
-    max_epochs=200,
-    val_check_interval=100,
+    max_epochs=150,
+    val_check_interval=50,
 )
 
 trainer.fit(model)
