@@ -20,6 +20,7 @@ from torchvision.datasets import CIFAR10, MNIST
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 BATCH_SIZE = 64
+BATCH_SIZE = 256 if torch.cuda.is_available() else 64
 
 # %% [markdown]
 # ### Defining the LitMNISTModel
