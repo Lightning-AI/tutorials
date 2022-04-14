@@ -3,7 +3,7 @@ author: PL team
 created: 2021-06-15
 updated: 2021-06-17
 license: CC
-build: 7
+build: 8
 description: 'This is a template to show how to contribute a tutorial.
 
   '
@@ -13,9 +13,9 @@ accelerator:
 - CPU
 - GPU
 environment:
-- pytorch-lightning==1.6.0
-- torchmetrics==0.7.2
-- matplotlib==3.5.1
+- ipython==8.2.0
+- torchmetrics==0.7.3
 - torch==1.8.1
-- ipython==8.1.1
-published: '2022-04-08T18:22:50.948612'
+- pytorch-lightning==1.6.1
+- matplotlib==3.5.1
+published: '2022-04-14T10:38:09.529465'
