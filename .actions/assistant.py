@@ -41,7 +41,7 @@ TEMPLATE_HEADER = f"""# %%%% [markdown]
 #
 # Give us a ⭐ [on Github](https://www.github.com/PytorchLightning/pytorch-lightning/)
 # | Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/stable/)
-# | Join us [on Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)
+# | Join us [on Slack](https://www.pytorchlightning.ai/community)
 
 """
 TEMPLATE_SETUP = """# %%%% [markdown]
@@ -63,7 +63,7 @@ TEMPLATE_FOOTER = """
 # The easiest way to help our community is just by starring the GitHub repos! This helps raise awareness of the cool
 # tools we're building.
 #
-# ### Join our [Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)!
+# ### Join our [Slack](https://www.pytorchlightning.ai/community)!
 # The best way to keep up to date on the latest advancements is to join our community! Make sure to introduce yourself
 # and share your interests in `#general` channel
 #
