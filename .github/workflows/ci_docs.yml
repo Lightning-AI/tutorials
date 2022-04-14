@@ -73,7 +73,7 @@ jobs:
         run: |
           while IFS= read -r line; do
               python .actions/assistant.py convert-ipynb $line
-              python .actions/assistant.py bash-render $line > .actions/_ipynb-render.sh
+              python .actions/assistant.py bash-render $line
               cat .actions/_ipynb-render.sh
               bash .actions/_ipynb-render.sh
           done <<< $(cat changed-folders.txt)

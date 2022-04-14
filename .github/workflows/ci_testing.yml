@@ -74,8 +74,9 @@ jobs:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         run: |
+          set -e
           while IFS= read -r line; do
-              python .actions/assistant.py bash-test $line > .actions/_ipynb-test.sh
+              python .actions/assistant.py bash-test $line
               cat .actions/_ipynb-test.sh
               bash .actions/_ipynb-test.sh
           done <<< $(cat changed-folders.txt)
