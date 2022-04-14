@@ -341,7 +341,7 @@ class AssistantCLI:
             fp.write(os.linesep.join(cmd))
 
     @staticmethod
-    def bash_test(folder: str, output_file: str = PATH_SCRIPT_RENDER) -> Optional[str]:
+    def bash_test(folder: str, output_file: str = PATH_SCRIPT_TEST) -> Optional[str]:
         """Prepare bash script for running tests of a particular notebook.
 
         Args:
