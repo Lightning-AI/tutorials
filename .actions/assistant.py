@@ -289,7 +289,7 @@ class AssistantCLI:
             if ext not in AssistantCLI._EXT_ARCHIVE:
                 continue
             if ext in AssistantCLI._EXT_ARCHIVE_ZIP:
-                cmd += [f"unzip -o {fn} -d {AssistantCLI.DATASETS_FOLDER}/{name}/ {UNZIP_PROGRESS_BAR}"]
+                cmd += [f"unzip -o {fn} -d {AssistantCLI.DATASETS_FOLDER}/{name} {UNZIP_PROGRESS_BAR}"]
             else:
                 cmd += [f"tar -zxvf {fn} --overwrite"]
             cmd += [f"rm {fn}"]

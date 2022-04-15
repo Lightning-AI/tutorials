@@ -9,8 +9,9 @@ from flash.image import ImageClassificationData, ImageClassifier
 from pytorch_lightning.loggers import CSVLogger
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
-# this dataset is automaticaly downloaded and extracted based on meta link
-DATA_HYMENOPLERA = os.path.join(PATH_DATASETS, "hymenoptera_data")
+# this dataset is automatically downloaded and extracted based on meta link
+# this archive includes the one more level - folder with the same name
+DATA_HYMENOPLERA = os.path.join(PATH_DATASETS, "hymenoptera_data", "hymenoptera_data")
 
 # %% [markdown]
 # ## 1. Create the DataModule
