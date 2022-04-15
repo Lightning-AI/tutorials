@@ -312,8 +312,8 @@ class AssistantCLI:
             cmd += AssistantCLI._bash_download_data(folder)
         ipynb_file, meta_file, thumb_file = AssistantCLI._valid_folder(folder, ext=".ipynb")
         pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
+        pub_meta = pub_ipynb.replace(".ipynb", ".yaml")
         pub_dir = os.path.dirname(pub_ipynb)
-        pub_meta = os.path.join(pub_dir, os.path.basename(meta_file))
         thumb_ext = os.path.splitext(thumb_file)[-1] if thumb_file else "."
         pub_thumb = os.path.join(DIR_NOTEBOOKS, f"{folder}{thumb_ext}") if thumb_file else ""
         cmd.append(f"mkdir -p {pub_dir}")
