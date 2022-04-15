@@ -20,6 +20,7 @@ _PATH_ROOT = os.path.dirname(_PATH_HERE)
 PATH_REQ_DEFAULT = os.path.join(_PATH_ROOT, "requirements", "default.txt")
 PATH_SCRIPT_RENDER = os.path.join(_PATH_HERE, "_ipynb-render.sh")
 PATH_SCRIPT_TEST = os.path.join(_PATH_HERE, "_ipynb-test.sh")
+UNZIP_PROGRESS_BAR = " | awk 'BEGIN {ORS=" "} {if(NR%10==0)print \".\"}'"
 REPO_NAME = "lightning-tutorials"
 COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
 BRANCH_DEFAULT = "main"
@@ -287,7 +288,7 @@ class AssistantCLI:
             if ext not in AssistantCLI._EXT_ARCHIVE:
                 continue
             if ext in AssistantCLI._EXT_ARCHIVE_ZIP:
-                cmd += [f"mkdir -p {name}", f"unzip -o {fn} -d {name}"]
+                cmd += [f"mkdir -p {name}", f"unzip -o {fn} -d {name} {UNZIP_PROGRESS_BAR}"]
             else:
                 cmd += [f"tar -zxvf {fn} --overwrite"]
             cmd += [f"rm {fn}"]
