@@ -26,7 +26,7 @@ import mpl_toolkits.mplot3d.art3d as art3d
 import numpy as np
 import torch
 from example_envs.tag_continuous.tag_continuous import TagContinuous
-from IPython.display import HTML
+# from IPython.display import HTML
 from matplotlib import animation
 from matplotlib.patches import Polygon
 from pytorch_lightning import Trainer
@@ -276,8 +276,9 @@ def generate_tag_env_rollout_animation(
 # The animation below shows a sample realization of the game episode before training, i.e., with randomly chosen agent actions. The $5$ taggers are marked in pink, while the $100$ blue agents are the runners. Both the taggers and runners move around randomly and about half the runners remain at the end of the episode.
 
 # %%
-anim = generate_tag_env_rollout_animation(wd_module)
-HTML(anim.to_html5_video())
+
+# anim = generate_tag_env_rollout_animation(wd_module)
+# HTML(anim.to_html5_video())
 
 # %% [markdown]
 # ## Create the Lightning Trainer
@@ -329,8 +330,9 @@ trainer.fit(wd_module)
 # ## Visualize an episode-rollout after training
 
 # %%
-anim = generate_tag_env_rollout_animation(wd_module)
-HTML(anim.to_html5_video())
+
+# anim = generate_tag_env_rollout_animation(wd_module)
+# HTML(anim.to_html5_video())
 
 # %% [markdown]
 # Note: In the configuration above, we have set the trainer to only train on $50000$ rollout episodes, but you can increase the `num_episodes` configuration parameter to train further. As more training happens, the runners learn to escape the taggers, and the taggers learn to chase after the runner. Sometimes, the taggers also collaborate to team-tag runners. A good number of episodes to train on (for the configuration we have used) is $2$M or higher.
