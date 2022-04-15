@@ -39,7 +39,7 @@ datamodule = TabularClassificationData.from_csv(
     target_fields="Survived",
     train_file=csv_train,
     val_split=0.1,
-    batch_size=8,
+    batch_size=32,
 )
 
 # %% [markdown]
@@ -49,7 +49,7 @@ datamodule = TabularClassificationData.from_csv(
 model = TabularClassifier.from_data(
     datamodule,
     learning_rate=0.1,
-    optimizer="Adam",
+    optimizer="AdamW",
     n_a=8,
     gamma=0.3,
 )
@@ -81,6 +81,7 @@ del metrics["epoch"]
 sns.relplot(data=metrics, kind="line")
 plt.gca().set_ylim([0, 1.25])
 plt.gcf().set_size_inches(10, 5)
+plt.grid()
 
 # %% [markdown]
 # ## 4. Generate predictions from a CSV
