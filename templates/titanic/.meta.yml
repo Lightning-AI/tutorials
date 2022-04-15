@@ -7,7 +7,7 @@ build: 0
 description: |
   This is a template to show how to contribute a tutorial.
 requirements:
-  - lightning-flash[tabular]>=0.6
+  - lightning-flash[tabular]>=0.7
   - pandas>=1.0
   - matplotlib>=3.0
   - seaborn

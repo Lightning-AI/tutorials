@@ -9,7 +9,7 @@ tags:
 description: |
   This is a template to show simple image classification case if for some reason accelerator is required.
 requirements:
-  - lightning-flash[image]>=0.6
+  - lightning-flash[image]>=0.7
   - pandas>=1.0
   - matplotlib>=3.0
   - seaborn
