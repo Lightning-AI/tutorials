@@ -20,7 +20,8 @@ _PATH_ROOT = os.path.dirname(_PATH_HERE)
 PATH_REQ_DEFAULT = os.path.join(_PATH_ROOT, "requirements", "default.txt")
 PATH_SCRIPT_RENDER = os.path.join(_PATH_HERE, "_ipynb-render.sh")
 PATH_SCRIPT_TEST = os.path.join(_PATH_HERE, "_ipynb-test.sh")
-UNZIP_PROGRESS_BAR = " | awk 'BEGIN {ORS=" "} {if(NR%10==0)print \".\"}'"
+# https://askubuntu.com/questions/909918/how-to-show-unzip-progress
+UNZIP_PROGRESS_BAR = " | awk 'BEGIN {ORS=\" \"} {if(NR%10==0)print \".\"}'"
 REPO_NAME = "lightning-tutorials"
 COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
 BRANCH_DEFAULT = "main"
@@ -360,9 +361,11 @@ class AssistantCLI:
         ipynb_file, meta_file, _ = AssistantCLI._valid_folder(folder, ext=".ipynb")
 
         # prepare isolated environment with inheriting the global packages
+        path_venv = os.path.join(folder, 'venv')
         cmd += [
-            f"python -m virtualenv --system-site-packages {os.path.join(folder, 'venv')}",
-            f"source {os.path.join(folder, 'venv', 'bin', 'activate')}",
+            f"rm -rf {path_venv}",
+            f"python -m virtualenv --system-site-packages {path_venv}",
+            f"source {os.path.join(path_venv, 'bin', 'activate')}",
             "pip --version",
         ]
 
