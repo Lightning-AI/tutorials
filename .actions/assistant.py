@@ -377,8 +377,7 @@ class AssistantCLI:
             cmd.append(f"python -m pytest {ipynb_file} -v --nbval --nbval-cell-timeout=300")
         else:
             pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
-            pub_dir = os.path.dirname(pub_ipynb)
-            pub_meta = os.path.join(pub_dir, os.path.basename(meta_file))
+            pub_meta = pub_ipynb.replace(".ipynb", ".yaml")
             # copy and add meta config
             cmd += [f"cp {meta_file} {pub_meta}", f"cat {pub_meta}", f"git add {pub_meta}"]
             warn("Invalid notebook's accelerator for this device. So no tests will be run!!!", RuntimeWarning)
