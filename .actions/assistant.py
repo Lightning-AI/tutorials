@@ -363,10 +363,12 @@ class AssistantCLI:
         # prepare isolated environment with inheriting the global packages
         path_venv = os.path.join(folder, 'venv')
         cmd += [
-            f"rm -rf {path_venv}",
+            f"rm -rf {path_venv}",  # FixMe: remove
+            "pip list",  # FixMe: remove
             f"python -m virtualenv --system-site-packages {path_venv}",
             f"source {os.path.join(path_venv, 'bin', 'activate')}",
             "pip --version",
+            "pip list",  # FixMe: remove
         ]
 
         cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}")
