@@ -18,6 +18,8 @@ from wcmatch import glob
 _PATH_HERE = os.path.dirname(__file__)
 _PATH_ROOT = os.path.dirname(_PATH_HERE)
 PATH_REQ_DEFAULT = os.path.join(_PATH_ROOT, "requirements", "default.txt")
+PATH_SCRIPT_RENDER = os.path.join(_PATH_HERE, "_ipynb-render.sh")
+PATH_SCRIPT_TEST = os.path.join(_PATH_HERE, "_ipynb-test.sh")
 REPO_NAME = "lightning-tutorials"
 COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
 BRANCH_DEFAULT = "main"
@@ -39,7 +41,7 @@ TEMPLATE_HEADER = f"""# %%%% [markdown]
 #
 # Give us a ⭐ [on Github](https://www.github.com/PytorchLightning/pytorch-lightning/)
 # | Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/stable/)
-# | Join us [on Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)
+# | Join us [on Slack](https://www.pytorchlightning.ai/community)
 
 """
 TEMPLATE_SETUP = """# %%%% [markdown]
@@ -61,7 +63,7 @@ TEMPLATE_FOOTER = """
 # The easiest way to help our community is just by starring the GitHub repos! This helps raise awareness of the cool
 # tools we're building.
 #
-# ### Join our [Slack](https://join.slack.com/t/pytorch-lightning/shared_invite/zt-pw5v393p-qRaDgEk24~EjiZNBpSQFgQ)!
+# ### Join our [Slack](https://www.pytorchlightning.ai/community)!
 # The best way to keep up to date on the latest advancements is to join our community! Make sure to introduce yourself
 # and share your interests in `#general` channel
 #
@@ -293,11 +295,12 @@ class AssistantCLI:
         return cmd
 
     @staticmethod
-    def bash_render(folder: str) -> str:
+    def bash_render(folder: str, output_file: str = PATH_SCRIPT_RENDER) -> Optional[str]:
         """Prepare bash script for running rendering of a particular notebook.
 
         Args:
             folder: name/path to a folder with notebook files
+            output_file: if defined, stream the commands to the file
 
         Returns:
             string with nash script content
@@ -332,14 +335,18 @@ class AssistantCLI:
             cmd += [f"cp {thumb_file} {pub_thumb}", f"git add {pub_thumb}"]
         # add the generated notebook to version
         cmd.append(f"git add {pub_ipynb}")
-        return os.linesep.join(cmd)
+        if not output_file:
+            return os.linesep.join(cmd)
+        with open(output_file, "w") as fp:
+            fp.write(os.linesep.join(cmd))
 
     @staticmethod
-    def bash_test(folder: str) -> str:
+    def bash_test(folder: str, output_file: str = PATH_SCRIPT_TEST) -> Optional[str]:
         """Prepare bash script for running tests of a particular notebook.
 
         Args:
             folder: name/path to a folder with notebook files
+            output_file: if defined, stream the commands to the file
 
         Returns:
             string with nash script content
@@ -369,7 +376,10 @@ class AssistantCLI:
             warn("Invalid notebook's accelerator for this device. So no tests will be run!!!", RuntimeWarning)
         # deactivate and clean local environment
         cmd += ["deactivate", f"rm -rf {os.path.join(folder, 'venv')}"]
-        return os.linesep.join(cmd)
+        if not output_file:
+            return os.linesep.join(cmd)
+        with open(output_file, "w") as fp:
+            fp.write(os.linesep.join(cmd))
 
     @staticmethod
     def convert_ipynb(folder: str) -> None:
