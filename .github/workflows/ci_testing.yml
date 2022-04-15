@@ -19,7 +19,6 @@ jobs:
     # Timeout: https://stackoverflow.com/a/59076067/4521646
     timeout-minutes: 55
     env:
-      ACCELERATOR: CPU
       PATH_DATASETS: ${{ github.workspace }}/.datasets
 
     steps:
@@ -75,6 +74,7 @@ jobs:
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         run: |
           set -e
+          apt install -y tree
           while IFS= read -r line; do
               python .actions/assistant.py bash-test $line
               cat .actions/_ipynb-test.sh

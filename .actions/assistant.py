@@ -138,8 +138,9 @@ _RUNTIME_VERSIONS = dict(
 class AssistantCLI:
     """Collection of handy CLI commands."""
 
-    DEVICE_ACCELERATOR = os.environ.get("ACCELERATOR", "cpu").lower()
-    DATASET_FOLDER = os.environ.get("PATH_DATASETS", "_datasets").lower()
+    _LOCAL_ACCELERATOR = "cpu,gpu" if get_running_cuda_version() else "cpu"
+    DEVICE_ACCELERATOR = os.environ.get("ACCELERATOR", _LOCAL_ACCELERATOR).lower()
+    DATASETS_FOLDER = os.environ.get("PATH_DATASETS", "_datasets")
     DRY_RUN = bool(int(os.environ.get("DRY_RUN", 0)))
     _META_REQUIRED_FIELDS = ("title", "author", "license", "description")
     _SKIP_DIRS = (
@@ -154,7 +155,7 @@ class AssistantCLI:
     )
     _META_FILE_REGEX = ".meta.{yaml,yml}"
     _META_PIP_KEY = "pip__"
-    _META_ACCEL_DEFAULT = ("CPU",)
+    _META_ACCEL_DEFAULT = _LOCAL_ACCELERATOR.split(",")
 
     # Map directory names to tag names. Note that dashes will be replaced with spaces in rendered tags in the docs.
     _DIR_TO_TAG = {
@@ -270,16 +271,15 @@ class AssistantCLI:
 
     @staticmethod
     def _bash_download_data(folder: str) -> List[str]:
-        """Generate sequence of commands fro optional downloading dataset specified in the meta file.
+        """Generate sequence of commands for optional downloading dataset specified in the meta file.
 
         Args:
             folder: path to the folder with python script, meta and artefacts
         """
-        cmd = ["HERE=$PWD", f"cd {AssistantCLI.DATASET_FOLDER}"]
         meta = AssistantCLI._load_meta(folder)
         datasets = meta.get("datasets", {})
         data_kaggle = datasets.get("kaggle", [])
-        cmd += [f"python -m kaggle competitions download -c {name}" for name in data_kaggle]
+        cmd = [f"python -m kaggle competitions download -c {name}" for name in data_kaggle]
         files = [f"{name}.zip" for name in data_kaggle]
         data_web = datasets.get("web", [])
         cmd += [f"wget {web} --progress=bar:force:noscroll --tries=3" for web in data_web]
@@ -289,11 +289,11 @@ class AssistantCLI:
             if ext not in AssistantCLI._EXT_ARCHIVE:
                 continue
             if ext in AssistantCLI._EXT_ARCHIVE_ZIP:
-                cmd += [f"unzip -o {fn} -d {name} {UNZIP_PROGRESS_BAR}"]
+                cmd += [f"unzip -o {fn} -d {AssistantCLI.DATASETS_FOLDER}/{name}/ {UNZIP_PROGRESS_BAR}"]
             else:
                 cmd += [f"tar -zxvf {fn} --overwrite"]
             cmd += [f"rm {fn}"]
-        cmd += ["ls -l", "cd $HERE"]
+        cmd += [f"tree -L 2 {AssistantCLI.DATASETS_FOLDER}"]
         return cmd
 
     @staticmethod
