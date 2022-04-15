@@ -89,7 +89,11 @@ plt.grid()
 # %%
 df_test = pd.read_csv(csv_test)
 
-predictions = model.predict(csv_test)
+dm = TabularClassificationData.from_data_frame(
+    predict_data_frame=df_test,
+    parameters=datamodule.parameters,
+)
+predictions = trainer.predict(model, datamodule=dm, output="classes")
 print(predictions[0])
 
 # %%
