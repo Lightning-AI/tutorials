@@ -89,13 +89,21 @@ plt.grid()
 # %%
 df_test = pd.read_csv(csv_test)
 
-predictions = model.predict(csv_test)
-print(predictions[0])
+dm = TabularClassificationData.from_data_frame(
+    predict_data_frame=df_test,
+    parameters=datamodule.parameters,
+    batch_size=datamodule.batch_size,
+)
+preds = trainer.predict(model, datamodule=dm, output="classes")
+print(preds[0][:10])
 
 # %%
+import itertools  # noqa: E402]
+
 import numpy as np  # noqa: E402]
 
-assert len(df_test) == len(predictions)
+predictions = list(itertools.chain(*preds))
+# assert len(df_test) == len(predictions)
 
 df_test["Survived"] = np.argmax(predictions, axis=-1)
 df_test.set_index("PassengerId", inplace=True)
