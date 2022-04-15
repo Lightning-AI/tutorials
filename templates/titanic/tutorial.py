@@ -94,12 +94,14 @@ dm = TabularClassificationData.from_data_frame(
     parameters=datamodule.parameters,
     batch_size=datamodule.batch_size,
 )
-predictions = trainer.predict(model, datamodule=dm, output="classes")
-print(predictions[0])
+preds = trainer.predict(model, datamodule=dm, output="classes")
+print(preds[0][:10])
 
 # %%
+import itertools  # noqa: E402]
 import numpy as np  # noqa: E402]
 
+predictions = list(itertools.chain(*preds))
 assert len(df_test) == len(predictions)
 
 df_test["Survived"] = np.argmax(predictions, axis=-1)
