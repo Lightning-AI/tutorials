@@ -2,8 +2,9 @@
 import os
 
 import flash
+import matplotlib.pyplot as plt
 import pandas as pd
-import torch
+import seaborn as sn
 from flash.image import ImageClassificationData, ImageClassifier
 from pytorch_lightning.loggers import CSVLogger
 
@@ -36,10 +37,6 @@ trainer = flash.Trainer(logger=logger, max_epochs=3, gpus=1)
 trainer.finetune(model, datamodule=datamodule, strategy="freeze")
 
 # %%
-
-import matplotlib.pyplot as plt
-import seaborn as sn
-
 metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
 del metrics["step"]
 metrics.set_index("epoch", inplace=True)
