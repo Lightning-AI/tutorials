@@ -99,6 +99,7 @@ print(preds[0][:10])
 
 # %%
 import itertools  # noqa: E402]
+
 import numpy as np  # noqa: E402]
 
 predictions = list(itertools.chain(*preds))
