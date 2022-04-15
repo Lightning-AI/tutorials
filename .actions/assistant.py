@@ -362,8 +362,9 @@ class AssistantCLI:
             "pip --version",
         ]
         # and install specific packages
-        pip_req, pip_args = AssistantCLI._parse_requirements(folder)
-        cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
+        if AssistantCLI._valid_accelerator(folder):
+            pip_req, pip_args = AssistantCLI._parse_requirements(folder)
+            cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
         # Export the actual packages used in runtime
         cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
         # show created meta config
