@@ -361,6 +361,7 @@ model = DQNLightning()
 
 trainer = Trainer(
     accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     max_epochs=150,
     val_check_interval=50,
 )

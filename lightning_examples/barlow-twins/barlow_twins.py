@@ -410,6 +410,7 @@ checkpoint_callback = ModelCheckpoint(every_n_epochs=100, save_top_k=-1, save_la
 trainer = Trainer(
     max_epochs=max_epochs,
     accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     callbacks=[online_finetuner, checkpoint_callback],
 )
 

@@ -259,7 +259,11 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(max_epochs=1, accelerator="auto")
+trainer = Trainer(
+    max_epochs=1,
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+)
 trainer.fit(model, datamodule=dm)
 
 # %% [markdown]
@@ -283,7 +287,11 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(max_epochs=3, accelerator="auto")
+trainer = Trainer(
+    max_epochs=3,
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+)
 trainer.fit(model, datamodule=dm)
 
 # %% [markdown]
@@ -308,5 +316,9 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(max_epochs=3, accelerator="auto")
+trainer = Trainer(
+    max_epochs=3,
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+)
 trainer.validate(model, dm)

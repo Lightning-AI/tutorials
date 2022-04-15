@@ -58,6 +58,7 @@ train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE)
 # Initialize a trainer
 trainer = Trainer(
     accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     max_epochs=3,
     callbacks=[TQDMProgressBar(refresh_rate=20)],
 )
@@ -200,6 +201,7 @@ class LitMNIST(LightningModule):
 model = LitMNIST()
 trainer = Trainer(
     accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     max_epochs=3,
     callbacks=[TQDMProgressBar(refresh_rate=20)],
 )

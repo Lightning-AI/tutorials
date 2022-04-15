@@ -127,6 +127,7 @@ model = LitMNIST()
 trainer = Trainer(
     max_epochs=2,
     accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     callbacks=[TQDMProgressBar(refresh_rate=20)],
 )
 trainer.fit(model)
@@ -279,6 +280,7 @@ trainer = Trainer(
     max_epochs=3,
     callbacks=[TQDMProgressBar(refresh_rate=20)],
     accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
 )
 # Pass the datamodule as arg to trainer.fit to override model hooks :)
 trainer.fit(model, dm)
@@ -344,6 +346,7 @@ tqdm_progress_bar = TQDMProgressBar(refresh_rate=20)
 trainer = Trainer(
     max_epochs=5,
     accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     callbacks=[tqdm_progress_bar],
 )
 trainer.fit(model, dm)

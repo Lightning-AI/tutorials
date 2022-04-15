@@ -141,6 +141,7 @@ model = LitResnet(lr=0.05)
 trainer = Trainer(
     max_epochs=30,
     accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     logger=TensorBoardLogger("lightning_logs/", name="resnet"),
     callbacks=[LearningRateMonitor(logging_interval="step"), TQDMProgressBar(refresh_rate=10)],
 )
@@ -197,6 +198,7 @@ swa_model.datamodule = cifar10_dm
 swa_trainer = Trainer(
     max_epochs=20,
     accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     logger=TensorBoardLogger("lightning_logs/", name="swa_resnet"),
     callbacks=[TQDMProgressBar(refresh_rate=20)],
 )

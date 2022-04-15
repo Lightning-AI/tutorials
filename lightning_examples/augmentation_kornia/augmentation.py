@@ -188,6 +188,7 @@ model.show_batch(win_size=(14, 14))
 trainer = Trainer(
     callbacks=[TQDMProgressBar(refresh_rate=20)],
     accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     max_epochs=10,
     logger=CSVLogger(save_dir="logs/", name="cifar10-resnet18"),
 )
