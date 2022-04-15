@@ -2,12 +2,11 @@
 # # Fast Multi-agent Reinforcement Learning on a GPU using WarpDrive and Pytorch Lightning
 
 # %% [markdown]
-# # ⚠️ PLEASE NOTE:
-# This notebook runs on a GPU runtime.\
-# If running on Colab, choose Runtime > Change runtime type from the menu, then select `GPU` in the 'Hardware accelerator' dropdown menu.
+# **⚠️ PLEASE NOTE:**
+# This notebook runs on a GPU runtime. If running on Colab, choose Runtime > Change runtime type from the menu, then select `GPU` in the 'Hardware accelerator' dropdown menu.
 
 # %% [markdown]
-# # Introduction
+# ## Introduction
 
 # %% [markdown]
 # This tutorial provides a demonstration of a multi-agent Reinforcement Learning (RL) training loop with [WarpDrive](https://github.com/salesforce/warp-drive). WarpDrive is a flexible, lightweight, and easy-to-use RL framework that implements end-to-end deep multi-agent RL on a single GPU (Graphics Processing Unit). Using the extreme parallelization capability of GPUs, it enables [orders-of-magnitude faster RL](https://arxiv.org/abs/2108.13976) compared to common implementations that blend CPU simulations and GPU models. WarpDrive is extremely efficient as it runs simulations across multiple agents and multiple environment replicas in parallel and completely eliminates the back-and-forth data copying between the CPU and the GPU.
@@ -18,14 +17,6 @@
 #
 # We invite everyone to **contribute to WarpDrive**, including adding new multi-agent environments, proposing new features and reporting issues on our open source [repository](https://github.com/salesforce/warp-drive).
 
-# %% [markdown]
-# ### Dependencies
-
-# %% [markdown]
-# This notebook requires the `rl-warp-drive` as well as the `pytorch-lightning` packages.
-
-# %%
-# ! pip install --quiet 'rl_warp_drive>=1.5.1' 'pytorch_lightning>=1.5.10'
 
 # %%
 import logging
@@ -51,9 +42,8 @@ assert _NUM_AVAILABLE_GPUS > 0, "This notebook needs a GPU to run!"
 logging.getLogger().setLevel(logging.ERROR)
 
 # %% [markdown]
-# # Specify a set of run configurations for your experiments
-
-# %% [markdown]
+# ## Specify a set of run configurations for your experiments
+#
 # The run configuration is a dictionary comprising the environment parameters, the trainer and the policy network settings, as well as configurations for saving.
 #
 # For our experiment, we consider an environment wherein $5$ taggers and $100$ runners play the game of [Tag](https://github.com/salesforce/warp-drive/blob/master/example_envs/tag_continuous/tag_continuous.py) on a $20 \times 20$ plane. The game lasts $200$ timesteps. Each agent chooses it's own acceleration and turn actions at every timestep, and we use mechanics to determine how the agents move over the grid. When a tagger gets close to a runner, the runner is tagged, and is eliminated from the game. For the configuration below, the runners and taggers have the same unit skill levels, or top speeds.
@@ -121,9 +111,8 @@ run_config = dict(
 )
 
 # %% [markdown]
-# # Instantiate the WarpDrive Module
-
-# %% [markdown]
+# ## Instantiate the WarpDrive Module
+#
 # In order to instantiate the WarpDrive module, we first use an environment wrapper to specify that the environment needs to be run on the GPU (via the `use_cuda` flag). Also, agents in the environment can share policy models; so we specify a dictionary to map each policy network model to the list of agent ids using that model.
 
 # %%
@@ -150,9 +139,8 @@ wd_module = WarpDriveModule(
 
 
 # %% [markdown]
-# # Visualizing an episode roll-out before training
-
-# %% [markdown]
+# ## Visualizing an episode roll-out before training
+#
 # We have created a helper function (see below) to visualize an episode rollout. Internally, this function uses the WarpDrive module's `fetch_episode_states` API to fetch the data arrays on the GPU for the duration of an entire episode. Specifically, we fetch the state arrays pertaining to agents' x and y locations on the plane and indicators on which agents are still active in the game. Note that this function may be invoked at any time during training, and it will use the state of the policy models at that time to sample actions and generate the visualization.
 
 # %%
@@ -292,9 +280,8 @@ anim = generate_tag_env_rollout_animation(wd_module)
 HTML(anim.to_html5_video())
 
 # %% [markdown]
-# # Create the Lightning Trainer
-
-# %% [markdown]
+# ## Create the Lightning Trainer
+#
 # Next, we create the trainer for training the WarpDrive model. We add the `performance stats` callbacks to the trainer to view the throughput performance of WarpDrive.
 
 # %%
@@ -329,9 +316,8 @@ trainer = Trainer(
 # %tensorboard --logdir lightning_logs/
 
 # %% [markdown]
-# # Train the WarpDrive Module
-
-# %% [markdown]
+# ## Train the WarpDrive Module
+#
 # Finally, we invoke training.
 #
 # Note: please scroll up to the tensorboard cell to visualize the curves during training.
