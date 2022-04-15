@@ -314,12 +314,12 @@ class AssistantCLI:
         thumb_ext = os.path.splitext(thumb_file)[-1] if thumb_file else "."
         pub_thumb = os.path.join(DIR_NOTEBOOKS, f"{folder}{thumb_ext}") if thumb_file else ""
         cmd.append(f"mkdir -p {pub_dir}")
-        pip_req, pip_args = AssistantCLI._parse_requirements(folder)
-        cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
         if AssistantCLI.DRY_RUN:
             # dry run does not execute the notebooks just takes them as they are
             cmd.append(f"cp {ipynb_file} {pub_ipynb}")
         else:
+            pip_req, pip_args = AssistantCLI._parse_requirements(folder)
+            cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
             cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}\n")
             if AssistantCLI._valid_accelerator(folder):
                 cmd.append(f"python -m papermill {ipynb_file} {pub_ipynb} --kernel python")
