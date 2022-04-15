@@ -103,6 +103,9 @@ import itertools  # noqa: E402]
 import numpy as np  # noqa: E402]
 
 predictions = list(itertools.chain(*preds))
+print(len(preds))
+print(len(predictions))
+print(len(df_test))
 assert len(df_test) == len(predictions)
 
 df_test["Survived"] = np.argmax(predictions, axis=-1)
