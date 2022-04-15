@@ -1,12 +1,11 @@
 # %%
 import os
 
+import flash
 import pandas as pd
 import torch
-
-import flash
-from pytorch_lightning.loggers import CSVLogger
 from flash.image import ImageClassificationData, ImageClassifier
+from pytorch_lightning.loggers import CSVLogger
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 # this dataset is automaticaly downloaded and extracted based on meta link
@@ -32,7 +31,7 @@ model = ImageClassifier(backbone="resnet18", labels=datamodule.labels)
 # ## 3. Create the trainer and finetune the model
 
 # %%
-logger = CSVLogger(save_dir='logs/')
+logger = CSVLogger(save_dir="logs/")
 trainer = flash.Trainer(logger=logger, max_epochs=3, gpus=1)
 trainer.finetune(model, datamodule=datamodule, strategy="freeze")
 
@@ -41,7 +40,7 @@ trainer.finetune(model, datamodule=datamodule, strategy="freeze")
 import matplotlib.pyplot as plt
 import seaborn as sn
 
-metrics = pd.read_csv(f'{trainer.logger.log_dir}/metrics.csv')
+metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
 del metrics["step"]
 metrics.set_index("epoch", inplace=True)
 print(metrics.dropna(axis=1, how="all").head())
