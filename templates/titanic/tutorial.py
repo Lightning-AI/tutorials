@@ -92,6 +92,7 @@ df_test = pd.read_csv(csv_test)
 dm = TabularClassificationData.from_data_frame(
     predict_data_frame=df_test,
     parameters=datamodule.parameters,
+    batch_size=datamodule.batch_size,
 )
 predictions = trainer.predict(model, datamodule=dm, output="classes")
 print(predictions[0])
