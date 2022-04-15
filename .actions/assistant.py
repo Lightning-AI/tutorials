@@ -311,12 +311,15 @@ class AssistantCLI:
         ipynb_file, meta_file, thumb_file = AssistantCLI._valid_folder(folder, ext=".ipynb")
         pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
         pub_dir = os.path.dirname(pub_ipynb)
+        pub_meta = os.path.join(pub_dir, os.path.basename(meta_file))
         thumb_ext = os.path.splitext(thumb_file)[-1] if thumb_file else "."
         pub_thumb = os.path.join(DIR_NOTEBOOKS, f"{folder}{thumb_ext}") if thumb_file else ""
         cmd.append(f"mkdir -p {pub_dir}")
         if AssistantCLI.DRY_RUN:
             # dry run does not execute the notebooks just takes them as they are
             cmd.append(f"cp {ipynb_file} {pub_ipynb}")
+            # copy and add meta config
+            cmd += [f"cp {meta_file} {pub_meta}", f"cat {pub_meta}", f"git add {pub_meta}"]
         else:
             pip_req, pip_args = AssistantCLI._parse_requirements(folder)
             cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
@@ -326,10 +329,10 @@ class AssistantCLI:
             else:
                 warn("Invalid notebook's accelerator for this device. So no outputs will be generated.", RuntimeWarning)
                 cmd.append(f"cp {ipynb_file} {pub_ipynb}")
-        # Export the actual packages used in runtime
-        cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder})")
-        # copy and add to version the enriched meta config
-        cmd += ["echo $meta_file", "cat $meta_file", "git add $meta_file"]
+            # Export the actual packages used in runtime
+            cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder})")
+            # copy and add to version the enriched meta config
+            cmd += ["echo $meta_file", "cat $meta_file", "git add $meta_file"]
         # if thumb image is linked to the notebook, copy and version it too
         if thumb_file:
             cmd += [f"cp {thumb_file} {pub_thumb}", f"git add {pub_thumb}"]
@@ -353,7 +356,7 @@ class AssistantCLI:
         """
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE) + [f"# Testing: {folder}"]
         cmd += AssistantCLI._bash_download_data(folder)
-        ipynb_file, _, _ = AssistantCLI._valid_folder(folder, ext=".ipynb")
+        ipynb_file, meta_file, _ = AssistantCLI._valid_folder(folder, ext=".ipynb")
 
         # prepare isolated environment with inheriting the global packages
         cmd += [
@@ -361,19 +364,23 @@ class AssistantCLI:
             f"source {os.path.join(folder, 'venv', 'bin', 'activate')}",
             "pip --version",
         ]
-        # and install specific packages
-        if AssistantCLI._valid_accelerator(folder):
-            pip_req, pip_args = AssistantCLI._parse_requirements(folder)
-            cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
-        # Export the actual packages used in runtime
-        cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
-        # show created meta config
-        cmd += ["echo $meta_file", "cat $meta_file"]
 
         cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}")
         if AssistantCLI._valid_accelerator(folder):
+            # and install specific packages
+            pip_req, pip_args = AssistantCLI._parse_requirements(folder)
+            cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
+            # Export the actual packages used in runtime
+            cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
+            # show created meta config
+            cmd += ["echo $meta_file", "cat $meta_file"]
             cmd.append(f"python -m pytest {ipynb_file} -v --nbval --nbval-cell-timeout=300")
         else:
+            pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
+            pub_dir = os.path.dirname(pub_ipynb)
+            pub_meta = os.path.join(pub_dir, os.path.basename(meta_file))
+            # copy and add meta config
+            cmd += [f"cp {meta_file} {pub_meta}", f"cat {pub_meta}", f"git add {pub_meta}"]
             warn("Invalid notebook's accelerator for this device. So no tests will be run!!!", RuntimeWarning)
         # deactivate and clean local environment
         cmd += ["deactivate", f"rm -rf {os.path.join(folder, 'venv')}"]
