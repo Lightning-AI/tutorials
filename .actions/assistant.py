@@ -363,19 +363,16 @@ class AssistantCLI:
         # prepare isolated environment with inheriting the global packages
         path_venv = os.path.join(folder, "venv")
         cmd += [
-            f"rm -rf {path_venv}",  # FixMe: remove
-            "pip list",  # FixMe: remove
             f"python -m virtualenv --system-site-packages {path_venv}",
             f"source {os.path.join(path_venv, 'bin', 'activate')}",
             "pip --version",
-            "pip list",  # FixMe: remove
         ]
 
         cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}")
         if AssistantCLI._valid_accelerator(folder):
             # and install specific packages
             pip_req, pip_args = AssistantCLI._parse_requirements(folder)
-            cmd += [f"pip install {pip_req} {pip_args}", "pip list"]  # TODO: add ` --quiet`
+            cmd += [f"pip install {pip_req} --quiet {pip_args}", "pip list"]
             # Export the actual packages used in runtime
             cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
             # show created meta config
