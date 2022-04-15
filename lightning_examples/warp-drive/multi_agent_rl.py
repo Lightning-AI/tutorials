@@ -26,6 +26,7 @@ import mpl_toolkits.mplot3d.art3d as art3d
 import numpy as np
 import torch
 from example_envs.tag_continuous.tag_continuous import TagContinuous
+
 # from IPython.display import HTML
 from matplotlib import animation
 from matplotlib.patches import Polygon
