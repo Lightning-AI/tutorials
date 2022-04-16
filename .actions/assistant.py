@@ -20,6 +20,8 @@ _PATH_ROOT = os.path.dirname(_PATH_HERE)
 PATH_REQ_DEFAULT = os.path.join(_PATH_ROOT, "requirements", "default.txt")
 PATH_SCRIPT_RENDER = os.path.join(_PATH_HERE, "_ipynb-render.sh")
 PATH_SCRIPT_TEST = os.path.join(_PATH_HERE, "_ipynb-test.sh")
+# https://askubuntu.com/questions/909918/how-to-show-unzip-progress
+UNZIP_PROGRESS_BAR = ' | awk \'BEGIN {ORS=" "} {if(NR%10==0)print "."}\''
 REPO_NAME = "lightning-tutorials"
 COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
 BRANCH_DEFAULT = "main"
@@ -136,8 +138,9 @@ _RUNTIME_VERSIONS = dict(
 class AssistantCLI:
     """Collection of handy CLI commands."""
 
-    DEVICE_ACCELERATOR = os.environ.get("ACCELERATOR", "cpu").lower()
-    DATASET_FOLDER = os.environ.get("PATH_DATASETS", "_datasets").lower()
+    _LOCAL_ACCELERATOR = "cpu,gpu" if get_running_cuda_version() else "cpu"
+    DEVICE_ACCELERATOR = os.environ.get("ACCELERATOR", _LOCAL_ACCELERATOR).lower()
+    DATASETS_FOLDER = os.environ.get("PATH_DATASETS", "_datasets")
     DRY_RUN = bool(int(os.environ.get("DRY_RUN", 0)))
     _META_REQUIRED_FIELDS = ("title", "author", "license", "description")
     _SKIP_DIRS = (
@@ -152,7 +155,7 @@ class AssistantCLI:
     )
     _META_FILE_REGEX = ".meta.{yaml,yml}"
     _META_PIP_KEY = "pip__"
-    _META_ACCEL_DEFAULT = ("CPU",)
+    _META_ACCEL_DEFAULT = _LOCAL_ACCELERATOR.split(",")
 
     # Map directory names to tag names. Note that dashes will be replaced with spaces in rendered tags in the docs.
     _DIR_TO_TAG = {
@@ -268,16 +271,15 @@ class AssistantCLI:
 
     @staticmethod
     def _bash_download_data(folder: str) -> List[str]:
-        """Generate sequence of commands fro optional downloading dataset specified in the meta file.
+        """Generate sequence of commands for optional downloading dataset specified in the meta file.
 
         Args:
             folder: path to the folder with python script, meta and artefacts
         """
-        cmd = ["HERE=$PWD", f"cd {AssistantCLI.DATASET_FOLDER}"]
         meta = AssistantCLI._load_meta(folder)
         datasets = meta.get("datasets", {})
         data_kaggle = datasets.get("kaggle", [])
-        cmd += [f"python -m kaggle competitions download -c {name}" for name in data_kaggle]
+        cmd = [f"python -m kaggle competitions download -c {name}" for name in data_kaggle]
         files = [f"{name}.zip" for name in data_kaggle]
         data_web = datasets.get("web", [])
         cmd += [f"wget {web} --progress=bar:force:noscroll --tries=3" for web in data_web]
@@ -287,11 +289,11 @@ class AssistantCLI:
             if ext not in AssistantCLI._EXT_ARCHIVE:
                 continue
             if ext in AssistantCLI._EXT_ARCHIVE_ZIP:
-                cmd += [f"mkdir -p {name}", f"unzip -o {fn} -d {name}"]
+                cmd += [f"unzip -o {fn} -d {AssistantCLI.DATASETS_FOLDER}/{name} {UNZIP_PROGRESS_BAR}"]
             else:
                 cmd += [f"tar -zxvf {fn} --overwrite"]
             cmd += [f"rm {fn}"]
-        cmd += ["ls -l", "cd $HERE"]
+        cmd += [f"tree -L 2 {AssistantCLI.DATASETS_FOLDER}"]
         return cmd
 
     @staticmethod
@@ -310,26 +312,29 @@ class AssistantCLI:
             cmd += AssistantCLI._bash_download_data(folder)
         ipynb_file, meta_file, thumb_file = AssistantCLI._valid_folder(folder, ext=".ipynb")
         pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
+        pub_meta = pub_ipynb.replace(".ipynb", ".yaml")
         pub_dir = os.path.dirname(pub_ipynb)
         thumb_ext = os.path.splitext(thumb_file)[-1] if thumb_file else "."
         pub_thumb = os.path.join(DIR_NOTEBOOKS, f"{folder}{thumb_ext}") if thumb_file else ""
         cmd.append(f"mkdir -p {pub_dir}")
-        pip_req, pip_args = AssistantCLI._parse_requirements(folder)
-        cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
         if AssistantCLI.DRY_RUN:
             # dry run does not execute the notebooks just takes them as they are
             cmd.append(f"cp {ipynb_file} {pub_ipynb}")
+            # copy and add meta config
+            cmd += [f"cp {meta_file} {pub_meta}", f"cat {pub_meta}", f"git add {pub_meta}"]
         else:
+            pip_req, pip_args = AssistantCLI._parse_requirements(folder)
+            cmd += [f"pip install {pip_req} --quiet {pip_args}", "pip list"]
             cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}\n")
             if AssistantCLI._valid_accelerator(folder):
                 cmd.append(f"python -m papermill {ipynb_file} {pub_ipynb} --kernel python")
             else:
                 warn("Invalid notebook's accelerator for this device. So no outputs will be generated.", RuntimeWarning)
                 cmd.append(f"cp {ipynb_file} {pub_ipynb}")
-        # Export the actual packages used in runtime
-        cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder})")
-        # copy and add to version the enriched meta config
-        cmd += ["echo $meta_file", "cat $meta_file", "git add $meta_file"]
+            # Export the actual packages used in runtime
+            cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder})")
+            # copy and add to version the enriched meta config
+            cmd += ["echo $meta_file", "cat $meta_file", "git add $meta_file"]
         # if thumb image is linked to the notebook, copy and version it too
         if thumb_file:
             cmd += [f"cp {thumb_file} {pub_thumb}", f"git add {pub_thumb}"]
@@ -353,26 +358,36 @@ class AssistantCLI:
         """
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE) + [f"# Testing: {folder}"]
         cmd += AssistantCLI._bash_download_data(folder)
-        ipynb_file, _, _ = AssistantCLI._valid_folder(folder, ext=".ipynb")
+        ipynb_file, meta_file, _ = AssistantCLI._valid_folder(folder, ext=".ipynb")
 
         # prepare isolated environment with inheriting the global packages
+        path_venv = os.path.join(folder, "venv")
         cmd += [
-            f"python -m virtualenv --system-site-packages {os.path.join(folder, 'venv')}",
-            f"source {os.path.join(folder, 'venv', 'bin', 'activate')}",
+            f"python -m virtualenv --system-site-packages {path_venv}",
+            f"source {os.path.join(path_venv, 'bin', 'activate')}",
             "pip --version",
         ]
-        # and install specific packages
-        pip_req, pip_args = AssistantCLI._parse_requirements(folder)
-        cmd += [f"pip install {pip_req} {pip_args}", "pip list"]
-        # Export the actual packages used in runtime
-        cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
-        # show created meta config
-        cmd += ["echo $meta_file", "cat $meta_file"]
 
         cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}")
         if AssistantCLI._valid_accelerator(folder):
+            # and install specific packages
+            pip_req, pip_args = AssistantCLI._parse_requirements(folder)
+            cmd += [f"pip install {pip_req} --quiet {pip_args}", "pip list"]
+            # Export the actual packages used in runtime
+            cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
+            # show created meta config
+            cmd += ["echo $meta_file", "cat $meta_file"]
             cmd.append(f"python -m pytest {ipynb_file} -v --nbval --nbval-cell-timeout=300")
         else:
+            pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
+            pub_meta = pub_ipynb.replace(".ipynb", ".yaml")
+            # copy and add meta config
+            cmd += [
+                f"mkdir -p {os.path.dirname(pub_meta)}",
+                f"cp {meta_file} {pub_meta}",
+                f"cat {pub_meta}",
+                f"git add {pub_meta}",
+            ]
             warn("Invalid notebook's accelerator for this device. So no tests will be run!!!", RuntimeWarning)
         # deactivate and clean local environment
         cmd += ["deactivate", f"rm -rf {os.path.join(folder, 'venv')}"]
