@@ -7,7 +7,7 @@ build: 1
 tags:
   - finetuning
 description: |
-  This notebook introduces the [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/latest/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler)
+  This notebook introduces the [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler)
   callback and demonstrates the use of it to finetune a small foundational model on the
   [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task of
   [SuperGLUE](https://super.gluebenchmark.com/) with iterative early-stopping defined according to a user-specified
