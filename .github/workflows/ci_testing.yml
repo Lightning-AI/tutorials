@@ -19,7 +19,6 @@ jobs:
     # Timeout: https://stackoverflow.com/a/59076067/4521646
     timeout-minutes: 55
     env:
-      ACCELERATOR: CPU
       PATH_DATASETS: ${{ github.workspace }}/.datasets
 
     steps:
@@ -64,7 +63,7 @@ jobs:
         if: steps.changed.outputs.dirs != 0
         run: |
           while IFS= read -r line; do
-              python .actions/assistant.py augment-script $line
+              python .actions/assistant.py convert-ipynb $line
           done <<< $(cat changed-folders.txt)
         shell: bash
 
@@ -74,8 +73,10 @@ jobs:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         run: |
+          set -e
+          sudo apt install -y tree
           while IFS= read -r line; do
-              python .actions/assistant.py bash-test $line > .actions/_ipynb-test.sh
+              python .actions/assistant.py bash-test $line
               cat .actions/_ipynb-test.sh
               bash .actions/_ipynb-test.sh
           done <<< $(cat changed-folders.txt)
