@@ -11,13 +11,12 @@ import torchvision
 from kornia import image_to_tensor, tensor_to_image
 from kornia.augmentation import ColorJitter, RandomChannelShuffle, RandomHorizontalFlip, RandomThinPlateSpline
 from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.callbacks.progress import TQDMProgressBar
 from pytorch_lightning.loggers import CSVLogger
 from torch import Tensor
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
-
-AVAIL_GPUS = min(1, torch.cuda.device_count())
 
 # %% [markdown]
 # ## Define Data Augmentations module
@@ -106,10 +105,11 @@ class CoolSystem(LightningModule):
 
         self.transform = DataAugmentation()  # per batch augmentation_kornia
 
-        self.accuracy = torchmetrics.Accuracy()
+        self.train_accuracy = torchmetrics.Accuracy()
+        self.val_accuracy = torchmetrics.Accuracy()
 
     def forward(self, x):
-        return F.softmax(self.model(x))
+        return self.model(x)
 
     def compute_loss(self, y_hat, y):
         return F.cross_entropy(y_hat, y)
@@ -127,21 +127,28 @@ class CoolSystem(LightningModule):
         plt.figure(figsize=win_size)
         plt.imshow(_to_vis(imgs_aug))
 
+    def on_after_batch_transfer(self, batch, dataloader_idx):
+        x, y = batch
+        if self.trainer.training:
+            x = self.transform(x)  # => we perform GPU/Batched data augmentation
+        return x, y
+
     def training_step(self, batch, batch_idx):
         x, y = batch
-        x_aug = self.transform(x)  # => we perform GPU/Batched data augmentation
-        y_hat = self(x_aug)
+        y_hat = self(x)
         loss = self.compute_loss(y_hat, y)
+        self.train_accuracy.update(y_hat, y)
         self.log("train_loss", loss, prog_bar=False)
-        self.log("train_acc", self.accuracy(y_hat, y), prog_bar=False)
+        self.log("train_acc", self.train_accuracy, prog_bar=False)
         return loss
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
         loss = self.compute_loss(y_hat, y)
+        self.val_accuracy.update(y_hat, y)
         self.log("valid_loss", loss, prog_bar=False)
-        self.log("valid_acc", self.accuracy(y_hat, y), prog_bar=True)
+        self.log("valid_acc", self.val_accuracy, prog_bar=True)
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.model.parameters(), lr=1e-4)
@@ -158,7 +165,7 @@ class CoolSystem(LightningModule):
         return loader
 
     def val_dataloader(self):
-        dataset = CIFAR10(os.getcwd(), train=True, download=True, transform=self.preprocess)
+        dataset = CIFAR10(os.getcwd(), train=False, download=True, transform=self.preprocess)
         loader = DataLoader(dataset, batch_size=32)
         return loader
 
@@ -179,8 +186,9 @@ model.show_batch(win_size=(14, 14))
 # %%
 # Initialize a trainer
 trainer = Trainer(
-    progress_bar_refresh_rate=20,
-    gpus=AVAIL_GPUS,
+    callbacks=[TQDMProgressBar(refresh_rate=20)],
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     max_epochs=10,
     logger=CSVLogger(save_dir="logs/", name="cifar10-resnet18"),
 )

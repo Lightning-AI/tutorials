@@ -16,7 +16,7 @@ ipynb: init ${IPYNB}
 %.ipynb: %/.meta.y*ml
 	@echo $<
 	python .actions/assistant.py augment-script $(shell dirname $<)
-	python .actions/assistant.py bash-render $(shell dirname $<) > .actions/_ipynb-render.sh
+	python .actions/assistant.py bash-render $(shell dirname $<)
 	bash .actions/_ipynb-render.sh
 
 docs: clean
