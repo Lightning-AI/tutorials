@@ -163,8 +163,9 @@ from importlib import import_module
 from typing import Any, Dict, List, Optional
 
 import datasets
+
+import sentencepiece as sp  # noqa: F401 # isort: split
 import pytorch_lightning as pl
-import sentencepiece as sp  # noqa:F401
 import torch
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers.tensorboard import TensorBoardLogger
