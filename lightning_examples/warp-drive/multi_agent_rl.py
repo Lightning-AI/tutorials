@@ -1,7 +1,4 @@
 # %% [markdown]
-# # Fast Multi-agent Reinforcement Learning on a GPU using WarpDrive and Pytorch Lightning
-
-# %% [markdown]
 # **⚠️ PLEASE NOTE:**
 # This notebook runs on a GPU runtime. If running on Colab, choose Runtime > Change runtime type from the menu, then select `GPU` in the 'Hardware accelerator' dropdown menu.
 
@@ -173,7 +170,7 @@ def generate_tag_env_rollout_animation(
         (0, 0),
         (0, 1),
         (1, 1),
-        (1, 0),
+        (1, 0)
     ]
 
     poly = Polygon(corner_points, color=(0.1, 0.2, 0.5, 0.15))
