@@ -166,12 +166,7 @@ def generate_tag_env_rollout_animation(
     ax.set_zlim(-0.01, 0.01)
 
     # Surface
-    corner_points = [
-        (0, 0),
-        (0, 1),
-        (1, 1),
-        (1, 0)
-    ]
+    corner_points = [(0, 0), (0, 1), (1, 1), (1, 0)]
 
     poly = Polygon(corner_points, color=(0.1, 0.2, 0.5, 0.15))
     ax.add_patch(poly)
