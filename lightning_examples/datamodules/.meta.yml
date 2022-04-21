@@ -7,7 +7,7 @@ build: 3
 description: This notebook will walk you through how to start using Datamodules. With
   the release of `pytorch-lightning` version 0.9.0, we have included a new class called
   `LightningDataModule` to help you decouple data related hooks from your `LightningModule`.
-  The most up to date documentation on datamodules can be found
+  The most up-to-date documentation on datamodules can be found
   [here](https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html).
 requirements:
   - torchvision
