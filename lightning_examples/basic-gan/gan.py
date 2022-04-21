@@ -20,7 +20,7 @@ NUM_WORKERS = int(os.cpu_count() / 2)
 # ### MNIST DataModule
 #
 # Below, we define a DataModule for the MNIST Dataset. To learn more about DataModules, check out our tutorial
-# on them or see the [latest docs](https://pytorch-lightning.readthedocs.io/en/latest/data/datamodule.html).
+# on them or see the [latest docs](https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html).
 
 
 # %%
