@@ -55,40 +55,67 @@ run_config = dict(
     name="tag_continuous",
     # Environment settings.
     env=dict(
-        num_taggers=5,  # number of taggers in the environment
-        num_runners=100,  # number of runners in the environment
-        grid_length=20.0,  # length of the (square) grid on which the game is played
-        episode_length=200,  # episode length in timesteps
-        max_acceleration=0.1,  # maximum acceleration
-        min_acceleration=-0.1,  # minimum acceleration
-        max_turn=2.35,  # 3*pi/4 radians
-        min_turn=-2.35,  # -3*pi/4 radians
-        num_acceleration_levels=10,  # number of discretized accelerate actions
-        num_turn_levels=10,  # number of discretized turn actions
-        skill_level_tagger=1.0,  # skill level for the tagger
-        skill_level_runner=1.0,  # skill level for the runner
-        use_full_observation=False,  # each agent only sees full or partial information
-        runner_exits_game_after_tagged=True,  # flag to indicate if a runner stays in the game after getting tagged
-        num_other_agents_observed=10,  # number of other agents each agent can see
-        tag_reward_for_tagger=10.0,  # positive reward for the tagger upon tagging a runner
-        tag_penalty_for_runner=-10.0,  # negative reward for the runner upon getting tagged
-        end_of_game_reward_for_runner=1.0,  # reward at the end of the game for a runner that isn't tagged
-        tagging_distance=0.02,  # margin between a tagger and runner to consider the runner as 'tagged'.
+        # number of taggers in the environment
+        num_taggers=5,
+        # number of runners in the environment
+        num_runners=100,
+        # length of the (square) grid on which the game is played
+        grid_length=20.0,
+        # episode length in timesteps
+        episode_length=200,
+        # maximum acceleration
+        max_acceleration=0.1,
+        # minimum acceleration
+        min_acceleration=-0.1,
+        # 3*pi/4 radians
+        max_turn=2.35,
+        # -3*pi/4 radians
+        min_turn=-2.35,
+        # number of discretized accelerate actions
+        num_acceleration_levels=10,
+        # number of discretized turn actions
+        num_turn_levels=10,
+        # skill level for the tagger
+        skill_level_tagger=1.0,
+        # skill level for the runner
+        skill_level_runner=1.0,
+        # each agent only sees full or partial information
+        use_full_observation=False,
+        # flag to indicate if a runner stays in the game after getting tagged
+        runner_exits_game_after_tagged=True,
+        # number of other agents each agent can see
+        num_other_agents_observed=10,
+        # positive reward for the tagger upon tagging a runner
+        tag_reward_for_tagger=10.0,
+        # negative reward for the runner upon getting tagged
+        tag_penalty_for_runner=-10.0,
+        # reward at the end of the game for a runner that isn't tagged
+        end_of_game_reward_for_runner=1.0,
+        # margin between a tagger and runner to consider the runner as 'tagged'.
+        tagging_distance=0.02,
     ),
     # Trainer settings.
     trainer=dict(
-        num_envs=50,  # number of environment replicas (number of GPU blocks used)
-        train_batch_size=10000,  # total batch size used for training per iteration (across all the environments)
-        num_episodes=50000,  # total number of episodes to run the training for (can be arbitrarily high!)
+        # number of environment replicas (number of GPU blocks used)
+        num_envs=50,
+        # total batch size used for training per iteration (across all the environments)
+        train_batch_size=10000,
+        # total number of episodes to run the training for (can be arbitrarily high!)
+        num_episodes=50000,
     ),
     # Policy network settings.
     policy=dict(
         runner=dict(
-            to_train=True,  # flag indicating whether the model needs to be trained
-            algorithm="A2C",  # algorithm used to train the policy
-            gamma=0.98,  # discount rate
-            lr=0.005,  # learning rate
-            model=dict(type="fully_connected", fc_dims=[256, 256], model_ckpt_filepath=""),  # policy model settings
+            # flag indicating whether the model needs to be trained
+            to_train=True,
+            # algorithm used to train the policy
+            algorithm="A2C",
+            # discount rate
+            gamma=0.98,
+            # learning rate
+            lr=0.005,
+            # policy model settings
+            model=dict(type="fully_connected", fc_dims=[256, 256], model_ckpt_filepath=""),
         ),
         tagger=dict(
             to_train=True,
@@ -100,11 +127,16 @@ run_config = dict(
     ),
     # Checkpoint saving setting.
     saving=dict(
-        metrics_log_freq=10,  # how often (in iterations) to print the metrics
-        model_params_save_freq=5000,  # how often (in iterations) to save the model parameters
-        basedir="/tmp",  # base folder used for saving
-        name="continuous_tag",  # experiment name
-        tag="example",  # experiment tag
+        # how often (in iterations) to print the metrics
+        metrics_log_freq=10,
+        # how often (in iterations) to save the model parameters
+        model_params_save_freq=5000,
+        # base folder used for saving
+        basedir="/tmp",
+        # experiment name
+        name="continuous_tag",
+        # experiment tag
+        tag="example",
     ),
 )
 
@@ -289,9 +321,9 @@ perf_stats_callback = PerfStatsCallback(
     log_freq=log_freq,
 )
 
-# Instantiate the PytorchLightning trainer with the callbacks and the number of gpus.
+# Instantiate the PytorchLightning trainer with the callbacks.
+# Also, set the number of gpus to 1, since this notebook uses just a single GPU.
 num_gpus = 1
-assert num_gpus <= _NUM_AVAILABLE_GPUS, f"Only {_NUM_AVAILABLE_GPUS} GPU(s) are available!"
 num_episodes = run_config["trainer"]["num_episodes"]
 episode_length = run_config["env"]["episode_length"]
 training_batch_size = run_config["trainer"]["train_batch_size"]
