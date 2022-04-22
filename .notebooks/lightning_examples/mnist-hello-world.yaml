@@ -14,9 +14,9 @@ accelerator:
 - CPU
 - GPU
 environment:
+- torchmetrics==0.8.0
 - torch==1.8.1
-- torchvision==0.9.1
-- pytorch-lightning==1.6.0
-- torchmetrics==0.7.3
 - ipython==8.2.0
-published: '2022-04-10T04:26:52.223864'
+- pytorch-lightning==1.6.1
+- torchvision==0.9.1
+published: '2022-04-22T05:23:27.208604'

@@ -5,19 +5,30 @@ updated: 2021-12-03
 license: CC BY-SA
 build: 2
 tags:
-  - RL
-description: |
-  Main takeaways:
+- RL
+description: 'Main takeaways:
+
 
   1. RL has the same flow as previous models we have seen, with a few additions
-  2. Handle unsupervised learning by using an IterableDataset where the dataset itself is constantly updated during training
-  3. Each training step carries has the agent taking an action in the environment and storing the experience in the IterableDataset
+
+  2. Handle unsupervised learning by using an IterableDataset where the dataset itself
+  is constantly updated during training
+
+  3. Each training step carries has the agent taking an action in the environment
+  and storing the experience in the IterableDataset
+
+  '
 requirements:
-  - torchvision<=0.10
-  - torchaudio<=0.10
-  - torchtext<=0.10
-  - gym
-  - pygame
+- gym
+- pygame
 accelerator:
-  - CPU
-  - GPU
+- CPU
+- GPU
+environment:
+- torchmetrics==0.8.0
+- pytorch-lightning==1.6.1
+- torch==1.8.1
+- pygame==2.1.0
+- ipython==8.2.0
+- gym==0.23.1
+published: '2022-04-22T05:24:08.760634'

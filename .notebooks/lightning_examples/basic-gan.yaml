@@ -3,17 +3,28 @@ author: PL team
 created: 2020-12-21
 updated: 2021-06-16
 license: CC BY-SA
-build: 4
+build: 5
 tags:
-  - Image
-description: |
-  How to train a GAN!
+- Image
+description: 'How to train a GAN!
+
 
   Main takeaways:
+
   1. Generator and discriminator are arbitrary PyTorch modules.
+
   2. training_step does both the generator and discriminator training.
+
+  '
 requirements:
-  - torchvision
+- torchvision
 accelerator:
-  - CPU
-  - GPU
+- CPU
+- GPU
+environment:
+- pytorch-lightning==1.6.1
+- torch==1.8.1
+- torchvision==0.9.1
+- torchmetrics==0.8.0
+- ipython==8.2.0
+published: '2022-04-22T05:08:33.111276'

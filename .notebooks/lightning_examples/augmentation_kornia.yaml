@@ -3,20 +3,36 @@ author: PL/Kornia team
 created: 2021-06-11
 updated: 2021-06-16
 license: CC BY-SA
-build: 3
+build: 4
 tags:
-  - Image
-description: |
-  In this tutorial we will show how to combine both Kornia.org and PyTorch Lightning
-  to perform efficient data augmentation to train a simpple model using the GPU in batch
+- Image
+description: 'In this tutorial we will show how to combine both Kornia.org and PyTorch
+  Lightning
+
+  to perform efficient data augmentation to train a simpple model using the GPU in
+  batch
+
   mode without additional effort.
+
+  '
 requirements:
-  - pytorch-lightning
-  - kornia
-  - torchmetrics
-  - torchvision
-  - matplotlib
-  - pandas
+- kornia
+- torchmetrics
+- torchvision
+- matplotlib
+- pandas
+- seaborn
 accelerator:
-  - CPU
-  - GPU
+- CPU
+- GPU
+environment:
+- kornia==0.6.4
+- pandas==1.4.2
+- ipython==8.2.0
+- torch==1.8.1
+- seaborn==0.11.2
+- pytorch-lightning==1.6.1
+- torchvision==0.9.1
+- matplotlib==3.5.1
+- torchmetrics==0.8.0
+published: '2022-04-22T05:07:30.017122'

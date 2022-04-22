@@ -5,16 +5,32 @@ updated: 2022-02-08
 license: CC BY-SA
 build: 1
 tags:
-  - Text
-description: |
-  This notebook will use HuggingFace's `datasets` library to get data, which will be wrapped in a `LightningDataModule`.
-  Then, we write a class to perform text classification on any dataset from the [GLUE Benchmark](https://gluebenchmark.com/).
+- Text
+description: 'This notebook will use HuggingFace''s `datasets` library to get data,
+  which will be wrapped in a `LightningDataModule`.
+
+  Then, we write a class to perform text classification on any dataset from the [GLUE
+  Benchmark](https://gluebenchmark.com/).
+
   (We just show CoLA and MRPC due to constraint on compute/disk)
+
+  '
 requirements:
-  - transformers
-  - datasets
-  - scipy
-  - scikit-learn
-  - torchtext>=0.9
+- transformers
+- datasets
+- scipy
+- scikit-learn
+- torchtext>=0.9
 accelerator:
-  - GPU
+- GPU
+environment:
+- scikit-learn==1.0.1
+- pytorch-lightning==1.6.1
+- scipy==1.8.0
+- torch==1.8.1
+- transformers==4.18.0
+- torchtext==0.9.1
+- ipython==8.2.0
+- datasets==2.1.0
+- torchmetrics==0.8.0
+published: '2022-04-22T05:30:33.819947'
