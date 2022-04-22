@@ -4,6 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sn
 import torch
 import torch.nn as nn
 import torchmetrics
@@ -17,6 +18,8 @@ from torch import Tensor
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
+
+sn.set()
 
 # %% [markdown]
 # ## Define Data Augmentations module
@@ -100,11 +103,8 @@ class CoolSystem(LightningModule):
         super().__init__()
         # not the best model: expereiment yourself
         self.model = torchvision.models.resnet18(pretrained=True)
-
         self.preprocess = Preprocess()  # per sample transforms
-
         self.transform = DataAugmentation()  # per batch augmentation_kornia
-
         self.train_accuracy = torchmetrics.Accuracy()
         self.val_accuracy = torchmetrics.Accuracy()
 
@@ -201,18 +201,12 @@ trainer.fit(model)
 
 # %%
 metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
-print(metrics.head())
-
-aggreg_metrics = []
-agg_col = "epoch"
-for i, dfg in metrics.groupby(agg_col):
-    agg = dict(dfg.mean())
-    agg[agg_col] = i
-    aggreg_metrics.append(agg)
-
-df_metrics = pd.DataFrame(aggreg_metrics)
-df_metrics[["train_loss", "valid_loss"]].plot(grid=True, legend=True)
-df_metrics[["valid_acc", "train_acc"]].plot(grid=True, legend=True)
+del metrics["step"]
+metrics.set_index("epoch", inplace=True)
+print(metrics.dropna(axis=1, how="all").head())
+g = sn.relplot(data=metrics, kind="line")
+plt.gcf().set_size_inches(12, 4)
+plt.grid()
 
 # %% [markdown]
 # ## Tensorboard
