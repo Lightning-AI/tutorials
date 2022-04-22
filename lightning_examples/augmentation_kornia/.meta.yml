@@ -11,12 +11,12 @@ description: |
   to perform efficient data augmentation to train a simpple model using the GPU in batch
   mode without additional effort.
 requirements:
-  - pytorch-lightning
   - kornia
   - torchmetrics
   - torchvision
   - matplotlib
   - pandas
+  - seaborn
 accelerator:
   - CPU
   - GPU
