@@ -5,8 +5,11 @@ from typing import Iterator, List, Tuple
 
 import gym
 import numpy as np
+import pandas as pd
+import seaborn as sn
 import torch
 from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.loggers import CSVLogger
 from torch import Tensor, nn
 from torch.optim import Adam, Optimizer
 from torch.utils.data import DataLoader
@@ -364,11 +367,15 @@ trainer = Trainer(
     devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     max_epochs=150,
     val_check_interval=50,
+    logger=CSVLogger(save_dir="logs/"),
 )
 
 trainer.fit(model)
 
 # %%
-# Start tensorboard.
-# %load_ext tensorboard
-# %tensorboard --logdir lightning_logs/
+
+metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
+del metrics["step"]
+metrics.set_index("epoch", inplace=True)
+print(metrics.dropna(axis=1, how="all").head())
+sn.relplot(data=metrics, kind="line")

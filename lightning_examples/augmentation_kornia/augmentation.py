@@ -190,7 +190,7 @@ trainer = Trainer(
     accelerator="auto",
     devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     max_epochs=10,
-    logger=CSVLogger(save_dir="logs/", name="cifar10-resnet18"),
+    logger=CSVLogger(save_dir="logs/"),
 )
 
 # Train the model ⚡
@@ -204,14 +204,4 @@ metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
 del metrics["step"]
 metrics.set_index("epoch", inplace=True)
 print(metrics.dropna(axis=1, how="all").head())
-g = sn.relplot(data=metrics, kind="line")
-plt.gcf().set_size_inches(12, 4)
-plt.grid()
-
-# %% [markdown]
-# ## Tensorboard
-
-# %%
-# Start tensorboard.
-# # %load_ext tensorboard
-# # %tensorboard --logdir lightning_logs/
+sn.relplot(data=metrics, kind="line")
