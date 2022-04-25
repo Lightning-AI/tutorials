@@ -14,8 +14,6 @@ description: |
   2. training_step does both the generator and discriminator training.
 requirements:
   - torchvision
-  - pandas
-  - seaborn
 accelerator:
   - CPU
   - GPU

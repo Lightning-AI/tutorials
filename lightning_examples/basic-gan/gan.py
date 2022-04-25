@@ -2,8 +2,6 @@
 import os
 
 import numpy as np
-import pandas as pd
-import seaborn as sn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -11,7 +9,6 @@ import torchvision
 import torchvision.transforms as transforms
 from pytorch_lightning import LightningDataModule, LightningModule, Trainer
 from pytorch_lightning.callbacks.progress import TQDMProgressBar
-from pytorch_lightning.loggers import CSVLogger
 from torch.utils.data import DataLoader, random_split
 from torchvision.datasets import MNIST
 
@@ -257,14 +254,10 @@ trainer = Trainer(
     devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     max_epochs=5,
     callbacks=[TQDMProgressBar(refresh_rate=20)],
-    logger=CSVLogger(save_dir="logs/"),
 )
 trainer.fit(model, dm)
 
 # %%
-
-metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
-del metrics["step"]
-metrics.set_index("epoch", inplace=True)
-print(metrics.dropna(axis=1, how="all").head())
-sn.relplot(data=metrics, kind="line")
+# Start tensorboard.
+# %load_ext tensorboard
+# %tensorboard --logdir lightning_logs/
