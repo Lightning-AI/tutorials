@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sn
 import torch
+from IPython.core.display import display
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.loggers import CSVLogger
 from torch import Tensor, nn
@@ -377,5 +378,5 @@ trainer.fit(model)
 metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
 del metrics["step"]
 metrics.set_index("epoch", inplace=True)
-print(metrics.dropna(axis=1, how="all").head())
+display(metrics.dropna(axis=1, how="all").head())
 sn.relplot(data=metrics, kind="line")
