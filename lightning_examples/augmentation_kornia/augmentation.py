@@ -9,6 +9,7 @@ import torch
 import torch.nn as nn
 import torchmetrics
 import torchvision
+from IPython.core.display import display
 from kornia import image_to_tensor, tensor_to_image
 from kornia.augmentation import ColorJitter, RandomChannelShuffle, RandomHorizontalFlip, RandomThinPlateSpline
 from pytorch_lightning import LightningModule, Trainer
@@ -203,5 +204,5 @@ trainer.fit(model)
 metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
 del metrics["step"]
 metrics.set_index("epoch", inplace=True)
-print(metrics.dropna(axis=1, how="all").head())
+display(metrics.dropna(axis=1, how="all").head())
 sn.relplot(data=metrics, kind="line")
