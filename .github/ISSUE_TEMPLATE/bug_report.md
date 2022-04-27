@@ -14,9 +14,7 @@ assignees: ''
 
 Steps to reproduce the behavior:
 
-1. Go to '...'
 1. Run '....'
-1. Scroll down to '....'
 1. See error
 
 <!-- If you have a code sample, error messages, stack traces, please provide it here as well -->

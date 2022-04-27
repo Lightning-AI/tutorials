@@ -314,7 +314,7 @@ print("X", x)
 
 # %%
 a = x + 2
-b = a ** 2
+b = a**2
 c = b + 3
 y = c.mean()
 print("Y", y)

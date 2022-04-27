@@ -571,8 +571,8 @@ def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, ma
         model = LogisticRegression.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
 
     # Test best model on train and validation set
-    train_result = trainer.test(model, test_dataloaders=train_loader, verbose=False)
-    test_result = trainer.test(model, test_dataloaders=test_loader, verbose=False)
+    train_result = trainer.test(model, dataloaders=train_loader, verbose=False)
+    test_result = trainer.test(model, dataloaders=test_loader, verbose=False)
     result = {"train": train_result[0]["test_acc"], "test": test_result[0]["test_acc"]}
 
     return model, result
@@ -767,8 +767,8 @@ def train_resnet(batch_size, max_epochs=100, **kwargs):
         model = ResNet.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
 
     # Test best model on validation set
-    train_result = trainer.test(model, test_dataloaders=train_loader, verbose=False)
-    val_result = trainer.test(model, test_dataloaders=test_loader, verbose=False)
+    train_result = trainer.test(model, dataloaders=train_loader, verbose=False)
+    val_result = trainer.test(model, dataloaders=test_loader, verbose=False)
     result = {"train": train_result[0]["test_acc"], "test": val_result[0]["test_acc"]}
 
     return model, result

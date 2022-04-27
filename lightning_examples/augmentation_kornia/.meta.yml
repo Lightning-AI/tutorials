@@ -3,7 +3,7 @@ author: PL/Kornia team
 created: 2021-06-11
 updated: 2021-06-16
 license: CC BY-SA
-build: 3
+build: 4
 tags:
   - Image
 description: |
@@ -11,12 +11,12 @@ description: |
   to perform efficient data augmentation to train a simpple model using the GPU in batch
   mode without additional effort.
 requirements:
-  - pytorch-lightning
   - kornia
   - torchmetrics
   - torchvision
   - matplotlib
   - pandas
+  - seaborn
 accelerator:
   - CPU
   - GPU

@@ -497,7 +497,7 @@ class DeepEnergyModel(pl.LightningModule):
         real_out, fake_out = self.cnn(inp_imgs).chunk(2, dim=0)
 
         # Calculate losses
-        reg_loss = self.hparams.alpha * (real_out ** 2 + fake_out ** 2).mean()
+        reg_loss = self.hparams.alpha * (real_out**2 + fake_out**2).mean()
         cdiv_loss = fake_out.mean() - real_out.mean()
         loss = reg_loss + cdiv_loss
 

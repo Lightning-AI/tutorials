@@ -1,7 +1,12 @@
 name: validate Docs
 
 on:  # Trigger the workflow on push or pull request
+  push:
+    branches: [main]
   pull_request: {}
+  schedule:
+    # At the end of every day
+    - cron: "0 0 * * *"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
@@ -13,6 +18,7 @@ jobs:
     env:
       PUB_BRANCH: publication
       PATH_DATASETS: ${{ github.workspace }}/.datasets
+    timeout-minutes: 20
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v2
@@ -66,8 +72,8 @@ jobs:
         if: steps.changed.outputs.dirs != 0
         run: |
           while IFS= read -r line; do
-              python .actions/assistant.py augment-script $line
-              python .actions/assistant.py bash-render $line > .actions/_ipynb-render.sh
+              python .actions/assistant.py convert-ipynb $line
+              python .actions/assistant.py bash-render $line
               cat .actions/_ipynb-render.sh
               bash .actions/_ipynb-render.sh
           done <<< $(cat changed-folders.txt)

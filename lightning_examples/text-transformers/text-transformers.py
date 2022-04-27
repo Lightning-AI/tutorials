@@ -14,8 +14,6 @@ from transformers import (
     get_linear_schedule_with_warmup,
 )
 
-AVAIL_GPUS = min(1, torch.cuda.device_count())
-
 # %% [markdown]
 # ## Training BERT with Lightning
 
@@ -214,18 +212,6 @@ class GLUETransformer(LightningModule):
         loss = torch.stack([x["loss"] for x in outputs]).mean()
         self.log("val_loss", loss, prog_bar=True)
         self.log_dict(self.metric.compute(predictions=preds, references=labels), prog_bar=True)
-        return loss
-
-    def setup(self, stage=None) -> None:
-        if stage != "fit":
-            return
-        # Get dataloader by calling it - train_dataloader() is called after setup() by default
-        train_loader = self.trainer.datamodule.train_dataloader()
-
-        # Calculate total steps
-        tb_size = self.hparams.train_batch_size * max(1, self.trainer.gpus)
-        ab_size = self.trainer.accumulate_grad_batches * float(self.trainer.max_epochs)
-        self.total_steps = (len(train_loader.dataset) // tb_size) // ab_size
 
     def configure_optimizers(self):
         """Prepare optimizer and schedule (linear warmup and decay)"""
@@ -246,7 +232,7 @@ class GLUETransformer(LightningModule):
         scheduler = get_linear_schedule_with_warmup(
             optimizer,
             num_warmup_steps=self.hparams.warmup_steps,
-            num_training_steps=self.total_steps,
+            num_training_steps=self.trainer.estimated_stepping_batches,
         )
         scheduler = {"scheduler": scheduler, "interval": "step", "frequency": 1}
         return [optimizer], [scheduler]
@@ -273,7 +259,11 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(max_epochs=1, gpus=AVAIL_GPUS)
+trainer = Trainer(
+    max_epochs=1,
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+)
 trainer.fit(model, datamodule=dm)
 
 # %% [markdown]
@@ -297,7 +287,11 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(max_epochs=3, gpus=AVAIL_GPUS)
+trainer = Trainer(
+    max_epochs=3,
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+)
 trainer.fit(model, datamodule=dm)
 
 # %% [markdown]
@@ -322,5 +316,9 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(gpus=AVAIL_GPUS, progress_bar_refresh_rate=20)
-trainer.validate(model, dm.val_dataloader())
+trainer = Trainer(
+    max_epochs=3,
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+)
+trainer.validate(model, dm)
