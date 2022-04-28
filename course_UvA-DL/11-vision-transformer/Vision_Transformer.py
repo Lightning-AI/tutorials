@@ -155,7 +155,7 @@ plt.close()
 def img_to_patch(x, patch_size, flatten_channels=True):
     """
     Inputs:
-        x - torch.Tensor representing the image of shape [B, C, H, W]
+        x - Tensor representing the image of shape [B, C, H, W]
         patch_size - Number of pixels per dimension of the patches (integer)
         flatten_channels - If True, the patches will be returned in a flattened format
                            as a feature vector instead of a image grid.
