@@ -1,9 +1,13 @@
 # %%
 import os
 
+import pandas as pd
+import seaborn as sn
 import torch
+from IPython.core.display import display
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks.progress import TQDMProgressBar
+from pytorch_lightning.loggers import CSVLogger
 from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, random_split
@@ -204,6 +208,7 @@ trainer = Trainer(
     devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     max_epochs=3,
     callbacks=[TQDMProgressBar(refresh_rate=20)],
+    logger=CSVLogger(save_dir="logs/"),
 )
 trainer.fit(model)
 
@@ -230,6 +235,9 @@ trainer.fit(model)
 # In Colab, you can use the TensorBoard magic function to view the logs that Lightning has created for you!
 
 # %%
-# Start tensorboard.
-# %load_ext tensorboard
-# %tensorboard --logdir lightning_logs/
+
+metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
+del metrics["step"]
+metrics.set_index("epoch", inplace=True)
+display(metrics.dropna(axis=1, how="all").head())
+sn.relplot(data=metrics, kind="line")
