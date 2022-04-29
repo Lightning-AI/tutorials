@@ -10,6 +10,8 @@ description: In this notebook, we'll go over the basics of lightning by preparin
   models to train on the [MNIST Handwritten Digits dataset](https://en.wikipedia.org/wiki/MNIST_database).
 requirements:
   - torchvision
+  - pandas
+  - seaborn
 accelerator:
   - CPU
   - GPU
