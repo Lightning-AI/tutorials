@@ -1,31 +1,57 @@
-title: "Tutorial 6: Basics of Graph Neural Networks"
+title: 'Tutorial 6: Basics of Graph Neural Networks'
 author: Phillip Lippe
 created: 2021-06-07
 updated: 2021-12-04
 license: CC BY-SA
 build: 0
 tags:
-  - Graph
-description: |
-  In this tutorial, we will discuss the application of neural networks on graphs.
-  Graph Neural Networks (GNNs) have recently gained increasing popularity in both applications and research,
-  including domains such as social networks, knowledge graphs, recommender systems, and bioinformatics.
+- Graph
+description: 'In this tutorial, we will discuss the application of neural networks
+  on graphs.
+
+  Graph Neural Networks (GNNs) have recently gained increasing popularity in both
+  applications and research,
+
+  including domains such as social networks, knowledge graphs, recommender systems,
+  and bioinformatics.
+
   While the theory and math behind GNNs might first seem complicated,
-  the implementation of those models is quite simple and helps in understanding the methodology.
+
+  the implementation of those models is quite simple and helps in understanding the
+  methodology.
+
   Therefore, we will discuss the implementation of basic network layers of a GNN,
+
   namely graph convolutions, and attention layers.
-  Finally, we will apply a GNN on semi-supervised node classification and molecule categorization.
-  This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
+
+  Finally, we will apply a GNN on semi-supervised node classification and molecule
+  categorization.
+
+  This notebook is part of a lecture series on Deep Learning at the University of
+  Amsterdam.
+
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
+
+  '
 requirements:
-  - torch-scatter
-  - torch-sparse
-  - torch-cluster
-  - torch-spline-conv
-  - torch-geometric==2.0.2
+- torch-scatter
+- torch-sparse<0.6.13
+- torch-cluster
+- torch-spline-conv
+- torch-geometric==2.0.2
 pip__find-link:
-  # - https://pytorch-geometric.com/whl/torch-1.8.0+cu101.html
-  - https://pytorch-geometric.com/whl/torch-%(TORCH_MAJOR_DOT_MINOR)s.0+%(DEVICE)s.html
+- https://pytorch-geometric.com/whl/torch-%(TORCH_MAJOR_DOT_MINOR)s.0+%(DEVICE)s.html
 accelerator:
-  - CPU
-  - GPU
+- GPU
+environment:
+- torchmetrics==0.8.1
+- setuptools==59.5.0
+- torch-spline-conv==1.2.1
+- ipython==8.3.0
+- torch==1.9.1+cu111
+- pytorch-lightning==1.6.2
+- torch-cluster==1.6.0
+- torch-sparse==0.6.12
+- torch-geometric==2.0.2
+- torch-scatter==2.0.9
+published: '2022-05-03T03:15:27.590543'

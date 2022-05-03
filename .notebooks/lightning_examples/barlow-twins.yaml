@@ -27,10 +27,11 @@ accelerator:
 - GPU
 - CPU
 environment:
-- torchvision==0.9.1
-- pytorch-lightning==1.6.1
-- torch==1.8.1
+- ipython==8.3.0
+- torchvision==0.10.1+cu111
+- torch==1.9.1+cu111
 - matplotlib==3.5.1
-- ipython==8.2.0
-- torchmetrics==0.8.0
-published: '2022-04-22T05:07:48.603943'
+- setuptools==59.5.0
+- pytorch-lightning==1.6.2
+- torchmetrics==0.8.1
+published: '2022-05-03T03:21:11.742116'
