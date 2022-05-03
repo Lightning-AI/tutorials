@@ -17,6 +17,7 @@ import torchvision.transforms as transforms
 import torchvision.transforms.functional as VisionF
 from pytorch_lightning import Callback, LightningModule, Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
+from torch import Tensor
 from torch.utils.data import DataLoader
 from torchmetrics.functional import accuracy
 from torchvision.datasets import CIFAR10
@@ -334,7 +335,7 @@ class OnlineFineTuner(Callback):
 
     def extract_online_finetuning_view(
         self, batch: Sequence, device: Union[str, torch.device]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[Tensor, Tensor]:
         (_, _, finetune_view), y = batch
         finetune_view = finetune_view.to(device)
         y = y.to(device)
