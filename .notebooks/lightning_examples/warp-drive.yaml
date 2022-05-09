@@ -21,15 +21,16 @@ description: 'This notebook introduces multi-agent reinforcement learning (MARL)
   documentation - http://opensource.salesforce.com/warp-drive/, and white paper -
   https://arxiv.org/abs/2108.13976.'
 requirements:
-- rl-warp-drive>=1.5.1
+- rl-warp-drive>=1.6.5
 - ffmpeg-python
 accelerator:
 - GPU
 environment:
+- torchmetrics==0.8.2
+- pytorch-lightning==1.6.3
+- rl-warp-drive==1.6.5
+- torch==1.9.1+cu111
+- setuptools==59.5.0
+- ipython==8.3.0
 - ffmpeg-python==0.2.0
-- pytorch-lightning==1.6.1
-- rl-warp-drive==1.6.3
-- ipython==7.28.0
-- torchmetrics==0.6.0
-- torch==1.10.2
-published: '2022-04-22T04:31:25.891125'
+published: '2022-05-09T04:48:35.839160'
