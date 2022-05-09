@@ -14,7 +14,7 @@
 # - Allows for large-scale distributed training on multiple GPUs.
 #
 # Below is an overview of WarpDrive’s layout of computational and data structures on a single GPU.
-# ![](https://blog.salesforceairesearch.com/content/images/2021/08/warpdrive_framework_overview.svg)
+# ![](https://blog.salesforceairesearch.com/content/images/2021/08/warpdrive_framework_overview.png)
 # Computations are organized into blocks, with multiple threads in each block. Each block runs a simulation environment and each thread
 # simulates an agent in an environment. Blocks can access the shared GPU memory that stores simulation data and neural network policy models. A DataManager and FunctionManager enable defining multi-agent RL GPU-workflows with Python APIs. For more details, please read out white [paper](https://arxiv.org/abs/2108.13976).
 #
