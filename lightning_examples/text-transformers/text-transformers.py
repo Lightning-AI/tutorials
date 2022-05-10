@@ -99,7 +99,7 @@ class GLUEDataModule(LightningDataModule):
         AutoTokenizer.from_pretrained(self.model_name_or_path, use_fast=True)
 
     def train_dataloader(self):
-        return DataLoader(self.dataset["train"], batch_size=self.train_batch_size)
+        return DataLoader(self.dataset["train"], batch_size=self.train_batch_size, shuffle=True)
 
     def val_dataloader(self):
         if len(self.eval_splits) == 1:
@@ -183,7 +183,7 @@ class GLUETransformer(LightningModule):
         outputs = self(**batch)
         val_loss, logits = outputs[:2]
 
-        if self.hparams.num_labels >= 1:
+        if self.hparams.num_labels > 1:
             preds = torch.argmax(logits, axis=1)
         elif self.hparams.num_labels == 1:
             preds = logits.squeeze()

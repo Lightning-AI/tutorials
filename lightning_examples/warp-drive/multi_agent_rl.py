@@ -6,34 +6,46 @@
 # ## Introduction
 
 # %% [markdown]
-# This tutorial provides a demonstration of a multi-agent Reinforcement Learning (RL) training loop with [WarpDrive](https://github.com/salesforce/warp-drive). WarpDrive is a flexible, lightweight, and easy-to-use RL framework that implements end-to-end deep multi-agent RL on a single GPU (Graphics Processing Unit). Using the extreme parallelization capability of GPUs, it enables [orders-of-magnitude faster RL](https://arxiv.org/abs/2108.13976) compared to common implementations that blend CPU simulations and GPU models. WarpDrive is extremely efficient as it runs simulations across multiple agents and multiple environment replicas in parallel and completely eliminates the back-and-forth data copying between the CPU and the GPU.
+# This tutorial provides a demonstration of a multi-agent Reinforcement Learning (RL) training loop with [WarpDrive](https://github.com/salesforce/warp-drive). WarpDrive is a flexible, lightweight, and easy-to-use RL framework that implements end-to-end deep multi-agent RL on a GPU (Graphics Processing Unit). Using the extreme parallelization capability of GPUs, it enables [orders-of-magnitude faster RL](https://arxiv.org/abs/2108.13976) compared to common implementations that blend CPU simulations and GPU models. WarpDrive is extremely efficient as it runs simulations across multiple agents and multiple environment replicas all in parallel and completely eliminates the back-and-forth data copying between the CPU and the GPU during every step. As such, WarpDrive
+# - Can simulate 1000s of agents in each environment and thousands of environments in parallel, harnessing the extreme parallelism capability of GPUs.
+# - Eliminates communication between CPU and GPU, and also within the GPU, as read and write operations occur in-place.
+# - Is fully compatible with Pytorch, a highly flexible and very fast deep learning framework.
+# - Implements parallel action sampling on CUDA C, which is ~3x faster than using Pytorch’s sampling methods.
+# - Allows for large-scale distributed training on multiple GPUs.
 #
-# We have integrated WarpDrive with the [Pytorch Lightning](https://www.pytorchlightning.ai/) framework, which greatly reduces the trainer boilerplate code, and improves training flexibility.
+# Below is an overview of WarpDrive’s layout of computational and data structures on a single GPU.
+# ![](https://blog.salesforceairesearch.com/content/images/2021/08/warpdrive_framework_overview.png)
+# Computations are organized into blocks, with multiple threads in each block. Each block runs a simulation environment and each thread
+# simulates an agent in an environment. Blocks can access the shared GPU memory that stores simulation data and neural network policy models. A DataManager and FunctionManager enable defining multi-agent RL GPU-workflows with Python APIs. For more details, please read out white [paper](https://arxiv.org/abs/2108.13976).
 #
-# Below, we demonstrate how to use WarpDrive and PytorchLightning together to train a game of [Tag](https://github.com/salesforce/warp-drive/blob/master/example_envs/tag_continuous/tag_continuous.py) where multiple *tagger* agents are trying to run after and tag multiple other *runner* agents. As such, the Warpdrive framework comprises several utility functions that help easily implement any (OpenAI-)*gym-style* RL environment, and furthermore, provides quality-of-life tools to train it end-to-end using just a few lines of code. You may familiarize yourself with WarpDrive with the help of these [tutorials](https://github.com/salesforce/warp-drive/tree/master/tutorials).
+# The Warpdrive framework comprises several utility functions that help easily implement any (OpenAI-)*gym-style* RL environment, and furthermore, provides quality-of-life tools to train it end-to-end using just a few lines of code. You may familiarize yourself with WarpDrive with the help of these [tutorials](https://github.com/salesforce/warp-drive/tree/master/tutorials).
 #
 # We invite everyone to **contribute to WarpDrive**, including adding new multi-agent environments, proposing new features and reporting issues on our open source [repository](https://github.com/salesforce/warp-drive).
+#
+# We have integrated WarpDrive with the [Pytorch Lightning](https://www.pytorchlightning.ai/) framework, which greatly reduces the trainer boilerplate code, and improves training modularity and flexibility. It abstracts away most of the engineering pieces of code, so users can focus on research and building models, and iterate on experiments really fast. Pytorch Lightning also provides support for easily running the model on any hardware, performing distributed training, model checkpointing, performance profiling, logging and visualization.
+#
+# Below, we demonstrate how to use WarpDrive and PytorchLightning together to train a game of [Tag](https://github.com/salesforce/warp-drive/blob/master/example_envs/tag_continuous/tag_continuous.py) where multiple *tagger* agents are trying to run after and tag multiple other *runner* agents. Here's a sample depiction of the game of Tag with $100$ runners and $5$ taggers.
+# ![](https://blog.salesforceairesearch.com/content/images/2021/08/same_speed_50fps-1.gif)
 
+# %% [markdown]
+# ## Dependencies
 
 # %%
 import logging
 
-import matplotlib.pyplot as plt
-import mpl_toolkits.mplot3d.art3d as art3d
-import numpy as np
 import torch
 from example_envs.tag_continuous.tag_continuous import TagContinuous
-
-# from IPython.display import HTML
-from matplotlib import animation
-from matplotlib.patches import Polygon
 from pytorch_lightning import Trainer
 from warp_drive.env_wrapper import EnvWrapper
-from warp_drive.training.pytorch_lightning_trainer import CudaCallback, PerfStatsCallback, WarpDriveModule
+from warp_drive.training.pytorch_lightning import CUDACallback, PerfStatsCallback, WarpDriveModule
+
+# Uncomment below for enabling animation visualizations.
+# from example_envs.utils.generate_rollout_animation import generate_tag_env_rollout_animation
+# from IPython.display import HTML
+
 
 # %%
-_NUM_AVAILABLE_GPUS = torch.cuda.device_count()
-assert _NUM_AVAILABLE_GPUS > 0, "This notebook needs a GPU to run!"
+assert torch.cuda.device_count() > 0, "This notebook only runs on a GPU!"
 
 # %%
 # Set logger level e.g., DEBUG, INFO, WARNING, ERROR.
@@ -46,7 +58,7 @@ logging.getLogger().setLevel(logging.ERROR)
 #
 # For our experiment, we consider an environment wherein $5$ taggers and $100$ runners play the game of [Tag](https://github.com/salesforce/warp-drive/blob/master/example_envs/tag_continuous/tag_continuous.py) on a $20 \times 20$ plane. The game lasts $200$ timesteps. Each agent chooses it's own acceleration and turn actions at every timestep, and we use mechanics to determine how the agents move over the grid. When a tagger gets close to a runner, the runner is tagged, and is eliminated from the game. For the configuration below, the runners and taggers have the same unit skill levels, or top speeds.
 #
-# We train the agents using $50$ environments or simulations running in parallel. With WarpDrive, each simulation runs on sepate GPU blocks.
+# We train the agents using $50$ environments or simulations running in parallel. With WarpDrive, each simulation runs on separate GPU blocks.
 #
 # There are two separate policy networks used for the tagger and runner agents. Each network is a fully-connected model with two layers each of $256$ dimensions. We use the Advantage Actor Critic (A2C) algorithm for training. WarpDrive also currently provides the option to use the Proximal Policy Optimization (PPO) algorithm instead.
 
@@ -67,10 +79,10 @@ run_config = dict(
         max_acceleration=0.1,
         # minimum acceleration
         min_acceleration=-0.1,
-        # 3*pi/4 radians
-        max_turn=2.35,
-        # -3*pi/4 radians
-        min_turn=-2.35,
+        # maximum turn (in radians)
+        max_turn=2.35,  # 3pi/4 radians
+        # minimum turn (in radians)
+        min_turn=-2.35,  # -3pi/4 radians
         # number of discretized accelerate actions
         num_acceleration_levels=10,
         # number of discretized turn actions
@@ -79,19 +91,21 @@ run_config = dict(
         skill_level_tagger=1.0,
         # skill level for the runner
         skill_level_runner=1.0,
-        # each agent only sees full or partial information
+        # each agent sees the full (or partial) information of the world
         use_full_observation=False,
         # flag to indicate if a runner stays in the game after getting tagged
         runner_exits_game_after_tagged=True,
         # number of other agents each agent can see
+        # used in the case use_full_observation is False
         num_other_agents_observed=10,
-        # positive reward for the tagger upon tagging a runner
+        # positive reward for a tagger upon tagging a runner
         tag_reward_for_tagger=10.0,
-        # negative reward for the runner upon getting tagged
+        # negative reward for a runner upon getting tagged
         tag_penalty_for_runner=-10.0,
         # reward at the end of the game for a runner that isn't tagged
         end_of_game_reward_for_runner=1.0,
-        # margin between a tagger and runner to consider the runner as 'tagged'.
+        # distance margin between a tagger and runner
+        # to consider the runner as being 'tagged'
         tagging_distance=0.02,
     ),
     # Trainer settings.
@@ -100,8 +114,9 @@ run_config = dict(
         num_envs=50,
         # total batch size used for training per iteration (across all the environments)
         train_batch_size=10000,
-        # total number of episodes to run the training for (can be arbitrarily high!)
-        num_episodes=50000,
+        # total number of episodes to run the training for
+        # This can be set arbitrarily high!
+        num_episodes=500,
     ),
     # Policy network settings.
     policy=dict(
@@ -173,136 +188,12 @@ wd_module = WarpDriveModule(
 #
 # We have created a helper function (see below) to visualize an episode rollout. Internally, this function uses the WarpDrive module's `fetch_episode_states` API to fetch the data arrays on the GPU for the duration of an entire episode. Specifically, we fetch the state arrays pertaining to agents' x and y locations on the plane and indicators on which agents are still active in the game. Note that this function may be invoked at any time during training, and it will use the state of the policy models at that time to sample actions and generate the visualization.
 
-# %%
-def generate_tag_env_rollout_animation(
-    warp_drive_module,
-    fps=25,
-    tagger_color="#C843C3",
-    runner_color="#245EB6",
-    runner_not_in_game_color="#666666",
-    fig_width=6,
-    fig_height=6,
-):
-    assert warp_drive_module is not None
-    episode_states = warp_drive_module.fetch_episode_states(["loc_x", "loc_y", "still_in_the_game"])
-    assert isinstance(episode_states, dict)
-    env = warp_drive_module.cuda_envs.env
-
-    fig, ax = plt.subplots(1, 1, figsize=(fig_width, fig_height))  # , constrained_layout=True
-    ax.remove()
-    ax = fig.add_subplot(1, 1, 1, projection="3d")
-
-    # Bounds
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.set_zlim(-0.01, 0.01)
-
-    # Surface
-    corner_points = [(0, 0), (0, 1), (1, 1), (1, 0)]
-
-    poly = Polygon(corner_points, color=(0.1, 0.2, 0.5, 0.15))
-    ax.add_patch(poly)
-    art3d.pathpatch_2d_to_3d(poly, z=0, zdir="z")
-
-    # "Hide" side panes
-    ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-    ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-    ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-
-    # Hide grid lines
-    ax.grid(False)
-
-    # Hide axes ticks
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.set_zticks([])
-
-    # Hide axes
-    ax.set_axis_off()
-
-    # Set camera
-    ax.elev = 40
-    ax.azim = -55
-    ax.dist = 10
-
-    # Try to reduce whitespace
-    fig.subplots_adjust(left=0, right=1, bottom=-0.2, top=1)
-
-    # Plot init data
-    lines = [None for _ in range(env.num_agents)]
-
-    for idx in range(len(lines)):
-        if idx in env.taggers:
-            lines[idx] = ax.plot3D(
-                episode_states["loc_x"][:1, idx] / env.grid_length,
-                episode_states["loc_y"][:1, idx] / env.grid_length,
-                0,
-                color=tagger_color,
-                marker="o",
-                markersize=10,
-            )[0]
-        else:  # runners
-            lines[idx] = ax.plot3D(
-                episode_states["loc_x"][:1, idx] / env.grid_length,
-                episode_states["loc_y"][:1, idx] / env.grid_length,
-                [0],
-                color=runner_color,
-                marker="o",
-                markersize=5,
-            )[0]
-
-    init_num_runners = env.num_agents - env.num_taggers
-
-    def _get_label(timestep, n_runners_alive, init_n_runners):
-        line1 = "Continuous Tag\n"
-        line2 = "Time Step:".ljust(14) + f"{timestep:4.0f}\n"
-        frac_runners_alive = n_runners_alive / init_n_runners
-        pct_runners_alive = f"{n_runners_alive:4} ({frac_runners_alive * 100:.0f}%)"
-        line3 = "Runners Left:".ljust(14) + pct_runners_alive
-        return line1 + line2 + line3
-
-    label = ax.text(
-        0,
-        0,
-        0.02,
-        _get_label(0, init_num_runners, init_num_runners).lower(),
-    )
-
-    label.set_fontsize(14)
-    label.set_fontweight("normal")
-    label.set_color("#666666")
-
-    def animate(i):
-        for idx, line in enumerate(lines):
-            line.set_data_3d(
-                episode_states["loc_x"][i : i + 1, idx] / env.grid_length,
-                episode_states["loc_y"][i : i + 1, idx] / env.grid_length,
-                np.zeros(1),
-            )
-
-            still_in_game = episode_states["still_in_the_game"][i, idx]
-
-            if still_in_game:
-                pass
-            else:
-                line.set_color(runner_not_in_game_color)
-                line.set_marker("")
-
-        n_runners_alive = episode_states["still_in_the_game"][i].sum() - env.num_taggers
-        label.set_text(_get_label(i, n_runners_alive, init_num_runners).lower())
-
-    ani = animation.FuncAnimation(fig, animate, np.arange(0, env.episode_length + 1), interval=1000.0 / fps)
-    plt.close()
-
-    return ani
-
-
 # %% [markdown]
 # The animation below shows a sample realization of the game episode before training, i.e., with randomly chosen agent actions. The $5$ taggers are marked in pink, while the $100$ blue agents are the runners. Both the taggers and runners move around randomly and about half the runners remain at the end of the episode.
 
 # %%
-
-# anim = generate_tag_env_rollout_animation(wd_module)
+# Uncomment below for enabling animation visualizations.
+# anim = generate_tag_env_rollout_animation(wd_module, fps=25)
 # HTML(anim.to_html5_video())
 
 # %% [markdown]
@@ -314,7 +205,7 @@ def generate_tag_env_rollout_animation(
 log_freq = run_config["saving"]["metrics_log_freq"]
 
 # Define callbacks.
-cuda_callback = CudaCallback(module=wd_module)
+cuda_callback = CUDACallback(module=wd_module)
 perf_stats_callback = PerfStatsCallback(
     batch_size=wd_module.training_batch_size,
     num_iters=wd_module.num_iters,
@@ -355,12 +246,12 @@ trainer.fit(wd_module)
 # ## Visualize an episode-rollout after training
 
 # %%
-
-# anim = generate_tag_env_rollout_animation(wd_module)
+# Uncomment below for enabling animation visualizations.
+# anim = generate_tag_env_rollout_animation(wd_module, fps=25)
 # HTML(anim.to_html5_video())
 
 # %% [markdown]
-# Note: In the configuration above, we have set the trainer to only train on $50000$ rollout episodes, but you can increase the `num_episodes` configuration parameter to train further. As more training happens, the runners learn to escape the taggers, and the taggers learn to chase after the runner. Sometimes, the taggers also collaborate to team-tag runners. A good number of episodes to train on (for the configuration we have used) is $2$M or higher.
+# Note: In the configuration above, we have set the trainer to only train on $500$ rollout episodes, but you can increase the `num_episodes` configuration parameter to train further. As more training happens, the runners learn to escape the taggers, and the taggers learn to chase after the runner. Sometimes, the taggers also collaborate to team-tag runners. A good number of episodes to train on (for the configuration we have used) is $2$M or higher.
 
 # %%
 # Finally, close the WarpDrive module to clear up the CUDA memory heap

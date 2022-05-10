@@ -159,7 +159,7 @@ class GAN(LightningModule):
         b1: float = 0.5,
         b2: float = 0.999,
         batch_size: int = BATCH_SIZE,
-        **kwargs
+        **kwargs,
     ):
         super().__init__()
         self.save_hyperparameters()
