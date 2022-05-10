@@ -1,29 +1,37 @@
 # %% [markdown]
-# ## Scheduled Finetuning
+# ## Scheduled Finetuning with the Finetuning Scheduler Extension
 #
-# The [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) callback accelerates and enhances model experimentation with flexible finetuning schedules.
+# ![Finetuning Scheduler logo](logo_fts.png)
 #
-# Training with the [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) is simple and confers a host of benefits:
+# The [Finetuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html) extension accelerates and enhances model experimentation with flexible finetuning schedules.
+#
+# Training with the extension is simple and confers a host of benefits:
 #
 # - it dramatically increases finetuning flexibility
 # - expedites and facilitates exploration of model tuning dynamics
 # - enables marginal performance improvements of finetuned models
 #
+# Setup is straightforward, just install from PyPI! Since this notebook-based example requires a few additional packages (e.g.
+# ``transformers``, ``sentencepiece``), we installed the ``finetuning-scheduler`` package with the ``[examples]`` extra above.
+# Once the ``finetuning-scheduler`` package is installed, the [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) callback is available for use with PyTorch Lightning.
+# For additional installation options, please see the Finetuning Scheduler [README](https://github.com/speediedan/finetuning-scheduler/blob/main/README.md).
+#
+#
+#
 # <div style="display:inline" id="a1">
 #
-# Fundamentally, the [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) callback enables scheduled, multi-phase,
-# finetuning of foundational models. Gradual unfreezing (i.e. thawing) can help maximize
+# Fundamentally, [Finetuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html) enables
+# scheduled, multi-phase, finetuning of foundational models. Gradual unfreezing (i.e. thawing) can help maximize
 # foundational model knowledge retention while allowing (typically upper layers of) the model to
 # optimally adapt to new tasks during transfer learning [1, 2, 3](#f1)
 #
-#
 # </div>
 #
-# [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) orchestrates the gradual unfreezing
+# The [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) callback orchestrates the gradual unfreezing
 # of models via a finetuning schedule that is either implicitly generated (the default) or explicitly provided by the user
 # (more computationally efficient). Finetuning phase transitions are driven by
 # [FTSEarlyStopping](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSEarlyStopping)
-# criteria (a multi-phase extension of ``EarlyStopping``), user-specified epoch transitions or a composition of the two (the default mode).
+# criteria (a multi-phase extension of ``EarlyStopping`` packaged with FinetuningScheduler), user-specified epoch transitions or a composition of the two (the default mode).
 # A [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) training session completes when the
 # final phase of the schedule has its stopping criteria met. See
 # the [early stopping documentation](https://pytorch-lightning.readthedocs.io/en/stable/api/pytorch_lightning.callbacks.EarlyStopping.html) for more details on that callback's configuration.
@@ -260,30 +268,27 @@ class RteBoolqDataModule(pl.LightningDataModule):
             \**dataloader_kwargs: Arguments passed when initializing the dataloader
         """
         super().__init__()
-        self.model_name_or_path = model_name_or_path
-        self.task_name = task_name if task_name in TASK_NUM_LABELS.keys() else DEFAULT_TASK
-        self.max_seq_length = max_seq_length
-        self.train_batch_size = train_batch_size
-        self.eval_batch_size = eval_batch_size
-        self.tokenizers_parallelism = tokenizers_parallelism
+        task_name = task_name if task_name in TASK_NUM_LABELS.keys() else DEFAULT_TASK
+        self.text_fields = self.TASK_TEXT_FIELD_MAP[task_name]
         self.dataloader_kwargs = {
             "num_workers": dataloader_kwargs.get("num_workers", 0),
             "pin_memory": dataloader_kwargs.get("pin_memory", False),
         }
-        self.text_fields = self.TASK_TEXT_FIELD_MAP[self.task_name]
-        self.num_labels = TASK_NUM_LABELS[self.task_name]
-        os.environ["TOKENIZERS_PARALLELISM"] = "true" if self.tokenizers_parallelism else "false"
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name_or_path, use_fast=True, local_files_only=False)
+        self.save_hyperparameters()
+        os.environ["TOKENIZERS_PARALLELISM"] = "true" if self.hparams.tokenizers_parallelism else "false"
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            self.hparams.model_name_or_path, use_fast=True, local_files_only=False
+        )
 
     def prepare_data(self):
         """Load the SuperGLUE dataset."""
         # N.B. PL calls prepare_data from a single process (rank 0) so do not use it to assign
         # state (e.g. self.x=y)
-        datasets.load_dataset("super_glue", self.task_name)
+        datasets.load_dataset("super_glue", self.hparams.task_name)
 
     def setup(self, stage):
-        """Setup our dataset splits for training/validation/testing."""
-        self.dataset = datasets.load_dataset("super_glue", self.task_name)
+        """Setup our dataset splits for training/validation."""
+        self.dataset = datasets.load_dataset("super_glue", self.hparams.task_name)
         for split in self.dataset.keys():
             self.dataset[split] = self.dataset[split].map(
                 self._convert_to_features, batched=True, remove_columns=["label"]
@@ -294,15 +299,12 @@ class RteBoolqDataModule(pl.LightningDataModule):
         self.eval_splits = [x for x in self.dataset.keys() if "validation" in x]
 
     def train_dataloader(self):
-        return DataLoader(self.dataset["train"], batch_size=self.train_batch_size, **self.dataloader_kwargs)
+        return DataLoader(self.dataset["train"], batch_size=self.hparams.train_batch_size, **self.dataloader_kwargs)
 
     def val_dataloader(self):
-        return DataLoader(self.dataset["validation"], batch_size=self.eval_batch_size, **self.dataloader_kwargs)
+        return DataLoader(self.dataset["validation"], batch_size=self.hparams.eval_batch_size, **self.dataloader_kwargs)
 
-    def test_dataloader(self):
-        return DataLoader(self.dataset["test"], batch_size=self.eval_batch_size, **self.dataloader_kwargs)
-
-    def _convert_to_features(self, example_batch) -> BatchEncoding:
+    def _convert_to_features(self, example_batch: datasets.arrow_dataset.Batch) -> BatchEncoding:
         """Convert raw text examples to a :class:`~transformers.tokenization_utils_base.BatchEncoding` container
         (derived from python dict) of features that includes helpful methods for translating between word/character
         space and token space.
@@ -316,7 +318,7 @@ class RteBoolqDataModule(pl.LightningDataModule):
         text_pairs = list(zip(example_batch[self.text_fields[0]], example_batch[self.text_fields[1]]))
         # Tokenize the text/text pairs
         features = self.tokenizer.batch_encode_plus(
-            text_pairs, max_length=self.max_seq_length, padding="longest", truncation=True
+            text_pairs, max_length=self.hparams.max_seq_length, padding="longest", truncation=True
         )
         # Rename label to labels to make it easier to pass to model forward
         features["labels"] = example_batch["label"]
@@ -349,31 +351,32 @@ class RteBoolqModule(pl.LightningModule):
                 "default".
         """
         super().__init__()
-        self.optimizer_init = optimizer_init
-        self.lr_scheduler_init = lr_scheduler_init
-        if task_name in TASK_NUM_LABELS.keys():
-            self.task_name = task_name
-        else:
-            self.task_name = DEFAULT_TASK
+        if task_name not in TASK_NUM_LABELS.keys():
             rank_zero_warn(f"Invalid task_name {task_name!r}. Proceeding with the default task: {DEFAULT_TASK!r}")
-        self.num_labels = TASK_NUM_LABELS[self.task_name]
-        self.experiment_id = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{experiment_tag}"
+            task_name = DEFAULT_TASK
+        self.num_labels = TASK_NUM_LABELS[task_name]
         self.model_cfg = model_cfg or {}
         conf = AutoConfig.from_pretrained(model_name_or_path, num_labels=self.num_labels, local_files_only=False)
         self.model = AutoModelForSequenceClassification.from_pretrained(model_name_or_path, config=conf)
         self.model.config.update(self.model_cfg)  # apply model config overrides
         self.init_hparams = {
-            "optimizer": self.optimizer_init,
-            "lr_scheduler": self.lr_scheduler_init,
+            "optimizer_init": optimizer_init,
+            "lr_scheduler_init": lr_scheduler_init,
             "model_config": self.model.config,
             "model_name_or_path": model_name_or_path,
-            "task_name": self.task_name,
-            "experiment_id": self.experiment_id,
+            "task_name": task_name,
+            "experiment_id": f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{experiment_tag}",
         }
         self.save_hyperparameters(self.init_hparams)
-        self.metric = datasets.load_metric("super_glue", self.task_name, experiment_id=self.experiment_id)
+        self.metric = datasets.load_metric(
+            "super_glue", self.hparams.task_name, experiment_id=self.hparams.experiment_id
+        )
         self.no_decay = ["bias", "LayerNorm.weight"]
-        self.finetuningscheduler_callback = None
+
+    @property
+    def finetuningscheduler_callback(self) -> FinetuningScheduler:  # type: ignore # noqa
+        fts = [c for c in self.trainer.callbacks if isinstance(c, FinetuningScheduler)]  # type: ignore # noqa
+        return fts[0] if fts else None
 
     def forward(self, **inputs):
         return self.model(**inputs)
@@ -414,7 +417,7 @@ class RteBoolqModule(pl.LightningModule):
                     for n, p in self.model.named_parameters()
                     if not any(nd in n for nd in self.no_decay) and p.requires_grad
                 ],
-                "weight_decay": self.optimizer_init["weight_decay"],
+                "weight_decay": self.hparams.optimizer_init["weight_decay"],
             },
             {
                 "params": [
@@ -432,15 +435,12 @@ class RteBoolqModule(pl.LightningModule):
         # but in this case we pass a list of parameter groups to ensure weight_decay is
         # not applied to the bias parameter (for completeness, in this case it won't make much
         # performance difference)
-        optimizer = AdamW(params=self._init_param_groups(), **self.optimizer_init)
-        scheduler = {"scheduler": CosineAnnealingWarmRestarts(optimizer, **self.lr_scheduler_init), "interval": "step"}
+        optimizer = AdamW(params=self._init_param_groups(), **self.hparams.optimizer_init)
+        scheduler = {
+            "scheduler": CosineAnnealingWarmRestarts(optimizer, **self.hparams.lr_scheduler_init),
+            "interval": "step",
+        }
         return [optimizer], [scheduler]
-
-    def configure_callbacks(self):
-        found_fts = [c for c in self.trainer.callbacks if isinstance(c, FinetuningScheduler)]  # type: ignore # noqa
-        if found_fts:
-            self.finetuningscheduler_callback = found_fts[0]
-        return super().configure_callbacks()
 
 
 # %% [markdown]
@@ -578,14 +578,14 @@ def train() -> None:
         max_epochs=100,
         precision=16,
         accelerator="auto",
-        devices=1 if torch.cuda.is_available() else None
+        devices=1 if torch.cuda.is_available() else None,
         callbacks=callbacks,
         logger=logger,
     )
     trainer.fit(model, datamodule=dm)
 
 
-if AVAIL_GPUS > 0:
+if torch.cuda.is_available():
     train()
 else:
     print("Given the multiple phases of finetuning demonstrated, this notebook is best used with a GPU")
@@ -620,7 +620,7 @@ fts_implicit_callbacks = [
 scenario_callbacks = {"nofts_baseline": nofts_callbacks, "fts_implicit": fts_implicit_callbacks}
 
 # %%
-if AVAIL_GPUS > 0:
+if torch.cuda.is_available():
     for scenario_name, scenario_callbacks in scenario_callbacks.items():
         model = RteBoolqModule(**lightning_module_kwargs, experiment_tag=scenario_name)
         logger = TensorBoardLogger("lightning_logs", name=scenario_name)
@@ -709,3 +709,6 @@ else:
 # </li>
 #
 # </ol>
+
+# %% [markdown]
+#
