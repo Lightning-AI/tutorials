@@ -52,7 +52,7 @@
 # ## The Default Finetuning Schedule
 #
 # Schedule definition is facilitated via the [gen_ft_schedule](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.SchedulingMixin.gen_ft_schedule) method which dumps a default finetuning schedule (by default using a naive, 2-parameters per level heuristic) which can be adjusted as
-# desired by the user and/or subsequently passed to the callback. Using the default/implicitly generated schedule will likely be less computationally efficient than a user-defined finetuning schedule but is useful for exploring a model's finetuning behavior and can serve as a good baseline for subsquent explicit schedule refinement.
+# desired by the user and/or subsequently passed to the callback. Using the default/implicitly generated schedule will likely be less computationally efficient than a user-defined finetuning schedule but is useful for exploring a model's finetuning behavior and can serve as a good baseline for subsequent explicit schedule refinement.
 # While the current version of [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) only supports single optimizer and (optional) lr_scheduler configurations, per-phase maximum learning rates can be set as demonstrated in the next section.
 
 # %% [markdown]
@@ -121,7 +121,7 @@
 # trainer.fit(..., ckpt_path="some/path/to/my_checkpoint.ckpt")
 # ```
 #
-# Training will resume at the depth/level of the provided checkpoint according the specified schedule. Schedules can be altered between training sessions but schedule compatibility is left to the user for maximal flexibility. If executing a user-defined schedule, typically the same schedule should be provided for the original and resumed training sessions.
+# Training will resume at the depth/level of the provided checkpoint according to the specified schedule. Schedules can be altered between training sessions but schedule compatibility is left to the user for maximal flexibility. If executing a user-defined schedule, typically the same schedule should be provided for the original and resumed training sessions.
 #
 # By default ([FinetuningScheduler.restore_best](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html?highlight=restore_best#finetuning_scheduler.fts.FinetuningScheduler.params.restore_best) is ``True``), [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) will attempt to restore the best available checkpoint before finetuning depth transitions.
 #
@@ -205,7 +205,6 @@ def mock_register_module(key: str, require_fqn: bool = False) -> List:
 # Load the `FinetuningScheduler` PyTorch Lightning extension module we want to use. This will import all necessary callbacks.
 mock_register_module("finetuningscheduler")
 # set notebook-level variables
-AVAIL_GPUS = torch.cuda.device_count()
 TASK_NUM_LABELS = {"boolq": 2, "rte": 2}
 DEFAULT_TASK = "rte"
 
@@ -241,7 +240,7 @@ class RteBoolqDataModule(pl.LightningDataModule):
         tokenizers_parallelism: bool = True,
         **dataloader_kwargs: Any,
     ):
-        """Initialize this ``LightningDataModule`` designed for both the RTE or BoolQ SuperGLUE Hugging Face
+        """Initialize the ``LightningDataModule`` designed for both the RTE or BoolQ SuperGLUE Hugging Face
         datasets.
 
         Args:
@@ -258,6 +257,7 @@ class RteBoolqDataModule(pl.LightningDataModule):
             train_batch_size (int, optional): Training batch size. Defaults to 16.
             eval_batch_size (int, optional): Batch size to use for validation and testing splits. Defaults to 16.
             tokenizers_parallelism (bool, optional): Whether to use parallelism in the tokenizer. Defaults to True.
+            \**dataloader_kwargs: Arguments passed when initializing the dataloader
         """
         super().__init__()
         self.model_name_or_path = model_name_or_path
@@ -355,7 +355,7 @@ class RteBoolqModule(pl.LightningModule):
             self.task_name = task_name
         else:
             self.task_name = DEFAULT_TASK
-            rank_zero_warn(f"Invalid task_name '{task_name}'. Proceeding with the default task: '{DEFAULT_TASK}'")
+            rank_zero_warn(f"Invalid task_name {task_name!r}. Proceeding with the default task: {DEFAULT_TASK!r}")
         self.num_labels = TASK_NUM_LABELS[self.task_name]
         self.experiment_id = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{experiment_tag}"
         self.model_cfg = model_cfg or {}
@@ -381,7 +381,7 @@ class RteBoolqModule(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         outputs = self(**batch)
         loss = outputs[0]
-        self.log("train_loss", loss, prog_bar=True)
+        self.log("train_loss", loss)
         return loss
 
     def training_epoch_end(self, outputs: List[Any]) -> None:
@@ -433,7 +433,7 @@ class RteBoolqModule(pl.LightningModule):
         # not applied to the bias parameter (for completeness, in this case it won't make much
         # performance difference)
         optimizer = AdamW(params=self._init_param_groups(), **self.optimizer_init)
-        scheduler = {"scheduler": CosineAnnealingWarmRestarts(optimizer, **self.lr_scheduler_init)}
+        scheduler = {"scheduler": CosineAnnealingWarmRestarts(optimizer, **self.lr_scheduler_init), "interval": "step"}
         return [optimizer], [scheduler]
 
     def configure_callbacks(self):
@@ -577,9 +577,8 @@ def train() -> None:
         enable_progress_bar=enable_progress_bar,
         max_epochs=100,
         precision=16,
-        strategy="dp",
-        accelerator="gpu",
-        devices=1,
+        accelerator="auto",
+        devices=1 if torch.cuda.is_available() else None
         callbacks=callbacks,
         logger=logger,
     )
