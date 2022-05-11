@@ -438,7 +438,7 @@ class RteBoolqModule(pl.LightningModule):
         optimizer = AdamW(params=self._init_param_groups(), **self.hparams.optimizer_init)
         scheduler = {
             "scheduler": CosineAnnealingWarmRestarts(optimizer, **self.hparams.lr_scheduler_init),
-            "interval": "step",
+            "interval": "epoch",
         }
         return [optimizer], [scheduler]
 
