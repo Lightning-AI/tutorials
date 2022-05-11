@@ -585,12 +585,10 @@ def train() -> None:
     trainer.fit(model, datamodule=dm)
 
 
-if torch.cuda.is_available():
-    train()
-else:
-    print(
-        "Given the computation associated w/ the multiple phases of finetuning demonstrated, this notebook is best used with a GPU"
-    )
+print(
+    "Note given the computation associated w/ the multiple phases of finetuning demonstrated, this notebook is best used with an accelerator"
+)
+train()
 
 # %% [markdown]
 # ### Running the Baseline and Implicit Finetuning Scenarios
@@ -622,17 +620,12 @@ fts_implicit_callbacks = [
 scenario_callbacks = {"nofts_baseline": nofts_callbacks, "fts_implicit": fts_implicit_callbacks}
 
 # %%
-if torch.cuda.is_available():
-    for scenario_name, scenario_callbacks in scenario_callbacks.items():
-        model = RteBoolqModule(**lightning_module_kwargs, experiment_tag=scenario_name)
-        logger = TensorBoardLogger("lightning_logs", name=scenario_name)
-        callbacks = scenario_callbacks
-        print(f"Beginning training the '{scenario_name}' scenario")
-        train()
-else:
-    print(
-        "Given the computation associated w/ the multiple phases of finetuning demonstrated, this notebook is best used with a GPU"
-    )
+for scenario_name, scenario_callbacks in scenario_callbacks.items():
+    model = RteBoolqModule(**lightning_module_kwargs, experiment_tag=scenario_name)
+    logger = TensorBoardLogger("lightning_logs", name=scenario_name)
+    callbacks = scenario_callbacks
+    print(f"Beginning training the '{scenario_name}' scenario")
+    train()
 
 # %% [markdown]
 # ### Reviewing the Training Results
