@@ -181,6 +181,11 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [(master_doc, project, project + " Documentation", [author], 1)]
 
+# -- Options for linkcheck builder ----------------------------------------------
+# regex pattern 0: allow linking to a specific selection state in
+#  tensorboard.dev links while continuing to validate the base experiment link
+linkcheck_anchors_ignore = ["scalars.*&runSelectionState.*"]
+
 # -- Options for Texinfo output ----------------------------------------------
 
 # Grouping the document tree into Texinfo files. List of tuples
