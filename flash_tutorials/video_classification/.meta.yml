@@ -1,0 +1,19 @@
+title: Video Classification
+author: Ananya Harsh Jha (ananya@pytorchlightning.ai)
+created: 2021-12-16
+updated: 2021-12-16
+license: CC BY-SA
+tags:
+  - Video
+  - Classification
+description: |
+  This tutorial covers video classification using PyTorch Lightning Flash and PyTorch Video. We show how backbones from
+  PyTorch Video be used directly with the dataset from the Kaggle Deepfake classification challenge. The dataset
+  requires minial pre-processing to get it into a format required by Flash and from there on it is just a few lines
+  of code to get the classification model working.
+requirements:
+  - torchvision
+  - lightning-flash[tabular]>=0.6.0
+accelerator:
+  - GPU
+  - CPU
