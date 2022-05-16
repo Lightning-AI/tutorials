@@ -18,8 +18,5 @@ description: This notebook introduces multi-agent reinforcement learning (MARL) 
     documentation - http://opensource.salesforce.com/warp-drive/, and
     white paper - https://arxiv.org/abs/2108.13976.
 
-requirements:
-  - rl-warp-drive>=1.6.5
-  - ffmpeg-python
 accelerator:
   - GPU
