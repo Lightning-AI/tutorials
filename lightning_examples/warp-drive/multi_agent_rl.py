@@ -225,6 +225,8 @@ trainer = Trainer(
     devices=num_gpus,
     callbacks=[cuda_callback, perf_stats_callback],
     max_epochs=num_epochs,
+    log_every_n_steps=1,
+    reload_dataloaders_every_n_epochs=1,
 )
 
 # %%

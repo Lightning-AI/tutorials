@@ -21,5 +21,9 @@ description: This notebook introduces multi-agent reinforcement learning (MARL) 
 requirements:
   - rl-warp-drive>=1.6.5
   - ffmpeg-python
+  # todo: after merging #155 we will relax this just to `torch<=1.10` and drop TV, TT, etc.
+  - torch==1.10.*
+  - torchvision==0.11.*
+  - torchtext==0.11.*
 accelerator:
   - GPU
