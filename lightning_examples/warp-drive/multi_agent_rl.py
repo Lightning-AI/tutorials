@@ -1,11 +1,3 @@
-# %%
-import sys
-
-if "google.colab" in sys.modules:
-    ! pip uninstall --quiet "torchaudio" "torchvision" "torchtext" "fastai" "datascience" "kapre" --yes
-    ! pip install --quiet "rl-warp-drive>=1.6.5" "pytorch-lightning>=1.4"
-else:
-    ! pip install --quiet "ipython[notebook]" "rl-warp-drive>=1.6.5" "ffmpeg-python" "setuptools==59.5.0" "torch>=1.8" "torchmetrics>=0.7" "pytorch-lightning>=1.4"
 # %% [markdown]
 # **⚠️ PLEASE NOTE:**
 # This notebook runs on a GPU runtime. If running on Colab, choose Runtime > Change runtime type from the menu, then select `GPU` in the 'Hardware accelerator' dropdown menu.
