@@ -1,11 +1,11 @@
 title: Finetuning Scheduler
 author: "[Dan Dale](https://github.com/speediedan)"
 created: 2021-11-29
-updated: 2022-05-10
+updated: 2022-XX-XX
 license: CC BY-SA
-build: 3
+build: 4
 tags:
-  - finetuning
+  - Finetuning
 description: |
   This notebook introduces the [Finetuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html) extension
   and demonstrates the use of it to finetune a small foundational model on the
