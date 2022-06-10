@@ -153,9 +153,8 @@
 # - ``DDP_SHARDED``
 # - ``DDP_SHARDED_SPAWN``
 #
-# Custom or officially unsupported strategies can be used by setting [FinetuningScheduler.allow_untested](https://finetuning-scheduler.readthedocs.io/en/latest/api/finetuning_scheduler.fts.html?highlight=allow_untested#finetuning_scheduler.fts.FinetuningScheduler.params.allow_untested) to ``True``.
+# Custom or officially unsupported strategies can be used by setting [FinetuningScheduler.allow_untested](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html?highlight=allow_untested#finetuning_scheduler.fts.FinetuningScheduler.params.allow_untested) to ``True``.
 # Note that most currently unsupported strategies are so because they require varying degrees of modification to be compatible (e.g. ``deepspeed`` requires an ``add_param_group`` method, ``tpu_spawn`` an override of the current broadcast method to include python objects)
-#
 # </div>
 
 # %% [markdown]
