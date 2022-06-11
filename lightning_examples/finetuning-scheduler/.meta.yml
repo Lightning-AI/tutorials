@@ -1,7 +1,7 @@
 title: Finetuning Scheduler
 author: "[Dan Dale](https://github.com/speediedan)"
 created: 2021-11-29
-updated: 2022-XX-XX
+updated: 2022-06-10
 license: CC BY-SA
 build: 4
 tags:
@@ -15,5 +15,6 @@ description: |
   and foundational model weights. The required dependencies are installed via the finetuning-scheduler ``[examples]`` extra.
 requirements:
   - finetuning-scheduler[examples]
+  - hydra-core>=1.1.0
 accelerator:
   - GPU
