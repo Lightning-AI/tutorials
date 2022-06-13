@@ -153,6 +153,8 @@
 # - ``DDP_SHARDED``
 # - ``DDP_SHARDED_SPAWN``
 #
+# Custom or officially unsupported strategies can be used by setting [FinetuningScheduler.allow_untested](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html?highlight=allow_untested#finetuning_scheduler.fts.FinetuningScheduler.params.allow_untested) to ``True``.
+# Note that most currently unsupported strategies are so because they require varying degrees of modification to be compatible (e.g. ``deepspeed`` requires an ``add_param_group`` method, ``tpu_spawn`` an override of the current broadcast method to include python objects)
 # </div>
 
 # %% [markdown]
@@ -387,9 +389,12 @@ class RteBoolqModule(pl.LightningModule):
         self.log("train_loss", loss)
         return loss
 
-    def training_epoch_end(self, outputs: List[Any]) -> None:
+    def on_train_epoch_start(self) -> None:
         if self.finetuningscheduler_callback:
-            self.log("finetuning_schedule_depth", float(self.finetuningscheduler_callback.curr_depth))
+            self.logger.log_metrics(
+                metrics={"finetuning_schedule_depth": float(self.finetuningscheduler_callback.curr_depth)},
+                step=self.global_step,
+            )
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
         outputs = self(**batch)
@@ -524,6 +529,8 @@ optimizer_init = {"weight_decay": 1e-05, "eps": 1e-07, "lr": 1e-05}
 # used in other pytorch-lightning tutorials) also work with FinetuningScheduler. Though the LR scheduler is theoretically
 # justified [(Loshchilov & Hutter, 2016)](#f4), the particular values provided here are primarily empircally driven.
 #
+# [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) also supports LR scheduler
+# reinitialization in both explicit and implicit finetuning schedule modes. See the [advanced usage documentation](https://finetuning-scheduler.readthedocs.io/en/stable/advanced/lr_scheduler_reinitialization.html) for explanations and demonstration of the extension's support for more complex requirements.
 # </div>
 
 
