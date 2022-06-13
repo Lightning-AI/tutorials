@@ -26,13 +26,15 @@ description: 'This notebook introduces the [Finetuning Scheduler](https://finetu
   '
 requirements:
 - finetuning-scheduler[examples]
+- hydra-core>=1.1.0
 accelerator:
 - GPU
 environment:
-- ipython==8.3.0
+- ipython==8.1.1
+- finetuning-scheduler==0.1.7
+- hydra-core==1.2.0
 - setuptools==59.5.0
+- pytorch-lightning==1.6.4
+- torchmetrics==0.7.2
 - torch==1.9.1+cu111
-- torchmetrics==0.8.2
-- finetuning-scheduler==0.1.3
-- pytorch-lightning==1.6.3
-published: '2022-05-12T14:25:40.591530'
+published: '2022-06-13T17:07:30.347099'
