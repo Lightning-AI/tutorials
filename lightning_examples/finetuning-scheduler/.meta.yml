@@ -15,5 +15,6 @@ description: |
   and foundational model weights. The required dependencies are installed via the finetuning-scheduler ``[examples]`` extra.
 requirements:
   - finetuning-scheduler[examples]
+  - hydra-core>=1.1.0
 accelerator:
   - GPU
