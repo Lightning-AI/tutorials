@@ -1,11 +1,11 @@
 title: Finetuning Scheduler
 author: '[Dan Dale](https://github.com/speediedan)'
 created: 2021-11-29
-updated: 2022-05-10
+updated: 2022-06-10
 license: CC BY-SA
-build: 3
+build: 0
 tags:
-- finetuning
+- Finetuning
 description: 'This notebook introduces the [Finetuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html)
   extension
 
@@ -30,11 +30,11 @@ requirements:
 accelerator:
 - GPU
 environment:
-- ipython==8.1.1
 - finetuning-scheduler==0.1.7
-- hydra-core==1.2.0
+- torch==1.9.1+cu111
 - setuptools==59.5.0
+- hydra-core==1.2.0
+- ipython==8.1.1
 - pytorch-lightning==1.6.4
 - torchmetrics==0.7.2
-- torch==1.9.1+cu111
-published: '2022-06-13T17:07:30.347099'
+published: '2022-06-13T17:37:07.993089'
