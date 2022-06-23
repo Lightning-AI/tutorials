@@ -1,35 +1,35 @@
 # %% [markdown]
-# ## Scheduled Finetuning with the Finetuning Scheduler Extension
+# ## Scheduled Fine-Tuning with the Fine-Tuning Scheduler Extension
 #
-# ![Finetuning Scheduler logo](logo_fts.png){height="58px" width="401px"}
+# ![Fine-Tuning Scheduler logo](logo_fts.png){height="55px" width="401px"}
 #
-# The [Finetuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html) extension accelerates and enhances model experimentation with flexible finetuning schedules.
+# The [Fine-Tuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html) extension accelerates and enhances model experimentation with flexible fine-tuning schedules.
 #
 # Training with the extension is simple and confers a host of benefits:
 #
-# - it dramatically increases finetuning flexibility
+# - it dramatically increases fine-tuning flexibility
 # - expedites and facilitates exploration of model tuning dynamics
-# - enables marginal performance improvements of finetuned models
+# - enables marginal performance improvements of fine-tuned models
 #
 # Setup is straightforward, just install from PyPI! Since this notebook-based example requires a few additional packages (e.g.
 # ``transformers``, ``sentencepiece``), we installed the ``finetuning-scheduler`` package with the ``[examples]`` extra above.
 # Once the ``finetuning-scheduler`` package is installed, the [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) callback is available for use with PyTorch Lightning.
-# For additional installation options, please see the Finetuning Scheduler [README](https://github.com/speediedan/finetuning-scheduler/blob/main/README.md).
+# For additional installation options, please see the Fine-Tuning Scheduler [README](https://github.com/speediedan/finetuning-scheduler/blob/main/README.md).
 #
 #
 #
 # <div style="display:inline" id="a1">
 #
-# Fundamentally, [Finetuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html) enables
-# scheduled, multi-phase, finetuning of foundational models. Gradual unfreezing (i.e. thawing) can help maximize
+# Fundamentally, [Fine-Tuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html) enables
+# scheduled, multi-phase, fine-tuning of foundational models. Gradual unfreezing (i.e. thawing) can help maximize
 # foundational model knowledge retention while allowing (typically upper layers of) the model to
 # optimally adapt to new tasks during transfer learning [1, 2, 3](#f1)
 #
 # </div>
 #
 # The [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) callback orchestrates the gradual unfreezing
-# of models via a finetuning schedule that is either implicitly generated (the default) or explicitly provided by the user
-# (more computationally efficient). Finetuning phase transitions are driven by
+# of models via a fine-tuning schedule that is either implicitly generated (the default) or explicitly provided by the user
+# (more computationally efficient). Fine-tuning phase transitions are driven by
 # [FTSEarlyStopping](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSEarlyStopping)
 # criteria (a multi-phase extension of ``EarlyStopping`` packaged with FinetuningScheduler), user-specified epoch transitions or a composition of the two (the default mode).
 # A [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) training session completes when the
@@ -44,8 +44,8 @@
 #
 # <div id="basic_usage">
 #
-# If no finetuning schedule is provided by the user, [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) will generate a
-# [default schedule](#The-Default-Finetuning-Schedule) and proceed to finetune according to the generated schedule,
+# If no fine-tuning schedule is provided by the user, [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) will generate a
+# [default schedule](#The-Default-Finetuning-Schedule) and proceed to fine-tune according to the generated schedule,
 # using default [FTSEarlyStopping](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSEarlyStopping) and [FTSCheckpoint](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSCheckpoint) callbacks with ``monitor=val_loss``.
 #
 # </div>
@@ -57,16 +57,16 @@
 # ```
 
 # %% [markdown]
-# ## The Default Finetuning Schedule
+# ## The Default Fine-Tuning Schedule
 #
-# Schedule definition is facilitated via the [gen_ft_schedule](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.ScheduleImplMixin.gen_ft_schedule) method which dumps a default finetuning schedule (by default using a naive, 2-parameters per level heuristic) which can be adjusted as
-# desired by the user and/or subsequently passed to the callback. Using the default/implicitly generated schedule will likely be less computationally efficient than a user-defined finetuning schedule but is useful for exploring a model's finetuning behavior and can serve as a good baseline for subsequent explicit schedule refinement.
+# Schedule definition is facilitated via the [gen_ft_schedule](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.ScheduleImplMixin.gen_ft_schedule) method which dumps a default fine-tuning schedule (by default using a naive, 2-parameters per level heuristic) which can be adjusted as
+# desired by the user and/or subsequently passed to the callback. Using the default/implicitly generated schedule will likely be less computationally efficient than a user-defined fine-tuning schedule but is useful for exploring a model's fine-tuning behavior and can serve as a good baseline for subsequent explicit schedule refinement.
 # While the current version of [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) only supports single optimizer and (optional) lr_scheduler configurations, per-phase maximum learning rates can be set as demonstrated in the next section.
 
 # %% [markdown]
-# ## Specifying a Finetuning Schedule
+# ## Specifying a Fine-Tuning Schedule
 #
-# To specify a finetuning schedule, it's convenient to first generate the default schedule and then alter the thawed/unfrozen parameter groups associated with each finetuning phase as desired. Finetuning phases are zero-indexed and executed in ascending order.
+# To specify a fine-tuning schedule, it's convenient to first generate the default schedule and then alter the thawed/unfrozen parameter groups associated with each fine-tuning phase as desired. Fine-tuning phases are zero-indexed and executed in ascending order.
 #
 # 1. First, generate the default schedule to ``Trainer.log_dir``. It will be named after your
 #    ``LightningModule`` subclass with the suffix ``_ft_schedule.yaml``.
@@ -79,9 +79,9 @@
 #
 # 2. Alter the schedule as desired.
 #
-# ![side-by-side-yaml](side_by_side_yaml.png){height="327px" width="800px"}
+# ![side_by_side_yaml](side_by_side_yaml.png){height="327px" width="800px"}
 #
-# 3. Once the finetuning schedule has been altered as desired, pass it to
+# 3. Once the fine-tuning schedule has been altered as desired, pass it to
 #    [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) to commence scheduled training:
 #
 # ```python
@@ -96,7 +96,7 @@
 #
 #
 # By default, [FTSEarlyStopping](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSEarlyStopping) and epoch-driven
-# transition criteria are composed. If a ``max_transition_epoch`` is specified for a given phase, the next finetuning phase will begin at that epoch unless [FTSEarlyStopping](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSEarlyStopping) criteria are met first.
+# transition criteria are composed. If a ``max_transition_epoch`` is specified for a given phase, the next fine-tuning phase will begin at that epoch unless [FTSEarlyStopping](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSEarlyStopping) criteria are met first.
 # If [FinetuningScheduler.epoch_transitions_only](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler.params.epoch_transitions_only) is ``True``, [FTSEarlyStopping](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSEarlyStopping) will not be used
 # and transitions will be exclusively epoch-driven.
 #
@@ -105,19 +105,19 @@
 #
 # **Tip:** Use of regex expressions can be convenient for specifying more complex schedules. Also, a per-phase base maximum lr can be specified:
 #
-# ![emphasized-yaml](emphasized_yaml.png){height="380px" width="800px"}
+# ![emphasized_yaml](emphasized_yaml.png){height="380px" width="800px"}
 #
 # </div>
 #
 #
 #
-# The end-to-end example in this notebook ([Scheduled Finetuning For SuperGLUE](#superglue)) uses [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) in explicit mode to finetune a small foundational model on the [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task of [SuperGLUE](https://super.gluebenchmark.com/).
-# Please see the [official Finetuning Scheduler documentation](https://finetuning-scheduler.readthedocs.io/en/stable/index.html) if you are interested in a similar [CLI-based example](https://finetuning-scheduler.readthedocs.io/en/stable/index.html#scheduled-finetuning-superglue) using the LightningCLI.
+# The end-to-end example in this notebook ([Scheduled Fine-Tuning For SuperGLUE](#superglue)) uses [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) in explicit mode to fine-tune a small foundational model on the [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task of [SuperGLUE](https://super.gluebenchmark.com/).
+# Please see the [official Fine-Tuning Scheduler documentation](https://finetuning-scheduler.readthedocs.io/en/stable/index.html) if you are interested in a similar [CLI-based example](https://finetuning-scheduler.readthedocs.io/en/stable/index.html#scheduled-finetuning-superglue) using the LightningCLI.
 
 # %% [markdown]
-# ## Resuming Scheduled Finetuning Training Sessions
+# ## Resuming Scheduled Fine-Tuning Training Sessions
 #
-# Resumption of scheduled finetuning training is identical to the continuation of
+# Resumption of scheduled fine-tuning training is identical to the continuation of
 # [other training sessions](https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html) with the caveat that the provided checkpoint must have been saved by a [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) session.
 # [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) uses [FTSCheckpoint](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSCheckpoint) (an extension of ``ModelCheckpoint``) to maintain schedule state with special metadata.
 #
@@ -131,14 +131,14 @@
 #
 # Training will resume at the depth/level of the provided checkpoint according to the specified schedule. Schedules can be altered between training sessions but schedule compatibility is left to the user for maximal flexibility. If executing a user-defined schedule, typically the same schedule should be provided for the original and resumed training sessions.
 #
-# By default ([FinetuningScheduler.restore_best](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html?highlight=restore_best#finetuning_scheduler.fts.FinetuningScheduler.params.restore_best) is ``True``), [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) will attempt to restore the best available checkpoint before finetuning depth transitions.
+# By default ([FinetuningScheduler.restore_best](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html?highlight=restore_best#finetuning_scheduler.fts.FinetuningScheduler.params.restore_best) is ``True``), [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) will attempt to restore the best available checkpoint before fine-tuning depth transitions.
 #
 # ```python
 # trainer = Trainer(callbacks=[FinetuningScheduler()])
 # trainer.fit(..., ckpt_path="some/path/to/my_kth_best_checkpoint.ckpt")
 # ```
 #
-# Note that similar to the behavior of [ModelCheckpoint](https://pytorch-lightning.readthedocs.io/en/stable/api/pytorch_lightning.callbacks.ModelCheckpoint.html), (specifically [this PR](https://github.com/PyTorchLightning/pytorch-lightning/pull/12045)),
+# Note that similar to the behavior of [ModelCheckpoint](https://pytorch-lightning.readthedocs.io/en/stable/api/pytorch_lightning.callbacks.ModelCheckpoint.html), (specifically [this PR](https://github.com/Lightning-AI/lightning/pull/12045)),
 # when resuming training with a different [FTSCheckpoint](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSCheckpoint) ``dirpath`` from the provided
 # checkpoint, the new training session's checkpoint state will be re-initialized at the resumption depth with the provided checkpoint being set as the best checkpoint.
 
@@ -160,28 +160,25 @@
 # %% [markdown]
 # <div id="superglue"></div>
 #
-# ## Scheduled Finetuning For SuperGLUE
+# ## Scheduled Fine-Tuning For SuperGLUE
 #
-# The following example demonstrates the use of [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) to finetune a small foundational model on the [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task of [SuperGLUE](https://super.gluebenchmark.com/). Iterative early-stopping will be applied according to a user-specified schedule.
+# The following example demonstrates the use of [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) to fine-tune a small foundational model on the [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task of [SuperGLUE](https://super.gluebenchmark.com/). Iterative early-stopping will be applied according to a user-specified schedule.
 #
 
 # %%
 import os
 import warnings
 from datetime import datetime
-from importlib import import_module
 from typing import Any, Dict, List, Optional
 
-import datasets
-
 import sentencepiece as sp  # noqa: F401 # isort: split
+import datasets
 import pytorch_lightning as pl
 import torch
+from datasets import logging as datasets_logging
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers.tensorboard import TensorBoardLogger
 from pytorch_lightning.utilities import rank_zero_warn
-from pytorch_lightning.utilities.cli import _Registry
-from pytorch_lightning.utilities.exceptions import MisconfigurationException
 from torch.optim.adamw import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
 from torch.utils.data import DataLoader
@@ -190,38 +187,24 @@ from transformers import logging as transformers_logging
 from transformers.tokenization_utils_base import BatchEncoding
 
 # %%
-# a couple helper functions to prepare code to work with a user module registry
-MOCK_REGISTRY = _Registry()
+# Import the `FinetuningScheduler` PyTorch Lightning extension module we want to use. This will import all necessary callbacks.
+import finetuning_scheduler as fts  # isort: split
 
-
-def mock_register_module(key: str, require_fqn: bool = False) -> List:
-    if key.lower() == "finetuningscheduler":
-        mod = import_module("finetuning_scheduler")
-        MOCK_REGISTRY.register_classes(mod, pl.callbacks.Callback)
-    else:
-        raise MisconfigurationException(f"user module key '{key}' not found")
-    registered_list = []
-    # make registered class available by unqualified class name by default
-    if not require_fqn:
-        for n, c in MOCK_REGISTRY.items():
-            globals()[f"{n}"] = c
-        registered_list = ", ".join([n for n in MOCK_REGISTRY.names])
-    else:
-        registered_list = ", ".join([c.__module__ + "." + c.__name__ for c in MOCK_REGISTRY.classes])
-    print(f"Imported and registered the following callbacks: {registered_list}")
-
-
-# %%
-# Load the `FinetuningScheduler` PyTorch Lightning extension module we want to use. This will import all necessary callbacks.
-mock_register_module("finetuningscheduler")
 # set notebook-level variables
 TASK_NUM_LABELS = {"boolq": 2, "rte": 2}
 DEFAULT_TASK = "rte"
 
-transformers_logging.set_verbosity_error()
+# reduce hf logging verbosity to focus on tutorial-relevant code/messages
+for hflogger in [transformers_logging, datasets_logging]:
+    hflogger.set_verbosity_error()
 # ignore warnings related tokenizers_parallelism/DataLoader parallelism trade-off and
 # expected logging behavior
-for warnf in [".*does not have many workers*", ".*The number of training samples.*"]:
+for warnf in [
+    ".*does not have many workers.*",
+    ".*The number of training samples.*",
+    ".*converting to a fast.*",
+    ".*number of training batches.*",
+]:
     warnings.filterwarnings("ignore", warnf)
 
 
@@ -329,8 +312,8 @@ class RteBoolqDataModule(pl.LightningDataModule):
 
 # %%
 class RteBoolqModule(pl.LightningModule):
-    """A ``LightningModule`` that can be used to finetune a foundational model on either the RTE or BoolQ SuperGLUE
-    tasks using Hugging Face implementations of a given model and the `SuperGLUE Hugging Face dataset."""
+    """A ``LightningModule`` that can be used to fine-tune a foundational model on either the RTE or BoolQ
+    SuperGLUE tasks using Hugging Face implementations of a given model and the `SuperGLUE Hugging Face dataset."""
 
     def __init__(
         self,
@@ -376,9 +359,9 @@ class RteBoolqModule(pl.LightningModule):
         self.no_decay = ["bias", "LayerNorm.weight"]
 
     @property
-    def finetuningscheduler_callback(self) -> FinetuningScheduler:  # type: ignore # noqa
-        fts = [c for c in self.trainer.callbacks if isinstance(c, FinetuningScheduler)]  # type: ignore # noqa
-        return fts[0] if fts else None
+    def finetuningscheduler_callback(self) -> fts.FinetuningScheduler:
+        fts_callback = [c for c in self.trainer.callbacks if isinstance(c, fts.FinetuningScheduler)]
+        return fts_callback[0] if fts_callback else None
 
     def forward(self, **inputs):
         return self.model(**inputs)
@@ -389,12 +372,9 @@ class RteBoolqModule(pl.LightningModule):
         self.log("train_loss", loss)
         return loss
 
-    def on_train_epoch_start(self) -> None:
+    def training_epoch_end(self, outputs: List[Any]) -> None:
         if self.finetuningscheduler_callback:
-            self.logger.log_metrics(
-                metrics={"finetuning_schedule_depth": float(self.finetuningscheduler_callback.curr_depth)},
-                step=self.global_step,
-            )
+            self.log("finetuning_schedule_depth", float(self.finetuningscheduler_callback.curr_depth))
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
         outputs = self(**batch)
@@ -451,20 +431,20 @@ class RteBoolqModule(pl.LightningModule):
 # %% [markdown]
 # ### Our Training Sessions
 #
-# We'll be comparing three different finetuning training configurations. Every configuration in this example depends
-# upon a shared set of defaults, only differing in their respective finetuning schedules.
+# We'll be comparing three different fine-tuning training configurations. Every configuration in this example depends
+# upon a shared set of defaults, only differing in their respective fine-tuning schedules.
 #
 # | Experiment Tag    | Training Scenario Description                                          |
 # |:-----------------:| ---------------------------------------------------------------------- |
-# | ``fts_explicit``  | Training with a finetuning schedule explicitly provided by the user    |
-# | ``nofts_baseline``| A baseline finetuning training session (without scheduled finetuning)  |
-# | ``fts_implicit``  | Training with an implicitly generated finetuning schedule (the default)|
+# | ``fts_explicit``  | Training with a fine-tuning schedule explicitly provided by the user    |
+# | ``nofts_baseline``| A baseline fine-tuning training session (without scheduled fine-tuning)  |
+# | ``fts_implicit``  | Training with an implicitly generated fine-tuning schedule (the default)|
 #
 # Let's begin by configuring the ``fts_explicit`` scenario. We'll subsequently run the other two scenarios for
 # comparison.
 
 # %%
-# Let's create a finetuning schedule for our model and run an explicitly scheduled finetuning training scenario with it
+# Let's create a fine-tuning schedule for our model and run an explicitly scheduled fine-tuning training scenario with it
 # Please see the [FinetuningScheduler documentation](https://finetuning-scheduler.readthedocs.io/en/stable/index.html) for a full description of the schedule format
 
 
@@ -488,7 +468,7 @@ ft_schedule_yaml = """
   - model.deberta.embeddings.word_embeddings.weight
 """
 ft_schedule_name = "RteBoolqModule_ft_schedule_deberta_base.yaml"
-# Let's write the schedule to a file so we can simulate loading an explicitly defined finetuning
+# Let's write the schedule to a file so we can simulate loading an explicitly defined fine-tuning
 # schedule.
 with open(ft_schedule_name, "w") as f:
     f.write(ft_schedule_yaml)
@@ -505,8 +485,8 @@ dm = RteBoolqDataModule(model_name_or_path="microsoft/deberta-v3-base", tokenize
 #
 # Though other optimizers can arguably yield some marginal advantage contingent on the context,
 # the Adam optimizer (and the [AdamW version](https://pytorch.org/docs/stable/_modules/torch/optim/adamw.html#AdamW) which
-# implements decoupled weight decay) remains robust to hyperparameter choices and is commonly used for finetuning
-# foundational language models.  See [(Sivaprasad et al., 2020)](#f2) and [(Mosbach, Andriushchenko & Klakow, 2020)](#f3) for theoretical and systematic empirical justifications of Adam and its use in finetuning
+# implements decoupled weight decay) remains robust to hyperparameter choices and is commonly used for fine-tuning
+# foundational language models.  See [(Sivaprasad et al., 2020)](#f2) and [(Mosbach, Andriushchenko & Klakow, 2020)](#f3) for theoretical and systematic empirical justifications of Adam and its use in fine-tuning
 # large transformer-based language models. The values used here have some justification
 # in the referenced literature but have been largely empirically determined and while a good
 # starting point could be could be further tuned.
@@ -521,11 +501,11 @@ optimizer_init = {"weight_decay": 1e-05, "eps": 1e-07, "lr": 1e-05}
 #
 # <div id="a3">
 #
-# The [CosineAnnealingWarmRestarts scheduler](https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.CosineAnnealingWarmRestarts.html?highlight=cosineannealingwarm#torch.optim.lr_scheduler.CosineAnnealingWarmRestarts) nicely fits with our iterative finetuning since it does not depend upon a global max_epoch
+# The [CosineAnnealingWarmRestarts scheduler](https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.CosineAnnealingWarmRestarts.html?highlight=cosineannealingwarm#torch.optim.lr_scheduler.CosineAnnealingWarmRestarts) nicely fits with our iterative fine-tuning since it does not depend upon a global max_epoch
 # value. The importance of initial warmup is reduced due to the innate warmup effect of Adam bias correction [[5]](#f3)
 # and the gradual thawing we are performing. Note that commonly used LR schedulers that depend on providing
 # max_iterations/epochs (e.g. the
-# [CosineWarmupScheduler](https://github.com/PyTorchLightning/lightning-tutorials/blob/0c325829101d5a6ebf32ed99bbf5b09badf04a59/course_UvA-DL/05-transformers-and-MH-attention/Transformers_MHAttention.py#L688)
+# [CosineWarmupScheduler](https://github.com/Lightning-AI/tutorials/blob/0c325829101d5a6ebf32ed99bbf5b09badf04a59/course_UvA-DL/05-transformers-and-MH-attention/Transformers_MHAttention.py#L688)
 # used in other pytorch-lightning tutorials) also work with FinetuningScheduler. Though the LR scheduler is theoretically
 # justified [(Loshchilov & Hutter, 2016)](#f4), the particular values provided here are primarily empircally driven.
 #
@@ -562,14 +542,14 @@ earlystopping_kwargs = {"monitor": "val_loss", "min_delta": 0.001, "patience": 2
 checkpoint_kwargs = {"monitor": "val_loss", "save_top_k": 1}
 fts_kwargs = {"max_depth": 1}
 callbacks = [
-    FinetuningScheduler(ft_schedule=ft_schedule_name, **fts_kwargs),  # type: ignore # noqa
-    FTSEarlyStopping(**earlystopping_kwargs),  # type: ignore # noqa
-    FTSCheckpoint(**checkpoint_kwargs),  # type: ignore # noqa
+    fts.FinetuningScheduler(ft_schedule=ft_schedule_name, **fts_kwargs),
+    fts.FTSEarlyStopping(**earlystopping_kwargs),
+    fts.FTSCheckpoint(**checkpoint_kwargs),
 ]
 
 # %%
 logger = TensorBoardLogger("lightning_logs", name="fts_explicit")
-# optionally start tensorboard and monitor progress graphically while viewing multi-phase finetuning specific training
+# optionally start tensorboard and monitor progress graphically while viewing multi-phase fine-tuning specific training
 # logs in the cell output below by uncommenting the next 2 lines
 # # %load_ext tensorboard
 # # %tensorboard --logdir lightning_logs
@@ -593,12 +573,12 @@ def train() -> None:
 
 
 print(
-    "Note given the computation associated w/ the multiple phases of finetuning demonstrated, this notebook is best used with an accelerator"
+    "Note given the computation associated w/ the multiple phases of fine-tuning demonstrated, this notebook is best used with an accelerator"
 )
 train()
 
 # %% [markdown]
-# ### Running the Baseline and Implicit Finetuning Scenarios
+# ### Running the Baseline and Implicit Fine-Tuning Scenarios
 #
 # Let's now compare our ``nofts_baseline`` and ``fts_implicit`` scenarios with the ``fts_explicit`` one we just ran.
 #
@@ -609,7 +589,7 @@ train()
 # code.
 #
 # Note that we'll be using identical callback configurations to the ``fts_explicit`` scenario. Keeping [max_depth](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html?highlight=max_depth#finetuning_scheduler.fts.FinetuningScheduler.params.max_depth) for
-# the implicit schedule will limit finetuning to just the last 4 parameters of the model, which is only a small fraction
+# the implicit schedule will limit fine-tuning to just the last 4 parameters of the model, which is only a small fraction
 # of the parameters you'd want to tune for maximum performance. Since the implicit schedule is quite computationally
 # intensive and most useful for exploring model behavior, leaving [max_depth](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html?highlight=max_depth#finetuning_scheduler.fts.FinetuningScheduler.params.max_depth) 1 allows us to demo implicit mode
 # behavior while keeping the computational cost and runtime of this notebook reasonable. To review how a full implicit
@@ -620,9 +600,9 @@ train()
 # %%
 nofts_callbacks = [EarlyStopping(**earlystopping_kwargs), ModelCheckpoint(**checkpoint_kwargs)]
 fts_implicit_callbacks = [
-    FinetuningScheduler(**fts_kwargs),  # type: ignore # noqa
-    FTSEarlyStopping(**earlystopping_kwargs),  # type: ignore # noqa
-    FTSCheckpoint(**checkpoint_kwargs),  # type: ignore # noqa
+    fts.FinetuningScheduler(**fts_kwargs),
+    fts.FTSEarlyStopping(**earlystopping_kwargs),
+    fts.FTSCheckpoint(**checkpoint_kwargs),
 ]
 scenario_callbacks = {"nofts_baseline": nofts_callbacks, "fts_implicit": fts_implicit_callbacks}
 
@@ -645,18 +625,18 @@ for scenario_name, scenario_callbacks in scenario_callbacks.items():
 # produced in the scenarios [here](https://drive.google.com/file/d/1t7myBgcqcZ9ax_IT9QVk-vFH_l_o5UXB/view?usp=sharing)
 # (caution, ~3.5GB).
 #
-# [![fts-explicit-accuracy](fts_explicit_accuracy.png){height="315px" width="492px"}](https://tensorboard.dev/experiment/n7U8XhrzRbmvVzC4SQSpWw/#scalars&_smoothingWeight=0&runSelectionState=eyJmdHNfZXhwbGljaXQiOnRydWUsIm5vZnRzX2Jhc2VsaW5lIjpmYWxzZSwiZnRzX2ltcGxpY2l0IjpmYWxzZX0%3D)
-# [![nofts-baseline](nofts_baseline_accuracy.png){height="316px" width="505px"}](https://tensorboard.dev/experiment/n7U8XhrzRbmvVzC4SQSpWw/#scalars&_smoothingWeight=0&runSelectionState=eyJmdHNfZXhwbGljaXQiOmZhbHNlLCJub2Z0c19iYXNlbGluZSI6dHJ1ZSwiZnRzX2ltcGxpY2l0IjpmYWxzZX0%3D)
+# [![fts_explicit_accuracy](fts_explicit_accuracy.png){height="315px" width="492px"}](https://tensorboard.dev/experiment/n7U8XhrzRbmvVzC4SQSpWw/#scalars&_smoothingWeight=0&runSelectionState=eyJmdHNfZXhwbGljaXQiOnRydWUsIm5vZnRzX2Jhc2VsaW5lIjpmYWxzZSwiZnRzX2ltcGxpY2l0IjpmYWxzZX0%3D)
+# [![nofts_baseline](nofts_baseline_accuracy.png){height="316px" width="505px"}](https://tensorboard.dev/experiment/n7U8XhrzRbmvVzC4SQSpWw/#scalars&_smoothingWeight=0&runSelectionState=eyJmdHNfZXhwbGljaXQiOmZhbHNlLCJub2Z0c19iYXNlbGluZSI6dHJ1ZSwiZnRzX2ltcGxpY2l0IjpmYWxzZX0%3D)
 #
 # Note there could be around ~1% variation in performance from the tensorboard summaries generated by this notebook
 # which uses DP and 1 GPU.
 #
-# [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) expands the space of possible finetuning schedules and the composition of more sophisticated schedules can
-# yield marginal finetuning performance gains. That stated, it should be emphasized the primary utility of [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) is to grant
-# greater finetuning flexibility for model exploration in research. For example, glancing at DeBERTa-v3's implicit training
+# [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) expands the space of possible fine-tuning schedules and the composition of more sophisticated schedules can
+# yield marginal fine-tuning performance gains. That stated, it should be emphasized the primary utility of [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) is to grant
+# greater fine-tuning flexibility for model exploration in research. For example, glancing at DeBERTa-v3's implicit training
 # run, a critical tuning transition point is immediately apparent:
 #
-# [![implicit-training-transition](implicit_training_transition.png){height="272px" width="494px"}](https://tensorboard.dev/experiment/n7U8XhrzRbmvVzC4SQSpWw/#scalars&_smoothingWeight=0&runSelectionState=eyJmdHNfZXhwbGljaXQiOmZhbHNlLCJub2Z0c19iYXNlbGluZSI6ZmFsc2UsImZ0c19pbXBsaWNpdCI6dHJ1ZX0%3D)
+# [![implicit_training_transition](implicit_training_transition.png){height="272px" width="494px"}](https://tensorboard.dev/experiment/n7U8XhrzRbmvVzC4SQSpWw/#scalars&_smoothingWeight=0&runSelectionState=eyJmdHNfZXhwbGljaXQiOmZhbHNlLCJub2Z0c19iYXNlbGluZSI6ZmFsc2UsImZ0c19pbXBsaWNpdCI6dHJ1ZX0%3D)
 #
 # Our `val_loss` begins a precipitous decline at step 3119 which corresponds to phase 17 in the schedule. Referring to our
 # schedule, in phase 17 we're beginning tuning the attention parameters of our 10th encoder layer (of 11). Interesting!
@@ -667,7 +647,7 @@ for scenario_name, scenario_callbacks in scenario_callbacks.items():
 #
 # Note that though this example is intended to capture a common usage scenario, substantial variation is expected
 # among use cases and models.
-# In summary, [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) provides increased finetuning flexibility that can be useful in a variety of
+# In summary, [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) provides increased fine-tuning flexibility that can be useful in a variety of
 # contexts from exploring model tuning behavior to maximizing performance.
 # %% [markdown]
 # ## Footnotes
