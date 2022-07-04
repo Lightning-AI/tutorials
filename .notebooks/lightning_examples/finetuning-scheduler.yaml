@@ -32,9 +32,9 @@ accelerator:
 environment:
 - finetuning-scheduler==0.1.7
 - torch==1.9.1+cu111
-- setuptools==59.5.0
 - hydra-core==1.2.0
 - ipython==8.1.1
 - pytorch-lightning==1.6.4
-- torchmetrics==0.7.2
-published: '2022-06-13T17:37:07.993089'
+- torchmetrics==0.9.1
+- setuptools==59.5.0
+published: '2022-07-05T01:17:15.934079'
