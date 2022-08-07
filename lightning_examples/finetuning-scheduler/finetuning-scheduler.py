@@ -444,9 +444,9 @@ class RteBoolqModule(pl.LightningModule):
 #
 # | Experiment Tag    | Training Scenario Description                                          |
 # |:-----------------:| ---------------------------------------------------------------------- |
-# | ``fts_explicit``  | Training with a fine-tuning schedule explicitly provided by the user    |
+# | ``fts_explicit``  | Training with a fine-tuning schedule explicitly provided by the user     |
 # | ``nofts_baseline``| A baseline fine-tuning training session (without scheduled fine-tuning)  |
-# | ``fts_implicit``  | Training with an implicitly generated fine-tuning schedule (the default)|
+# | ``fts_implicit``  | Training with an implicitly generated fine-tuning schedule (the default) |
 #
 # Let's begin by configuring the ``fts_explicit`` scenario. We'll subsequently run the other two scenarios for
 # comparison.
