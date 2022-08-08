@@ -248,7 +248,7 @@ class GAN(LightningModule):
 
 # %%
 dm = MNISTDataModule()
-model = GAN(*dm.size())
+model = GAN(*dm.dims)
 trainer = Trainer(
     accelerator="auto",
     devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
