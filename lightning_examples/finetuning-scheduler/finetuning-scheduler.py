@@ -208,10 +208,10 @@ for hflogger in [transformers_logging, datasets_logging]:
 # ignore warnings related tokenizers_parallelism/DataLoader parallelism trade-off and
 # expected logging behavior
 for warnf in [
-    ".*does not have many workers.*",
-    ".*The number of training samples.*",
-    ".*converting to a fast.*",
-    ".*number of training batches.*",
+    r".*does not have many workers.*",
+    r".*The number of training samples.*",
+    r".*converting to a fast.*",
+    r".*number of training batches.*",
 ]:
     warnings.filterwarnings("ignore", warnf)
 
