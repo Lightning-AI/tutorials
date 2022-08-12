@@ -23,7 +23,7 @@ BATCH_SIZE = 1024
 # ### Defining The `MNISTDataModule`
 #
 # Below we define `MNISTDataModule`. You can learn more about datamodules
-# in [docs](https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html).
+# in [docs](https://pytorch-lightning.readthedocs.io/en/stable/data/datamodule.html).
 
 
 # %%
