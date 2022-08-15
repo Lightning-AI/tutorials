@@ -1,9 +1,13 @@
 # %%
 import os
 
+import pandas as pd
+import seaborn as sn
 import torch
+from IPython.core.display import display
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks.progress import TQDMProgressBar
+from pytorch_lightning.loggers import CSVLogger
 from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, random_split
@@ -90,7 +94,7 @@ trainer.fit(mnist_model, train_loader)
 #     - If you don't mind loading all your datasets at once, you can set up a condition to allow for both 'fit' related setup and 'test' related setup to run whenever `None` is passed to `stage` (or ignore it altogether and exclude any conditionals).
 #     - **Note this runs across all GPUs and it *is* safe to make state assignments here**
 #
-# 3. [x_dataloader()](https://pytorch-lightning.readthedocs.io/en/stable/api_references.html#core-api) ♻️
+# 3. [x_dataloader()](https://pytorch-lightning.readthedocs.io/en/stable/api/pytorch_lightning.core.hooks.DataHooks.html#pytorch_lightning.core.hooks.DataHooks.train_dataloader) ♻️
 #     - `train_dataloader()`, `val_dataloader()`, and `test_dataloader()` all return PyTorch `DataLoader` instances that are created by wrapping their respective datasets that we prepared in `setup()`
 
 
@@ -204,6 +208,7 @@ trainer = Trainer(
     devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     max_epochs=3,
     callbacks=[TQDMProgressBar(refresh_rate=20)],
+    logger=CSVLogger(save_dir="logs/"),
 )
 trainer.fit(model)
 
@@ -230,6 +235,9 @@ trainer.fit(model)
 # In Colab, you can use the TensorBoard magic function to view the logs that Lightning has created for you!
 
 # %%
-# Start tensorboard.
-# %load_ext tensorboard
-# %tensorboard --logdir lightning_logs/
+
+metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
+del metrics["step"]
+metrics.set_index("epoch", inplace=True)
+display(metrics.dropna(axis=1, how="all").head())
+sn.relplot(data=metrics, kind="line")

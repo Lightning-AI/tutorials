@@ -33,5 +33,7 @@ clean:
 	rm -f ./*-folders.txt
 	rm -f ./*/**/*.ipynb
 	rm -rf ./*/**/.ipynb_checkpoints
+	rm -rf ./*/**/venv
+	rm -rf ./*/**/logs
 	rm -rf ./*/**/lightning_logs
 	rm -f ./*/**/requirements.txt

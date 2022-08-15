@@ -20,7 +20,7 @@ NUM_WORKERS = int(os.cpu_count() / 2)
 # ### MNIST DataModule
 #
 # Below, we define a DataModule for the MNIST Dataset. To learn more about DataModules, check out our tutorial
-# on them or see the [latest docs](https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html).
+# on them or see the [latest release docs](https://pytorch-lightning.readthedocs.io/en/stable/data/datamodule.html).
 
 
 # %%
@@ -43,9 +43,6 @@ class MNISTDataModule(LightningDataModule):
             ]
         )
 
-        # self.dims is returned when you call dm.size()
-        # Setting default dims here because we know them.
-        # Could optionally be assigned dynamically in dm.setup()
         self.dims = (1, 28, 28)
         self.num_classes = 10
 
@@ -159,7 +156,7 @@ class GAN(LightningModule):
         b1: float = 0.5,
         b2: float = 0.999,
         batch_size: int = BATCH_SIZE,
-        **kwargs
+        **kwargs,
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -248,7 +245,7 @@ class GAN(LightningModule):
 
 # %%
 dm = MNISTDataModule()
-model = GAN(*dm.size())
+model = GAN(*dm.dims)
 trainer = Trainer(
     accelerator="auto",
     devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs

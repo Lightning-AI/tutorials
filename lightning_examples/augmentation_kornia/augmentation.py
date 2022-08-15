@@ -9,6 +9,7 @@ import torch
 import torch.nn as nn
 import torchmetrics
 import torchvision
+from IPython.core.display import display
 from kornia import image_to_tensor, tensor_to_image
 from kornia.augmentation import ColorJitter, RandomChannelShuffle, RandomHorizontalFlip, RandomThinPlateSpline
 from pytorch_lightning import LightningModule, Trainer
@@ -190,7 +191,7 @@ trainer = Trainer(
     accelerator="auto",
     devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     max_epochs=10,
-    logger=CSVLogger(save_dir="logs/", name="cifar10-resnet18"),
+    logger=CSVLogger(save_dir="logs/"),
 )
 
 # Train the model ⚡
@@ -203,15 +204,5 @@ trainer.fit(model)
 metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
 del metrics["step"]
 metrics.set_index("epoch", inplace=True)
-print(metrics.dropna(axis=1, how="all").head())
-g = sn.relplot(data=metrics, kind="line")
-plt.gcf().set_size_inches(12, 4)
-plt.grid()
-
-# %% [markdown]
-# ## Tensorboard
-
-# %%
-# Start tensorboard.
-# # %load_ext tensorboard
-# # %tensorboard --logdir lightning_logs/
+display(metrics.dropna(axis=1, how="all").head())
+sn.relplot(data=metrics, kind="line")

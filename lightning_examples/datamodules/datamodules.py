@@ -146,7 +146,7 @@ trainer.fit(model)
 # 1. ```__init__```
 #     - Takes in a `data_dir` arg that points to where you have downloaded/wish to download the MNIST dataset.
 #     - Defines a transform that will be applied across train, val, and test dataset splits.
-#     - Defines default `self.dims`, which is a tuple returned from `datamodule.size()` that can help you initialize models.
+#     - Defines default `self.dims`.
 #
 #
 # 2. ```prepare_data```
@@ -176,9 +176,6 @@ class MNISTDataModule(LightningDataModule):
             ]
         )
 
-        # self.dims is returned when you call dm.size()
-        # Setting default dims here because we know them.
-        # Could optionally be assigned dynamically in dm.setup()
         self.dims = (1, 28, 28)
         self.num_classes = 10
 
@@ -274,7 +271,7 @@ class LitModel(LightningModule):
 # Init DataModule
 dm = MNISTDataModule()
 # Init model from datamodule's attributes
-model = LitModel(*dm.size(), dm.num_classes)
+model = LitModel(*dm.dims, dm.num_classes)
 # Init trainer
 trainer = Trainer(
     max_epochs=3,
@@ -341,7 +338,7 @@ class CIFAR10DataModule(LightningDataModule):
 
 # %%
 dm = CIFAR10DataModule()
-model = LitModel(*dm.size(), dm.num_classes, hidden_size=256)
+model = LitModel(*dm.dims, dm.num_classes, hidden_size=256)
 tqdm_progress_bar = TQDMProgressBar(refresh_rate=20)
 trainer = Trainer(
     max_epochs=5,
