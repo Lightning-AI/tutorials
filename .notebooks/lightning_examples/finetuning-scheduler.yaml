@@ -1,15 +1,15 @@
-title: Finetuning Scheduler
+title: Fine-Tuning Scheduler
 author: '[Dan Dale](https://github.com/speediedan)'
 created: 2021-11-29
-updated: 2022-06-10
+updated: 2022-08-06
 license: CC BY-SA
 build: 0
 tags:
-- Finetuning
-description: 'This notebook introduces the [Finetuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html)
+- Fine-Tuning
+description: 'This notebook introduces the [Fine-Tuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html)
   extension
 
-  and demonstrates the use of it to finetune a small foundational model on the
+  and demonstrates the use of it to fine-tune a small foundational model on the
 
   [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task
   of
@@ -25,16 +25,14 @@ description: 'This notebook introduces the [Finetuning Scheduler](https://finetu
 
   '
 requirements:
-- finetuning-scheduler[examples]
-- hydra-core>=1.1.0
+- finetuning-scheduler[examples]>=0.2.0
 accelerator:
 - GPU
 environment:
-- finetuning-scheduler==0.1.7
+- finetuning-scheduler==0.2.1
+- torchmetrics==0.9.2
 - torch==1.9.1+cu111
-- hydra-core==1.2.0
-- ipython==8.1.1
-- pytorch-lightning==1.6.4
-- torchmetrics==0.9.1
+- pytorch-lightning==1.7.1
 - setuptools==59.5.0
-published: '2022-07-05T01:17:15.934079'
+- ipython==8.1.1
+published: '2022-08-15T09:38:03.099363'
