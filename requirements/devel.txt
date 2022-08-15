@@ -1,8 +1,5 @@
-virtualenv
-jupytext  # converting
+virtualenv>=20.10
+jupytext>=1.10  # converting
 pytest>=6.0
-nbval  # testing
+nbval>=0.9.6  # testing
 papermill>=2.3.4  # render
-black
-flake8
-isort

@@ -9,6 +9,7 @@ import os
 import torch
 import torch.nn.functional as F
 from pytorch_lightning import LightningDataModule, LightningModule, Trainer
+from pytorch_lightning.callbacks.progress import TQDMProgressBar
 from torch import nn
 from torch.utils.data import DataLoader, random_split
 from torchmetrics.functional import accuracy
@@ -18,8 +19,7 @@ from torchvision import transforms
 from torchvision.datasets import CIFAR10, MNIST
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
-AVAIL_GPUS = min(1, torch.cuda.device_count())
-BATCH_SIZE = 256 if AVAIL_GPUS else 64
+BATCH_SIZE = 256 if torch.cuda.is_available() else 64
 
 # %% [markdown]
 # ### Defining the LitMNISTModel
@@ -84,7 +84,6 @@ class LitMNIST(LightningModule):
         acc = accuracy(preds, y)
         self.log("val_loss", loss, prog_bar=True)
         self.log("val_acc", acc, prog_bar=True)
-        return loss
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
@@ -127,8 +126,9 @@ class LitMNIST(LightningModule):
 model = LitMNIST()
 trainer = Trainer(
     max_epochs=2,
-    gpus=AVAIL_GPUS,
-    progress_bar_refresh_rate=20,
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+    callbacks=[TQDMProgressBar(refresh_rate=20)],
 )
 trainer.fit(model)
 
@@ -146,7 +146,7 @@ trainer.fit(model)
 # 1. ```__init__```
 #     - Takes in a `data_dir` arg that points to where you have downloaded/wish to download the MNIST dataset.
 #     - Defines a transform that will be applied across train, val, and test dataset splits.
-#     - Defines default `self.dims`, which is a tuple returned from `datamodule.size()` that can help you initialize models.
+#     - Defines default `self.dims`.
 #
 #
 # 2. ```prepare_data```
@@ -176,9 +176,6 @@ class MNISTDataModule(LightningDataModule):
             ]
         )
 
-        # self.dims is returned when you call dm.size()
-        # Setting default dims here because we know them.
-        # Could optionally be assigned dynamically in dm.setup()
         self.dims = (1, 28, 28)
         self.num_classes = 10
 
@@ -252,7 +249,6 @@ class LitModel(LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-
         x, y = batch
         logits = self(x)
         loss = F.nll_loss(logits, y)
@@ -260,7 +256,6 @@ class LitModel(LightningModule):
         acc = accuracy(preds, y)
         self.log("val_loss", loss, prog_bar=True)
         self.log("val_acc", acc, prog_bar=True)
-        return loss
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
@@ -276,12 +271,13 @@ class LitModel(LightningModule):
 # Init DataModule
 dm = MNISTDataModule()
 # Init model from datamodule's attributes
-model = LitModel(*dm.size(), dm.num_classes)
+model = LitModel(*dm.dims, dm.num_classes)
 # Init trainer
 trainer = Trainer(
     max_epochs=3,
-    progress_bar_refresh_rate=20,
-    gpus=AVAIL_GPUS,
+    callbacks=[TQDMProgressBar(refresh_rate=20)],
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
 )
 # Pass the datamodule as arg to trainer.fit to override model hooks :)
 trainer.fit(model, dm)
@@ -342,10 +338,12 @@ class CIFAR10DataModule(LightningDataModule):
 
 # %%
 dm = CIFAR10DataModule()
-model = LitModel(*dm.size(), dm.num_classes, hidden_size=256)
+model = LitModel(*dm.dims, dm.num_classes, hidden_size=256)
+tqdm_progress_bar = TQDMProgressBar(refresh_rate=20)
 trainer = Trainer(
     max_epochs=5,
-    progress_bar_refresh_rate=20,
-    gpus=AVAIL_GPUS,
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+    callbacks=[tqdm_progress_bar],
 )
 trainer.fit(model, dm)

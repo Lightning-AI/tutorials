@@ -5,16 +5,18 @@ from typing import Iterator, List, Tuple
 
 import gym
 import numpy as np
+import pandas as pd
+import seaborn as sn
 import torch
+from IPython.core.display import display
 from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.utilities import DistributedType
+from pytorch_lightning.loggers import CSVLogger
 from torch import Tensor, nn
 from torch.optim import Adam, Optimizer
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import IterableDataset
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
-AVAIL_GPUS = min(1, torch.cuda.device_count())
 
 
 # %%
@@ -81,7 +83,7 @@ class ReplayBuffer:
             np.array(states),
             np.array(actions),
             np.array(rewards, dtype=np.float32),
-            np.array(dones, dtype=np.bool),
+            np.array(dones, dtype=bool),
             np.array(next_states),
         )
 
@@ -312,9 +314,6 @@ class DQNLightning(LightningModule):
         # calculates training loss
         loss = self.dqn_mse_loss(batch)
 
-        if self.trainer._distrib_type in {DistributedType.DP, DistributedType.DDP2}:
-            loss = loss.unsqueeze(0)
-
         if done:
             self.total_reward = self.episode_reward
             self.episode_reward = 0
@@ -323,22 +322,21 @@ class DQNLightning(LightningModule):
         if self.global_step % self.hparams.sync_rate == 0:
             self.target_net.load_state_dict(self.net.state_dict())
 
-        log = {
-            "total_reward": torch.tensor(self.total_reward).to(device),
-            "reward": torch.tensor(reward).to(device),
-            "train_loss": loss,
-        }
-        status = {
-            "steps": torch.tensor(self.global_step).to(device),
-            "total_reward": torch.tensor(self.total_reward).to(device),
-        }
+        self.log_dict(
+            {
+                "reward": reward,
+                "train_loss": loss,
+            }
+        )
+        self.log("total_reward", self.total_reward, prog_bar=True)
+        self.log("steps", self.global_step, logger=False, prog_bar=True)
 
-        return OrderedDict({"loss": loss, "log": log, "progress_bar": status})
+        return loss
 
     def configure_optimizers(self) -> List[Optimizer]:
         """Initialize Adam optimizer."""
         optimizer = Adam(self.net.parameters(), lr=self.hparams.lr)
-        return [optimizer]
+        return optimizer
 
     def __dataloader(self) -> DataLoader:
         """Initialize the Replay Buffer dataset used for retrieving experiences."""
@@ -366,14 +364,19 @@ class DQNLightning(LightningModule):
 model = DQNLightning()
 
 trainer = Trainer(
-    gpus=AVAIL_GPUS,
-    max_epochs=200,
-    val_check_interval=100,
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+    max_epochs=150,
+    val_check_interval=50,
+    logger=CSVLogger(save_dir="logs/"),
 )
 
 trainer.fit(model)
 
 # %%
-# Start tensorboard.
-# %load_ext tensorboard
-# %tensorboard --logdir lightning_logs/
+
+metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
+del metrics["step"]
+metrics.set_index("epoch", inplace=True)
+display(metrics.dropna(axis=1, how="all").head())
+sn.relplot(data=metrics, kind="line")

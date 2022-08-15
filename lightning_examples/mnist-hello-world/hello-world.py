@@ -1,8 +1,13 @@
 # %%
 import os
 
+import pandas as pd
+import seaborn as sn
 import torch
+from IPython.core.display import display
 from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.callbacks.progress import TQDMProgressBar
+from pytorch_lightning.loggers import CSVLogger
 from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, random_split
@@ -11,8 +16,7 @@ from torchvision import transforms
 from torchvision.datasets import MNIST
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
-AVAIL_GPUS = min(1, torch.cuda.device_count())
-BATCH_SIZE = 256 if AVAIL_GPUS else 64
+BATCH_SIZE = 256 if torch.cuda.is_available() else 64
 
 # %% [markdown]
 # ## Simplest example
@@ -57,9 +61,10 @@ train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE)
 
 # Initialize a trainer
 trainer = Trainer(
-    gpus=AVAIL_GPUS,
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     max_epochs=3,
-    progress_bar_refresh_rate=20,
+    callbacks=[TQDMProgressBar(refresh_rate=20)],
 )
 
 # Train the model ⚡
@@ -89,7 +94,7 @@ trainer.fit(mnist_model, train_loader)
 #     - If you don't mind loading all your datasets at once, you can set up a condition to allow for both 'fit' related setup and 'test' related setup to run whenever `None` is passed to `stage` (or ignore it altogether and exclude any conditionals).
 #     - **Note this runs across all GPUs and it *is* safe to make state assignments here**
 #
-# 3. [x_dataloader()](https://pytorch-lightning.readthedocs.io/en/stable/api_references.html#core-api) ♻️
+# 3. [x_dataloader()](https://pytorch-lightning.readthedocs.io/en/stable/api/pytorch_lightning.core.hooks.DataHooks.html#pytorch_lightning.core.hooks.DataHooks.train_dataloader) ♻️
 #     - `train_dataloader()`, `val_dataloader()`, and `test_dataloader()` all return PyTorch `DataLoader` instances that are created by wrapping their respective datasets that we prepared in `setup()`
 
 
@@ -127,7 +132,8 @@ class LitMNIST(LightningModule):
             nn.Linear(hidden_size, self.num_classes),
         )
 
-        self.accuracy = Accuracy()
+        self.val_accuracy = Accuracy()
+        self.test_accuracy = Accuracy()
 
     def forward(self, x):
         x = self.model(x)
@@ -144,16 +150,22 @@ class LitMNIST(LightningModule):
         logits = self(x)
         loss = F.nll_loss(logits, y)
         preds = torch.argmax(logits, dim=1)
-        self.accuracy(preds, y)
+        self.val_accuracy.update(preds, y)
 
         # Calling self.log will surface up scalars for you in TensorBoard
         self.log("val_loss", loss, prog_bar=True)
-        self.log("val_acc", self.accuracy, prog_bar=True)
-        return loss
+        self.log("val_acc", self.val_accuracy, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
-        # Here we just reuse the validation_step for testing
-        return self.validation_step(batch, batch_idx)
+        x, y = batch
+        logits = self(x)
+        loss = F.nll_loss(logits, y)
+        preds = torch.argmax(logits, dim=1)
+        self.test_accuracy.update(preds, y)
+
+        # Calling self.log will surface up scalars for you in TensorBoard
+        self.log("test_loss", loss, prog_bar=True)
+        self.log("test_acc", self.test_accuracy, prog_bar=True)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
@@ -192,9 +204,11 @@ class LitMNIST(LightningModule):
 # %%
 model = LitMNIST()
 trainer = Trainer(
-    gpus=AVAIL_GPUS,
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     max_epochs=3,
-    progress_bar_refresh_rate=20,
+    callbacks=[TQDMProgressBar(refresh_rate=20)],
+    logger=CSVLogger(save_dir="logs/"),
 )
 trainer.fit(model)
 
@@ -221,6 +235,9 @@ trainer.fit(model)
 # In Colab, you can use the TensorBoard magic function to view the logs that Lightning has created for you!
 
 # %%
-# Start tensorboard.
-# %load_ext tensorboard
-# %tensorboard --logdir lightning_logs/
+
+metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
+del metrics["step"]
+metrics.set_index("epoch", inplace=True)
+display(metrics.dropna(axis=1, how="all").head())
+sn.relplot(data=metrics, kind="line")

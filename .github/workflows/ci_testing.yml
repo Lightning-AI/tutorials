@@ -19,7 +19,6 @@ jobs:
     # Timeout: https://stackoverflow.com/a/59076067/4521646
     timeout-minutes: 55
     env:
-      ACCELERATOR: CPU
       PATH_DATASETS: ${{ github.workspace }}/.datasets
 
     steps:
@@ -40,6 +39,8 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo apt-get update -q --fix-missing
+          sudo apt install -y ffmpeg
           pip --version
           pip install --requirement requirements.txt --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
           pip install --requirement requirements/data.txt
@@ -74,8 +75,10 @@ jobs:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         run: |
+          set -e
+          sudo apt install -y tree
           while IFS= read -r line; do
-              python .actions/assistant.py bash-test $line > .actions/_ipynb-test.sh
+              python .actions/assistant.py bash-test $line
               cat .actions/_ipynb-test.sh
               bash .actions/_ipynb-test.sh
           done <<< $(cat changed-folders.txt)

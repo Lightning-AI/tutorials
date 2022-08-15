@@ -15,8 +15,8 @@ ipynb: init ${IPYNB}
 
 %.ipynb: %/.meta.y*ml
 	@echo $<
-	python .actions/assistant.py augment-script $(shell dirname $<)
-	python .actions/assistant.py bash-render $(shell dirname $<) > .actions/_ipynb-render.sh
+	python .actions/assistant.py convert-ipynb $(shell dirname $<)
+	python .actions/assistant.py bash-render $(shell dirname $<)
 	bash .actions/_ipynb-render.sh
 
 docs: clean
@@ -33,5 +33,7 @@ clean:
 	rm -f ./*-folders.txt
 	rm -f ./*/**/*.ipynb
 	rm -rf ./*/**/.ipynb_checkpoints
+	rm -rf ./*/**/venv
+	rm -rf ./*/**/logs
 	rm -rf ./*/**/lightning_logs
 	rm -f ./*/**/requirements.txt

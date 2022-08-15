@@ -11,5 +11,7 @@ description: >
 requirements:
   - torchvision
   - lightning-bolts
+  - pandas
+  - seaborn
 accelerator:
   - GPU
