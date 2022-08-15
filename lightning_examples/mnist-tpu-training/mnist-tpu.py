@@ -23,7 +23,7 @@ BATCH_SIZE = 1024
 # ### Defining The `MNISTDataModule`
 #
 # Below we define `MNISTDataModule`. You can learn more about datamodules
-# in [docs](https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html).
+# in [docs](https://pytorch-lightning.readthedocs.io/en/stable/data/datamodule.html).
 
 
 # %%
@@ -33,9 +33,6 @@ class MNISTDataModule(LightningDataModule):
         self.data_dir = data_dir
         self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
 
-        # self.dims is returned when you call dm.size()
-        # Setting default dims here because we know them.
-        # Could optionally be assigned dynamically in dm.setup()
         self.dims = (1, 28, 28)
         self.num_classes = 10
 
@@ -151,7 +148,7 @@ trainer.fit(model, dm)
 # Init DataModule
 dm = MNISTDataModule()
 # Init model from datamodule's attributes
-model = LitModel(*dm.size(), dm.num_classes)
+model = LitModel(*dm.dims, dm.num_classes)
 # Init trainer
 trainer = Trainer(
     max_epochs=3,
@@ -170,7 +167,7 @@ trainer.fit(model, dm)
 # Init DataModule
 dm = MNISTDataModule()
 # Init model from datamodule's attributes
-model = LitModel(*dm.size(), dm.num_classes)
+model = LitModel(*dm.dims, dm.num_classes)
 # Init trainer
 trainer = Trainer(
     max_epochs=3,
