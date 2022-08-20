@@ -1,5 +1,5 @@
 # %% [markdown]
-# In this tutorial we'll look at using [Lightning Flash](https://github.com/Lightning-AI/lightning-flash) and it's
+# In this tutorial we'll look at using [Lightning Flash](https://github.com/PyTorchLightning/lightning-flash) and it's
 # integration with [PyTorch Forecasting](https://github.com/jdb78/pytorch-forecasting) for autoregressive modelling of
 # electricity prices using [the N-BEATS model](https://arxiv.org/abs/1905.10437).
 # We'll start by using N-BEATS to uncover daily patterns (seasonality) from hourly observations and then show how we can
