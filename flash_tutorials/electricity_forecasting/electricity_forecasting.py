@@ -17,14 +17,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import torch
 
-try:
-    import flash
-except ImportError as e:
-    # Just for debugging in the CI
-    import pytorch_lightning
-
-    raise Exception(f"PL version: {pytorch_lightning.__version__}")
-
+import flash
 from flash.core.data.utils import download_data
 from flash.core.integrations.pytorch_forecasting import convert_predictions
 from flash.tabular.forecasting import TabularForecaster, TabularForecastingData

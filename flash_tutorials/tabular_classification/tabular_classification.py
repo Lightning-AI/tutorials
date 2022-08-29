@@ -9,7 +9,6 @@
 import flash
 from flash.core.data.utils import download_data
 from flash.tabular import TabularClassificationData, TabularClassifier
-from torchmetrics.classification import Accuracy, Precision, Recall
 
 # %% [markdown]
 # ###  1. Download the data
