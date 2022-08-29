@@ -13,10 +13,18 @@
 import os
 from typing import Any, Dict
 
-import flash
 import matplotlib.pyplot as plt
 import pandas as pd
 import torch
+
+try:
+    import flash
+except ImportError as e:
+    # Just for debugging in the CI
+    import pytorch_lightning
+    print(pytorch_lightning.__version__)
+    raise e
+
 from flash.core.data.utils import download_data
 from flash.core.integrations.pytorch_forecasting import convert_predictions
 from flash.tabular.forecasting import TabularForecaster, TabularForecastingData
