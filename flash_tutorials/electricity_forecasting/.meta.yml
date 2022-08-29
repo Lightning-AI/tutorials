@@ -15,8 +15,8 @@ description: |
   also cover how features from PyTorch Lightning such as the learning rate finder can be used easily with Flash. As a
   bonus, we show hat we can resample daily observations from the data to discover weekly trends instead.
 requirements:
-  - pytorch-lightning==1.6.0
-  - lightning-flash[tabular]>=0.7.0
+  - pandas==1.1.5
+  - lightning-flash[tabular]>=0.6.0
 accelerator:
   - GPU
   - CPU
