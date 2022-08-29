@@ -156,14 +156,15 @@ model = TabularForecaster(
 
 # %%
 trainer = flash.Trainer(
-    max_epochs=3,
+    max_epochs=1,
     gpus=int(torch.cuda.is_available()),
     gradient_clip_val=0.01,
 )
 
 res = trainer.tuner.lr_find(model, datamodule=datamodule, min_lr=1e-5)
 print(f"Suggested learning rate: {res.suggestion()}")
-res.plot(show=True, suggest=True).show()
+# Uncomment the line below to show the plot
+# res.plot(show=True, suggest=True).show()
 
 # %% [markdown]
 # Once the suggest learning rate has been found, we can update our model with it:
@@ -209,7 +210,8 @@ def plot_interpretation(model_path: str, predict_df: pd.DataFrame, parameters: D
     predictions = trainer.predict(model, datamodule=datamodule)
     predictions, inputs = convert_predictions(predictions)
     model.pytorch_forecasting_model.plot_interpretation(inputs, predictions, idx=0)
-    plt.show()
+    # Uncomment the line below to visualize
+    # plt.show()
 
 
 # %% [markdown]
