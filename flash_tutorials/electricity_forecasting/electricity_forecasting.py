@@ -22,6 +22,7 @@ try:
 except ImportError as e:
     # Just for debugging in the CI
     import pytorch_lightning
+
     print(pytorch_lightning.__version__)
     raise e
 
