@@ -23,8 +23,7 @@ except ImportError as e:
     # Just for debugging in the CI
     import pytorch_lightning
 
-    print(pytorch_lightning.__version__)
-    raise e
+    raise Exception("PL version: pytorch_lightning.__version__")
 
 from flash.core.data.utils import download_data
 from flash.core.integrations.pytorch_forecasting import convert_predictions
