@@ -18,6 +18,7 @@
 #
 #
 # - 4. Train the target model on a target dataset, such as Hymenoptera Dataset with ants and bees. However, freezing some layers at training start such as the backbone tends to be more stable. In Flash, it can easily be done with `trainer.finetune(..., strategy="freeze")`. It is also common to `freeze/unfreeze` the backbone. In `Flash`, it can be done with `trainer.finetune(..., strategy="freeze_unfreeze")`. If a one wants more control on the unfreeze flow, Flash supports `trainer.finetune(..., strategy=MyFinetuningStrategy())` where `MyFinetuningStrategy` is subclassing `pytorch_lightning.callbacks.BaseFinetuning`.
+
 # %%
 
 import flash
@@ -25,8 +26,9 @@ from flash.core.data.utils import download_data
 from flash.text import TextClassificationData, TextClassifier
 
 # %% [markdown]
-# ### Download the data
+# ## Download the data
 # The data are downloaded from a URL, and save in a 'data' directory.
+
 # %%
 download_data("https://pl-flash-data.s3.amazonaws.com/imdb.zip", "data/")
 
@@ -36,6 +38,7 @@ download_data("https://pl-flash-data.s3.amazonaws.com/imdb.zip", "data/")
 #
 # Flash Tasks have built-in DataModules that you can use to organize your data. Pass in a train, validation and test folders and Flash will take care of the rest.
 # Creates a TextClassificationData object from csv file.
+
 # %%
 datamodule = TextClassificationData.from_csv(
     "review",
@@ -53,12 +56,14 @@ datamodule = TextClassificationData.from_csv(
 # Create the TextClassifier task. By default, the TextClassifier task uses a [tiny-bert](https://huggingface.co/prajjwal1/bert-tiny) backbone to train or finetune your model demo. You could use any models from [transformers - Text Classification](https://huggingface.co/models?filter=text-classification,pytorch)
 #
 # Backbone can easily be changed with such as `TextClassifier(backbone='bert-tiny-mnli')`
+
 # %%
 model = TextClassifier(num_classes=datamodule.num_classes, backbone="prajjwal1/bert-tiny")
 
 
 # %% [markdown]
 # ## Create the trainer. Run once on data
+
 # %%
 trainer = flash.Trainer(max_epochs=1)
 
@@ -67,31 +72,36 @@ trainer = flash.Trainer(max_epochs=1)
 # ## Fine-tune the model
 #
 # The backbone won't be freezed and the entire model will be finetuned on the imdb dataset
+
 # %%
 trainer.finetune(model, datamodule=datamodule, strategy="freeze")
 
 
 # %% [markdown]
 # ## Test model
+
 # %%
 trainer.test(model, datamodule=datamodule)
 
 
 # %% [markdown]
 # ## Save it!
+
 # %%
 trainer.save_checkpoint("text_classification_model.pt")
 
 
 # %% [markdown]
 # ## Predicting
-# ### Load the model from a checkpoint
+# **Load the model from a checkpoint**
+
 # %%
 model = TextClassifier.load_from_checkpoint("text_classification_model.pt")
 
 
 # %% [markdown]
-# ### Classify a few sentences! How was the movie?
+# **Classify a few sentences! How was the movie?**
+
 # %%
 datamodule = TextClassificationData.from_lists(
     predict_data=[

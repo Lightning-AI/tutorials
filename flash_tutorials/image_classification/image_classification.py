@@ -15,6 +15,8 @@
 #
 #  - 4. Train the target model on a target dataset, such as Hymenoptera Dataset with ants and bees. However, freezing some layers at training start such as the backbone tends to be more stable. In Flash, it can easily be done with `trainer.finetune(..., strategy="freeze")`. It is also common to `freeze/unfreeze` the backbone. In `Flash`, it can be done with `trainer.finetune(..., strategy="freeze_unfreeze")`. If one wants more control on the unfreeze flow, Flash supports `trainer.finetune(..., strategy=MyFinetuningStrategy())` where `MyFinetuningStrategy` is subclassing `pytorch_lightning.callbacks.BaseFinetuning`.
 
+# %%
+
 import flash
 from flash.core.data.utils import download_data
 from flash.image import ImageClassificationData, ImageClassifier
@@ -22,6 +24,7 @@ from flash.image import ImageClassificationData, ImageClassifier
 # %% [markdown]
 # ## Download data
 # The data are downloaded from a URL, and save in a 'data' directory.
+
 # %%
 download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", "data/")
 
@@ -38,6 +41,7 @@ download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", "da
 #    train/cat/123.png
 #    train/cat/nsdf3.png
 #    train/cat/asd932.png
+
 # %%
 datamodule = ImageClassificationData.from_folders(
     train_folder="data/hymenoptera_data/train/",
@@ -52,6 +56,7 @@ datamodule = ImageClassificationData.from_folders(
 # Create the ImageClassifier task. By default, the ImageClassifier task uses a [resnet-18](https://pytorch.org/hub/pytorch_vision_resnet/) backbone to train or finetune your model.
 # For [Hymenoptera Dataset](https://www.kaggle.com/ajayrana/hymenoptera-data) containing ants and bees images, ``datamodule.num_classes`` will be 2.
 # Backbone can easily be changed with `ImageClassifier(backbone="resnet50")` or you could provide your own `ImageClassifier(backbone=my_backbone)`
+
 # %%
 model = ImageClassifier(num_classes=datamodule.num_classes)
 
@@ -62,37 +67,43 @@ model = ImageClassifier(num_classes=datamodule.num_classes)
 # You can pass in parameters to control the training routine- limit the number of epochs, run on GPUs or TPUs, etc.
 # For more details, read the  [Trainer Documentation](https://pytorch-lightning.readthedocs.io/en/latest/trainer.html).
 # In this demo, we will limit the fine-tuning to run just one epoch using max_epochs=2.
+
 # %%
 trainer = flash.Trainer(max_epochs=3)
 
 
 # %% [markdown]
 # ## Finetune the model
+
 # %%
 trainer.finetune(model, datamodule=datamodule, strategy="freeze")
 
 
 # %% [markdown]
 # ## Test the model
+
 # %%
 trainer.test(model, datamodule=datamodule)
 
 
 # %% [markdown]
 # ## Save it!
+
 # %%
 trainer.save_checkpoint("image_classification_model.pt")
 
 # %% [markdown]
 # ## Predicting
-# ### Load the model from a checkpoint
+# **Load the model from a checkpoint**
+
 # %%
 model = ImageClassifier.load_from_checkpoint(
     "https://flash-weights.s3.amazonaws.com/0.7.0/image_classification_model.pt"
 )
 
 # %% [markdown]
-# ### Predict what's on a few images! ants or bees?
+# **Predict what's on a few images! ants or bees?**
+
 # %%
 datamodule = ImageClassificationData.from_files(
     predict_files=[
