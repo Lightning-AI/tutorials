@@ -20,14 +20,14 @@ from flash.core.data.utils import download_data
 from flash.image import ImageClassificationData, ImageClassifier
 
 # %% [markdown]
-# ## 1. Download data
+# ## Download data
 # The data are downloaded from a URL, and save in a 'data' directory.
 # %%
 download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", "data/")
 
 
 # %% [markdown]
-# ## 2. Load the data
+# ## Load the data
 #
 # Flash Tasks have built-in DataModules that you can use to organize your data. Pass in a train, validation and test folders and Flash will take care of the rest.
 # Creates a ImageClassificationData object from folders of images arranged in this way:</h4>
@@ -48,7 +48,7 @@ datamodule = ImageClassificationData.from_folders(
 
 
 # %% [markdown]
-# ## 3. Build the model
+# ## Build the model
 # Create the ImageClassifier task. By default, the ImageClassifier task uses a [resnet-18](https://pytorch.org/hub/pytorch_vision_resnet/) backbone to train or finetune your model.
 # For [Hymenoptera Dataset](https://www.kaggle.com/ajayrana/hymenoptera-data) containing ants and bees images, ``datamodule.num_classes`` will be 2.
 # Backbone can easily be changed with `ImageClassifier(backbone="resnet50")` or you could provide your own `ImageClassifier(backbone=my_backbone)`
@@ -57,7 +57,7 @@ model = ImageClassifier(num_classes=datamodule.num_classes)
 
 
 # %% [markdown]
-# ## 4. Create the trainer. Run once on data
+# ## Create the trainer. Run once on data
 # The trainer object can be used for training or fine-tuning tasks on new sets of data.
 # You can pass in parameters to control the training routine- limit the number of epochs, run on GPUs or TPUs, etc.
 # For more details, read the  [Trainer Documentation](https://pytorch-lightning.readthedocs.io/en/latest/trainer.html).
@@ -67,32 +67,32 @@ trainer = flash.Trainer(max_epochs=3)
 
 
 # %% [markdown]
-# ## 5. Finetune the model
+# ## Finetune the model
 # %%
 trainer.finetune(model, datamodule=datamodule, strategy="freeze")
 
 
 # %% [markdown]
-# ## 6. Test the model
+# ## Test the model
 # %%
 trainer.test(model, datamodule=datamodule)
 
 
 # %% [markdown]
-# ## 7. Save it!
+# ## Save it!
 # %%
 trainer.save_checkpoint("image_classification_model.pt")
 
 # %% [markdown]
-# ## 8. Predicting
-# ### 1. Load the model from a checkpoint
+# ## Predicting
+# ### Load the model from a checkpoint
 # %%
 model = ImageClassifier.load_from_checkpoint(
     "https://flash-weights.s3.amazonaws.com/0.7.0/image_classification_model.pt"
 )
 
 # %% [markdown]
-# ### 2. Predict what's on a few images! ants or bees?
+# ### Predict what's on a few images! ants or bees?
 # %%
 datamodule = ImageClassificationData.from_files(
     predict_files=[

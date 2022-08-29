@@ -11,14 +11,14 @@ from flash.core.data.utils import download_data
 from flash.tabular import TabularClassificationData, TabularClassifier
 
 # %% [markdown]
-# ###  1. Download the data
+# ### Download the data
 # The data are downloaded from a URL, and save in a 'data' directory.
 # %%
 download_data("https://pl-flash-data.s3.amazonaws.com/titanic.zip", "data/")
 
 
 # %% [markdown]
-# ###  2. Load the data
+# ### Load the data
 # Flash Tasks have built-in DataModules that you can use to organize your data. Pass in a train, validation and test folders and Flash will take care of the rest.
 #
 # Creates a TabularData relies on [Pandas DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html).
@@ -35,7 +35,7 @@ datamodule = TabularClassificationData.from_csv(
 
 
 # %% [markdown]
-# ###  3. Build the model
+# ### Build the model
 #
 # Note: Categorical columns will be mapped to the embedding space. Embedding space is set of tensors to be trained associated to each categorical column.
 # %%
@@ -43,32 +43,32 @@ model = TabularClassifier.from_data(datamodule)
 
 
 # %% [markdown]
-# ###  4. Create the trainer. Run 10 times on data
+# ### Create the trainer. Run 10 times on data
 # %%
 trainer = flash.Trainer(max_epochs=10)
 
 
 # %% [markdown]
-# ###  5. Train the model
+# ### Train the model
 # %%
 trainer.fit(model, datamodule=datamodule)
 
 # %% [markdown]
-# ###  6. Test model
-# %5
+# ### Test model
+# %%
 trainer.test(model, datamodule=datamodule)
 
 
 # %% [markdown]
-# ###  7. Save it!
-# %5
+# ### Save it!
+# %%
 trainer.save_checkpoint("tabular_classification_model.pt")
 
 
 # # Predicting
 
 # %% [markdown]
-# ###  8. Load the model from a checkpoint
+# ### Load the model from a checkpoint
 #
 # `TabularClassifier.load_from_checkpoint` supports both url or local_path to a checkpoint. If provided with an url, the checkpoint will first be downloaded and laoded to re-create the model.
 # %%
@@ -78,7 +78,7 @@ model = TabularClassifier.load_from_checkpoint(
 
 
 # %% [markdown]
-# ###  9. Generate predictions from a sheet file! Who would survive?
+# ### Generate predictions from a sheet file! Who would survive?
 #
 # `TabularClassifier.predict` support both DataFrame and path to `.csv` file.
 # %%

@@ -25,14 +25,14 @@ from flash.core.data.utils import download_data
 from flash.text import TextClassificationData, TextClassifier
 
 # %% [markdown]
-# ###  1. Download the data
+# ### Download the data
 # The data are downloaded from a URL, and save in a 'data' directory.
 # %%
 download_data("https://pl-flash-data.s3.amazonaws.com/imdb.zip", "data/")
 
 
 # %% [markdown]
-# ## 2. Load the data</h2>
+# ## Load the data</h2>
 #
 # Flash Tasks have built-in DataModules that you can use to organize your data. Pass in a train, validation and test folders and Flash will take care of the rest.
 # Creates a TextClassificationData object from csv file.
@@ -48,7 +48,7 @@ datamodule = TextClassificationData.from_csv(
 
 
 # %% [markdown]
-# ##  3. Build the model
+# ## Build the model
 #
 # Create the TextClassifier task. By default, the TextClassifier task uses a [tiny-bert](https://huggingface.co/prajjwal1/bert-tiny) backbone to train or finetune your model demo. You could use any models from [transformers - Text Classification](https://huggingface.co/models?filter=text-classification,pytorch)
 #
@@ -58,13 +58,13 @@ model = TextClassifier(num_classes=datamodule.num_classes, backbone="prajjwal1/b
 
 
 # %% [markdown]
-# ##  4. Create the trainer. Run once on data
+# ## Create the trainer. Run once on data
 # %%
 trainer = flash.Trainer(max_epochs=1)
 
 
 # %% [markdown]
-# ##  5. Fine-tune the model
+# ## Fine-tune the model
 #
 # The backbone won't be freezed and the entire model will be finetuned on the imdb dataset
 # %%
@@ -72,26 +72,26 @@ trainer.finetune(model, datamodule=datamodule, strategy="freeze")
 
 
 # %% [markdown]
-# ##  6. Test model
+# ## Test model
 # %%
 trainer.test(model, datamodule=datamodule)
 
 
 # %% [markdown]
-# ##  7. Save it!
+# ## Save it!
 # %%
 trainer.save_checkpoint("text_classification_model.pt")
 
 
 # %% [markdown]
-# ## 8. Predicting
-# ### 1. Load the model from a checkpoint
+# ## Predicting
+# ### Load the model from a checkpoint
 # %%
 model = TextClassifier.load_from_checkpoint("text_classification_model.pt")
 
 
 # %% [markdown]
-# ### 2. Classify a few sentences! How was the movie?
+# ### Classify a few sentences! How was the movie?
 # %%
 datamodule = TextClassificationData.from_lists(
     predict_data=[
