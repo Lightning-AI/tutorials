@@ -14,7 +14,8 @@ import os
 from typing import Any, Dict
 
 import flash
-import matplotlib.pyplot as plt
+# Uncomment the import below if you want to show plots in this example
+# import matplotlib.pyplot as plt
 import pandas as pd
 import torch
 from flash.core.data.utils import download_data
