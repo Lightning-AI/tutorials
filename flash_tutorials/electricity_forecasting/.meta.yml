@@ -16,7 +16,7 @@ description: |
   bonus, we show hat we can resample daily observations from the data to discover weekly trends instead.
 requirements:
   - pytorch-lightning==1.6.0
-  - lightning-flash[tabular]>=0.6.0
+  - lightning-flash[tabular]>=0.7.0
 accelerator:
   - GPU
   - CPU
