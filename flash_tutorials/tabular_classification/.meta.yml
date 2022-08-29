@@ -11,7 +11,7 @@ description: |
   In this notebook, we'll go over the basics of lightning Flash by training a TabularClassifier on [Titanic Dataset](https://www.kaggle.com/c/titanic).
 requirements:
   - pytorch-lightning==0.6.0
-  - lightning-flash[tabular]>=0.6.0
+  - lightning-flash[tabular]>=0.7.0
 accelerator:
   - GPU
   - CPU
