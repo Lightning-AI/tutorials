@@ -7,7 +7,7 @@
 #
 # Finetuning consists of four steps:
 #
-#  - 1. Train a source neural network model on a source dataset. For computer vision, it is traditionally  the [ImageNet dataset](http://www.image-net.org/search?q=cat). As training is costly, library such as [Torchvion](https://pytorch.org/docs/stable/torchvision/index.html) library supports popular pre-trainer model architectures . In this notebook, we will be using their [resnet-18](https://pytorch.org/hub/pytorch_vision_resnet/).
+#  - 1. Train a source neural network model on a source dataset. For computer vision, it is traditionally  the [ImageNet dataset](http://www.image-net.org). As training is costly, library such as [Torchvision](https://pytorch.org/vision/stable/index.html) library supports popular pre-trainer model architectures . In this notebook, we will be using their [resnet-18](https://pytorch.org/hub/pytorch_vision_resnet/).
 #
 #  - 2. Create a new neural network  called the target model. Its architecture replicates the source model and parameters, expect the latest layer which is removed. This model without its latest layer is traditionally called a backbone
 #
@@ -65,7 +65,7 @@ model = ImageClassifier(num_classes=datamodule.num_classes)
 # ## Create the trainer. Run once on data
 # The trainer object can be used for training or fine-tuning tasks on new sets of data.
 # You can pass in parameters to control the training routine- limit the number of epochs, run on GPUs or TPUs, etc.
-# For more details, read the  [Trainer Documentation](https://pytorch-lightning.readthedocs.io/en/latest/trainer.html).
+# For more details, read the  [Trainer Documentation](https://pytorch-lightning.readthedocs.io/en/stable/api/pytorch_lightning.trainer.trainer.Trainer.html?highlight=Trainer).
 # In this demo, we will limit the fine-tuning to run just one epoch using max_epochs=2.
 
 # %%
