@@ -10,7 +10,7 @@ tags:
 description: |
   In this notebook, we'll go over the basics of lightning Flash by finetunig a TextClassifier on [IMDB Dataset](https://www.imdb.com/interfaces/).
 requirements:
-  - pytorch-lightning==1.6.0
+  - pytorch-lightning==1.6.*
   - lightning-flash[text]>=0.7.0
 accelerator:
   - GPU

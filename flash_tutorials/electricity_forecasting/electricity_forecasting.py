@@ -215,7 +215,7 @@ def plot_interpretation(model_path: str, predict_df: pd.DataFrame, parameters: D
 # And now we run the function to plot the trend and seasonality curves:
 
 # %%
-# Make sure to uncomment the line below if you want to run predictions and visualize the graph
+# Todo: Make sure to uncomment the line below if you want to run predictions and visualize the graph
 # plot_interpretation(trainer.checkpoint_callback.best_model_path, df_energy_hourly, datamodule.parameters)
 
 # %% [markdown]
@@ -289,7 +289,7 @@ trainer.fit(model, datamodule=datamodule)
 # Now let's look at what it learned:
 
 # %%
-# Make sure to uncomment the line below if you want to run predictions and visualize the graph
+# Todo: Make sure to uncomment the line below if you want to run predictions and visualize the graph
 # plot_interpretation(trainer.checkpoint_callback.best_model_path, df_energy_daily, datamodule.parameters)
 
 # %% [markdown]
