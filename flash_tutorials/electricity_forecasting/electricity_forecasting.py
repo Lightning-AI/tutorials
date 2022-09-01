@@ -15,8 +15,7 @@ from typing import Any, Dict
 
 import flash
 
-# Uncomment the import below if you want to show plots in this example
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import pandas as pd
 import torch
 from flash.core.data.utils import download_data
@@ -164,8 +163,7 @@ trainer = flash.Trainer(
 
 res = trainer.tuner.lr_find(model, datamodule=datamodule, min_lr=1e-5)
 print(f"Suggested learning rate: {res.suggestion()}")
-# Uncomment the line below to show the plot
-# res.plot(show=True, suggest=True).show()
+res.plot(show=True, suggest=True).show()
 
 # %% [markdown]
 # Once the suggest learning rate has been found, we can update our model with it:
