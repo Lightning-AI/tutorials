@@ -27,7 +27,7 @@ COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
 BRANCH_DEFAULT = "main"
 BRANCH_PUBLISHED = "publication"
 DIR_NOTEBOOKS = ".notebooks"
-URL_PL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{BRANCH_DEFAULT}"
+URL_PL_DOWNLOAD = f"https://github.com/Lightning-AI/{REPO_NAME}/raw/{BRANCH_DEFAULT}"
 TEMPLATE_HEADER = f"""# %%%% [markdown]
 #
 # # %(title)s
@@ -41,7 +41,7 @@ TEMPLATE_HEADER = f"""# %%%% [markdown]
 # ---
 # Open in [![Open In Colab](https://colab.research.google.com/assets/colab-badge.png){{height="20px" width="117px"}}]({COLAB_REPO_LINK}/{REPO_NAME}/blob/{BRANCH_PUBLISHED}/{DIR_NOTEBOOKS}/%(local_ipynb)s)
 #
-# Give us a ⭐ [on Github](https://www.github.com/PytorchLightning/pytorch-lightning/)
+# Give us a ⭐ [on Github](https://www.github.com/Lightning-AI/lightning/)
 # | Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/stable/)
 # | Join us [on Slack](https://www.pytorchlightning.ai/community)
 
@@ -61,7 +61,7 @@ TEMPLATE_FOOTER = """
 # Congratulations on completing this notebook tutorial! If you enjoyed this and would like to join the Lightning
 # movement, you can do so in the following ways!
 #
-# ### Star [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) on GitHub
+# ### Star [Lightning](https://github.com/Lightning-AI/lightning) on GitHub
 # The easiest way to help our community is just by starring the GitHub repos! This helps raise awareness of the cool
 # tools we're building.
 #
@@ -72,16 +72,16 @@ TEMPLATE_FOOTER = """
 #
 # ### Contributions !
 # The best way to contribute to our community is to become a code contributor! At any time you can go to
-# [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) or [Bolt](https://github.com/PyTorchLightning/lightning-bolts)
+# [Lightning](https://github.com/Lightning-AI/lightning) or [Bolt](https://github.com/Lightning-AI/lightning-bolts)
 # GitHub Issues page and filter for "good first issue".
 #
-# * [Lightning good first issue](https://github.com/PyTorchLightning/pytorch-lightning/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
-# * [Bolt good first issue](https://github.com/PyTorchLightning/lightning-bolts/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+# * [Lightning good first issue](https://github.com/Lightning-AI/lightning/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+# * [Bolt good first issue](https://github.com/Lightning-AI/lightning-bolts/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
 # * You can also contribute your own notebooks with useful examples !
 #
 # ### Great thanks from the entire Pytorch Lightning Team for your interest !
 #
-# [![Pytorch Lightning](https://raw.githubusercontent.com/PyTorchLightning/pytorch-lightning/master/docs/source/_static/images/logo.png){height="60px" width="240px"}](https://pytorchlightning.ai)
+# [![Pytorch Lightning](https://raw.githubusercontent.com/Lightning-AI/lightning/master/docs/source/_static/images/logo.png){height="60px" width="240px"}](https://pytorchlightning.ai)
 
 """
 TEMPLATE_CARD_ITEM = """
