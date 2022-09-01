@@ -211,15 +211,15 @@ def plot_interpretation(model_path: str, predict_df: pd.DataFrame, parameters: D
     predictions = trainer.predict(model, datamodule=datamodule)
     predictions, inputs = convert_predictions(predictions)
     model.pytorch_forecasting_model.plot_interpretation(inputs, predictions, idx=0)
-    # Uncomment the line below to visualize
-    # plt.show()
+    plt.show()
 
 
 # %% [markdown]
 # And now we run the function to plot the trend and seasonality curves:
 
 # %%
-plot_interpretation(trainer.checkpoint_callback.best_model_path, df_energy_hourly, datamodule.parameters)
+# Make sure to uncomment the line below if you want to run predictions and visualize the graph
+# plot_interpretation(trainer.checkpoint_callback.best_model_path, df_energy_hourly, datamodule.parameters)
 
 # %% [markdown]
 # It worked! The plot shows that the `TabularForecaster` does a reasonable job of modelling the time series and also
@@ -292,7 +292,8 @@ trainer.fit(model, datamodule=datamodule)
 # Now let's look at what it learned:
 
 # %%
-plot_interpretation(trainer.checkpoint_callback.best_model_path, df_energy_daily, datamodule.parameters)
+# Make sure to uncomment the line below if you want to run predictions and visualize the graph
+# plot_interpretation(trainer.checkpoint_callback.best_model_path, df_energy_daily, datamodule.parameters)
 
 # %% [markdown]
 # Success! We can now also see weekly trends / seasonality uncovered by our new model.
