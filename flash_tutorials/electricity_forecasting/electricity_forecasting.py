@@ -155,7 +155,7 @@ model = TabularForecaster(
 
 # %%
 trainer = flash.Trainer(
-    max_epochs=1,
+    max_epochs=3,
     gpus=int(torch.cuda.is_available()),
     gradient_clip_val=0.01,
 )
