@@ -25,7 +25,7 @@ sn.set()
 # %% [markdown]
 # ## Define Data Augmentations module
 #
-# [Kornia.org](https://www.kornia.org) is low level Computer Vision library that provides a dedicated module
+# [Kornia](https://kornia.github.io/) is low level Computer Vision library that provides a dedicated module
 # [`kornia.augmentation`](https://kornia.readthedocs.io/en/latest/augmentation.html) module implementing
 # en extensive set of data augmentation techniques for image and video.
 #
