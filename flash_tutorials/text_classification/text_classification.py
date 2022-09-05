@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # %% [markdown]
 # In this notebook, we'll go over the basics of lightning Flash by finetunig a TextClassifier on [IMDB Dataset](https://www.imdb.com/interfaces/).
 #
