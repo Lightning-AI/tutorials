@@ -1,15 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.14.1
-# ---
-
 # %% [markdown]
 # ## Scheduled Fine-Tuning with the Fine-Tuning Scheduler Extension
 #
@@ -188,6 +176,7 @@ from packaging.version import Version
 
 import sentencepiece as sp  # noqa: F401 # isort: split
 import datasets
+import evaluate
 import pytorch_lightning as pl
 import torch
 from datasets import logging as datasets_logging
@@ -375,9 +364,7 @@ class RteBoolqModule(pl.LightningModule):
             "experiment_id": f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{experiment_tag}",
         }
         self.save_hyperparameters(self.init_hparams)
-        self.metric = datasets.load_metric(
-            "super_glue", self.hparams.task_name, experiment_id=self.hparams.experiment_id
-        )
+        self.metric = evaluate.load("super_glue", self.hparams.task_name, experiment_id=self.hparams.experiment_id)
         self.no_decay = ["bias", "LayerNorm.weight"]
 
     @property
@@ -584,7 +571,7 @@ enable_progress_bar = False
 def train() -> None:
     trainer = pl.Trainer(
         enable_progress_bar=enable_progress_bar,
-        max_epochs=1,
+        max_epochs=100,
         precision=16,
         accelerator="auto",
         devices=1 if is_cuda_available() else None,
