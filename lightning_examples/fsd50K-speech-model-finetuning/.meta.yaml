@@ -1,0 +1,20 @@
+title: FSD50K Speech Model Fine-tuning Tutorial
+author: [Florent Meyer](florentmeyer@outlook.fr)
+created: 2022-10-22
+license: CC BY-SA
+description: |
+  This notebook will walk you through the fine-tuning
+  of a Transformer-based speech embedder (e.g. wav2vec 2.0 [https://arxiv.org/abs/2006.11477])
+  on a 500-element subset of the original FSD50K dataset [https://zenodo.org/record/4060432],
+  using the following repository: [https://github.com/FlorentMeyer/fsd50k_speech_model_finetuning].
+  The FSD50K dataset is licensed under CC BY 4.0,
+  and its subset used here only includes CC0 1.0 audio samples.
+requirements:
+  - git+https://github.com/FlorentMeyer/fsd50k_speech_model_finetuning
+  - numpy
+  - pandas
+  - scikit-learn
+  - torchaudio
+  - transformers
+accelerator:
+  - GPU
