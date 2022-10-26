@@ -99,7 +99,6 @@ LOG_INTERVAL_SAMPLES = 10
 
 FULL_CONFIG = {
     "seed": 42,
-
     "datamodule_config": {
         "datadict_prm": {
             "dpath_data": osp.join(os.getcwd(), "dataset"),
@@ -115,21 +114,18 @@ FULL_CONFIG = {
         "pin_memory": True,
         "num_workers": 10,
     },
-
     "model_config": {
         "embedder_cls": EmbedderHF,
         "embedder_prm": {
             "model_name": Wav2Vec2Model,
             "hubpath_weights": "facebook/wav2vec2-base-960h",
         },
-
         "embeddings_merger_cls": EmbeddingsMerger,
         "embeddings_merger_prm": {
             "red_T": "mean",
             "red_L": "mean",
             "Ls": [_ for _ in range(12)],
         },
-
         "classifier_cls": Classifier,
         "classifier_prm": {
             "in_size": 768,
@@ -137,7 +133,6 @@ FULL_CONFIG = {
             "hidden_size": 512,
             "normalization": nn.BatchNorm1d,
         },
-
         "loss_cls": nn.BCEWithLogitsLoss,
         "loss_prm": {},
         "optimizer_cls": Adam,
@@ -148,7 +143,6 @@ FULL_CONFIG = {
             "encoder.layers.11": 1,
         },
     },
-
     "trainer_config": {
         "max_epochs": 3,
         "auto_select_gpus": True,
@@ -176,7 +170,9 @@ FULL_CONFIG = {
 
 # %% id="uNNvu1Jd5kIH"
 pl.utilities.seed.seed_everything(FULL_CONFIG["seed"])
-FULL_CONFIG["trainer_config"]["log_every_n_steps"] = LOG_INTERVAL_SAMPLES // FULL_CONFIG["datamodule_config"]["batch_size"]
+FULL_CONFIG["trainer_config"]["log_every_n_steps"] = (
+    LOG_INTERVAL_SAMPLES // FULL_CONFIG["datamodule_config"]["batch_size"]
+)
 
 # %% [markdown] id="daXR-HHz4ze7"
 # # Prepare (reduced) dataset
@@ -219,17 +215,11 @@ inspect_data(
 # # %tensorboard --logdir ./tb_logs
 
 # %% id="dZl2TdlTxUkF"
-model = EmbedderClassifier(
-    **FULL_CONFIG["model_config"]
-)
+model = EmbedderClassifier(**FULL_CONFIG["model_config"])
 
-datamodule = FSD50KDataModule(
-    **FULL_CONFIG["datamodule_config"]
-)
+datamodule = FSD50KDataModule(**FULL_CONFIG["datamodule_config"])
 
-trainer = pl.Trainer(
-    **FULL_CONFIG["trainer_config"]
-)
+trainer = pl.Trainer(**FULL_CONFIG["trainer_config"])
 
 trainer.fit(model, datamodule=datamodule)
 
