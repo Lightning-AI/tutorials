@@ -15,7 +15,7 @@
 # %% [markdown] id="CI0JECKA9AnY"
 # # README
 #
-# MWE of fine-tuning a Transformer-based speech embedder (e.g. [wav2vec 2.0](https://arxiv.org/abs/2006.11477)) on a subset of FSD50K using `pytorch_lightning` and HuggingFace `transformers`. 
+# MWE of fine-tuning a Transformer-based speech embedder (e.g. [wav2vec 2.0](https://arxiv.org/abs/2006.11477)) on a subset of FSD50K using `pytorch_lightning` and HuggingFace `transformers`.
 #
 # Please refer to this executable [Colab notebook](https://colab.research.google.com/drive/1NddRCV1BtwgK6tvnylkLHY8d7t4OhAEw?usp=sharing) importing the code from this repo as well as a 500-element subset of the original FSD50K dataset for a concrete train+test example.
 #
@@ -50,32 +50,30 @@ import os
 import os.path as osp
 
 import pytorch_lightning as pl
-from sklearn.metrics import average_precision_score
-from torch import nn
-from torch.optim import Adam
-from transformers import Wav2Vec2Model
-
 from fsd50k_speech_model_finetuning.data_preparation_inspection import (
-    FSD50KDataDict,
-    tokens_to_names,
-    inspect_data,
     CollatorVariableLengths,
+    FSD50KDataDict,
     FSD50KDataModule,
     gather_preds,
     get_preds_fpaths,
-    sort_highest_logits,
     get_preds_max_logits_indices,
+    inspect_data,
+    sort_highest_logits,
+    tokens_to_names,
 )
 from fsd50k_speech_model_finetuning.model_architecture import (
-    EmbedderHF,
-    Unfreeze,
-    EmbeddingsMerger,
     Classifier,
     EmbedderClassifier,
+    EmbedderHF,
+    EmbeddingsMerger,
+    Unfreeze,
 )
+from sklearn.metrics import average_precision_score
+from torch import nn
+from torch.optim import Adam
 
 # %% id="vz8PAflMXFam"
-from transformers import logging
+from transformers import Wav2Vec2Model, logging
 
 logging.set_verbosity_error()
 
@@ -97,34 +95,34 @@ for n, _ in wav2vec2.named_parameters():
 # ## Define the configuration dict
 
 # %% id="VMpkjV0lKHxA"
-LOG_INTERVAL_SAMPLES = 10 
+LOG_INTERVAL_SAMPLES = 10
 
 FULL_CONFIG = {
     "seed": 42,
-    
+
     "datamodule_config": {
         "datadict_prm": {
             "dpath_data": osp.join(os.getcwd(), "dataset"),
         },
-        "batch_size": 4, 
+        "batch_size": 4,
         "collate_cls": CollatorVariableLengths,
-        "shuffle": True, 
+        "shuffle": True,
         "drop_last": True,
         "dataset_prm": {
             "orig_sr": 44_100,
             "goal_sr": 16_000,
         },
-        "pin_memory": True, 
+        "pin_memory": True,
         "num_workers": 10,
     },
 
     "model_config": {
         "embedder_cls": EmbedderHF,
         "embedder_prm": {
-            "model_name": Wav2Vec2Model, 
+            "model_name": Wav2Vec2Model,
             "hubpath_weights": "facebook/wav2vec2-base-960h",
         },
-        
+
         "embeddings_merger_cls": EmbeddingsMerger,
         "embeddings_merger_prm": {
             "red_T": "mean",
@@ -134,15 +132,15 @@ FULL_CONFIG = {
 
         "classifier_cls": Classifier,
         "classifier_prm": {
-            "in_size": 768, 
+            "in_size": 768,
             "activation": nn.ReLU,
             "hidden_size": 512,
             "normalization": nn.BatchNorm1d,
         },
-        
+
         "loss_cls": nn.BCEWithLogitsLoss,
         "loss_prm": {},
-        "optimizer_cls": Adam, 
+        "optimizer_cls": Adam,
         "optimizer_prm": {
             "lr": 1e-5,
         },
@@ -153,22 +151,22 @@ FULL_CONFIG = {
 
     "trainer_config": {
         "max_epochs": 3,
-        "auto_select_gpus": True, 
+        "auto_select_gpus": True,
         "accelerator": "gpu",
         "devices": 1,
-        "check_val_every_n_epoch": 1, 
+        "check_val_every_n_epoch": 1,
         "precision": 16,
         "callbacks": [
             pl.callbacks.ModelCheckpoint(
                 filename="{epoch}-{val_loss:.5f}",
-                save_top_k=-1, 
+                save_top_k=-1,
                 monitor="val_loss",
                 mode="min",
             ),
             Unfreeze(),
         ],
         "logger": pl.loggers.TensorBoardLogger(
-            save_dir="tb_logs", 
+            save_dir="tb_logs",
         ),
     },
 }
@@ -207,8 +205,8 @@ train_datadict["ys_true_names"] = tokens_to_names(train_datadict["ys_true"], fsd
 
 # %% id="UwDU12Ewj-fA"
 inspect_data(
-    datadict=train_datadict, 
-    show_keys=["paths", "ys_true_names"], 
+    datadict=train_datadict,
+    show_keys=["paths", "ys_true_names"],
     samples_indices=range(5),
 )
 
@@ -252,8 +250,8 @@ preds = gather_preds(preds)
 
 # %% id="zlTooqqp8FWk"
 mAP_micro = average_precision_score(
-    preds["ys_true"], 
-    preds["logits"], 
+    preds["ys_true"],
+    preds["logits"],
     average="micro",
 )
 
@@ -264,7 +262,7 @@ print("mAP_micro:", mAP_micro)
 # ## Explore samples with highest prediction scores
 
 # %% [markdown] id="SYH5XclifZpJ"
-# Retrieve audio file paths from their IDs. 
+# Retrieve audio file paths from their IDs.
 #
 # For each of the samples on which a prediction was made, rank (for example the first 4, hence the `"logits_4_highest"` key) highest confidence logits with their corresponding class names.
 #
@@ -277,7 +275,7 @@ preds_max_logits_indices = get_preds_max_logits_indices(preds)
 
 # %% id="Vnyr_f7tmNYJ"
 inspect_data(
-    datadict=preds, 
+    datadict=preds,
     show_keys=["paths", "logits_4_highest", "ys_true_names"],
     samples_indices=preds_max_logits_indices[:5],
 )
