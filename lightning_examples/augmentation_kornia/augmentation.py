@@ -34,7 +34,7 @@ sn.set()
 # where the augmentation_kornia (also subclassing `nn.Module`) are combined with other PyTorch components
 # such as `nn.Sequential`.
 #
-# Checkout the different augmentation operators in Kornia docs and experiment yourself !
+# Checkout the different augmentation operators in Kornia docs and experiment yourself!
 
 
 # %%
