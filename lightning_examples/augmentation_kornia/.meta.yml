@@ -7,8 +7,8 @@ build: 4
 tags:
   - Image
 description: |
-  In this tutorial we will show how to combine both Kornia.org and PyTorch Lightning
-  to perform efficient data augmentation to train a simpple model using the GPU in batch
+  In this tutorial we will show how to combine both Kornia and PyTorch Lightning
+  to perform efficient data augmentation to train a simple model using the GPU in batch
   mode without additional effort.
 requirements:
   - kornia
