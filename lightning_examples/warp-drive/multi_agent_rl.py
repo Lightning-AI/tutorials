@@ -161,12 +161,13 @@ run_config = dict(
 # In order to instantiate the WarpDrive module, we first use an environment wrapper to specify that the environment needs to be run on the GPU (via the `use_cuda` flag). Also, agents in the environment can share policy models; so we specify a dictionary to map each policy network model to the list of agent ids using that model.
 
 # %%
-# Create a wrapped environment object via the EnvWrapper.
-# Ensure that use_cuda is set to True (in order to run on the GPU).
+# Create a wrapped environment object via the EnvWrapper
+# Ensure that env_backend is set to be "pycuda" or "numba"(in order to run on the GPU)
+# WarpDrive v2 supports JIT compiled Numba backend now!
 env_wrapper = EnvWrapper(
     TagContinuous(**run_config["env"]),
     num_envs=run_config["trainer"]["num_envs"],
-    use_cuda=True,
+    env_backend="pycuda",
 )
 
 # Agents can share policy models: this dictionary maps policy model names to agent ids.
@@ -218,7 +219,7 @@ num_gpus = 1
 num_episodes = run_config["trainer"]["num_episodes"]
 episode_length = run_config["env"]["episode_length"]
 training_batch_size = run_config["trainer"]["train_batch_size"]
-num_epochs = num_episodes * episode_length / training_batch_size
+num_epochs = int(num_episodes * episode_length / training_batch_size)
 
 trainer = Trainer(
     accelerator="gpu",
