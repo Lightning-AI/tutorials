@@ -2,4 +2,5 @@ virtualenv>=20.10
 jupytext>=1.10  # converting
 pytest>=6.0
 nbval>=0.9.6  # testing
+git+https://github.com/Borda/nbval@master
 papermill>=2.3.4  # render
