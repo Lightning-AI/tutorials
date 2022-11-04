@@ -19,8 +19,9 @@
 #
 # Please refer to this executable [Colab notebook](https://colab.research.google.com/drive/1NddRCV1BtwgK6tvnylkLHY8d7t4OhAEw?usp=sharing) importing the code from this repo as well as a 500-element subset of the original FSD50K dataset for a concrete train+test example.
 #
-# Note: intended as an editable incentive for jumping into FSD50K and the Pytorch-Lightning+HuggingFace framework, and as a showcase for an end-of-studies project -- choices have been made and some logic has been altered to (greatly) reduce the size of the original code.
+# Note: intended as an editable incentive for jumping into FSD50K and the Pytorch-Lightning+HuggingFace framework and as a showcase for an end-of-studies project -- choices have been made, and some logic has been altered to (significantly) reduce the size of the original code.
 #
+
 # Attribution and licenses:
 # - [The FSD50K dataset](https://zenodo.org/record/4060432) is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 # - The 500-element subset used here only includes [CC0 1.0](http://creativecommons.org/publicdomain/zero/1.0/) audio samples
@@ -169,7 +170,8 @@ FULL_CONFIG = {
 # ## Set seed and add params deduced from user's configuration
 
 # %% id="uNNvu1Jd5kIH"
-pl.utilities.seed.seed_everything(FULL_CONFIG["seed"])
+pl.seed_everything(FULL_CONFIG["seed"])
+
 FULL_CONFIG["trainer_config"]["log_every_n_steps"] = (
     LOG_INTERVAL_SAMPLES // FULL_CONFIG["datamodule_config"]["batch_size"]
 )
@@ -249,14 +251,15 @@ mAP_micro = average_precision_score(
 print("mAP_micro:", mAP_micro)
 
 # %% [markdown] id="oqwX4z1RT8Uw"
-# ## Explore samples with highest prediction scores
+# ## Explore samples with the highest prediction scores
 
 # %% [markdown] id="SYH5XclifZpJ"
 # Retrieve audio file paths from their IDs.
 #
-# For each of the samples on which a prediction was made, rank (for example the first 4, hence the `"logits_4_highest"` key) highest confidence logits with their corresponding class names.
+# For each of the samples on which a prediction was made, rank (for example, the first 4, hence the `"logits_4_highest"` key) the highest confidence logits with their corresponding class names.
 #
 # As an example for choosing some samples among the 100 in the test set, rank samples according to the highest logit they contain to inspect audios for which the model seemed confident -- as an alternative, one could also choose a handful of samples at random.
+
 
 # %% id="N3Dk23p_O-38"
 preds = get_preds_fpaths(preds)
