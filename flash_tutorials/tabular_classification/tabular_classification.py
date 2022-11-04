@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # %% [markdown]
 # In this notebook, we'll go over the basics of lightning Flash by training a TabularClassifier on [Titanic Dataset](https://www.kaggle.com/c/titanic).
 
