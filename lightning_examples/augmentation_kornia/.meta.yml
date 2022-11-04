@@ -12,6 +12,7 @@ description: |
   mode without additional effort.
 requirements:
   - kornia
+  - pytorch-lightning !=1.8.0, !=1.8.0.post1  # skip for PermissionError: [Errno 13] Permission denied: 'command'
   - torchmetrics
   - torchvision
   - matplotlib

@@ -650,7 +650,7 @@ class AssistantCLI:
         req += meta.get("requirements", [])
         req = [r.strip() for r in req]
 
-        def _parse_package_name(pkg: str, keys: str = " <=>[]@", egg_name: str = "#egg=") -> str:
+        def _parse_package_name(pkg: str, keys: str = " !<=>[]@", egg_name: str = "#egg=") -> str:
             """Parsing just the package name."""
             if egg_name in pkg:
                 pkg = pkg[pkg.index(egg_name) + len(egg_name) :]
