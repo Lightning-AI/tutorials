@@ -67,7 +67,7 @@ model = ImageClassifier(num_classes=datamodule.num_classes)
 # In this demo, we will limit the fine-tuning to run just one epoch using max_epochs=2.
 
 # %%
-trainer = flash.Trainer(max_epochs=3)
+trainer = flash.Trainer(max_epochs=1)
 
 
 # %% [markdown]
