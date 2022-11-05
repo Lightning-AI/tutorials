@@ -32,10 +32,6 @@
 # %% id="L-wt4ld74fjq"
 import torch
 
-# %% id="iLzcZH-DL3Sz"
-if torch.cuda.device_count() < 1:
-    raise ValueError("Please run this notebook inside a GPU environment.")
-
 # %% [markdown] id="NxjeSJxGw_9S"
 # # Init
 
