@@ -26,12 +26,6 @@
 # - [The FSD50K dataset](https://zenodo.org/record/4060432) is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 # - The 500-element subset used here only includes [CC0 1.0](http://creativecommons.org/publicdomain/zero/1.0/) audio samples
 
-# %% [markdown] id="Y3ptRruWL2OP"
-# # Check GPU availability
-
-# %% id="L-wt4ld74fjq"
-import torch
-
 # %% [markdown] id="NxjeSJxGw_9S"
 # # Init
 
