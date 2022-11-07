@@ -29,18 +29,16 @@
 # %% [markdown] id="NxjeSJxGw_9S"
 # # Init
 
-# %% id="e1LjqtE67h6a"
-# !pip install pytorch_lightning
-# !pip install transformers
-
-# %% id="XzeAP33RilCh"
-# !pip install git+https://github.com/FlorentMeyer/fsd50k_speech_model_finetuning
-
 # %% id="kjazzR__WBGh"
 import os
 import os.path as osp
 
 import pytorch_lightning as pl
+from torch import nn
+from torch.optim import Adam
+from torchmetrics.functional.classification import multilabel_average_precision
+from transformers import Wav2Vec2Model, logging
+
 from fsd50k_speech_model_finetuning.data_preparation_inspection import (
     CollatorVariableLengths,
     FSD50KDataDict,
@@ -59,13 +57,8 @@ from fsd50k_speech_model_finetuning.model_architecture import (
     EmbeddingsMerger,
     Unfreeze,
 )
-from torch import nn
-from torch.optim import Adam
-from torchmetrics.functional.classification import multilabel_average_precision
 
 # %% id="vz8PAflMXFam"
-from transformers import Wav2Vec2Model, logging
-
 logging.set_verbosity_error()
 
 # %% [markdown] id="_3-Aacr3KFOv"
