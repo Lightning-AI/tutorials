@@ -29,24 +29,14 @@
 # %% [markdown] id="Y3ptRruWL2OP"
 # # Check GPU availability
 
-# %% id="L-wt4ld74fjq"
-import torch
-
-# %% [markdown] id="NxjeSJxGw_9S"
-# # Init
-
-# %% id="e1LjqtE67h6a"
-# !pip install pytorch_lightning
-# !pip install transformers
-
-# %% id="XzeAP33RilCh"
-# !pip install git+https://github.com/FlorentMeyer/fsd50k_speech_model_finetuning
-
 # %% id="kjazzR__WBGh"
 import os
 import os.path as osp
 
 import pytorch_lightning as pl
+
+# %% id="L-wt4ld74fjq"
+import torch
 from fsd50k_speech_model_finetuning.data_preparation_inspection import (
     CollatorVariableLengths,
     FSD50KDataDict,
@@ -71,6 +61,17 @@ from torchmetrics.functional import average_precision
 
 # %% id="vz8PAflMXFam"
 from transformers import Wav2Vec2Model, logging
+
+# %% [markdown] id="NxjeSJxGw_9S"
+# # Init
+
+# %% id="e1LjqtE67h6a"
+# !pip install pytorch_lightning
+# !pip install transformers
+
+# %% id="XzeAP33RilCh"
+# !pip install git+https://github.com/FlorentMeyer/fsd50k_speech_model_finetuning
+
 
 logging.set_verbosity_error()
 
@@ -238,10 +239,10 @@ preds = gather_preds(preds)
 
 # %% id="zlTooqqp8FWk"
 mAP_micro = average_precision(
-    preds=preds["logits"], 
-    target=preds["ys_true"], 
-    average="micro", 
-    num_labels=200, 
+    preds=preds["logits"],
+    target=preds["ys_true"],
+    average="micro",
+    num_labels=200,
     pos_label=1,
 )
 
