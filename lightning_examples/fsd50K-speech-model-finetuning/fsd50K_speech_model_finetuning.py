@@ -61,7 +61,7 @@ from fsd50k_speech_model_finetuning.model_architecture import (
 )
 from torch import nn
 from torch.optim import Adam
-from torchmetrics.functional import average_precision
+from torchmetrics.functional.classification import multilabel_average_precision
 
 # %% id="vz8PAflMXFam"
 from transformers import Wav2Vec2Model, logging
@@ -231,12 +231,11 @@ preds = gather_preds(preds)
 # ## Compute metrics
 
 # %% id="zlTooqqp8FWk"
-mAP_micro = average_precision(
+mAP_micro = multilabel_average_precision(
     preds=preds["logits"], 
     target=preds["ys_true"], 
     average="micro", 
     num_labels=200, 
-    pos_label=1,
 )
 
 # %% id="D7dpSPpf9uKS"
