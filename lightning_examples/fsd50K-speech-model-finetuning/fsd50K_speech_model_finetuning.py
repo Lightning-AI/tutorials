@@ -65,9 +65,9 @@ from fsd50k_speech_model_finetuning.model_architecture import (
     EmbeddingsMerger,
     Unfreeze,
 )
-from sklearn.metrics import average_precision_score
 from torch import nn
 from torch.optim import Adam
+from torchmetrics.functional import average_precision
 
 # %% id="vz8PAflMXFam"
 from transformers import Wav2Vec2Model, logging
@@ -237,14 +237,16 @@ preds = gather_preds(preds)
 # ## Compute metrics
 
 # %% id="zlTooqqp8FWk"
-mAP_micro = average_precision_score(
-    preds["ys_true"],
-    preds["logits"],
-    average="micro",
+mAP_micro = average_precision(
+    preds=preds["logits"], 
+    target=preds["ys_true"], 
+    average="micro", 
+    num_labels=200, 
+    pos_label=1,
 )
 
 # %% id="D7dpSPpf9uKS"
-print("mAP_micro:", mAP_micro)
+print("mAP_micro:", mAP_micro.item())
 
 # %% [markdown] id="oqwX4z1RT8Uw"
 # ## Explore samples with the highest prediction scores
