@@ -34,11 +34,6 @@ import os
 import os.path as osp
 
 import pytorch_lightning as pl
-from torch import nn
-from torch.optim import Adam
-from torchmetrics.functional.classification import multilabel_average_precision
-from transformers import Wav2Vec2Model, logging
-
 from fsd50k_speech_model_finetuning.data_preparation_inspection import (
     CollatorVariableLengths,
     FSD50KDataDict,
@@ -57,6 +52,10 @@ from fsd50k_speech_model_finetuning.model_architecture import (
     EmbeddingsMerger,
     Unfreeze,
 )
+from torch import nn
+from torch.optim import Adam
+from torchmetrics.functional.classification import multilabel_average_precision
+from transformers import Wav2Vec2Model, logging
 
 # %% id="vz8PAflMXFam"
 logging.set_verbosity_error()
@@ -225,10 +224,10 @@ preds = gather_preds(preds)
 
 # %% id="zlTooqqp8FWk"
 mAP_micro = multilabel_average_precision(
-    preds=preds["logits"], 
-    target=preds["ys_true"], 
-    average="micro", 
-    num_labels=200, 
+    preds=preds["logits"],
+    target=preds["ys_true"],
+    average="micro",
+    num_labels=200,
 )
 
 # %% id="D7dpSPpf9uKS"
