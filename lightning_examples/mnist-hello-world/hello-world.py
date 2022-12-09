@@ -132,8 +132,8 @@ class LitMNIST(LightningModule):
             nn.Linear(hidden_size, self.num_classes),
         )
 
-        self.val_accuracy = Accuracy()
-        self.test_accuracy = Accuracy()
+        self.val_accuracy = Accuracy('multiclass', num_classes=10)
+        self.test_accuracy = Accuracy('multiclass', num_classes=10)
 
     def forward(self, x):
         x = self.model(x)
