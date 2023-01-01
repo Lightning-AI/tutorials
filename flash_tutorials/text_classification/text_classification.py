@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # %% [markdown]
 # In this notebook, we'll go over the basics of lightning Flash by finetunig a TextClassifier on [IMDB Dataset](https://www.imdb.com/interfaces/).
 #
@@ -46,7 +44,7 @@ datamodule = TextClassificationData.from_csv(
     train_file="data/imdb/train.csv",
     val_file="data/imdb/valid.csv",
     test_file="data/imdb/test.csv",
-    batch_size=4,
+    batch_size=512,  # just increased for the example to run fast
 )
 
 
