@@ -42,7 +42,6 @@ z_dim = 128
 # %%
 class BarlowTwinsTransform:
     def __init__(self, train=True, input_height=224, gaussian_blur=True, jitter_strength=1.0, normalize=None):
-
         self.input_height = input_height
         self.gaussian_blur = gaussian_blur
         self.jitter_strength = jitter_strength
@@ -328,7 +327,6 @@ class OnlineFineTuner(Callback):
         self.num_classes = num_classes
 
     def on_fit_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-
         # add linear_eval layer and optimizer
         pl_module.online_finetuner = nn.Linear(self.encoder_output_dim, self.num_classes).to(pl_module.device)
         self.optimizer = torch.optim.Adam(pl_module.online_finetuner.parameters(), lr=1e-4)
