@@ -42,7 +42,6 @@ class MNISTDataModule(LightningDataModule):
         MNIST(self.data_dir, train=False, download=True)
 
     def setup(self, stage=None):
-
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
             mnist_full = MNIST(self.data_dir, train=True, transform=self.transform)
@@ -71,7 +70,6 @@ class MNISTDataModule(LightningDataModule):
 # %%
 class LitModel(LightningModule):
     def __init__(self, channels, width, height, num_classes, hidden_size=64, learning_rate=2e-4):
-
         super().__init__()
 
         self.save_hyperparameters()

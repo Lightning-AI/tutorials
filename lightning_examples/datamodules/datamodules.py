@@ -36,7 +36,6 @@ BATCH_SIZE = 256 if torch.cuda.is_available() else 64
 # %%
 class LitMNIST(LightningModule):
     def __init__(self, data_dir=PATH_DATASETS, hidden_size=64, learning_rate=2e-4):
-
         super().__init__()
 
         # We hardcode dataset specific stuff here.
@@ -99,7 +98,6 @@ class LitMNIST(LightningModule):
         MNIST(self.data_dir, train=False, download=True)
 
     def setup(self, stage=None):
-
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
             mnist_full = MNIST(self.data_dir, train=True, transform=self.transform)
@@ -185,7 +183,6 @@ class MNISTDataModule(LightningDataModule):
         MNIST(self.data_dir, train=False, download=True)
 
     def setup(self, stage=None):
-
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
             mnist_full = MNIST(self.data_dir, train=True, transform=self.transform)
@@ -216,7 +213,6 @@ class MNISTDataModule(LightningDataModule):
 # %%
 class LitModel(LightningModule):
     def __init__(self, channels, width, height, num_classes, hidden_size=64, learning_rate=2e-4):
-
         super().__init__()
 
         # We take in input dimensions as parameters and use those to dynamically build model.
@@ -309,7 +305,6 @@ class CIFAR10DataModule(LightningDataModule):
         CIFAR10(self.data_dir, train=False, download=True)
 
     def setup(self, stage=None):
-
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
             cifar_full = CIFAR10(self.data_dir, train=True, transform=self.transform)
