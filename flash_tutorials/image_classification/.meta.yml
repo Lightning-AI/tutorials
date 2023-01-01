@@ -12,6 +12,7 @@ description: |
 requirements:
   - pytorch-lightning==1.6.*
   - lightning-flash[image]>=0.7.0
+  - numpy<1.24
 accelerator:
   - GPU
   - CPU
