@@ -7,9 +7,8 @@ build: 0
 description: |
   This is a template to show how to contribute a tutorial.
 requirements:
-  - lightning-flash[tabular]==0.5.2
+  - https://github.com/PyTorchLightning/lightning-flash/archive/refs/tags/0.5.2.zip#egg=lightning-flash[tabular]
   - matplotlib
-  - numpy<1.24
   - seaborn
 accelerator:
   - CPU
