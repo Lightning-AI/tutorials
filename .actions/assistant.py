@@ -475,7 +475,7 @@ class AssistantCLI:
         strict: bool = True,
         root_path: str = "",
     ) -> None:
-        """Group changes by folders.
+        """Parsing the raw git diff and group changes by folders.
 
         Args:
             fpath_gitdiff: raw git changes
@@ -491,7 +491,8 @@ class AssistantCLI:
             root_path: path to the root tobe added for all local folder paths in files
 
         Example:
-            >> python assistant.py group-folders ../target-diff.txt --fpath_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
+            $ python assistant.py group-folders ../target-diff.txt \
+                --fpath_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
         """
         with open(fpath_gitdiff) as fp:
             changed = [ln.strip() for ln in fp.readlines()]
@@ -530,6 +531,27 @@ class AssistantCLI:
         dirs_drop = [d for d in dirs if not os.path.isdir(d)]
         with open(fpath_drop_folders, "w") as fp:
             fp.write(os.linesep.join(sorted(dirs_drop)))
+
+    @staticmethod
+    def generate_matrix(fpath_change_folders: str, allow_empty: bool = False) -> str:
+        """Generate Azure matrix with leaf for each changed notebook.
+
+        Args:
+            fpath_change_folders: output of previous ``group_folders``
+        """
+        with open(fpath_change_folders) as fp:
+            folders = [ln.strip() for ln in fp.readlines()]
+        # set default so the matrix has at least one runner
+        if not folders and not allow_empty:
+            folders = ["templates/simple"]
+        mtx = {}
+        for ln in folders:
+            mtx[ln] = {
+                "notebook": ln,
+                "agent-pool": "azure-gpus-spot",
+                "docker-image": "pytorchlightning/pytorch_lightning:base-cuda-py3.9-torch1.12-cuda11.6.1",
+            }
+        return json.dumps(mtx)
 
     @staticmethod
     def _get_card_item_cell(path_ipynb: str, path_meta: str, path_thumb: Optional[str]) -> Dict[str, Any]:
@@ -642,6 +664,7 @@ class AssistantCLI:
 
         Args:
              folder: path to the folder
+             base_path:
         """
         meta = AssistantCLI._load_meta(folder)
         # default is COU runtime
