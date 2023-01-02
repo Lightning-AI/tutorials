@@ -80,14 +80,13 @@ jobs:
           DRY_RUN: 1
         shell: bash
 
-      - name: Generate notebooks
+      - name: Copy notebooks
         if: steps.changed.outputs.nb_dirs != 0
         run: |
-          mkdir changed-notebooks
           while IFS= read -r line; do
-              echo $line
               dir=$(dirname $line)
-              echo $dir
+              mkdir -p changed-notebooks/${dir}
+              cp .notebooks/${line}.ipynb changed-notebooks/${dir}/
           done <<< $(cat changed-folders.txt)
           tree changed-notebooks
         shell: bash
