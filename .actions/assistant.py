@@ -550,7 +550,9 @@ class AssistantCLI:
         for ln in folders:
             mtx[ln] = {
                 "notebook": ln,
+                # TODO: allow defining some custom pools with different devices
                 "agent-pool": AssistantCLI._AZURE_POOL,
+                # TODO: allow defining some custom images with with python or PT
                 "docker-image": AssistantCLI._AZURE_DOCKER,
             }
         return json.dumps(mtx)
