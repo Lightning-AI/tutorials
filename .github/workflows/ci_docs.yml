@@ -68,7 +68,7 @@ jobs:
       - name: Sync to pub
         run: git merge -s resolve origin/$PUB_BRANCH
 
-      - name: Generate notebook
+      - name: Generate notebooks
         if: steps.changed.outputs.dirs != 0
         run: |
           while IFS= read -r line; do
@@ -80,6 +80,11 @@ jobs:
         env:
           DRY_RUN: 1
         shell: bash
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: notebooks-${{ github.sha }}
+          path: chnaged-notebooks
 
       - name: Make Documentation
         working-directory: ./docs
