@@ -167,6 +167,8 @@ class AssistantCLI:
     _EXT_ARCHIVE_ZIP = (".zip",)
     _EXT_ARCHIVE_TAR = (".tar", ".gz")
     _EXT_ARCHIVE = _EXT_ARCHIVE_ZIP + _EXT_ARCHIVE_TAR
+    _AZURE_POOL = "azure-gpus-spot"
+    _AZURE_DOCKER = "pytorchlightning/pytorch_lightning:base-cuda-py3.9-torch1.12-cuda11.6.1"
 
     @staticmethod
     def _find_meta(folder: str) -> str:
@@ -548,8 +550,8 @@ class AssistantCLI:
         for ln in folders:
             mtx[ln] = {
                 "notebook": ln,
-                "agent-pool": "azure-gpus-spot",
-                "docker-image": "pytorchlightning/pytorch_lightning:base-cuda-py3.9-torch1.12-cuda11.6.1",
+                "agent-pool": AssistantCLI._AZURE_POOL,
+                "docker-image": AssistantCLI._AZURE_DOCKER,
             }
         return json.dumps(mtx)
 
@@ -618,10 +620,10 @@ class AssistantCLI:
         """Copy all notebooks from a folder to doc folder.
 
         Args:
-            path_root: source path to the project root in this tutorials
+            path_root: source path to the project root in these tutorials
             docs_root: docs source directory
-            path_docs_ipynb: destination path to the notebooks location relative to ``docs_root``
-            path_docs_images: destination path to the images location relative to ``docs_root``
+            path_docs_ipynb: destination path to the notebooks' location relative to ``docs_root``
+            path_docs_images: destination path to the images' location relative to ``docs_root``
             patterns: patterns to use when glob-ing notebooks
         """
         ls_ipynb = []
