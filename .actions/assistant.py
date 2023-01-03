@@ -535,18 +535,19 @@ class AssistantCLI:
             fp.write(os.linesep.join(sorted(dirs_drop)))
 
     @staticmethod
-    def generate_matrix(fpath_change_folders: str, allow_empty: bool = False) -> str:
+    def generate_matrix(fpath_change_folders: str) -> str:
         """Generate Azure matrix with leaf for each changed notebook.
 
         Args:
             fpath_change_folders: output of previous ``group_folders``
-            allow_empty: for building allow option of not notebook changed
         """
         with open(fpath_change_folders) as fp:
             folders = [ln.strip() for ln in fp.readlines()]
         # set default so the matrix has at least one runner
-        if not folders and not allow_empty:
-            folders = ["templates/simple"]
+        if not folders:
+            return json.dumps(
+                {"free-pass": {"notebook": "", "agent-pool": "azure-cpus", "docker-image": "ubuntu:latest"}}
+            )
         mtx = {}
         for ln in folders:
             mtx[ln] = {
