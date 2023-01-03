@@ -545,7 +545,7 @@ class AssistantCLI:
             folders = [ln.strip() for ln in fp.readlines()]
         # set default so the matrix has at least one runner
         if not folders:
-            return json.dumps({"free-pass": {"notebook": "", "agent-pool": "", "docker-image": ""}})
+            return ""
         mtx = {}
         for ln in folders:
             mtx[ln] = {
