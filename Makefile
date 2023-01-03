@@ -20,7 +20,7 @@ ipynb: init ${IPYNB}
 	bash .actions/_ipynb-render.sh
 
 docs: clean
-	pip install --quiet -r docs/requirements.txt
+	pip install --quiet -r _requirements/docs.txt
 	python -m sphinx -b html -W --keep-going docs/source docs/build
 
 clean:

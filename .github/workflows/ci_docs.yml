@@ -32,7 +32,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('docs/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('_requirements/docs.txt') }}
           restore-keys: ${{ runner.os }}-pip-
 
       - name: Install dependencies
@@ -43,7 +43,7 @@ jobs:
           sudo apt-get install -y texlive-latex-extra dvipng texlive-pictures
           pip --version
           pip install --quiet --requirement requirements.txt
-          pip install --quiet --requirement docs/requirements.txt
+          pip install --quiet --requirement _requirements/docs.txt
           pip list
         shell: bash
 

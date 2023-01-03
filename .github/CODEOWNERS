@@ -11,7 +11,7 @@
 /.actions/          @borda @ethanwharris
 /.azure-*/          @borda @ethanwharris
 /.github/           @borda @ethanwharris
-/requirements/      @borda @ethanwharris
+/_requirements/     @borda @ethanwharris
 *.yml               @borda @ethanwharris
 requirements.txt    @borda @ethanwharris
 

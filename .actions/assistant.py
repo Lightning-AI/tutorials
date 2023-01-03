@@ -17,7 +17,7 @@ from wcmatch import glob
 
 _PATH_HERE = os.path.dirname(__file__)
 _PATH_ROOT = os.path.dirname(_PATH_HERE)
-PATH_REQ_DEFAULT = os.path.join(_PATH_ROOT, "requirements", "default.txt")
+PATH_REQ_DEFAULT = os.path.join(_PATH_ROOT, "_requirements", "default.txt")
 PATH_SCRIPT_RENDER = os.path.join(_PATH_HERE, "_ipynb-render.sh")
 PATH_SCRIPT_TEST = os.path.join(_PATH_HERE, "_ipynb-test.sh")
 # https://askubuntu.com/questions/909918/how-to-show-unzip-progress
@@ -150,7 +150,7 @@ class AssistantCLI:
         ".github",
         "docs",
         "_TEMP",
-        "requirements",
+        "_requirements",
         DIR_NOTEBOOKS,
     )
     _META_FILE_REGEX = ".meta.{yaml,yml}"
@@ -167,6 +167,8 @@ class AssistantCLI:
     _EXT_ARCHIVE_ZIP = (".zip",)
     _EXT_ARCHIVE_TAR = (".tar", ".gz")
     _EXT_ARCHIVE = _EXT_ARCHIVE_ZIP + _EXT_ARCHIVE_TAR
+    _AZURE_POOL = "azure-gpus-spot"
+    _AZURE_DOCKER = "pytorchlightning/pytorch_lightning:base-cuda-py3.9-torch1.12-cuda11.6.1"
 
     @staticmethod
     def _find_meta(folder: str) -> str:
@@ -475,7 +477,7 @@ class AssistantCLI:
         strict: bool = True,
         root_path: str = "",
     ) -> None:
-        """Group changes by folders.
+        """Parsing the raw git diff and group changes by folders.
 
         Args:
             fpath_gitdiff: raw git changes
@@ -491,7 +493,8 @@ class AssistantCLI:
             root_path: path to the root tobe added for all local folder paths in files
 
         Example:
-            >> python assistant.py group-folders ../target-diff.txt --fpath_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
+            $ python assistant.py group-folders ../target-diff.txt \
+                --fpath_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
         """
         with open(fpath_gitdiff) as fp:
             changed = [ln.strip() for ln in fp.readlines()]
@@ -530,6 +533,29 @@ class AssistantCLI:
         dirs_drop = [d for d in dirs if not os.path.isdir(d)]
         with open(fpath_drop_folders, "w") as fp:
             fp.write(os.linesep.join(sorted(dirs_drop)))
+
+    @staticmethod
+    def generate_matrix(fpath_change_folders: str) -> str:
+        """Generate Azure matrix with leaf for each changed notebook.
+
+        Args:
+            fpath_change_folders: output of previous ``group_folders``
+        """
+        with open(fpath_change_folders) as fp:
+            folders = [ln.strip() for ln in fp.readlines()]
+        # set default so the matrix has at least one runner
+        if not folders:
+            return ""
+        mtx = {}
+        for ln in folders:
+            mtx[ln] = {
+                "notebook": ln,
+                # TODO: allow defining some custom pools with different devices
+                "agent-pool": AssistantCLI._AZURE_POOL,
+                # TODO: allow defining some custom images with with python or PT
+                "docker-image": AssistantCLI._AZURE_DOCKER,
+            }
+        return json.dumps(mtx)
 
     @staticmethod
     def _get_card_item_cell(path_ipynb: str, path_meta: str, path_thumb: Optional[str]) -> Dict[str, Any]:
@@ -596,10 +622,10 @@ class AssistantCLI:
         """Copy all notebooks from a folder to doc folder.
 
         Args:
-            path_root: source path to the project root in this tutorials
+            path_root: source path to the project root in these tutorials
             docs_root: docs source directory
-            path_docs_ipynb: destination path to the notebooks location relative to ``docs_root``
-            path_docs_images: destination path to the images location relative to ``docs_root``
+            path_docs_ipynb: destination path to the notebooks' location relative to ``docs_root``
+            path_docs_images: destination path to the images' location relative to ``docs_root``
             patterns: patterns to use when glob-ing notebooks
         """
         ls_ipynb = []
@@ -642,6 +668,7 @@ class AssistantCLI:
 
         Args:
              folder: path to the folder
+             base_path:
         """
         meta = AssistantCLI._load_meta(folder)
         # default is COU runtime
