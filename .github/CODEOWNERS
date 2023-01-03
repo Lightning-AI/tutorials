@@ -16,7 +16,7 @@
 requirements.txt    @borda @ethanwharris
 
 # Docs
-/docs/                      @borda @ethanwharris @rohitgr7
+/_docs/                     @borda @ethanwharris @rohitgr7
 /.github/*.md               @borda @ethanwharris @rohitgr7
 /.github/ISSUE_TEMPLATE/    @borda @ethanwharris @rohitgr7
 
