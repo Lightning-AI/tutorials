@@ -17,7 +17,7 @@ from wcmatch import glob
 
 _PATH_HERE = os.path.dirname(__file__)
 _PATH_ROOT = os.path.dirname(_PATH_HERE)
-PATH_REQ_DEFAULT = os.path.join(_PATH_ROOT, "requirements", "default.txt")
+PATH_REQ_DEFAULT = os.path.join(_PATH_ROOT, "_requirements", "default.txt")
 PATH_SCRIPT_RENDER = os.path.join(_PATH_HERE, "_ipynb-render.sh")
 PATH_SCRIPT_TEST = os.path.join(_PATH_HERE, "_ipynb-test.sh")
 # https://askubuntu.com/questions/909918/how-to-show-unzip-progress
@@ -150,7 +150,7 @@ class AssistantCLI:
         ".github",
         "docs",
         "_TEMP",
-        "requirements",
+        "_requirements",
         DIR_NOTEBOOKS,
     )
     _META_FILE_REGEX = ".meta.{yaml,yml}"
