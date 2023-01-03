@@ -7,7 +7,7 @@ updates:
     directory: "/_requirements"
     # Check for updates once a week
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     # Labels on pull requests for version updates only
     labels: ["ci/cd"]
     pull-request-branch-name:
@@ -21,7 +21,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     labels: ["ci/cd"]
     pull-request-branch-name:
       separator: "-"
