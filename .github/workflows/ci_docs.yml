@@ -32,7 +32,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('docs/requirements.txt') }}
+          key: pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('_requirements/docs.txt') }}
           restore-keys: pip-
 
       - name: Install dependencies
@@ -42,7 +42,7 @@ jobs:
           # install Texlive, see https://linuxconfig.org/how-to-install-latex-on-ubuntu-20-04-focal-fossa-linux
           sudo apt-get install -y cmake pandoc texlive-latex-extra dvipng texlive-pictures
           pip --version
-          pip install -q -r requirements.txt -r docs/requirements.txt
+          pip install -q -r requirements.txt -r _requirements/docs.txt
           pip list
         shell: bash
 
