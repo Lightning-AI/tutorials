@@ -8,20 +8,21 @@ tags:
 - Text Classification
 - Text
 description: 'In this notebook, we''ll go over the basics of lightning Flash by finetunig
-  a TextClassifier on [IMDB Dataset](https://www.imdb.com/interfaces/).
+  a TextClassifier on IMDB Dataset.
 
   '
 requirements:
 - pytorch-lightning==1.6.*
 - lightning-flash[text]>=0.7.0
+- torchmetrics<0.11
 accelerator:
 - GPU
 - CPU
 environment:
 - lightning-flash==0.8.1
-- ipython==8.7.0
-- setuptools==59.5.0
-- torch==1.13.1+cu116
 - pytorch-lightning==1.6.5
 - torchmetrics==0.10.0
-published: '2023-01-03T14:40:13.948996'
+- setuptools==59.5.0
+- torch==1.13.1+cu116
+- ipython==8.1.1
+published: '2023-01-03T17:11:28.284285'
