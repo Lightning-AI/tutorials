@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04 ]
-        python-version: ["3.7", "3.9"]
+        python-version: ["3.8", "3.10"]
     # Timeout: https://stackoverflow.com/a/59076067/4521646
     timeout-minutes: 15
 
@@ -41,16 +41,16 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ steps.pip-cache.outputs.dir }}
-        key: ${{ runner.os }}-pip-py${{ matrix.python-version }}-${{ hashFiles('.actions/requirements.txt') }}-${{ hashFiles('requirements/default.txt') }}
+        key: ${{ runner.os }}-pip-py${{ matrix.python-version }}-${{ hashFiles('.actions/requires.txt') }}-${{ hashFiles('requirements/default.txt') }}
         restore-keys: ${{ runner.os }}-pip-py${{ matrix.python-version }}-
 
     - name: Install requirements
       run: |
         pip --version
-        pip install -q -r .actions/requirements.txt
+        pip install -q -r .actions/requires.txt
         pip install -q "pytest==6.*" coverage jupytext
         # this is needed to be able to run package version parsing test
-        pip install -q matplotlib -r requirements/default.txt --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
+        pip install -q matplotlib -r _requirements/default.txt --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
 
     - name: Prepare dummy inputs
       run: |
