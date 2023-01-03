@@ -148,7 +148,7 @@ class AssistantCLI:
         ".azure",
         ".datasets",
         ".github",
-        "docs",
+        "_docs",
         "_TEMP",
         "_requirements",
         DIR_NOTEBOOKS,
@@ -614,7 +614,7 @@ class AssistantCLI:
     @staticmethod
     def copy_notebooks(
         path_root: str,
-        docs_root: str = "docs/source",
+        docs_root: str = "_docs/source",
         path_docs_ipynb: str = "notebooks",
         path_docs_images: str = "_static/images",
         patterns: Sequence[str] = (".", "**"),
