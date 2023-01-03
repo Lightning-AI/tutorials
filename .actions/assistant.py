@@ -167,6 +167,8 @@ class AssistantCLI:
     _EXT_ARCHIVE_ZIP = (".zip",)
     _EXT_ARCHIVE_TAR = (".tar", ".gz")
     _EXT_ARCHIVE = _EXT_ARCHIVE_ZIP + _EXT_ARCHIVE_TAR
+    _AZURE_POOL = "azure-gpus-persist"
+    _AZURE_DOCKER = "pytorchlightning/pytorch_lightning:base-cuda-py3.9-torch1.12-cuda11.6.1"
 
     @staticmethod
     def _find_meta(folder: str) -> str:
@@ -530,6 +532,30 @@ class AssistantCLI:
         dirs_drop = [d for d in dirs if not os.path.isdir(d)]
         with open(fpath_drop_folders, "w") as fp:
             fp.write(os.linesep.join(sorted(dirs_drop)))
+
+    @staticmethod
+    def generate_matrix(fpath_change_folders: str, allow_empty: bool = False) -> str:
+        """Generate Azure matrix with leaf for each changed notebook.
+
+        Args:
+            fpath_change_folders: output of previous ``group_folders``
+            allow_empty: for building allow option of not notebook changed
+        """
+        with open(fpath_change_folders) as fp:
+            folders = [ln.strip() for ln in fp.readlines()]
+        # set default so the matrix has at least one runner
+        if not folders and not allow_empty:
+            folders = ["templates/simple"]
+        mtx = {}
+        for ln in folders:
+            mtx[ln] = {
+                "notebook": ln,
+                # TODO: allow defining some custom pools with different devices
+                "agent-pool": AssistantCLI._AZURE_POOL,
+                # TODO: allow defining some custom images with with python or PT
+                "docker-image": AssistantCLI._AZURE_DOCKER,
+            }
+        return json.dumps(mtx)
 
     @staticmethod
     def _get_card_item_cell(path_ipynb: str, path_meta: str, path_thumb: Optional[str]) -> Dict[str, Any]:
