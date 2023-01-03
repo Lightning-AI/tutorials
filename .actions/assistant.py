@@ -540,6 +540,7 @@ class AssistantCLI:
 
         Args:
             fpath_change_folders: output of previous ``group_folders``
+            allow_empty: for building allow option of not notebook changed
         """
         with open(fpath_change_folders) as fp:
             folders = [ln.strip() for ln in fp.readlines()]
