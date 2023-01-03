@@ -11,12 +11,12 @@
 /.actions/          @borda @ethanwharris
 /.azure-*/          @borda @ethanwharris
 /.github/           @borda @ethanwharris
-/requirements/      @borda @ethanwharris
+/_requirements/     @borda @ethanwharris
 *.yml               @borda @ethanwharris
 requirements.txt    @borda @ethanwharris
 
 # Docs
-/docs/                      @borda @ethanwharris @rohitgr7
+/_docs/                     @borda @ethanwharris @rohitgr7
 /.github/*.md               @borda @ethanwharris @rohitgr7
 /.github/ISSUE_TEMPLATE/    @borda @ethanwharris @rohitgr7
 
