@@ -33,7 +33,7 @@ ______________________________________________________________________
 
 We are always looking for help to implement new features or fixing bugs.
 
-A lot of good work has already been done in project mechanics (_requirements/base.txt, setup.py, pep8, badges, ci, etc...) so we're in a good state there thanks to all sooner contributors!
+A lot of good work has already been done in project mechanics (\_requirements/base.txt, setup.py, pep8, badges, ci, etc...) so we're in a good state there thanks to all sooner contributors!
 
 ### Bug Fixes:
 
