@@ -20,15 +20,15 @@ ipynb: init ${IPYNB}
 	bash .actions/_ipynb-render.sh
 
 docs: clean
-	pip install --quiet -r docs/requirements.txt
-	python -m sphinx -b html -W --keep-going docs/source docs/build
+	pip install --quiet -r _requirements/docs.txt
+	python -m sphinx -b html -W --keep-going _docs/source _docs/build
 
 clean:
 	rm -rf ./.datasets
 	# clean all temp runs
-	rm -rf ./docs/build
-	rm -rf ./docs/source/notebooks
-	rm -rf ./docs/source/api
+	rm -rf ./_docs/build
+	rm -rf ./_docs/source/notebooks
+	rm -rf ./_docs/source/api
 	rm -f ./dirs-*.txt
 	rm -f ./*-folders.txt
 	rm -f ./*/**/*.ipynb
