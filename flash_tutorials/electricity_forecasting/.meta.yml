@@ -17,6 +17,7 @@ description: |
 requirements:
   - pandas==1.1.5
   - lightning-flash[tabular]>=0.6.0
+  - pytorch-lightning==1.3.6  # todo: update to latest
 accelerator:
   - GPU
   - CPU

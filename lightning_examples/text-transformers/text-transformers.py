@@ -23,7 +23,6 @@ from transformers import (
 
 # %%
 class GLUEDataModule(LightningDataModule):
-
     task_text_field_map = {
         "cola": ["sentence"],
         "sst2": ["sentence"],
@@ -114,7 +113,6 @@ class GLUEDataModule(LightningDataModule):
             return [DataLoader(self.dataset[x], batch_size=self.eval_batch_size) for x in self.eval_splits]
 
     def convert_to_features(self, example_batch, indices=None):
-
         # Either encode single sentence or sentence pairs
         if len(self.text_fields) > 1:
             texts_or_text_pairs = list(zip(example_batch[self.text_fields[0]], example_batch[self.text_fields[1]]))
