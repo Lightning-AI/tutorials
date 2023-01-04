@@ -50,6 +50,7 @@ import torchvision
 from IPython.display import set_matplotlib_formats
 from matplotlib.colors import to_rgb
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from torch import Tensor
 from torchvision import transforms
 from torchvision.datasets import MNIST
 from tqdm.notebook import tqdm
@@ -133,7 +134,7 @@ test_loader = data.DataLoader(test_set, batch_size=128, shuffle=False, drop_last
 
 # %%
 def show_imgs(imgs):
-    num_imgs = imgs.shape[0] if isinstance(imgs, torch.Tensor) else len(imgs)
+    num_imgs = imgs.shape[0] if isinstance(imgs, Tensor) else len(imgs)
     nrow = min(num_imgs, 4)
     ncol = int(math.ceil(num_imgs / nrow))
     imgs = torchvision.utils.make_grid(imgs, nrow=nrow, pad_value=128)
@@ -698,8 +699,8 @@ def train_model(**kwargs):
 
     if result is None:
         # Test best model on validation and test set
-        val_result = trainer.test(model, test_dataloaders=val_loader, verbose=False)
-        test_result = trainer.test(model, test_dataloaders=test_loader, verbose=False)
+        val_result = trainer.test(model, dataloaders=val_loader, verbose=False)
+        test_result = trainer.test(model, dataloaders=test_loader, verbose=False)
         result = {"test": test_result, "val": val_result}
     return model, result
 
@@ -910,8 +911,8 @@ plt.close()
 # similar likelihoods. We can visualize a discrete logistic below:
 
 # %%
-mu = torch.Tensor([128])
-sigma = torch.Tensor([2.0])
+mu = Tensor([128])
+sigma = Tensor([2.0])
 
 
 def discrete_logistic(x, mu, sigma):

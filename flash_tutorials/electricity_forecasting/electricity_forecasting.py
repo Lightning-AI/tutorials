@@ -1,5 +1,5 @@
 # %% [markdown]
-# In this tutorial we'll look at using [Lightning Flash](https://github.com/PyTorchLightning/lightning-flash) and it's
+# In this tutorial we'll look at using [Lightning Flash](https://github.com/Lightning-AI/lightning-flash) and it's
 # integration with [PyTorch Forecasting](https://github.com/jdb78/pytorch-forecasting) for autoregressive modelling of
 # electricity prices using [the N-BEATS model](https://arxiv.org/abs/1905.10437).
 # We'll start by using N-BEATS to uncover daily patterns (seasonality) from hourly observations and then show how we can
@@ -215,7 +215,8 @@ def plot_interpretation(model_path: str, predict_df: pd.DataFrame, parameters: D
 # And now we run the function to plot the trend and seasonality curves:
 
 # %%
-plot_interpretation(trainer.checkpoint_callback.best_model_path, df_energy_hourly, datamodule.parameters)
+# Todo: Make sure to uncomment the line below if you want to run predictions and visualize the graph
+# plot_interpretation(trainer.checkpoint_callback.best_model_path, df_energy_hourly, datamodule.parameters)
 
 # %% [markdown]
 # It worked! The plot shows that the `TabularForecaster` does a reasonable job of modelling the time series and also
@@ -288,7 +289,8 @@ trainer.fit(model, datamodule=datamodule)
 # Now let's look at what it learned:
 
 # %%
-plot_interpretation(trainer.checkpoint_callback.best_model_path, df_energy_daily, datamodule.parameters)
+# Todo: Make sure to uncomment the line below if you want to run predictions and visualize the graph
+# plot_interpretation(trainer.checkpoint_callback.best_model_path, df_energy_daily, datamodule.parameters)
 
 # %% [markdown]
 # Success! We can now also see weekly trends / seasonality uncovered by our new model.

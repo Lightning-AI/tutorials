@@ -33,6 +33,7 @@ import torch.utils.data as data
 # %matplotlib inline
 from IPython.display import set_matplotlib_formats
 from matplotlib.colors import to_rgba
+from torch import Tensor
 from tqdm.notebook import tqdm  # Progress bar
 
 set_matplotlib_formats("svg", "pdf")
@@ -82,10 +83,10 @@ torch.manual_seed(42)  # Setting the seed
 #
 # Let's first start by looking at different ways of creating a tensor.
 # There are many possible options, the most simple one is to call
-# `torch.Tensor` passing the desired shape as input argument:
+# `Tensor` passing the desired shape as input argument:
 
 # %%
-x = torch.Tensor(2, 3, 4)
+x = Tensor(2, 3, 4)
 print(x)
 
 # %% [markdown]
@@ -101,7 +102,7 @@ print(x)
 
 # %%
 # Create a tensor from a (nested) list
-x = torch.Tensor([[1, 2], [3, 4]])
+x = Tensor([[1, 2], [3, 4]])
 print(x)
 
 # %%
@@ -314,7 +315,7 @@ print("X", x)
 
 # %%
 a = x + 2
-b = a ** 2
+b = a**2
 c = b + 3
 y = c.mean()
 print("Y", y)
@@ -648,9 +649,9 @@ print("Data point 0:", dataset[0])
 
 # %%
 def visualize_samples(data, label):
-    if isinstance(data, torch.Tensor):
+    if isinstance(data, Tensor):
         data = data.cpu().numpy()
-    if isinstance(label, torch.Tensor):
+    if isinstance(label, Tensor):
         label = label.cpu().numpy()
     data_0 = data[label == 0]
     data_1 = data[label == 1]
@@ -935,9 +936,9 @@ eval_model(model, test_data_loader)
 # %%
 @torch.no_grad()  # Decorator, same effect as "with torch.no_grad(): ..." over the whole function.
 def visualize_classification(model, data, label):
-    if isinstance(data, torch.Tensor):
+    if isinstance(data, Tensor):
         data = data.cpu().numpy()
-    if isinstance(label, torch.Tensor):
+    if isinstance(label, Tensor):
         label = label.cpu().numpy()
     data_0 = data[label == 0]
     data_1 = data[label == 1]
@@ -952,8 +953,8 @@ def visualize_classification(model, data, label):
 
     # Let's make use of a lot of operations we have learned above
     model.to(device)
-    c0 = torch.Tensor(to_rgba("C0")).to(device)
-    c1 = torch.Tensor(to_rgba("C1")).to(device)
+    c0 = Tensor(to_rgba("C0")).to(device)
+    c1 = Tensor(to_rgba("C1")).to(device)
     x1 = torch.arange(-0.5, 1.5, step=0.01, device=device)
     x2 = torch.arange(-0.5, 1.5, step=0.01, device=device)
     xx1, xx2 = torch.meshgrid(x1, x2)  # Meshgrid function as in numpy
