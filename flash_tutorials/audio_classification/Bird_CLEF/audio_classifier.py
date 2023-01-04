@@ -64,7 +64,6 @@ def waveform_loader(filepath: str):
 
 class AudioClassificationFileInputToSpectrogram(AudioClassificationInput):
     def load_data(self, folder: PATH_TYPE) -> List[Dict[str, Any]]:
-
         files, targets = make_dataset(folder, extensions=AUDIO_EXTENSIONS)
 
         if targets is None:
