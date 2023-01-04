@@ -937,7 +937,7 @@ def pathological_curve_loss(w1, w2):
 def plot_curve(
     curve_fn, x_range=(-5, 5), y_range=(-5, 5), plot_3d=False, cmap=cm.viridis, title="Pathological curvature"
 ):
-    fig = plt.figure()
+    _ = plt.figure()
     ax = plt.axes(projection="3d") if plot_3d else plt.axes()
 
     x = torch.arange(x_range[0], x_range[1], (x_range[1] - x_range[0]) / 100.0)
