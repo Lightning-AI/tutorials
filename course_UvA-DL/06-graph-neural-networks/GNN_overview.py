@@ -26,6 +26,7 @@ import torch_geometric.nn as geom_nn
 
 # PL callbacks
 from pytorch_lightning.callbacks import ModelCheckpoint
+from torch import Tensor
 
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 BATCH_SIZE = 256 if AVAIL_GPUS else 64
@@ -183,7 +184,7 @@ class GCNLayer(nn.Module):
 
 # %%
 node_feats = torch.arange(8, dtype=torch.float32).view(1, 4, 2)
-adj_matrix = torch.Tensor([[[1, 1, 0, 0], [1, 1, 1, 1], [0, 1, 1, 1], [0, 1, 1, 1]]])
+adj_matrix = Tensor([[[1, 1, 0, 0], [1, 1, 1, 1], [0, 1, 1, 1], [0, 1, 1, 1]]])
 
 print("Node features:\n", node_feats)
 print("\nAdjacency matrix:\n", adj_matrix)
@@ -195,8 +196,8 @@ print("\nAdjacency matrix:\n", adj_matrix)
 
 # %%
 layer = GCNLayer(c_in=2, c_out=2)
-layer.projection.weight.data = torch.Tensor([[1.0, 0.0], [0.0, 1.0]])
-layer.projection.bias.data = torch.Tensor([0.0, 0.0])
+layer.projection.weight.data = Tensor([[1.0, 0.0], [0.0, 1.0]])
+layer.projection.bias.data = Tensor([0.0, 0.0])
 
 with torch.no_grad():
     out_feats = layer(node_feats, adj_matrix)
@@ -308,7 +309,7 @@ class GATLayer(nn.Module):
 
         # Sub-modules and parameters needed in the layer
         self.projection = nn.Linear(c_in, c_out * num_heads)
-        self.a = nn.Parameter(torch.Tensor(num_heads, 2 * c_out))  # One per head
+        self.a = nn.Parameter(Tensor(num_heads, 2 * c_out))  # One per head
         self.leakyrelu = nn.LeakyReLU(alpha)
 
         # Initialization from the original implementation
@@ -376,9 +377,9 @@ class GATLayer(nn.Module):
 
 # %%
 layer = GATLayer(2, 2, num_heads=2)
-layer.projection.weight.data = torch.Tensor([[1.0, 0.0], [0.0, 1.0]])
-layer.projection.bias.data = torch.Tensor([0.0, 0.0])
-layer.a.data = torch.Tensor([[-0.2, 0.3], [0.1, -0.1]])
+layer.projection.weight.data = Tensor([[1.0, 0.0], [0.0, 1.0]])
+layer.projection.bias.data = Tensor([0.0, 0.0])
+layer.a.data = Tensor([[-0.2, 0.3], [0.1, -0.1]])
 
 with torch.no_grad():
     out_feats = layer(node_feats, adj_matrix, print_attn_probs=True)
@@ -670,7 +671,7 @@ def train_node_classifier(model_name, dataset, **model_kwargs):
         model = NodeLevelGNN.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
 
     # Test best model on the test set
-    test_result = trainer.test(model, test_dataloaders=node_data_loader, verbose=False)
+    test_result = trainer.test(model, dataloaders=node_data_loader, verbose=False)
     batch = next(iter(node_data_loader))
     batch = batch.to(model.device)
     _, train_acc = model.forward(batch, mode="train")
@@ -953,8 +954,8 @@ def train_graph_classifier(model_name, **model_kwargs):
         model = GraphLevelGNN.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
 
     # Test best model on validation and test set
-    train_result = trainer.test(model, test_dataloaders=graph_train_loader, verbose=False)
-    test_result = trainer.test(model, test_dataloaders=graph_test_loader, verbose=False)
+    train_result = trainer.test(model, dataloaders=graph_train_loader, verbose=False)
+    test_result = trainer.test(model, dataloaders=graph_test_loader, verbose=False)
     result = {"test": test_result[0]["test_acc"], "train": train_result[0]["test_acc"]}
     return model, result
 

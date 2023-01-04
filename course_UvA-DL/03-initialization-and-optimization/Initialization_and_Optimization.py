@@ -1042,8 +1042,8 @@ plt.show()
 # %%
 def bivar_gaussian(w1, w2, x_mean=0.0, y_mean=0.0, x_sig=1.0, y_sig=1.0):
     norm = 1 / (2 * np.pi * x_sig * y_sig)
-    x_exp = (-1 * (w1 - x_mean) ** 2) / (2 * x_sig ** 2)
-    y_exp = (-1 * (w2 - y_mean) ** 2) / (2 * y_sig ** 2)
+    x_exp = (-1 * (w1 - x_mean) ** 2) / (2 * x_sig**2)
+    y_exp = (-1 * (w2 - y_mean) ** 2) / (2 * y_sig**2)
     return norm * torch.exp(x_exp + y_exp)
 
 

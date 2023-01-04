@@ -155,7 +155,7 @@ plt.close()
 def img_to_patch(x, patch_size, flatten_channels=True):
     """
     Inputs:
-        x - torch.Tensor representing the image of shape [B, C, H, W]
+        x - Tensor representing the image of shape [B, C, H, W]
         patch_size - Number of pixels per dimension of the patches (integer)
         flatten_channels - If True, the patches will be returned in a flattened format
                            as a feature vector instead of a image grid.
@@ -287,7 +287,7 @@ class VisionTransformer(nn.Module):
         self.patch_size = patch_size
 
         # Layers/Networks
-        self.input_layer = nn.Linear(num_channels * (patch_size ** 2), embed_dim)
+        self.input_layer = nn.Linear(num_channels * (patch_size**2), embed_dim)
         self.transformer = nn.Sequential(
             *(AttentionBlock(embed_dim, hidden_dim, num_heads, dropout=dropout) for _ in range(num_layers))
         )
@@ -403,8 +403,8 @@ def train_model(**kwargs):
         model = ViT.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
 
     # Test best model on validation and test set
-    val_result = trainer.test(model, test_dataloaders=val_loader, verbose=False)
-    test_result = trainer.test(model, test_dataloaders=test_loader, verbose=False)
+    val_result = trainer.test(model, dataloaders=val_loader, verbose=False)
+    test_result = trainer.test(model, dataloaders=test_loader, verbose=False)
     result = {"test": test_result[0]["test_acc"], "val": val_result[0]["test_acc"]}
 
     return model, result

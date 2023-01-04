@@ -359,7 +359,7 @@ class GenerateCallback(pl.Callback):
         # Only save those images every N epochs (otherwise tensorboard gets quite large)
         self.every_n_epochs = every_n_epochs
 
-    def on_epoch_end(self, trainer, pl_module):
+    def on_train_epoch_end(self, trainer, pl_module):
         if trainer.current_epoch % self.every_n_epochs == 0:
             # Reconstruct images
             input_imgs = self.input_imgs.to(pl_module.device)
@@ -405,8 +405,8 @@ def train_cifar(latent_dim):
         model = Autoencoder(base_channel_size=32, latent_dim=latent_dim)
         trainer.fit(model, train_loader, val_loader)
     # Test best model on validation and test set
-    val_result = trainer.test(model, test_dataloaders=val_loader, verbose=False)
-    test_result = trainer.test(model, test_dataloaders=test_loader, verbose=False)
+    val_result = trainer.test(model, dataloaders=val_loader, verbose=False)
+    test_result = trainer.test(model, dataloaders=test_loader, verbose=False)
     result = {"test": test_result, "val": val_result}
     return model, result
 
