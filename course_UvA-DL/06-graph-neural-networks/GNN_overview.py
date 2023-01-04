@@ -651,7 +651,8 @@ def train_node_classifier(model_name, dataset, **model_kwargs):
     trainer = pl.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-        gpus=AVAIL_GPUS,
+        accelerator="gpu" if AVAIL_GPUS > 0 else "cpu",
+        devices=max(1, AVAIL_GPUS),
         max_epochs=200,
         enable_progress_bar=False,
     )  # 0 because epoch size is 1
@@ -932,7 +933,8 @@ def train_graph_classifier(model_name, **model_kwargs):
     trainer = pl.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-        gpus=AVAIL_GPUS,
+        accelerator="gpu" if AVAIL_GPUS > 0 else "cpu",
+        devices=max(1, AVAIL_GPUS),
         max_epochs=500,
         enable_progress_bar=False,
     )

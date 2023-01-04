@@ -677,7 +677,8 @@ def train_model(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "PixelCNN"),
-        gpus=1 if str(device).startswith("cuda") else 0,
+        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        devices=1,
         max_epochs=150,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="min", monitor="val_bpd"),

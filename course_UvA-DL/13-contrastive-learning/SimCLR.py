@@ -357,7 +357,8 @@ class SimCLR(pl.LightningModule):
 def train_simclr(batch_size, max_epochs=500, **kwargs):
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "SimCLR"),
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        devices=1,
         max_epochs=max_epochs,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc_top5"),
@@ -540,7 +541,8 @@ test_feats_simclr = prepare_data_features(simclr_model, test_img_data)
 def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, max_epochs=100, **kwargs):
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "LogisticRegression"),
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        devices=1,
         max_epochs=max_epochs,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
@@ -731,7 +733,8 @@ train_img_aug_data = STL10(root=DATASET_PATH, split="train", download=True, tran
 def train_resnet(batch_size, max_epochs=100, **kwargs):
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "ResNet"),
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        devices=1,
         max_epochs=max_epochs,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),

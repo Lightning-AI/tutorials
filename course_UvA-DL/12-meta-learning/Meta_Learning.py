@@ -555,7 +555,8 @@ class ProtoNet(pl.LightningModule):
 def train_model(model_class, train_loader, val_loader, **kwargs):
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, model_class.__name__),
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        devices=1,
         max_epochs=200,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),

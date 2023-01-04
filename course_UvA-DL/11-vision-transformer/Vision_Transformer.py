@@ -378,7 +378,8 @@ class ViT(pl.LightningModule):
 def train_model(**kwargs):
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "ViT"),
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        devices=1,
         max_epochs=180,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),

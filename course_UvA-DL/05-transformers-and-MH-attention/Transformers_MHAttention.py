@@ -979,7 +979,8 @@ def train_reverse(**kwargs):
     trainer = pl.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-        gpus=1 if str(device).startswith("cuda") else 0,
+        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        devices=1,
         max_epochs=10,
         gradient_clip_val=5,
         enable_progress_bar=True,
@@ -1439,7 +1440,8 @@ def train_anomaly(**kwargs):
     trainer = pl.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-        gpus=1 if str(device).startswith("cuda") else 0,
+        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        devices=1,
         max_epochs=100,
         gradient_clip_val=2,
         enable_progress_bar=True,

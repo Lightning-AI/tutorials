@@ -348,7 +348,8 @@ def train_model(model_name, save_name=None, **kwargs):
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),  # Where to save models
         # We run on a single GPU (if possible)
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        devices=1,
         # How many epochs to train for if no patience is set
         max_epochs=180,
         callbacks=[
