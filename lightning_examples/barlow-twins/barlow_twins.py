@@ -17,6 +17,7 @@ import torchvision.transforms as transforms
 import torchvision.transforms.functional as VisionF
 from pytorch_lightning import Callback, LightningModule, Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
+from torch import Tensor
 from torch.utils.data import DataLoader
 from torchmetrics.functional import accuracy
 from torchvision.datasets import CIFAR10
@@ -41,7 +42,6 @@ z_dim = 128
 # %%
 class BarlowTwinsTransform:
     def __init__(self, train=True, input_height=224, gaussian_blur=True, jitter_strength=1.0, normalize=None):
-
         self.input_height = input_height
         self.gaussian_blur = gaussian_blur
         self.jitter_strength = jitter_strength
@@ -283,15 +283,12 @@ class BarlowTwins(LightningModule):
 
     def training_step(self, batch, batch_idx):
         loss = self.shared_step(batch)
-
-        self.log("train_loss", loss.item(), on_step=True, on_epoch=False)
+        self.log("train_loss", loss, on_step=True, on_epoch=False)
         return loss
 
     def validation_step(self, batch, batch_idx):
         loss = self.shared_step(batch)
-
         self.log("val_loss", loss, on_step=False, on_epoch=True)
-        return loss
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
@@ -329,15 +326,14 @@ class OnlineFineTuner(Callback):
         self.encoder_output_dim = encoder_output_dim
         self.num_classes = num_classes
 
-    def on_pretrain_routine_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-
+    def on_fit_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
         # add linear_eval layer and optimizer
         pl_module.online_finetuner = nn.Linear(self.encoder_output_dim, self.num_classes).to(pl_module.device)
         self.optimizer = torch.optim.Adam(pl_module.online_finetuner.parameters(), lr=1e-4)
 
     def extract_online_finetuning_view(
         self, batch: Sequence, device: Union[str, torch.device]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[Tensor, Tensor]:
         (_, _, finetune_view), y = batch
         finetune_view = finetune_view.to(device)
         y = y.to(device)
@@ -408,12 +404,12 @@ model = BarlowTwins(
 )
 
 online_finetuner = OnlineFineTuner(encoder_output_dim=encoder_out_dim, num_classes=10)
-checkpoint_callback = ModelCheckpoint(every_n_val_epochs=100, save_top_k=-1, save_last=True)
+checkpoint_callback = ModelCheckpoint(every_n_epochs=100, save_top_k=-1, save_last=True)
 
 trainer = Trainer(
     max_epochs=max_epochs,
-    gpus=torch.cuda.device_count(),
-    precision=16 if torch.cuda.device_count() > 0 else 32,
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     callbacks=[online_finetuner, checkpoint_callback],
 )
 

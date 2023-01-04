@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sn
 from flash.image import ImageClassificationData, ImageClassifier
+from IPython.core.display import display
 from pytorch_lightning.loggers import CSVLogger
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
@@ -41,7 +42,7 @@ trainer.finetune(model, datamodule=datamodule, strategy="freeze")
 metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
 del metrics["step"]
 metrics.set_index("epoch", inplace=True)
-print(metrics.dropna(axis=1, how="all").head())
+display(metrics.dropna(axis=1, how="all").head())
 
 g = sn.relplot(data=metrics, kind="line")
 plt.gcf().set_size_inches(12, 4)

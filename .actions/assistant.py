@@ -17,7 +17,7 @@ from wcmatch import glob
 
 _PATH_HERE = os.path.dirname(__file__)
 _PATH_ROOT = os.path.dirname(_PATH_HERE)
-PATH_REQ_DEFAULT = os.path.join(_PATH_ROOT, "requirements", "default.txt")
+PATH_REQ_DEFAULT = os.path.join(_PATH_ROOT, "_requirements", "default.txt")
 PATH_SCRIPT_RENDER = os.path.join(_PATH_HERE, "_ipynb-render.sh")
 PATH_SCRIPT_TEST = os.path.join(_PATH_HERE, "_ipynb-test.sh")
 # https://askubuntu.com/questions/909918/how-to-show-unzip-progress
@@ -27,7 +27,7 @@ COLAB_REPO_LINK = "https://colab.research.google.com/github/PytorchLightning"
 BRANCH_DEFAULT = "main"
 BRANCH_PUBLISHED = "publication"
 DIR_NOTEBOOKS = ".notebooks"
-URL_PL_DOWNLOAD = f"https://github.com/PyTorchLightning/{REPO_NAME}/raw/{BRANCH_DEFAULT}"
+URL_PL_DOWNLOAD = f"https://github.com/Lightning-AI/{REPO_NAME}/raw/{BRANCH_DEFAULT}"
 TEMPLATE_HEADER = f"""# %%%% [markdown]
 #
 # # %(title)s
@@ -41,7 +41,7 @@ TEMPLATE_HEADER = f"""# %%%% [markdown]
 # ---
 # Open in [![Open In Colab](https://colab.research.google.com/assets/colab-badge.png){{height="20px" width="117px"}}]({COLAB_REPO_LINK}/{REPO_NAME}/blob/{BRANCH_PUBLISHED}/{DIR_NOTEBOOKS}/%(local_ipynb)s)
 #
-# Give us a ⭐ [on Github](https://www.github.com/PytorchLightning/pytorch-lightning/)
+# Give us a ⭐ [on Github](https://www.github.com/Lightning-AI/lightning/)
 # | Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/stable/)
 # | Join us [on Slack](https://www.pytorchlightning.ai/community)
 
@@ -61,7 +61,7 @@ TEMPLATE_FOOTER = """
 # Congratulations on completing this notebook tutorial! If you enjoyed this and would like to join the Lightning
 # movement, you can do so in the following ways!
 #
-# ### Star [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) on GitHub
+# ### Star [Lightning](https://github.com/Lightning-AI/lightning) on GitHub
 # The easiest way to help our community is just by starring the GitHub repos! This helps raise awareness of the cool
 # tools we're building.
 #
@@ -72,16 +72,16 @@ TEMPLATE_FOOTER = """
 #
 # ### Contributions !
 # The best way to contribute to our community is to become a code contributor! At any time you can go to
-# [Lightning](https://github.com/PyTorchLightning/pytorch-lightning) or [Bolt](https://github.com/PyTorchLightning/lightning-bolts)
+# [Lightning](https://github.com/Lightning-AI/lightning) or [Bolt](https://github.com/Lightning-AI/lightning-bolts)
 # GitHub Issues page and filter for "good first issue".
 #
-# * [Lightning good first issue](https://github.com/PyTorchLightning/pytorch-lightning/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
-# * [Bolt good first issue](https://github.com/PyTorchLightning/lightning-bolts/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+# * [Lightning good first issue](https://github.com/Lightning-AI/lightning/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+# * [Bolt good first issue](https://github.com/Lightning-AI/lightning-bolts/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
 # * You can also contribute your own notebooks with useful examples !
 #
 # ### Great thanks from the entire Pytorch Lightning Team for your interest !
 #
-# [![Pytorch Lightning](https://raw.githubusercontent.com/PyTorchLightning/pytorch-lightning/master/docs/source/_static/images/logo.png){height="60px" width="240px"}](https://pytorchlightning.ai)
+# [![Pytorch Lightning](https://raw.githubusercontent.com/Lightning-AI/lightning/master/docs/source/_static/images/logo.png){height="60px" width="240px"}](https://pytorchlightning.ai)
 
 """
 TEMPLATE_CARD_ITEM = """
@@ -148,9 +148,9 @@ class AssistantCLI:
         ".azure",
         ".datasets",
         ".github",
-        "docs",
+        "_docs",
         "_TEMP",
-        "requirements",
+        "_requirements",
         DIR_NOTEBOOKS,
     )
     _META_FILE_REGEX = ".meta.{yaml,yml}"
@@ -167,6 +167,8 @@ class AssistantCLI:
     _EXT_ARCHIVE_ZIP = (".zip",)
     _EXT_ARCHIVE_TAR = (".tar", ".gz")
     _EXT_ARCHIVE = _EXT_ARCHIVE_ZIP + _EXT_ARCHIVE_TAR
+    _AZURE_POOL = "lit-rtx-3090"
+    _AZURE_DOCKER = "pytorchlightning/pytorch_lightning:base-cuda-py3.9-torch1.12-cuda11.6.1"
 
     @staticmethod
     def _find_meta(folder: str) -> str:
@@ -182,7 +184,7 @@ class AssistantCLI:
 
     @staticmethod
     def _load_meta(folder: str, strict: bool = False) -> Optional[dict]:
-        """Loading meta data for a particular notebook with given folder path.
+        """Loading meta-data for a particular notebook with given folder path.
 
         Args:
             folder: path to the folder with python script, meta and artefacts
@@ -259,7 +261,7 @@ class AssistantCLI:
             for k, v in meta.items()
             if k.startswith(AssistantCLI._META_PIP_KEY)
         }
-        pip_args = []
+        pip_args = ["--extra-index-url https://download.pytorch.org/whl/" + _RUNTIME_VERSIONS.get("DEVICE")]
         for pip_key in meta_pip_args:
             if not isinstance(meta_pip_args[pip_key], (list, tuple, set)):
                 meta_pip_args[pip_key] = [meta_pip_args[pip_key]]
@@ -475,7 +477,7 @@ class AssistantCLI:
         strict: bool = True,
         root_path: str = "",
     ) -> None:
-        """Group changes by folders.
+        """Parsing the raw git diff and group changes by folders.
 
         Args:
             fpath_gitdiff: raw git changes
@@ -491,7 +493,8 @@ class AssistantCLI:
             root_path: path to the root tobe added for all local folder paths in files
 
         Example:
-            >> python assistant.py group-folders ../target-diff.txt --fpath_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
+            $ python assistant.py group-folders ../target-diff.txt \
+                --fpath_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
         """
         with open(fpath_gitdiff) as fp:
             changed = [ln.strip() for ln in fp.readlines()]
@@ -530,6 +533,29 @@ class AssistantCLI:
         dirs_drop = [d for d in dirs if not os.path.isdir(d)]
         with open(fpath_drop_folders, "w") as fp:
             fp.write(os.linesep.join(sorted(dirs_drop)))
+
+    @staticmethod
+    def generate_matrix(fpath_change_folders: str) -> str:
+        """Generate Azure matrix with leaf for each changed notebook.
+
+        Args:
+            fpath_change_folders: output of previous ``group_folders``
+        """
+        with open(fpath_change_folders) as fp:
+            folders = [ln.strip() for ln in fp.readlines()]
+        # set default so the matrix has at least one runner
+        if not folders:
+            return ""
+        mtx = {}
+        for ln in folders:
+            mtx[ln] = {
+                "notebook": ln,
+                # TODO: allow defining some custom pools with different devices
+                "agent-pool": AssistantCLI._AZURE_POOL,
+                # TODO: allow defining some custom images with with python or PT
+                "docker-image": AssistantCLI._AZURE_DOCKER,
+            }
+        return json.dumps(mtx)
 
     @staticmethod
     def _get_card_item_cell(path_ipynb: str, path_meta: str, path_thumb: Optional[str]) -> Dict[str, Any]:
@@ -588,7 +614,7 @@ class AssistantCLI:
     @staticmethod
     def copy_notebooks(
         path_root: str,
-        docs_root: str = "docs/source",
+        docs_root: str = "_docs/source",
         path_docs_ipynb: str = "notebooks",
         path_docs_images: str = "_static/images",
         patterns: Sequence[str] = (".", "**"),
@@ -596,10 +622,10 @@ class AssistantCLI:
         """Copy all notebooks from a folder to doc folder.
 
         Args:
-            path_root: source path to the project root in this tutorials
+            path_root: source path to the project root in these tutorials
             docs_root: docs source directory
-            path_docs_ipynb: destination path to the notebooks location relative to ``docs_root``
-            path_docs_images: destination path to the images location relative to ``docs_root``
+            path_docs_ipynb: destination path to the notebooks' location relative to ``docs_root``
+            path_docs_images: destination path to the images' location relative to ``docs_root``
             patterns: patterns to use when glob-ing notebooks
         """
         ls_ipynb = []
@@ -642,6 +668,7 @@ class AssistantCLI:
 
         Args:
              folder: path to the folder
+             base_path:
         """
         meta = AssistantCLI._load_meta(folder)
         # default is COU runtime
@@ -650,7 +677,7 @@ class AssistantCLI:
         req += meta.get("requirements", [])
         req = [r.strip() for r in req]
 
-        def _parse_package_name(pkg: str, keys: str = " <=>[]@", egg_name: str = "#egg=") -> str:
+        def _parse_package_name(pkg: str, keys: str = " !<=>[]@", egg_name: str = "#egg=") -> str:
             """Parsing just the package name."""
             if egg_name in pkg:
                 pkg = pkg[pkg.index(egg_name) + len(egg_name) :]

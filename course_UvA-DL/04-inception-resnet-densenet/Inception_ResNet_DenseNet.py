@@ -197,7 +197,7 @@ pl.seed_everything(42)
 # %% [markdown]
 # Thus, in the future, we don't have to define our own `set_seed` function anymore.
 #
-# In PyTorch Lightning, we define `pl.LightningModule`'s (inheriting from `torch.nn.Module`) that organize our code into 5 main sections:
+# In PyTorch Lightning, we define `pl.LightningModule`'s (inheriting from `Module`) that organize our code into 5 main sections:
 #
 # 1. Initialization (`__init__`), where we create all necessary parameters/models
 # 2. Optimizers (`configure_optimizers`) where we create the optimizers, learning rate scheduler, etc.
