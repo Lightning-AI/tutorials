@@ -19,10 +19,10 @@ description: |
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 requirements:
   - torch-scatter
-  - torch-sparse<0.6.13
+  - torch-sparse
   - torch-cluster
   - torch-spline-conv
-  - torch-geometric==2.0.2
+  - torch-geometric
 pip__find-link:
   # - https://pytorch-geometric.com/whl/torch-1.8.0+cu101.html
   - https://pytorch-geometric.com/whl/torch-%(TORCH_MAJOR_DOT_MINOR)s.0+%(DEVICE)s.html
