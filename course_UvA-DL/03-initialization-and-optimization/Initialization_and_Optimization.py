@@ -938,7 +938,7 @@ def plot_curve(
     curve_fn, x_range=(-5, 5), y_range=(-5, 5), plot_3d=False, cmap=cm.viridis, title="Pathological curvature"
 ):
     fig = plt.figure()
-    ax = fig.gca(projection="3d") if plot_3d else fig.gca()
+    ax = plt.axes(projection='3d') if plot_3d else plt.axes()
 
     x = torch.arange(x_range[0], x_range[1], (x_range[1] - x_range[0]) / 100.0)
     y = torch.arange(y_range[0], y_range[1], (y_range[1] - y_range[0]) / 100.0)
