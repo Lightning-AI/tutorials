@@ -25,6 +25,7 @@ import torchvision
 from IPython.display import HTML, display, set_matplotlib_formats
 from matplotlib.colors import to_rgb
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from torch import Tensor
 from torchvision import transforms
 from torchvision.datasets import MNIST
 from tqdm.notebook import tqdm
@@ -117,8 +118,8 @@ test_loader = data.DataLoader(test_set, batch_size=64, shuffle=False, drop_last=
 # %%
 def show_imgs(imgs, title=None, row_size=4):
     # Form a grid of pictures (we use max. 8 columns)
-    num_imgs = imgs.shape[0] if isinstance(imgs, torch.Tensor) else len(imgs)
-    is_int = imgs.dtype == torch.int32 if isinstance(imgs, torch.Tensor) else imgs[0].dtype == torch.int32
+    num_imgs = imgs.shape[0] if isinstance(imgs, Tensor) else len(imgs)
+    is_int = imgs.dtype == torch.int32 if isinstance(imgs, Tensor) else imgs[0].dtype == torch.int32
     nrow = min(num_imgs, row_size)
     ncol = int(math.ceil(num_imgs / nrow))
     imgs = torchvision.utils.make_grid(imgs, nrow=nrow, pad_value=128 if is_int else 0.5)
@@ -947,9 +948,9 @@ def train_flow(flow, model_name="MNISTFlow"):
     # Test best model on validation and test set if no result has been found
     # Testing can be expensive due to the importance sampling.
     if result is None:
-        val_result = trainer.test(flow, test_dataloaders=val_loader, verbose=False)
+        val_result = trainer.test(flow, dataloaders=val_loader, verbose=False)
         start_time = time.time()
-        test_result = trainer.test(flow, test_dataloaders=test_loader, verbose=False)
+        test_result = trainer.test(flow, dataloaders=test_loader, verbose=False)
         duration = time.time() - start_time
         result = {"test": test_result, "val": val_result, "time": duration / len(test_loader) / flow.import_samples}
 
@@ -1317,7 +1318,7 @@ for _ in range(3):
 
 
 # %%
-def visualize_dequant_distribution(model: ImageFlow, imgs: torch.Tensor, title: str = None):
+def visualize_dequant_distribution(model: ImageFlow, imgs: Tensor, title: str = None):
     """
     Args:
         model: The flow of which we want to visualize the dequantization distribution
