@@ -101,7 +101,6 @@ trainer.fit(mnist_model, train_loader)
 # %%
 class LitMNIST(LightningModule):
     def __init__(self, data_dir=PATH_DATASETS, hidden_size=64, learning_rate=2e-4):
-
         super().__init__()
 
         # Set our init args as class attributes
@@ -132,8 +131,8 @@ class LitMNIST(LightningModule):
             nn.Linear(hidden_size, self.num_classes),
         )
 
-        self.val_accuracy = Accuracy()
-        self.test_accuracy = Accuracy()
+        self.val_accuracy = Accuracy(task="multiclass", num_classes=10)
+        self.test_accuracy = Accuracy(task="multiclass", num_classes=10)
 
     def forward(self, x):
         x = self.model(x)
@@ -181,7 +180,6 @@ class LitMNIST(LightningModule):
         MNIST(self.data_dir, train=False, download=True)
 
     def setup(self, stage=None):
-
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
             mnist_full = MNIST(self.data_dir, train=True, transform=self.transform)

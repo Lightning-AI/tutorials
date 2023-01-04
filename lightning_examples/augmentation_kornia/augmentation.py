@@ -25,7 +25,7 @@ sn.set()
 # %% [markdown]
 # ## Define Data Augmentations module
 #
-# [Kornia.org](https://www.kornia.org) is low level Computer Vision library that provides a dedicated module
+# [Kornia](https://github.com/kornia/kornia) is low level Computer Vision library that provides a dedicated module
 # [`kornia.augmentation`](https://kornia.readthedocs.io/en/latest/augmentation.html) module implementing
 # en extensive set of data augmentation techniques for image and video.
 #
@@ -34,7 +34,7 @@ sn.set()
 # where the augmentation_kornia (also subclassing `nn.Module`) are combined with other PyTorch components
 # such as `nn.Sequential`.
 #
-# Checkout the different augmentation operators in Kornia docs and experiment yourself !
+# Checkout the different augmentation operators in Kornia docs and experiment yourself!
 
 
 # %%
