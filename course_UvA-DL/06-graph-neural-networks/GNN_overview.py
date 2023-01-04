@@ -634,7 +634,7 @@ class NodeLevelGNN(pl.LightningModule):
 # Additionally to the Lightning module, we define a training function below.
 # As we have a single graph, we use a batch size of 1 for the data loader and share the same data loader for the train,
 # validation, and test set (the mask is picked inside the Lightning module).
-# Besides, we set the argument `progress_bar_refresh_rate` to zero as it usually shows the progress per epoch,
+# Besides, we set the argument `enable_progress_bar` to False as it usually shows the progress per epoch,
 # but an epoch only consists of a single step.
 # If you have downloaded the pre-trained models in the beginning of the tutorial, we load those instead of training from scratch.
 # Finally, we test the model and return the results.
@@ -653,7 +653,7 @@ def train_node_classifier(model_name, dataset, **model_kwargs):
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
         gpus=AVAIL_GPUS,
         max_epochs=200,
-        progress_bar_refresh_rate=0,
+        enable_progress_bar=False,
     )  # 0 because epoch size is 1
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
@@ -934,7 +934,7 @@ def train_graph_classifier(model_name, **model_kwargs):
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
         gpus=AVAIL_GPUS,
         max_epochs=500,
-        progress_bar_refresh_rate=0,
+        enable_progress_bar=False,
     )
     trainer.logger._default_hp_metric = None
 

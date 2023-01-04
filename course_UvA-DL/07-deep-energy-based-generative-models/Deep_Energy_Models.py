@@ -650,7 +650,7 @@ def train_model(**kwargs):
             OutlierCallback(),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=1,
+        enable_progress_bar=True,
     )
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, "MNIST.ckpt")

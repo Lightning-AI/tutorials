@@ -357,7 +357,7 @@ def train_model(model_name, save_name=None, **kwargs):
             ),  # Save the best checkpoint based on the maximum val_acc recorded. Saves only weights and not optimizer
             LearningRateMonitor("epoch"),
         ],  # Log learning rate every epoch
-        progress_bar_refresh_rate=1,
+        enable_progress_bar=True,
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
     trainer.logger._log_graph = True  # If True, we plot the computation graph in tensorboard
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need

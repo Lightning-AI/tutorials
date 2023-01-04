@@ -363,7 +363,7 @@ def train_simclr(batch_size, max_epochs=500, **kwargs):
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc_top5"),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=1,
+        enable_progress_bar=True,
     )
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
@@ -546,7 +546,7 @@ def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, ma
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=0,
+        enable_progress_bar=False,
         check_val_every_n_epoch=10,
     )
     trainer.logger._default_hp_metric = None
@@ -737,7 +737,7 @@ def train_resnet(batch_size, max_epochs=100, **kwargs):
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=1,
+        enable_progress_bar=True,
         check_val_every_n_epoch=2,
     )
     trainer.logger._default_hp_metric = None
