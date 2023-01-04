@@ -23,6 +23,7 @@ requirements:
   - torchvision
   - matplotlib
   - seaborn
+  - pytorch-lightning>=1.8
 accelerator:
   - CPU
   - GPU
