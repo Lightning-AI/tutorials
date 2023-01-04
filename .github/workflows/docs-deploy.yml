@@ -12,44 +12,46 @@ jobs:
   # https://github.com/marketplace/actions/deploy-to-github-pages
   build-docs-deploy:
     runs-on: ubuntu-20.04
+    env:
+      PATH_DATASETS: ${{ github.workspace }}/.datasets
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: publication
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: 3.8
 
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('docs/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('_requirements/docs.txt') }}
           restore-keys: ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
-          mkdir ${PATH_DATASETS}
+          mkdir -p ${PATH_DATASETS}
           # install Texlive, see https://linuxconfig.org/how-to-install-latex-on-ubuntu-20-04-focal-fossa-linux
           sudo apt-get update
           sudo apt-get install -y cmake pandoc
           sudo apt-get install -y texlive-latex-extra dvipng texlive-pictures
           pip --version
-          pip install --quiet --requirement docs/requirements.txt
+          pip install --quiet --requirement _requirements/docs.txt
           pip list
         shell: bash
 
       - name: Make Documentation
-        working-directory: ./docs
+        working-directory: ./_docs
         run: make html --jobs $(nproc)
 
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@4.1.4
+        uses: JamesIves/github-pages-deploy-action@v4.4.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages # The branch the action should deploy to.
-          folder: docs/build/html # The folder the action should deploy.
+          folder: _docs/build/html # The folder the action should deploy.
           clean: true # Automatically remove deleted files from the deploy branch
           target-folder: docs # If you'd like to push the contents of the deployment folder into a specific directory
           single-commit: true # you'd prefer to have a single commit on the deployment branch instead of full history

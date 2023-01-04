@@ -1,9 +1,10 @@
 # PytorchLightning Tutorials
 
-[![Build Status](https://dev.azure.com/PytorchLightning/Tutorials/_apis/build/status/PyTorchLightning.Tutorials-publishing?branchName=main)](https://dev.azure.com/PytorchLightning/Tutorials/_build/latest?definitionId=11&branchName=main)
-[![Code formatting](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/ci_code-format.yml/badge.svg?event=push)](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/ci_code-format.yml)
-[![Deploy Docs](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/docs-deploy.yml/badge.svg)](https://github.com/PyTorchLightning/lightning-tutorials/actions/workflows/docs-deploy.yml)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/PyTorchLightning/lightning-tutorials/main.svg)](https://results.pre-commit.ci/latest/github/PyTorchLightning/lightning-tutorials/main)
+[![CI internal](https://github.com/Lightning-AI/tutorials/actions/workflows/ci_test-acts.yml/badge.svg?event=push)](https://github.com/Lightning-AI/tutorials/actions/workflows/ci_test-acts.yml)
+[![Build Status](https://dev.azure.com/Lightning-AI/Tutorials/_apis/build/status/Lightning-AI.tutorials%20%5Bpublish%5D?branchName=main)](https://dev.azure.com/Lightning-AI/Tutorials/_build/latest?definitionId=29&branchName=main)
+[![codecov](https://codecov.io/gh/Lightning-AI/tutorials/branch/main/graph/badge.svg?token=C6T3XOOR56)](https://codecov.io/gh/Lightning-AI/tutorials)
+[![Deploy Docs](https://github.com/Lightning-AI/tutorials/actions/workflows/docs-deploy.yml/badge.svg)](https://github.com/Lightning-AI/tutorials/actions/workflows/docs-deploy.yml)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Lightning-AI/tutorials/main.svg)](https://results.pre-commit.ci/latest/github/Lightning-AI/tutorials/main)
 
 This is the Lightning Library - collection of Lightning related notebooks which are pulled back to the main repo as submodule and rendered inside the main documentations.
 The key features/highlights:

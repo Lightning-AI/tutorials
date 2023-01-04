@@ -65,7 +65,7 @@ extensions = [
     "nbsphinx",
     "myst_parser",
     "sphinx_paramlinks",
-    "pt_lightning_sphinx_theme.extensions.lightning_tutorials",
+    "pt_lightning_sphinx_theme.extensions.lightning",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -99,7 +99,7 @@ master_doc = "index"
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -181,6 +181,11 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [(master_doc, project, project + " Documentation", [author], 1)]
 
+# -- Options for linkcheck builder ----------------------------------------------
+# regex pattern 0: allow linking to a specific selection state in
+#  tensorboard.dev links while continuing to validate the base experiment link
+linkcheck_anchors_ignore = ["scalars.*&runSelectionState.*"]
+
 # -- Options for Texinfo output ----------------------------------------------
 
 # Grouping the document tree into Texinfo files. List of tuples
@@ -219,8 +224,8 @@ epub_exclude_files = ["search.html"]
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
-    "torch": ("https://pytorch.org/docs/stable/", None),
-    "numpy": ("https://docs.scipy.org/doc/numpy/", None),
-}
+# intersphinx_mapping = {
+#     "python": ("https://docs.python.org/3", None),
+#     "torch": ("https://pytorch.org/docs/stable/", None),
+#     "numpy": ("https://docs.scipy.org/doc/numpy/", None),
+# }
