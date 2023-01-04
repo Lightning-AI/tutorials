@@ -359,7 +359,7 @@ class GenerateCallback(pl.Callback):
         # Only save those images every N epochs (otherwise tensorboard gets quite large)
         self.every_n_epochs = every_n_epochs
 
-    def on_epoch_end(self, trainer, pl_module):
+    def on_train_epoch_end(self, trainer, pl_module):
         if trainer.current_epoch % self.every_n_epochs == 0:
             # Reconstruct images
             input_imgs = self.input_imgs.to(pl_module.device)

@@ -1,5 +1,5 @@
 documentation:
-  - docs/**/*
+  - _docs/**/*
 
 CI/CD:
   - .actions/**/*
