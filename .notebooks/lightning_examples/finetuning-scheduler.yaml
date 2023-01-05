@@ -1,7 +1,7 @@
 title: Fine-Tuning Scheduler
 author: '[Dan Dale](https://github.com/speediedan)'
 created: 2021-11-29
-updated: 2022-08-06
+updated: 2022-09-20
 license: CC BY-SA
 build: 0
 tags:
@@ -25,14 +25,16 @@ description: 'This notebook introduces the [Fine-Tuning Scheduler](https://finet
 
   '
 requirements:
-- finetuning-scheduler[examples]>=0.2.0
+- finetuning-scheduler[examples]>=0.3.0
+- datasets<2.8.0
 accelerator:
 - GPU
 environment:
-- finetuning-scheduler==0.2.1
-- torchmetrics==0.9.2
-- torch==1.9.1+cu111
-- pytorch-lightning==1.7.1
-- setuptools==59.5.0
-- ipython==8.1.1
-published: '2022-08-15T09:38:03.099363'
+- torchmetrics==0.10.0
+- finetuning-scheduler==0.3.3
+- torch==1.12.1+cu116
+- datasets==2.7.1
+- setuptools==65.6.3
+- ipython==8.8.0
+- pytorch-lightning==1.8.4
+published: '2023-01-05T12:07:52.804813'
