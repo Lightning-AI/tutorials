@@ -324,8 +324,7 @@ class RteBoolqDataModule(pl.LightningDataModule):
 # %%
 class RteBoolqModule(pl.LightningModule):
     """A ``LightningModule`` that can be used to fine-tune a foundational model on either the RTE or BoolQ
-    SuperGLUE tasks using Hugging Face implementations of a given model and the `SuperGLUE Hugging Face dataset.
-    """
+    SuperGLUE tasks using Hugging Face implementations of a given model and the `SuperGLUE Hugging Face dataset."""
 
     def __init__(
         self,
