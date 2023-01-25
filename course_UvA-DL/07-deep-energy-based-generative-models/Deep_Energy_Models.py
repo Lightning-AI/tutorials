@@ -340,7 +340,7 @@ class Sampler:
             model: Neural network to use for modeling E_theta
             img_shape: Shape of the images to model
             sample_size: Batch size of the samples
-            max_len: Maximum number of data points to keep in the buffer
+            max_len: Maximum number of data points to keep in the buffer.
         """
         super().__init__()
         self.model = model

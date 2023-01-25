@@ -168,7 +168,7 @@ class GCNLayer(nn.Module):
             adj_matrix: Batch of adjacency matrices of the graph. If there is an edge from i to j,
                          adj_matrix[b,i,j]=1 else 0. Supports directed edges by non-symmetric matrices.
                          Assumes to already have added the identity connections.
-                         Shape: [batch_size, num_nodes, num_nodes]
+                         Shape: [batch_size, num_nodes, num_nodes].
         """
         # Num neighbours = number of incoming edges
         num_neighbours = adj_matrix.sum(dim=-1, keepdims=True)
@@ -322,7 +322,7 @@ class GATLayer(nn.Module):
             node_feats: Input features of the node. Shape: [batch_size, c_in]
             adj_matrix: Adjacency matrix including self-connections. Shape: [batch_size, num_nodes, num_nodes]
             print_attn_probs: If True, the attention weights are printed during the forward pass
-                               (for debugging purposes)
+                               (for debugging purposes).
         """
         batch_size, num_nodes = node_feats.size(0), node_feats.size(1)
 
@@ -505,7 +505,7 @@ class GNNModel(nn.Module):
             num_layers: Number of "hidden" graph layers
             layer_name: String of the graph layer to use
             dp_rate: Dropout rate to apply throughout the network
-            kwargs: Additional arguments for the graph layer (e.g. number of heads for GAT)
+            kwargs: Additional arguments for the graph layer (e.g. number of heads for GAT).
         """
         super().__init__()
         gnn_layer = gnn_layer_by_name[layer_name]
@@ -526,7 +526,7 @@ class GNNModel(nn.Module):
         """
         Args:
             x: Input features per node
-            edge_index: List of vertex index pairs representing the edges in the graph (PyTorch geometric notation)
+            edge_index: List of vertex index pairs representing the edges in the graph (PyTorch geometric notation).
         """
         for layer in self.layers:
             # For graph layers, we need to add the "edge_index" tensor as additional input
@@ -555,7 +555,7 @@ class MLPModel(nn.Module):
             c_hidden: Dimension of hidden features
             c_out: Dimension of the output features. Usually number of classes in classification
             num_layers: Number of hidden layers
-            dp_rate: Dropout rate to apply throughout the network
+            dp_rate: Dropout rate to apply throughout the network.
         """
         super().__init__()
         layers = []
@@ -569,7 +569,7 @@ class MLPModel(nn.Module):
     def forward(self, x, *args, **kwargs):
         """
         Args:
-            x: Input features per node
+            x: Input features per node.
         """
         return self.layers(x)
 
@@ -849,7 +849,7 @@ class GraphGNNModel(nn.Module):
             c_hidden: Dimension of hidden features
             c_out: Dimension of output features (usually number of classes)
             dp_rate_linear: Dropout rate before the linear layer (usually much higher than inside the GNN)
-            kwargs: Additional arguments for the GNNModel object
+            kwargs: Additional arguments for the GNNModel object.
         """
         super().__init__()
         self.GNN = GNNModel(c_in=c_in, c_hidden=c_hidden, c_out=c_hidden, **kwargs)  # Not our prediction output yet!
@@ -860,7 +860,7 @@ class GraphGNNModel(nn.Module):
         Args:
             x: Input features per node
             edge_index: List of vertex index pairs representing the edges in the graph (PyTorch geometric notation)
-            batch_idx: Index of batch element for each node
+            batch_idx: Index of batch element for each node.
         """
         x = self.GNN(x, edge_index)
         x = geom_nn.global_mean_pool(x, batch_idx)  # Average pooling

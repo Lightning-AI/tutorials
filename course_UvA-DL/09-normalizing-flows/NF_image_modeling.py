@@ -263,7 +263,7 @@ class ImageFlow(pl.LightningModule):
         """
         Args:
             flows: A list of flows (each a nn.Module) that should be applied on the images.
-            import_samples: Number of importance samples to use during testing (see explanation below). Can be changed at any time
+            import_samples: Number of importance samples to use during testing (see explanation below). Can be changed at any time.
         """
         super().__init__()
         self.flows = nn.ModuleList(flows)
@@ -404,7 +404,7 @@ class Dequantization(nn.Module):
         Args:
             alpha: small constant that is used to scale the original input.
                     Prevents dealing with values very close to 0 and 1 when inverting the sigmoid
-            quants: Number of possible discrete values (usually 256 for 8-bit image)
+            quants: Number of possible discrete values (usually 256 for 8-bit image).
         """
         super().__init__()
         self.alpha = alpha
@@ -590,7 +590,7 @@ class VariationalDequantization(Dequantization):
         """
         Args:
             var_flows: A list of flow transformations to use for modeling q(u|x)
-            alpha: Small constant, see Dequantization for details
+            alpha: Small constant, see Dequantization for details.
         """
         super().__init__(alpha=alpha)
         self.flows = nn.ModuleList(var_flows)
@@ -679,7 +679,7 @@ class CouplingLayer(nn.Module):
                   The ldj of this layer will be added to this tensor.
             reverse: If True, we apply the inverse of the layer.
             orig_img (optional): Only needed in VarDeq. Allows external
-                                  input to condition the flow on (e.g. original image)
+                                  input to condition the flow on (e.g. original image).
         """
         # Apply network to masked input
         z_in = z * self.mask
@@ -802,6 +802,7 @@ class LayerNormChannels(nn.Module):
         """This module applies layer norm across channels in an image.
 
         Has been shown to work well with ResNet connections.
+
         Args:
             c_in: Number of channels of the input
         """
@@ -821,7 +822,7 @@ class GatedConv(nn.Module):
         This module applies a two-layer convolutional ResNet block with input gate
         Args:
             c_in: Number of channels of the input
-            c_hidden: Number of hidden dimensions we want to model (usually similar to c_in)
+            c_hidden: Number of hidden dimensions we want to model (usually similar to c_in).
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -1249,7 +1250,7 @@ def interpolate(model, img1, img2, num_steps=8):
     Args:
         model: object of ImageFlow class that represents the (trained) flow model
         img1, img2: Image tensors of shape [1, 28, 28]. Images between which should be interpolated.
-        num_steps: Number of interpolation steps. 8 interpolation steps mean 6 intermediate pictures besides img1 and img2
+        num_steps: Number of interpolation steps. 8 interpolation steps mean 6 intermediate pictures besides img1 and img2.
     """
     imgs = torch.stack([img1, img2], dim=0).to(model.device)
     z, _ = model.encode(imgs)
@@ -1322,7 +1323,7 @@ def visualize_dequant_distribution(model: ImageFlow, imgs: Tensor, title: str = 
     """
     Args:
         model: The flow of which we want to visualize the dequantization distribution
-        imgs: Example training images of which we want to visualize the dequantization distribution
+        imgs: Example training images of which we want to visualize the dequantization distribution.
     """
     imgs = imgs.to(device)
     ldj = torch.zeros(imgs.shape[0], dtype=torch.float32).to(device)

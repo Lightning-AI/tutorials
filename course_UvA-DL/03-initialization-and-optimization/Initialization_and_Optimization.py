@@ -156,7 +156,7 @@ class BaseNetwork(nn.Module):
             act_fn: Object of the activation function that should be used as non-linearity in the network.
             input_size: Size of the input images in pixels
             num_classes: Number of classes we want to predict
-            hidden_sizes: A list of integers specifying the hidden layer sizes in the NN
+            hidden_sizes: A list of integers specifying the hidden layer sizes in the NN.
         """
         super().__init__()
 
@@ -258,7 +258,7 @@ def visualize_gradients(model, color="C0", print_variance=False):
     """
     Args:
         net: Object of class BaseNetwork
-        color: Color in which we want to visualize the histogram (for easier separation of activation functions)
+        color: Color in which we want to visualize the histogram (for easier separation of activation functions).
     """
     model.eval()
     small_loader = data.DataLoader(train_set, batch_size=1024, shuffle=False)

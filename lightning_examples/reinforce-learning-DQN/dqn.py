@@ -28,7 +28,7 @@ class DQN(nn.Module):
         Args:
             obs_size: observation/state size of the environment
             n_actions: number of discrete actions available in the environment
-            hidden_size: size of hidden layers
+            hidden_size: size of hidden layers.
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -119,7 +119,7 @@ class Agent:
         """
         Args:
             env: training environment
-            replay_buffer: replay buffer storing experiences
+            replay_buffer: replay buffer storing experiences.
         """
         self.env = env
         self.replay_buffer = replay_buffer
@@ -172,7 +172,6 @@ class Agent:
         Returns:
             reward, done
         """
-
         action = self.get_action(net, epsilon, device)
 
         # do step in the environment
@@ -224,7 +223,7 @@ class DQNLightning(LightningModule):
             eps_start: starting value of epsilon
             eps_end: final value of epsilon
             episode_length: max length of an episode
-            warm_start_steps: max episode reward in the environment
+            warm_start_steps: max episode reward in the environment.
         """
         super().__init__()
         self.save_hyperparameters()
