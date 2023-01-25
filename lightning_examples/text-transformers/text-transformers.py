@@ -212,7 +212,7 @@ class GLUETransformer(LightningModule):
         self.log_dict(self.metric.compute(predictions=preds, references=labels), prog_bar=True)
 
     def configure_optimizers(self):
-        """Prepare optimizer and schedule (linear warmup and decay)"""
+        """Prepare optimizer and schedule (linear warmup and decay)."""
         model = self.model
         no_decay = ["bias", "LayerNorm.weight"]
         optimizer_grouped_parameters = [

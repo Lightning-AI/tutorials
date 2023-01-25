@@ -215,7 +215,7 @@ class AttentionBlock(nn.Module):
             hidden_dim - Dimensionality of hidden layer in feed-forward network
                          (usually 2-4x larger than embed_dim)
             num_heads - Number of heads to use in the Multi-Head Attention block
-            dropout - Amount of dropout to apply in the feed-forward network
+            dropout - Amount of dropout to apply in the feed-forward network.
         """
         super().__init__()
 
@@ -280,7 +280,7 @@ class VisionTransformer(nn.Module):
             patch_size - Number of pixels that the patches have per dimension
             num_patches - Maximum number of patches an image can have
             dropout - Amount of dropout to apply in the feed-forward network and
-                      on the input encoding
+                      on the input encoding.
         """
         super().__init__()
 

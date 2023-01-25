@@ -604,7 +604,7 @@ class XORDataset(data.Dataset):
         """
         Inputs:
             size - Number of data points we want to generate
-            std - Standard deviation of the noise (see generate_continuous_xor function)
+            std - Standard deviation of the noise (see generate_continuous_xor function).
         """
         super().__init__()
         self.size = size

@@ -468,7 +468,7 @@ class EncoderBlock(nn.Module):
             input_dim: Dimensionality of the input
             num_heads: Number of heads to use in the attention block
             dim_feedforward: Dimensionality of the hidden layer in the MLP
-            dropout: Dropout probability to use in the dropout layers
+            dropout: Dropout probability to use in the dropout layers.
         """
         super().__init__()
 
@@ -573,7 +573,7 @@ class TransformerEncoder(nn.Module):
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=5000):
         """
-        Args
+        Args:
             d_model: Hidden dimensionality of the input.
             max_len: Maximum length of a sequence to expect.
         """
@@ -769,7 +769,7 @@ class TransformerPredictor(pl.LightningModule):
             warmup: Number of warmup steps. Usually between 50 and 500
             max_iters: Number of maximum iterations the model is trained for. This is needed for the CosineWarmup scheduler
             dropout: Dropout to apply inside the model
-            input_dropout: Dropout to apply on the input features
+            input_dropout: Dropout to apply on the input features.
         """
         super().__init__()
         self.save_hyperparameters()

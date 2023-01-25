@@ -270,7 +270,7 @@ class FewShotBatchSampler:
                       iteration (for training)
             shuffle_once - If True, examples and classes are shuffled once in
                            the beginning, but kept constant across iterations
-                           (for validation)
+                           (for validation).
         """
         super().__init__()
         self.dataset_targets = dataset_targets
@@ -977,7 +977,7 @@ class TaskBatchSampler:
                             the implementation of sampling the same classes but
                             distinct examples for support and query set.
             shuffle - If True, examples and classes are newly shuffled in each
-                      iteration (for training)
+                      iteration (for training).
         """
         super().__init__()
         self.batch_sampler = FewShotBatchSampler(dataset_targets, N_way, K_shot, include_query, shuffle)
