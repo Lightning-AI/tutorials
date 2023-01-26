@@ -61,7 +61,7 @@ repos:
           - mdformat_frontmatter
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.226
+    rev: v0.0.233
     hooks:
       - id: ruff
         args:
