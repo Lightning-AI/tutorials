@@ -28,23 +28,23 @@ from urllib.error import HTTPError
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import pytorch_lightning as pl
+import lightning as L
 import seaborn as sns
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from IPython.display import set_matplotlib_formats
+import matplotlib_inline.backend_inline
 from PIL import Image
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR100, SVHN
 from tqdm.auto import tqdm
 
 plt.set_cmap("cividis")
 # %matplotlib inline
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
@@ -57,7 +57,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/MetaLearning/")
 
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.determinstic = True
@@ -183,7 +183,7 @@ class ImageDataset(data.Dataset):
 # We will assign the classes randomly to training, validation and test, and use a 80%-10%-10% split.
 
 # %%
-pl.seed_everything(0)  # Set seed for reproducibility
+L.seed_everything(0)  # Set seed for reproducibility
 classes = torch.randperm(100)  # Returns random permutation of numbers 0 to 99
 train_classes, val_classes, test_classes = classes[:80], classes[80:90], classes[90:]
 
@@ -475,7 +475,7 @@ def get_convnet(output_size):
 
 
 # %%
-class ProtoNet(pl.LightningModule):
+class ProtoNet(L.LightningModule):
     def __init__(self, proto_dim, lr):
         """Inputs.
 
@@ -553,15 +553,16 @@ class ProtoNet(pl.LightningModule):
 
 # %%
 def train_model(model_class, train_loader, val_loader, **kwargs):
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, model_class.__name__),
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=200,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=0,
+        enable_progress_bar=False,
     )
     trainer.logger._default_hp_metric = None
 
@@ -572,7 +573,7 @@ def train_model(model_class, train_loader, val_loader, **kwargs):
         # Automatically loads the model with the saved hyperparameters
         model = model_class.load_from_checkpoint(pretrained_filename)
     else:
-        pl.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducable
         model = model_class(**kwargs)
         trainer.fit(model, train_loader, val_loader)
         model = model_class.load_from_checkpoint(
@@ -844,7 +845,7 @@ plt.close()
 
 
 # %%
-class ProtoMAML(pl.LightningModule):
+class ProtoMAML(L.LightningModule):
     def __init__(self, proto_dim, lr, lr_inner, lr_output, num_inner_steps):
         """Inputs.
 
@@ -1091,7 +1092,7 @@ protomaml_model = train_model(
 
 # %%
 def test_protomaml(model, dataset, k_shot=4):
-    pl.seed_everything(42)
+    L.seed_everything(42)
     model = model.to(device)
     num_classes = dataset.targets.unique().shape[0]
 
