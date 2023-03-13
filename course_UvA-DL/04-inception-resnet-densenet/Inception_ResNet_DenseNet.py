@@ -11,7 +11,7 @@ from urllib.error import HTTPError
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import pytorch_lightning as pl
+import lightning as L
 import seaborn as sns
 import tabulate
 import torch
@@ -21,13 +21,15 @@ import torch.utils.data as data
 import torchvision
 
 # %matplotlib inline
-from IPython.display import HTML, display, set_matplotlib_formats
+from IPython.display import HTML, display
+import matplotlib_inline.backend_inline
+
 from PIL import Image
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
 
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
@@ -46,7 +48,7 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/ConvNets")
 
 
 # Function for setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.determinstic = True
@@ -136,9 +138,9 @@ train_transform = transforms.Compose(
 # We need to do a little trick because the validation set should not use the augmentation.
 train_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=train_transform, download=True)
 val_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=test_transform, download=True)
-pl.seed_everything(42)
+L.seed_everything(42)
 train_set, _ = torch.utils.data.random_split(train_dataset, [45000, 5000])
-pl.seed_everything(42)
+L.seed_everything(42)
 _, val_set = torch.utils.data.random_split(val_dataset, [45000, 5000])
 
 # Loading the test set
@@ -180,7 +182,7 @@ plt.close()
 # %% [markdown]
 # ## PyTorch Lightning
 #
-# In this notebook and in many following ones, we will make use of the library [PyTorch Lightning](https://www.pytorchlightning.ai/).
+# In this notebook and in many following ones, we will make use of the library [PyTorch Lightning](https://www.lightning.ai/docs/pytorch/stable).
 # PyTorch Lightning is a framework that simplifies your code needed to train, evaluate, and test a model in PyTorch.
 # It also handles logging into [TensorBoard](https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html), a visualization toolkit for ML experiments, and saving model checkpoints automatically with minimal code overhead from our side.
 # This is extremely helpful for us as we want to focus on implementing different model architectures and spend little time on other code overhead.
@@ -192,12 +194,12 @@ plt.close()
 
 # %%
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # %% [markdown]
 # Thus, in the future, we don't have to define our own `set_seed` function anymore.
 #
-# In PyTorch Lightning, we define `pl.LightningModule`'s (inheriting from `Module`) that organize our code into 5 main sections:
+# In PyTorch Lightning, we define `L.LightningModule`'s (inheriting from `Module`) that organize our code into 5 main sections:
 #
 # 1. Initialization (`__init__`), where we create all necessary parameters/models
 # 2. Optimizers (`configure_optimizers`) where we create the optimizers, learning rate scheduler, etc.
@@ -208,13 +210,13 @@ pl.seed_everything(42)
 # 5. Test loop (`test_step`) which is the same as validation, only on a test set.
 #
 # Therefore, we don't abstract the PyTorch code, but rather organize it and define some default operations that are commonly used.
-# If you need to change something else in your training/validation/test loop, there are many possible functions you can overwrite (see the [docs](https://pytorch-lightning.readthedocs.io/en/stable/common/lightning_module.html) for details).
+# If you need to change something else in your training/validation/test loop, there are many possible functions you can overwrite (see the [docs](https://lightning.ai/docs/pytorch/stable/common/lightning_module.html) for details).
 #
 # Now we can look at an example of how a Lightning Module for training a CNN looks like:
 
 
 # %%
-class CIFARModule(pl.LightningModule):
+class CIFARModule(L.LightningModule):
     def __init__(self, model_name, model_hparams, optimizer_name, optimizer_hparams):
         """
         Inputs:
@@ -322,7 +324,7 @@ act_fn_by_name = {"tanh": nn.Tanh, "relu": nn.ReLU, "leakyrelu": nn.LeakyReLU, "
 # Besides the Lightning module, the second most important module in PyTorch Lightning is the `Trainer`.
 # The trainer is responsible to execute the training steps defined in the Lightning module and completes the framework.
 # Similar to the Lightning module, you can override any key part that you don't want to be automated, but the default settings are often the best practice to do.
-# For a full overview, see the [documentation](https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html).
+# For a full overview, see the [documentation](https://lightning.ai/docs/pytorch/stable/common/trainer.html).
 # The most important functions we use below are:
 #
 # * `trainer.fit`: Takes as input a lightning module, a training dataset, and an (optional) validation dataset.
@@ -345,10 +347,11 @@ def train_model(model_name, save_name=None, **kwargs):
         save_name = model_name
 
     # Create a PyTorch Lightning trainer with the generation callback
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),  # Where to save models
         # We run on a single GPU (if possible)
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator=("cuda" if str(device) == "cuda:0" else "cpu"),
+        devices=1,
         # How many epochs to train for if no patience is set
         max_epochs=180,
         callbacks=[
@@ -357,7 +360,6 @@ def train_model(model_name, save_name=None, **kwargs):
             ),  # Save the best checkpoint based on the maximum val_acc recorded. Saves only weights and not optimizer
             LearningRateMonitor("epoch"),
         ],  # Log learning rate every epoch
-        progress_bar_refresh_rate=1,
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
     trainer.logger._log_graph = True  # If True, we plot the computation graph in tensorboard
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
@@ -369,7 +371,7 @@ def train_model(model_name, save_name=None, **kwargs):
         # Automatically loads the model with the saved hyperparameters
         model = CIFARModule.load_from_checkpoint(pretrained_filename)
     else:
-        pl.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducable
         model = CIFARModule(model_name=model_name, **kwargs)
         trainer.fit(model, train_loader, val_loader)
         model = CIFARModule.load_from_checkpoint(
