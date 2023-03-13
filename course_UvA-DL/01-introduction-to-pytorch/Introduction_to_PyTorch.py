@@ -37,13 +37,13 @@
 import time
 
 import matplotlib.pyplot as plt
+
+# %matplotlib inline
+import matplotlib_inline.backend_inline
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.utils.data as data
-
-# %matplotlib inline
-import matplotlib_inline.backend_inline
 from matplotlib.colors import to_rgba
 from torch import Tensor
 from tqdm.notebook import tqdm  # Progress bar

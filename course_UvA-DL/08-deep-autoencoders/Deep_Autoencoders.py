@@ -18,9 +18,10 @@ import os
 import urllib.request
 from urllib.error import HTTPError
 
+import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
-import lightning as L
+import matplotlib_inline.backend_inline
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -28,7 +29,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-import matplotlib_inline.backend_inline
 from lightning.pytorch.callbacks import Callback, LearningRateMonitor, ModelCheckpoint
 from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms

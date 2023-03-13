@@ -9,13 +9,16 @@ import random
 import urllib.request
 from urllib.error import HTTPError
 
+# PyTorch Lightning
+import lightning as L
+
 # Plotting
 import matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
 
-# PyTorch Lightning
-import lightning as L
+# %matplotlib inline
+import matplotlib_inline.backend_inline
+import numpy as np
 
 # PyTorch
 import torch
@@ -25,9 +28,6 @@ import torch.utils.data as data
 
 # Torchvision
 import torchvision
-
-# %matplotlib inline
-import matplotlib_inline.backend_inline
 from lightning.pytorch.callbacks import Callback, LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import MNIST

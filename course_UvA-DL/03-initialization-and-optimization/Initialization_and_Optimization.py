@@ -25,17 +25,17 @@ import os
 import urllib.request
 from urllib.error import HTTPError
 
-import matplotlib.pyplot as plt
-import numpy as np
 import lightning as L
+import matplotlib.pyplot as plt
+
+# %matplotlib inline
+import matplotlib_inline.backend_inline
+import numpy as np
 import seaborn as sns
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data as data
-
-# %matplotlib inline
-import matplotlib_inline.backend_inline
 from matplotlib import cm
 from torchvision import transforms
 from torchvision.datasets import FashionMNIST
@@ -952,7 +952,7 @@ def plot_curve(
     fig = plt.figure()
     ax = fig.gca()
     if plot_3d:
-        ax = fig.add_subplot(projection='3d')
+        ax = fig.add_subplot(projection="3d")
 
     x = torch.arange(x_range[0], x_range[1], (x_range[1] - x_range[0]) / 100.0)
     y = torch.arange(y_range[0], y_range[1], (y_range[1] - y_range[0]) / 100.0)
