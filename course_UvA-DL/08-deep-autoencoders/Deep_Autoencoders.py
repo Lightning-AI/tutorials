@@ -1,3 +1,15 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.14.5
+# ---
+
 # %% [markdown]
 # <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/E2d8NRYt2e4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 
@@ -8,7 +20,7 @@ from urllib.error import HTTPError
 
 import matplotlib
 import matplotlib.pyplot as plt
-import pytorch_lightning as pl
+import lightning as L
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -16,15 +28,15 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from IPython.display import set_matplotlib_formats
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+import matplotlib_inline.backend_inline
+from lightning.pytorch.callbacks import Callback, LearningRateMonitor, ModelCheckpoint
 from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
 from tqdm.notebook import tqdm
 
 # %matplotlib inline
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 sns.set()
@@ -38,7 +50,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial9")
 
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.determinstic = True
@@ -94,7 +106,7 @@ transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=transform, download=True)
-pl.seed_everything(42)
+L.seed_everything(42)
 train_set, val_set = torch.utils.data.random_split(train_dataset, [45000, 5000])
 
 # Loading the test set
@@ -236,7 +248,7 @@ class Decoder(nn.Module):
 
 
 # %%
-class Autoencoder(pl.LightningModule):
+class Autoencoder(L.LightningModule):
     def __init__(
         self,
         base_channel_size: int,
@@ -352,7 +364,7 @@ for i in range(2):
 
 
 # %%
-class GenerateCallback(pl.Callback):
+class GenerateCallback(Callback):
     def __init__(self, input_imgs, every_n_epochs=1):
         super().__init__()
         self.input_imgs = input_imgs  # Images to reconstruct during training
@@ -383,9 +395,10 @@ class GenerateCallback(pl.Callback):
 # %%
 def train_cifar(latent_dim):
     # Create a PyTorch Lightning trainer with the generation callback
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "cifar10_%i" % latent_dim),
-        gpus=1 if str(device).startswith("cuda") else 0,
+        accelerator=("cuda" if str(device).startswith("cuda") else "cpu"),
+        devices=1,
         max_epochs=500,
         callbacks=[
             ModelCheckpoint(save_weights_only=True),
