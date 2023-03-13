@@ -566,7 +566,7 @@ def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, ma
         print(f"Found pretrained model at {pretrained_filename}, loading...")
         model = LogisticRegression.load_from_checkpoint(pretrained_filename)
     else:
-        pl.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducable
         model = LogisticRegression(**kwargs)
         trainer.fit(model, train_loader, test_loader)
         model = LogisticRegression.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)

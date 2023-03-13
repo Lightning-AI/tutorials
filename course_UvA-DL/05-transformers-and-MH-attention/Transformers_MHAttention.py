@@ -958,7 +958,7 @@ class ReversePredictor(TransformerPredictor):
 
 # %% [markdown]
 # Finally, we can create a training function similar to the one we have seen in Tutorial 5 for PyTorch Lightning.
-# We create a `pl.Trainer` object, running for $N$ epochs, logging in TensorBoard, and saving our best model based on the validation.
+# We create a `L.Trainer` object, running for $N$ epochs, logging in TensorBoard, and saving our best model based on the validation.
 # Afterward, we test our models on the test set.
 # An additional parameter we pass to the trainer here is `gradient_clip_val`.
 # This clips the norm of the gradients for all parameters before taking an optimizer step and prevents the model
