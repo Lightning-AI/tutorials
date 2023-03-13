@@ -39,7 +39,7 @@ from urllib.error import HTTPError
 # Imports for plotting
 import matplotlib.pyplot as plt
 import numpy as np
-import pytorch_lightning as pl
+import lightning as L
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -47,9 +47,9 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from IPython.display import set_matplotlib_formats
+import matplotlib_inline.backend_inline
 from matplotlib.colors import to_rgb
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from torch import Tensor
 from torchvision import transforms
 from torchvision.datasets import MNIST
@@ -57,7 +57,7 @@ from tqdm.notebook import tqdm
 
 plt.set_cmap("cividis")
 # %matplotlib inline
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 
 # Path to the folder where the datasets are/should be downloaded (e.g. MNIST)
 DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
@@ -65,7 +65,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial12")
 
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.determinstic = True
@@ -117,7 +117,7 @@ transform = transforms.Compose([transforms.ToTensor(), discretize])
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_dataset = MNIST(root=DATASET_PATH, train=True, transform=transform, download=True)
-pl.seed_everything(42)
+L.seed_everything(42)
 train_set, val_set = torch.utils.data.random_split(train_dataset, [50000, 10000])
 
 # Loading the test set
@@ -529,7 +529,7 @@ class GatedMaskedConv(nn.Module):
 
 
 # %%
-class PixelCNN(pl.LightningModule):
+class PixelCNN(L.LightningModule):
     def __init__(self, c_in, c_hidden):
         super().__init__()
         self.save_hyperparameters()
@@ -675,9 +675,10 @@ del inp, out, test_model
 # %%
 def train_model(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "PixelCNN"),
-        gpus=1 if str(device).startswith("cuda") else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=150,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="min", monitor="val_bpd"),
@@ -749,7 +750,7 @@ print(f"Number of parameters: {num_params:,}")
 # Let's therefore use our sampling function to generate a few digits:
 
 # %%
-pl.seed_everything(1)
+L.seed_everything(1)
 samples = model.sample(img_shape=(16, 1, 28, 28))
 show_imgs(samples.cpu())
 
@@ -772,7 +773,7 @@ show_imgs(samples.cpu())
 # $64\times64$ instead of $28\times28$:
 
 # %%
-pl.seed_everything(1)
+L.seed_everything(1)
 samples = model.sample(img_shape=(8, 1, 64, 64))
 show_imgs(samples.cpu())
 
@@ -810,7 +811,7 @@ def autocomplete_image(img):
     show_imgs([img, img_init])
     # Generate 12 example completions
     img_init = img_init.unsqueeze(dim=0).expand(12, -1, -1, -1).to(device)
-    pl.seed_everything(1)
+    L.seed_everything(1)
     img_generated = model.sample(img_init.shape, img_init)
     print("Autocompletion samples:")
     show_imgs(img_generated)
