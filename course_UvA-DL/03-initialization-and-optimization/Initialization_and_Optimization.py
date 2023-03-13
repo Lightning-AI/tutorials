@@ -1,3 +1,15 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.14.5
+# ---
+
 # %% [markdown]
 # <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/X5m7bC4xCLY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 # In the first half of the notebook, we will review different initialization techniques, and go step by step from the simplest initialization to methods that are nowadays used in very deep networks.
@@ -15,7 +27,7 @@ from urllib.error import HTTPError
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pytorch_lightning as pl
+import lightning as L
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -33,7 +45,7 @@ set_matplotlib_formats("svg", "pdf")  # For export
 sns.set()
 
 # %% [markdown]
-# Instead of the `set_seed` function as in Tutorial 3, we can use PyTorch Lightning's build-in function `pl.seed_everything`.
+# Instead of the `set_seed` function as in Tutorial 3, we can use Lightning's build-in function `L.seed_everything`.
 # We will reuse the path variables `DATASET_PATH` and `CHECKPOINT_PATH` as in Tutorial 3.
 # Adjust the paths if necessary.
 
@@ -44,7 +56,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/InitOptim/")
 
 # Seed everything
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.determinstic = True
@@ -938,7 +950,9 @@ def plot_curve(
     curve_fn, x_range=(-5, 5), y_range=(-5, 5), plot_3d=False, cmap=cm.viridis, title="Pathological curvature"
 ):
     fig = plt.figure()
-    ax = fig.gca(projection="3d") if plot_3d else fig.gca()
+    ax = fig.gca()
+    if plot_3d:
+        ax = fig.add_subplot(projection='3d')
 
     x = torch.arange(x_range[0], x_range[1], (x_range[1] - x_range[0]) / 100.0)
     y = torch.arange(y_range[0], y_range[1], (y_range[1] - y_range[0]) / 100.0)
