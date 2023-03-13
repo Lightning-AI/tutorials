@@ -1,15 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.14.5
-# ---
-
 # %% [markdown]
 # <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/X5m7bC4xCLY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 # In the first half of the notebook, we will review different initialization techniques, and go step by step from the simplest initialization to methods that are nowadays used in very deep networks.
@@ -25,17 +13,17 @@ import os
 import urllib.request
 from urllib.error import HTTPError
 
-import matplotlib.pyplot as plt
-import numpy as np
 import lightning as L
+import matplotlib.pyplot as plt
+
+# %matplotlib inline
+import matplotlib_inline.backend_inline
+import numpy as np
 import seaborn as sns
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data as data
-
-# %matplotlib inline
-import matplotlib_inline.backend_inline
 from matplotlib import cm
 from torchvision import transforms
 from torchvision.datasets import FashionMNIST
@@ -952,7 +940,7 @@ def plot_curve(
     fig = plt.figure()
     ax = fig.gca()
     if plot_3d:
-        ax = fig.add_subplot(projection='3d')
+        ax = fig.add_subplot(projection="3d")
 
     x = torch.arange(x_range[0], x_range[1], (x_range[1] - x_range[0]) / 100.0)
     y = torch.arange(y_range[0], y_range[1], (y_range[1] - y_range[0]) / 100.0)

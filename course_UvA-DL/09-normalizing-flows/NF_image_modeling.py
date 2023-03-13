@@ -10,10 +10,11 @@ import time
 import urllib.request
 from urllib.error import HTTPError
 
+import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib_inline.backend_inline
 import numpy as np
-import lightning as L
 import seaborn as sns
 import tabulate
 import torch
@@ -23,9 +24,8 @@ import torch.optim as optim
 import torch.utils.data as data
 import torchvision
 from IPython.display import HTML, display
-import matplotlib_inline.backend_inline
-from matplotlib.colors import to_rgb
 from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
+from matplotlib.colors import to_rgb
 from torch import Tensor
 from torchvision import transforms
 from torchvision.datasets import MNIST

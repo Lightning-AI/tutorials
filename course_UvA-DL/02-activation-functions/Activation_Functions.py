@@ -11,6 +11,9 @@ import warnings
 from urllib.error import HTTPError
 
 import matplotlib.pyplot as plt
+
+# %matplotlib inline
+import matplotlib_inline.backend_inline
 import numpy as np
 import seaborn as sns
 import torch
@@ -19,9 +22,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-
-# %matplotlib inline
-import matplotlib_inline.backend_inline
 from torchvision import transforms
 from torchvision.datasets import FashionMNIST
 from tqdm.notebook import tqdm

@@ -1,15 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.14.5
-# ---
-
 # %% [markdown]
 # <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/wnKZZgFQY-E" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 # Welcome to our PyTorch tutorial for the Deep Learning course 2020 at the University of Amsterdam!
@@ -37,13 +25,13 @@
 import time
 
 import matplotlib.pyplot as plt
+
+# %matplotlib inline
+import matplotlib_inline.backend_inline
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.utils.data as data
-
-# %matplotlib inline
-import matplotlib_inline.backend_inline
 from matplotlib.colors import to_rgba
 from torch import Tensor
 from tqdm.notebook import tqdm  # Progress bar

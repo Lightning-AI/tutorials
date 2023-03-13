@@ -34,13 +34,14 @@ import urllib.request
 from functools import partial
 from urllib.error import HTTPError
 
+# PyTorch Lightning
+import lightning as L
+
 # Plotting
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib_inline.backend_inline
 import numpy as np
-
-# PyTorch Lightning
-import lightning as L
 import seaborn as sns
 
 # PyTorch
@@ -52,7 +53,6 @@ import torch.utils.data as data
 
 # Torchvision
 import torchvision
-import matplotlib_inline.backend_inline
 from lightning.pytorch.callbacks import ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR100

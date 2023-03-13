@@ -1,15 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     formats: ipynb,py:percent
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.14.5
-# ---
-
 # %% [markdown]
 # <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/vjSSyGxlczs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 # Let's start with importing our standard libraries here.
@@ -20,10 +8,11 @@ import urllib.request
 from types import SimpleNamespace
 from urllib.error import HTTPError
 
+import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib_inline.backend_inline
 import numpy as np
-import lightning as L
 import seaborn as sns
 import tabulate
 import torch
@@ -34,10 +23,8 @@ import torchvision
 
 # %matplotlib inline
 from IPython.display import HTML, display
-import matplotlib_inline.backend_inline
-
-from PIL import Image
 from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
+from PIL import Image
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
 
