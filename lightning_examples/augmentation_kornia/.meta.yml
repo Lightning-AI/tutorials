@@ -1,7 +1,7 @@
 title: GPU and batched data augmentation with Kornia and PyTorch-Lightning
 author: PL/Kornia team
 created: 2021-06-11
-updated: 2021-06-16
+updated: 2023-03-15
 license: CC BY-SA
 build: 4
 tags:
@@ -12,7 +12,7 @@ description: |
   mode without additional effort.
 requirements:
   - kornia
-  - pytorch-lightning !=1.8.0, !=1.8.0.post1  # skip for PermissionError: [Errno 13] Permission denied: 'command'
+  - lightning
   - torchmetrics
   - torchvision
   - matplotlib
