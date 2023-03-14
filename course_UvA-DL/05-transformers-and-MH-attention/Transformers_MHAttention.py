@@ -61,7 +61,7 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/Transformers/"
 pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -979,10 +979,11 @@ def train_reverse(**kwargs):
     trainer = pl.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-        gpus=1 if str(device).startswith("cuda") else 0,
+        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        devices=1,
         max_epochs=10,
         gradient_clip_val=5,
-        progress_bar_refresh_rate=1,
+        enable_progress_bar=True,
     )
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
@@ -1439,10 +1440,11 @@ def train_anomaly(**kwargs):
     trainer = pl.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-        gpus=1 if str(device).startswith("cuda") else 0,
+        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        devices=1,
         max_epochs=100,
         gradient_clip_val=2,
-        progress_bar_refresh_rate=1,
+        enable_progress_bar=True,
     )
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
