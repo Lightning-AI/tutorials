@@ -5,19 +5,19 @@
 # %%
 import os
 
+import lightning as L
 import pandas as pd
 import seaborn as sn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
-from torch.utils.data import DataLoader, random_split
 from IPython.display import display
-import lightning as L
 from lightning.pytorch.callbacks import LearningRateMonitor
 from lightning.pytorch.loggers import CSVLogger
 from torch.optim.lr_scheduler import OneCycleLR
 from torch.optim.swa_utils import AveragedModel, update_bn
+from torch.utils.data import DataLoader, random_split
 from torchmetrics.functional import accuracy
 from torchvision.datasets import CIFAR10
 
