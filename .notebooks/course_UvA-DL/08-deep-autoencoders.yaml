@@ -1,7 +1,7 @@
 title: 'Tutorial 8: Deep Autoencoders'
 author: Phillip Lippe
 created: 2021-07-12
-updated: 2021-07-12
+updated: 2023-01-04
 license: CC BY-SA
 build: 0
 tags:
@@ -40,16 +40,17 @@ requirements:
 - torchvision
 - matplotlib
 - seaborn
+- pytorch-lightning>=1.8
 accelerator:
 - CPU
 - GPU
 environment:
+- torchmetrics==0.11.4
+- seaborn==0.12.2
+- setuptools==67.4.0
+- ipython==8.11.0
+- matplotlib==3.7.1
 - torch==1.13.1+cu116
-- setuptools==65.6.3
-- ipython==8.8.0
-- torchmetrics==0.10.0
-- matplotlib==3.6.2
 - torchvision==0.14.1+cu116
 - pytorch-lightning==1.8.6
-- seaborn==0.12.2
-published: '2023-01-05T11:38:35.885348'
+published: '2023-03-14T02:26:09.217450'
