@@ -39,7 +39,7 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/VisionTransfor
 pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -378,13 +378,14 @@ class ViT(pl.LightningModule):
 def train_model(**kwargs):
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "ViT"),
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        devices=1,
         max_epochs=180,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=1,
+        enable_progress_bar=True,
     )
     trainer.logger._log_graph = True  # If True, we plot the computation graph in tensorboard
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
