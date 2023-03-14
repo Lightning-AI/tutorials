@@ -1,7 +1,7 @@
 title: 'Tutorial 3: Initialization and Optimization'
 author: Phillip Lippe
 created: 2021-08-27
-updated: 2023-01-04
+updated: 2023-03-14
 license: CC BY-SA
 tags:
 - Image
@@ -32,12 +32,12 @@ accelerator:
 - CPU
 - GPU
 environment:
-- seaborn==0.12.2
-- setuptools==67.4.0
-- ipython==8.11.0
-- pytorch-lightning==1.8.6
 - torch==1.13.1+cu116
-- torchmetrics==0.11.4
 - matplotlib==3.7.1
+- ipython==8.11.0
 - torchvision==0.14.1+cu116
-published: '2023-03-14T01:57:51.787538'
+- torchmetrics==0.11.4
+- setuptools==67.4.0
+- seaborn==0.12.2
+- pytorch-lightning==1.9.4
+published: '2023-03-14T15:39:26.362931'
