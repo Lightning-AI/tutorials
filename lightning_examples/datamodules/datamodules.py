@@ -8,8 +8,7 @@ import os
 
 import torch
 import torch.nn.functional as F
-from pytorch_lightning import LightningDataModule, LightningModule, Trainer
-from pytorch_lightning.callbacks.progress import TQDMProgressBar
+import lightning as L
 from torch import nn
 from torch.utils.data import DataLoader, random_split
 from torchmetrics.functional import accuracy
@@ -34,7 +33,7 @@ BATCH_SIZE = 256 if torch.cuda.is_available() else 64
 
 
 # %%
-class LitMNIST(LightningModule):
+class LitMNIST(L.LightningModule):
     def __init__(self, data_dir=PATH_DATASETS, hidden_size=64, learning_rate=2e-4):
         super().__init__()
 
@@ -69,13 +68,13 @@ class LitMNIST(LightningModule):
         x = self.model(x)
         return F.log_softmax(x, dim=1)
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch):
         x, y = batch
         logits = self(x)
         loss = F.nll_loss(logits, y)
         return loss
 
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch):
         x, y = batch
         logits = self(x)
         loss = F.nll_loss(logits, y)
@@ -122,11 +121,10 @@ class LitMNIST(LightningModule):
 
 # %%
 model = LitMNIST()
-trainer = Trainer(
+trainer = L.Trainer(
     max_epochs=2,
     accelerator="auto",
-    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
-    callbacks=[TQDMProgressBar(refresh_rate=20)],
+    devices=1,
 )
 trainer.fit(model)
 
@@ -163,7 +161,7 @@ trainer.fit(model)
 
 
 # %%
-class MNISTDataModule(LightningDataModule):
+class MNISTDataModule(L.LightningDataModule):
     def __init__(self, data_dir: str = PATH_DATASETS):
         super().__init__()
         self.data_dir = data_dir
@@ -211,7 +209,7 @@ class MNISTDataModule(LightningDataModule):
 
 
 # %%
-class LitModel(LightningModule):
+class LitModel(L.LightningModule):
     def __init__(self, channels, width, height, num_classes, hidden_size=64, learning_rate=2e-4):
         super().__init__()
 
@@ -238,13 +236,13 @@ class LitModel(LightningModule):
         x = self.model(x)
         return F.log_softmax(x, dim=1)
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch):
         x, y = batch
         logits = self(x)
         loss = F.nll_loss(logits, y)
         return loss
 
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch):
         x, y = batch
         logits = self(x)
         loss = F.nll_loss(logits, y)
@@ -269,11 +267,10 @@ dm = MNISTDataModule()
 # Init model from datamodule's attributes
 model = LitModel(*dm.dims, dm.num_classes)
 # Init trainer
-trainer = Trainer(
+trainer = L.Trainer(
     max_epochs=3,
-    callbacks=[TQDMProgressBar(refresh_rate=20)],
     accelerator="auto",
-    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+    devices=1,
 )
 # Pass the datamodule as arg to trainer.fit to override model hooks :)
 trainer.fit(model, dm)
@@ -285,7 +282,7 @@ trainer.fit(model, dm)
 
 
 # %%
-class CIFAR10DataModule(LightningDataModule):
+class CIFAR10DataModule(L.LightningDataModule):
     def __init__(self, data_dir: str = "./"):
         super().__init__()
         self.data_dir = data_dir
@@ -334,11 +331,9 @@ class CIFAR10DataModule(LightningDataModule):
 # %%
 dm = CIFAR10DataModule()
 model = LitModel(*dm.dims, dm.num_classes, hidden_size=256)
-tqdm_progress_bar = TQDMProgressBar(refresh_rate=20)
 trainer = Trainer(
     max_epochs=5,
     accelerator="auto",
-    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
-    callbacks=[tqdm_progress_bar],
+    devices=1,
 )
 trainer.fit(model, dm)
