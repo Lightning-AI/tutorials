@@ -1,7 +1,7 @@
 title: "Tutorial 6: Basics of Graph Neural Networks"
 author: Phillip Lippe
 created: 2021-06-07
-updated: 2021-12-04
+updated: 2023-01-04
 license: CC BY-SA
 build: 0
 tags:
@@ -19,10 +19,11 @@ description: |
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 requirements:
   - torch-scatter
-  - torch-sparse<0.6.13
+  - torch-sparse
   - torch-cluster
   - torch-spline-conv
-  - torch-geometric==2.0.2
+  - torch-geometric
+  - pytorch-lightning>=1.8
 pip__find-link:
   # - https://pytorch-geometric.com/whl/torch-1.8.0+cu101.html
   - https://pytorch-geometric.com/whl/torch-%(TORCH_MAJOR_DOT_MINOR)s.0+%(DEVICE)s.html
