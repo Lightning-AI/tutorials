@@ -14,6 +14,7 @@ description: |
   2. training_step does both the generator and discriminator training.
 requirements:
   - torchvision
+  - lightning>=2.0.0rc0
 accelerator:
   - CPU
   - GPU

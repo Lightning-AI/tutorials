@@ -17,6 +17,7 @@ description: |
 requirements:
   - torchvision
   - matplotlib
+  - lightning>=2.0.0rc0
 accelerator:
   - GPU
   - CPU
