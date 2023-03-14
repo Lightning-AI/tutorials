@@ -68,7 +68,7 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial12")
 pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.determinstic = True
 torch.backends.cudnn.benchmark = False
 
 # Fetching the device that will be used throughout this notebook
@@ -677,8 +677,7 @@ def train_model(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "PixelCNN"),
-        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
-        devices=1,
+        gpus=1 if str(device).startswith("cuda") else 0,
         max_epochs=150,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="min", monitor="val_bpd"),
