@@ -4,13 +4,13 @@ from collections import OrderedDict, deque, namedtuple
 from typing import Iterator, List, Tuple
 
 import gym
-import lightning as L
 import numpy as np
 import pandas as pd
 import seaborn as sn
 import torch
-from IPython.display import display
-from lightning.pytorch.loggers import CSVLogger
+from IPython.core.display import display
+from pytorch_lightning import LightningModule, Trainer
+from pytorch_lightning.loggers import CSVLogger
 from torch import Tensor, nn
 from torch.optim import Adam, Optimizer
 from torch.utils.data import DataLoader
@@ -176,7 +176,7 @@ class Agent:
         action = self.get_action(net, epsilon, device)
 
         # do step in the environment
-        new_state, reward, done, _, _ = self.env.step(action)
+        new_state, reward, done, _ = self.env.step(action)
 
         exp = Experience(self.state, action, reward, done, new_state)
 
@@ -193,7 +193,7 @@ class Agent:
 
 
 # %%
-class DQNLightning(L.LightningModule):
+class DQNLightning(LightningModule):
     """Basic DQN Model."""
 
     def __init__(
@@ -291,7 +291,17 @@ class DQNLightning(L.LightningModule):
             return end
         return start - (self.global_step / frames) * (start - end)
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch: Tuple[Tensor, Tensor], nb_batch) -> OrderedDict:
+        """Carries out a single step through the environment to update the replay buffer. Then calculates loss
+        based on the minibatch recieved.
+
+        Args:
+            batch: current mini batch of replay data
+            nb_batch: batch number
+
+        Returns:
+            Training loss and log metrics
+        """
         device = self.get_device(batch)
         epsilon = self.get_epsilon(self.hparams.eps_start, self.hparams.eps_end, self.hparams.eps_last_frame)
         self.log("epsilon", epsilon)
@@ -353,9 +363,9 @@ class DQNLightning(L.LightningModule):
 
 model = DQNLightning()
 
-trainer = L.Trainer(
+trainer = Trainer(
     accelerator="auto",
-    devices=1,
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
     max_epochs=150,
     val_check_interval=50,
     logger=CSVLogger(save_dir="logs/"),
