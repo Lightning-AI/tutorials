@@ -1,7 +1,7 @@
 title: 'Tutorial 2: Activation Functions'
 author: Phillip Lippe
 created: 2021-08-27
-updated: 2023-01-04
+updated: 2023-03-14
 license: CC BY-SA
 description: 'In this tutorial, we will take a closer look at (popular) activation
   functions and investigate their effect on optimization properties in neural networks.
@@ -29,12 +29,12 @@ accelerator:
 - CPU
 - GPU
 environment:
-- seaborn==0.12.2
-- ipython==8.11.0
-- matplotlib==3.7.1
-- pytorch-lightning==1.8.6
-- torchmetrics==0.11.4
-- torch==1.13.1+cu116
-- torchvision==0.14.1+cu116
 - setuptools==67.4.0
-published: '2023-03-14T01:50:45.958311'
+- pytorch-lightning==1.9.4
+- torchvision==0.14.1+cu116
+- ipython==8.11.0
+- torch==1.13.1+cu116
+- seaborn==0.12.2
+- torchmetrics==0.11.4
+- matplotlib==3.7.1
+published: '2023-03-14T15:33:53.616239'
