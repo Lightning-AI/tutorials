@@ -360,7 +360,7 @@ class OnlineFineTuner(Callback):
         self.optimizer.step()
         self.optimizer.zero_grad()
 
-        acc = accuracy(F.softmax(preds, dim=1), y, task="multiclass")
+        acc = accuracy(F.softmax(preds, dim=1), y, task="multiclass", num_classes=10)
         pl_module.log("online_train_acc", acc, on_step=True, on_epoch=False)
         pl_module.log("online_train_loss", loss, on_step=True, on_epoch=False)
 
@@ -381,7 +381,7 @@ class OnlineFineTuner(Callback):
         preds = pl_module.online_finetuner(feats)
         loss = F.cross_entropy(preds, y)
 
-        acc = accuracy(F.softmax(preds, dim=1), y, task="multiclass")
+        acc = accuracy(F.softmax(preds, dim=1), y, task="multiclass", num_classes=10)
         pl_module.log("online_val_acc", acc, on_step=False, on_epoch=True, sync_dist=True)
         pl_module.log("online_val_loss", loss, on_step=False, on_epoch=True, sync_dist=True)
 
