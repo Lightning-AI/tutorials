@@ -70,7 +70,7 @@ NUM_WORKERS = os.cpu_count()
 pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.determinstic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -357,14 +357,13 @@ class SimCLR(pl.LightningModule):
 def train_simclr(batch_size, max_epochs=500, **kwargs):
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "SimCLR"),
-        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
-        devices=1,
+        gpus=1 if str(device) == "cuda:0" else 0,
         max_epochs=max_epochs,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc_top5"),
             LearningRateMonitor("epoch"),
         ],
-        enable_progress_bar=True,
+        progress_bar_refresh_rate=1,
     )
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
@@ -541,14 +540,13 @@ test_feats_simclr = prepare_data_features(simclr_model, test_img_data)
 def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, max_epochs=100, **kwargs):
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "LogisticRegression"),
-        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
-        devices=1,
+        gpus=1 if str(device) == "cuda:0" else 0,
         max_epochs=max_epochs,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
             LearningRateMonitor("epoch"),
         ],
-        enable_progress_bar=False,
+        progress_bar_refresh_rate=0,
         check_val_every_n_epoch=10,
     )
     trainer.logger._default_hp_metric = None
@@ -733,14 +731,13 @@ train_img_aug_data = STL10(root=DATASET_PATH, split="train", download=True, tran
 def train_resnet(batch_size, max_epochs=100, **kwargs):
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "ResNet"),
-        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
-        devices=1,
+        gpus=1 if str(device) == "cuda:0" else 0,
         max_epochs=max_epochs,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
             LearningRateMonitor("epoch"),
         ],
-        enable_progress_bar=True,
+        progress_bar_refresh_rate=1,
         check_val_every_n_epoch=2,
     )
     trainer.logger._default_hp_metric = None
