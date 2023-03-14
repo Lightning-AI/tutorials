@@ -185,7 +185,7 @@ print("X1 (after)", x1)
 print("X2 (after)", x2)
 
 # %% [markdown]
-# In-place operations are usually marked with a underscore postfix (e.g. "add_" instead of "add").
+# In-place operations are usually marked with a underscore postfix (e.g. "add\_" instead of "add").
 #
 # Another common operation aims at changing the shape of a tensor.
 # A tensor of size (2,3) can be re-organized to any other shape with the same number of elements (e.g. a tensor of size (6), or (3,2), ...).
