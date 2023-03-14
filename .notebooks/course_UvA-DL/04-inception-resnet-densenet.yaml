@@ -1,7 +1,7 @@
 title: 'Tutorial 4: Inception, ResNet and DenseNet'
 author: Phillip Lippe
 created: 2021-08-27
-updated: 2023-01-04
+updated: 2023-03-14
 license: CC BY-SA
 tags:
 - Image
@@ -32,17 +32,18 @@ requirements:
 - matplotlib
 - seaborn
 - tabulate
-- pytorch-lightning>=1.8
+- lightning>=2.0.0rc0
 accelerator:
 - GPU
 environment:
-- seaborn==0.12.2
-- torchmetrics==0.11.4
-- setuptools==67.4.0
-- torch==1.13.1+cu116
-- torchvision==0.14.1+cu116
-- matplotlib==3.7.1
-- pytorch-lightning==1.8.6
+- lightning==2.0.0rc0
+- pytorch-lightning==1.9.4
 - ipython==8.11.0
 - tabulate==0.9.0
-published: '2023-03-14T02:05:16.152480'
+- setuptools==67.4.0
+- torch==1.13.1+cu116
+- torchmetrics==0.11.4
+- seaborn==0.12.2
+- matplotlib==3.7.1
+- torchvision==0.14.1+cu116
+published: '2023-03-14T15:46:59.243416'
