@@ -1,7 +1,7 @@
 title: 'Tutorial 6: Basics of Graph Neural Networks'
 author: Phillip Lippe
 created: 2021-06-07
-updated: 2023-01-04
+updated: 2023-03-14
 license: CC BY-SA
 build: 0
 tags:
@@ -39,20 +39,21 @@ requirements:
 - torch-cluster
 - torch-spline-conv
 - torch-geometric
-- pytorch-lightning>=1.8
+- lightning>=2.0.0rc0
 pip__find-link:
 - https://pytorch-geometric.com/whl/torch-%(TORCH_MAJOR_DOT_MINOR)s.0+%(DEVICE)s.html
 accelerator:
 - GPU
 environment:
-- pytorch-lightning==1.8.6
-- torch-cluster==1.6.0+pt112cu116
-- torch-sparse==0.6.16+pt112cu116
+- pytorch-lightning==1.9.4
 - ipython==8.11.0
-- torch-geometric==2.2.0
-- torch-spline-conv==1.2.1+pt112cu116
-- torchmetrics==0.11.4
-- setuptools==67.4.0
 - torch-scatter==2.1.0+pt112cu116
+- lightning==2.0.0rc0
+- torch-sparse==0.6.16+pt112cu116
+- torch-cluster==1.6.0+pt112cu116
+- torch-spline-conv==1.2.1+pt112cu116
+- setuptools==67.4.0
+- torch-geometric==2.2.0
 - torch==1.12.1+cu116
-published: '2023-03-14T02:19:08.913261'
+- torchmetrics==0.11.4
+published: '2023-03-14T15:55:28.400945'
