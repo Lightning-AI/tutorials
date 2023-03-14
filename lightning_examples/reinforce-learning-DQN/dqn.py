@@ -176,8 +176,7 @@ class Agent:
         action = self.get_action(net, epsilon, device)
 
         # do step in the environment
-        print(self.env.step(action))
-        # new_state, reward, done, _ =
+        new_state, reward, done, _, _ = self.env.step(action)
 
         exp = Experience(self.state, action, reward, done, new_state)
 
