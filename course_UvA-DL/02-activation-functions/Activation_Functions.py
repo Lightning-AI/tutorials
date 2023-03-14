@@ -64,7 +64,7 @@ set_seed(42)
 
 # Additionally, some operations on a GPU are implemented stochastic for efficiency
 # We want to ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 # Fetching the device that will be used throughout this notebook

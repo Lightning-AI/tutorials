@@ -44,7 +44,7 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial8")
 pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -640,7 +640,8 @@ def train_model(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "MNIST"),
-        gpus=1 if str(device).startswith("cuda") else 0,
+        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        devices=1,
         max_epochs=60,
         gradient_clip_val=0.1,
         callbacks=[
@@ -650,7 +651,7 @@ def train_model(**kwargs):
             OutlierCallback(),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=1,
+        enable_progress_bar=True,
     )
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, "MNIST.ckpt")

@@ -60,7 +60,7 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/MetaLearning/"
 pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -555,13 +555,14 @@ class ProtoNet(pl.LightningModule):
 def train_model(model_class, train_loader, val_loader, **kwargs):
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, model_class.__name__),
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        devices=1,
         max_epochs=200,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=0,
+        enable_progress_bar=False,
     )
     trainer.logger._default_hp_metric = None
 
