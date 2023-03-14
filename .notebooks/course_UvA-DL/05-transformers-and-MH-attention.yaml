@@ -1,7 +1,7 @@
 title: 'Tutorial 5: Transformers and Multi-Head Attention'
 author: Phillip Lippe
 created: 2021-06-30
-updated: 2023-01-04
+updated: 2023-03-14
 license: CC BY-SA
 build: 0
 tags:
@@ -34,16 +34,17 @@ requirements:
 - torchvision
 - matplotlib
 - seaborn
-- pytorch-lightning>=1.8
+- lightning>=2.0.0rc0
 accelerator:
 - GPU
 environment:
 - torchmetrics==0.11.4
-- seaborn==0.12.2
+- torchvision==0.14.1+cu116
 - torch==1.13.1+cu116
-- setuptools==67.4.0
+- pytorch-lightning==1.9.4
+- seaborn==0.12.2
+- lightning==2.0.0rc0
 - ipython==8.11.0
 - matplotlib==3.7.1
-- torchvision==0.14.1+cu116
-- pytorch-lightning==1.8.6
-published: '2023-03-14T02:16:50.812674'
+- setuptools==67.4.0
+published: '2023-03-14T15:52:37.766296'
