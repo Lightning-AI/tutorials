@@ -74,7 +74,7 @@ class LitMNIST(L.LightningModule):
         loss = F.nll_loss(logits, y)
         return loss
 
-    def validation_step(self, batch):
+    def validation_step(self, batch, batch_idx):
         x, y = batch
         logits = self(x)
         loss = F.nll_loss(logits, y)
@@ -242,7 +242,7 @@ class LitModel(L.LightningModule):
         loss = F.nll_loss(logits, y)
         return loss
 
-    def validation_step(self, batch):
+    def validation_step(self, batch, batch_idx):
         x, y = batch
         logits = self(x)
         loss = F.nll_loss(logits, y)
