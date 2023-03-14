@@ -412,7 +412,7 @@ trainer = L.Trainer(
 
 # uncomment this to train the model
 # this is done for the tutorial so that the notebook compiles
-trainer.fit(model, train_loader, val_loader)
+# trainer.fit(model, train_loader, val_loader)
 
 # %% [markdown]
 # ### Using the trained encoder for downstream tasks
