@@ -7,9 +7,9 @@
 from functools import partial
 from typing import Sequence, Tuple, Union
 
+import lightning as L
 import matplotlib.pyplot as plt
 import numpy as np
-import lightning as L
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

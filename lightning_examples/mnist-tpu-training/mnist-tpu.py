@@ -4,10 +4,11 @@
 # %%
 # ! pip install cloud-tpu-client==0.10 https://storage.googleapis.com/tpu-pytorch/wheels/torch_xla-1.8-cp37-cp37m-linux_x86_64.whl
 
+import lightning as L
+
 # %%
 import torch
 import torch.nn.functional as F
-import lightning as L
 from torch import nn
 from torch.utils.data import DataLoader, random_split
 from torchmetrics.functional import accuracy

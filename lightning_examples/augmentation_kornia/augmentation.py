@@ -1,6 +1,7 @@
 # %%
 import os
 
+import lightning as L
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -12,7 +13,6 @@ import torchvision
 from IPython.display import display
 from kornia import image_to_tensor, tensor_to_image
 from kornia.augmentation import ColorJitter, RandomChannelShuffle, RandomHorizontalFlip, RandomThinPlateSpline
-import lightning as L
 from lightning.pytorch.loggers import CSVLogger
 from torch import Tensor
 from torch.nn import functional as F

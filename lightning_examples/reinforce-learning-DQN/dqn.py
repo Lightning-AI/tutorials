@@ -4,12 +4,12 @@ from collections import OrderedDict, deque, namedtuple
 from typing import Iterator, List, Tuple
 
 import gym
+import lightning as L
 import numpy as np
 import pandas as pd
 import seaborn as sn
 import torch
 from IPython.display import display
-import lightning as L
 from lightning.pytorch.loggers import CSVLogger
 from torch import Tensor, nn
 from torch.optim import Adam, Optimizer

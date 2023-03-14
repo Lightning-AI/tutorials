@@ -1,11 +1,11 @@
 # %%
 import os
 
+import lightning as L
 import pandas as pd
 import seaborn as sn
 import torch
 from IPython.display import display
-import lightning as L
 from lightning.pytorch.loggers import CSVLogger
 from torch import nn
 from torch.nn import functional as F

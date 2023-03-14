@@ -1,13 +1,13 @@
 # %%
 import os
 
+import lightning as L
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
-import lightning as L
 from torch.utils.data import DataLoader, random_split
 from torchvision.datasets import MNIST
 

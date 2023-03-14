@@ -6,9 +6,9 @@
 # %%
 import os
 
+import lightning as L
 import torch
 import torch.nn.functional as F
-import lightning as L
 from torch import nn
 from torch.utils.data import DataLoader, random_split
 from torchmetrics.functional import accuracy
