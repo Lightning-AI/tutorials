@@ -385,7 +385,7 @@ def train_cifar(latent_dim):
     # Create a PyTorch Lightning trainer with the generation callback
     trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "cifar10_%i" % latent_dim),
-        accelerator=("cuda" if str(device).startswith("cuda") else "cpu"),
+        accelerator="auto",
         devices=1,
         max_epochs=500,
         callbacks=[

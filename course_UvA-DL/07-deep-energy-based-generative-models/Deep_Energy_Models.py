@@ -640,7 +640,7 @@ def train_model(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "MNIST"),
-        accelerator=("cuda" if str(device).startswith("cuda") else "cpu"),
+        accelerator="auto",
         devices=1,
         max_epochs=60,
         gradient_clip_val=0.1,
