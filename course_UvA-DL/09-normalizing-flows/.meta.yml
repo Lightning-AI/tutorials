@@ -25,7 +25,7 @@ requirements:
   - matplotlib
   - seaborn
   - tabulate
-  - pytorch-lightning>=2.0.0rc0
+  - lightning>=2.0.0rc0
 accelerator:
   - CPU
   - GPU
