@@ -331,7 +331,7 @@ class CIFAR10DataModule(L.LightningDataModule):
 # %%
 dm = CIFAR10DataModule()
 model = LitModel(*dm.dims, dm.num_classes, hidden_size=256)
-trainer = Trainer(
+trainer = L.Trainer(
     max_epochs=5,
     accelerator="auto",
     devices=1,
