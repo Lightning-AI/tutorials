@@ -1,7 +1,7 @@
 title: 'Tutorial 12: Meta-Learning - Learning to Learn'
 author: Phillip Lippe
 created: 2021-08-21
-updated: 2023-01-04
+updated: 2023-03-14
 license: CC BY-SA
 tags:
 - Few-shot-learning
@@ -42,17 +42,18 @@ requirements:
 - torchvision
 - matplotlib
 - seaborn
-- pytorch-lightning>=1.8
+- lightning>=2.0.0rc0
 accelerator:
 - CPU
 - GPU
 environment:
+- torch==1.13.1+cu116
+- pytorch-lightning==1.9.4
+- lightning==2.0.0rc0
 - matplotlib==3.7.1
-- pytorch-lightning==1.8.6
 - torchmetrics==0.11.4
 - torchvision==0.14.1+cu116
 - seaborn==0.12.2
-- ipython==8.11.0
-- torch==1.13.1+cu116
 - setuptools==67.4.0
-published: '2023-03-14T02:39:08.523816'
+- ipython==8.11.0
+published: '2023-03-14T16:26:03.365264'
