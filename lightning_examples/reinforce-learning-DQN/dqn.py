@@ -8,9 +8,9 @@ import numpy as np
 import pandas as pd
 import seaborn as sn
 import torch
-from IPython.core.display import display
-from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.loggers import CSVLogger
+from IPython.display import display
+import lightning as L
+from lightning.pytorch.loggers import CSVLogger
 from torch import Tensor, nn
 from torch.optim import Adam, Optimizer
 from torch.utils.data import DataLoader
@@ -193,7 +193,7 @@ class Agent:
 
 
 # %%
-class DQNLightning(LightningModule):
+class DQNLightning(L.LightningModule):
     """Basic DQN Model."""
 
     def __init__(
@@ -291,17 +291,7 @@ class DQNLightning(LightningModule):
             return end
         return start - (self.global_step / frames) * (start - end)
 
-    def training_step(self, batch: Tuple[Tensor, Tensor], nb_batch) -> OrderedDict:
-        """Carries out a single step through the environment to update the replay buffer. Then calculates loss
-        based on the minibatch recieved.
-
-        Args:
-            batch: current mini batch of replay data
-            nb_batch: batch number
-
-        Returns:
-            Training loss and log metrics
-        """
+    def training_step(self, batch, batch_idx):
         device = self.get_device(batch)
         epsilon = self.get_epsilon(self.hparams.eps_start, self.hparams.eps_end, self.hparams.eps_last_frame)
         self.log("epsilon", epsilon)
@@ -363,9 +353,9 @@ class DQNLightning(LightningModule):
 
 model = DQNLightning()
 
-trainer = Trainer(
+trainer = L.Trainer(
     accelerator="auto",
-    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+    devices=1,
     max_epochs=150,
     val_check_interval=50,
     logger=CSVLogger(save_dir="logs/"),

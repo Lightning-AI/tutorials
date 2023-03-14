@@ -9,7 +9,7 @@ import torch
 import torch.nn as nn
 import torchmetrics
 import torchvision
-from IPython import display
+from IPython.display import display
 from kornia import image_to_tensor, tensor_to_image
 from kornia.augmentation import ColorJitter, RandomChannelShuffle, RandomHorizontalFlip, RandomThinPlateSpline
 import lightning as L
