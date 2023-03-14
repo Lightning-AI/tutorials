@@ -18,6 +18,7 @@ requirements:
   - torchvision
   - matplotlib
   - seaborn
+  - lightning>=2.0.0rc0
 accelerator:
   - CPU
   - GPU

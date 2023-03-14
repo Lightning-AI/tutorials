@@ -9,6 +9,7 @@ description: |
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 requirements:
   - matplotlib
+  - lightning>=2.0.0rc0
 accelerator:
   - CPU
   - GPU
