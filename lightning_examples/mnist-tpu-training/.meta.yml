@@ -8,7 +8,7 @@ tags:
   - Image
 description: In this notebook, we'll train a model on TPUs. Updating one Trainer flag is all you need for that.
   The most up to documentation related to TPU training can be found
-  [here](https://pytorch-lightning.readthedocs.io/en/stable/accelerators/tpu.html).
+  [here](https://lightning.ai/docs/pytorch/stable/accelerators/tpu.html).
 requirements:
   - torchvision
 accelerator:

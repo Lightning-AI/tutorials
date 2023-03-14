@@ -76,7 +76,7 @@ def create_model():
 
 # %% [markdown]
 # ### Lightning Module
-# Check out the [`configure_optimizers`](https://pytorch-lightning.readthedocs.io/en/stable/common/lightning_module.html#configure-optimizers)
+# Check out the [`configure_optimizers`](https://lightning.ai/docs/pytorch/stable/common/lightning_module.html#configure-optimizers)
 # method to use custom Learning Rate schedulers. The OneCycleLR with SGD will get you to around 92-93% accuracy
 # in 20-30 epochs and 93-94% accuracy in 40-50 epochs. Feel free to experiment with different
 # LR schedules from https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
