@@ -1,6 +1,6 @@
 # %% [markdown]
 # <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/U1fwesIusbg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
-# Throughout this notebook, we make use of [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/stable/).
+# Throughout this notebook, we make use of [PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/).
 # The first cell imports our usual libraries.
 
 # %%
@@ -10,10 +10,11 @@ import time
 import urllib.request
 from urllib.error import HTTPError
 
+import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib_inline.backend_inline
 import numpy as np
-import pytorch_lightning as pl
 import seaborn as sns
 import tabulate
 import torch
@@ -22,16 +23,16 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from IPython.display import HTML, display, set_matplotlib_formats
+from IPython.display import HTML, display
+from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from matplotlib.colors import to_rgb
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torch import Tensor
 from torchvision import transforms
 from torchvision.datasets import MNIST
 from tqdm.notebook import tqdm
 
 # %matplotlib inline
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
@@ -41,7 +42,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial11")
 
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.deterministic = True
@@ -97,7 +98,7 @@ transform = transforms.Compose([transforms.ToTensor(), discretize])
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_dataset = MNIST(root=DATASET_PATH, train=True, transform=transform, download=True)
-pl.seed_everything(42)
+L.seed_everything(42)
 train_set, val_set = torch.utils.data.random_split(train_dataset, [50000, 10000])
 
 # Loading the test set
@@ -258,7 +259,7 @@ show_imgs([train_set[i][0] for i in range(8)])
 
 
 # %%
-class ImageFlow(pl.LightningModule):
+class ImageFlow(L.LightningModule):
     def __init__(self, flows, import_samples=8):
         """
         Args:
@@ -449,7 +450,7 @@ class Dequantization(nn.Module):
 
 # %%
 # Testing invertibility of dequantization layer
-pl.seed_everything(42)
+L.seed_everything(42)
 orig_img = train_set[0][0].unsqueeze(dim=0)
 ldj = torch.zeros(
     1,
@@ -920,9 +921,9 @@ def create_simple_flow(use_vardeq=True):
 # %%
 def train_flow(flow, model_name="MNISTFlow"):
     # Create a PyTorch Lightning trainer
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, model_name),
-        accelerator="gpu" if str(device).startswith("cuda") else "cpu",
+        accelerator="auto",
         devices=1,
         max_epochs=200,
         gradient_clip_val=1.0,
@@ -1221,12 +1222,12 @@ display(
 # The seeds are set to obtain reproducable generations and are not cherry picked.
 
 # %%
-pl.seed_everything(44)
+L.seed_everything(44)
 samples = flow_dict["vardeq"]["model"].sample(img_shape=[16, 1, 28, 28])
 show_imgs(samples.cpu())
 
 # %%
-pl.seed_everything(44)
+L.seed_everything(44)
 samples = flow_dict["multiscale"]["model"].sample(img_shape=[16, 8, 7, 7])
 show_imgs(samples.cpu())
 
@@ -1267,12 +1268,12 @@ def interpolate(model, img1, img2, num_steps=8):
 exmp_imgs, _ = next(iter(train_loader))
 
 # %%
-pl.seed_everything(42)
+L.seed_everything(42)
 for i in range(2):
     interpolate(flow_dict["vardeq"]["model"], exmp_imgs[2 * i], exmp_imgs[2 * i + 1])
 
 # %%
-pl.seed_everything(42)
+L.seed_everything(42)
 for i in range(2):
     interpolate(flow_dict["multiscale"]["model"], exmp_imgs[2 * i], exmp_imgs[2 * i + 1])
 
@@ -1295,7 +1296,7 @@ for i in range(2):
 # Below we visualize three examples of this:
 
 # %%
-pl.seed_everything(44)
+L.seed_everything(44)
 for _ in range(3):
     z_init = flow_dict["multiscale"]["model"].prior.sample(sample_shape=[1, 8, 7, 7])
     z_init = z_init.expand(8, -1, -1, -1)
