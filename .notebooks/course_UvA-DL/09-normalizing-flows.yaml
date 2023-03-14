@@ -1,7 +1,7 @@
 title: 'Tutorial 9: Normalizing Flows for Image Modeling'
 author: Phillip Lippe
 created: 2021-06-07
-updated: 2021-06-16
+updated: 2023-01-04
 license: CC BY-SA
 build: 0
 tags:
@@ -45,17 +45,18 @@ requirements:
 - matplotlib
 - seaborn
 - tabulate
+- pytorch-lightning>=1.8
 accelerator:
 - CPU
 - GPU
 environment:
-- torchvision==0.10.1+cu111
-- torchmetrics==0.8.2
-- matplotlib==3.5.2
-- ipython==8.3.0
-- pytorch-lightning==1.6.3
-- seaborn==0.11.2
-- torch==1.9.1+cu111
-- tabulate==0.8.9
-- setuptools==59.5.0
-published: '2022-05-12T14:19:25.115867'
+- torchmetrics==0.11.4
+- torchvision==0.14.1+cu116
+- pytorch-lightning==1.8.6
+- seaborn==0.12.2
+- matplotlib==3.7.1
+- tabulate==0.9.0
+- ipython==8.11.0
+- setuptools==67.4.0
+- torch==1.13.1+cu116
+published: '2023-03-14T02:29:53.369752'
