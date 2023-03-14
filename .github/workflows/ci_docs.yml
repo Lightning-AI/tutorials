@@ -99,9 +99,13 @@ jobs:
 
       - name: Make Documentation
         working-directory: ./_docs
-        run: |
-          # First run the same pipeline as Read-The-Docs
-          make html --debug SPHINXOPTS="-W --keep-going" -b linkcheck
+        run: make html --debug SPHINXOPTS="-W --keep-going"
+
+      - name: Check External Links (Optional)
+        working-directory: ./_docs
+        run: make --jobs $(nproc) linkcheck
+        # ToDO: comment on PR if any link failed
+        continue-on-error: true
 
       - name: Upload built docs
         uses: actions/upload-artifact@v3
