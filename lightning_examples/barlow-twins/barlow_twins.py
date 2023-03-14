@@ -9,14 +9,13 @@ from typing import Sequence, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pytorch_lightning as pl
+import lightning as L
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 import torchvision.transforms.functional as VisionF
-from pytorch_lightning import Callback, LightningModule, Trainer
-from pytorch_lightning.callbacks import ModelCheckpoint
+from lightning.pytorch.callbacks import Callback, ModelCheckpoint
 from torch import Tensor
 from torch.utils.data import DataLoader
 from torchmetrics.functional import accuracy
@@ -245,7 +244,7 @@ def linear_warmup_decay(warmup_steps):
 # We keep the LightningModule for Barlow Twins neat and simple. It takes in an backbone encoder and initializes the projection head and the loss function. We configure the optimizer and the learning rate scheduler in the ``configure_optimizers`` method.
 
 # %%
-class BarlowTwins(LightningModule):
+class BarlowTwins(L.LightningModule):
     def __init__(
         self,
         encoder,
@@ -326,7 +325,7 @@ class OnlineFineTuner(Callback):
         self.encoder_output_dim = encoder_output_dim
         self.num_classes = num_classes
 
-    def on_fit_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
+    def on_fit_start(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
         # add linear_eval layer and optimizer
         pl_module.online_finetuner = nn.Linear(self.encoder_output_dim, self.num_classes).to(pl_module.device)
         self.optimizer = torch.optim.Adam(pl_module.online_finetuner.parameters(), lr=1e-4)
@@ -342,8 +341,8 @@ class OnlineFineTuner(Callback):
 
     def on_train_batch_end(
         self,
-        trainer: pl.Trainer,
-        pl_module: pl.LightningModule,
+        trainer: L.Trainer,
+        pl_module: L.LightningModule,
         outputs: Sequence,
         batch: Sequence,
         batch_idx: int,
@@ -368,8 +367,8 @@ class OnlineFineTuner(Callback):
 
     def on_validation_batch_end(
         self,
-        trainer: pl.Trainer,
-        pl_module: pl.LightningModule,
+        trainer: L.Trainer,
+        pl_module: L.LightningModule,
         outputs: Sequence,
         batch: Sequence,
         batch_idx: int,
@@ -406,10 +405,10 @@ model = BarlowTwins(
 online_finetuner = OnlineFineTuner(encoder_output_dim=encoder_out_dim, num_classes=10)
 checkpoint_callback = ModelCheckpoint(every_n_epochs=100, save_top_k=-1, save_last=True)
 
-trainer = Trainer(
+trainer = L.Trainer(
     max_epochs=max_epochs,
     accelerator="auto",
-    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+    devices=1,
     callbacks=[online_finetuner, checkpoint_callback],
 )
 
