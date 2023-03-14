@@ -4,10 +4,9 @@ import os
 import pandas as pd
 import seaborn as sn
 import torch
-from IPython.core.display import display
-from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.callbacks.progress import TQDMProgressBar
-from pytorch_lightning.loggers import CSVLogger
+from IPython import display
+import lightning as L
+from lightning.pytorch.loggers import CSVLogger
 from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, random_split
@@ -27,7 +26,7 @@ BATCH_SIZE = 256 if torch.cuda.is_available() else 64
 
 
 # %%
-class MNISTModel(LightningModule):
+class MNISTModel(L.LightningModule):
     def __init__(self):
         super().__init__()
         self.l1 = torch.nn.Linear(28 * 28, 10)
@@ -60,11 +59,10 @@ train_ds = MNIST(PATH_DATASETS, train=True, download=True, transform=transforms.
 train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE)
 
 # Initialize a trainer
-trainer = Trainer(
+trainer = L.Trainer(
     accelerator="auto",
-    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+    devices=1,
     max_epochs=3,
-    callbacks=[TQDMProgressBar(refresh_rate=20)],
 )
 
 # Train the model ⚡
@@ -99,7 +97,7 @@ trainer.fit(mnist_model, train_loader)
 
 
 # %%
-class LitMNIST(LightningModule):
+class LitMNIST(L.LightningModule):
     def __init__(self, data_dir=PATH_DATASETS, hidden_size=64, learning_rate=2e-4):
         super().__init__()
 
@@ -201,11 +199,10 @@ class LitMNIST(LightningModule):
 
 # %%
 model = LitMNIST()
-trainer = Trainer(
+trainer = L.Trainer(
     accelerator="auto",
-    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+    devices=1,
     max_epochs=3,
-    callbacks=[TQDMProgressBar(refresh_rate=20)],
     logger=CSVLogger(save_dir="logs/"),
 )
 trainer.fit(model)
