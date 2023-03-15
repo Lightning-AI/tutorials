@@ -243,7 +243,7 @@ swa_trainer = L.Trainer(
     logger=CSVLogger(save_dir="logs/"),
 )
 
-swa_trainer.fit(swa_model, train_dataloader, val_dataloader=val_dataloader)
+swa_trainer.fit(swa_model, train_dataloader, val_dataloader)
 swa_trainer.test(swa_model, test_dataloader)
 
 # %%
