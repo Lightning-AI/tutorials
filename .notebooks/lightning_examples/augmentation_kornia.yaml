@@ -1,9 +1,9 @@
 title: GPU and batched data augmentation with Kornia and PyTorch-Lightning
 author: PL/Kornia team
 created: 2021-06-11
-updated: 2021-06-16
+updated: 2023-03-15
 license: CC BY-SA
-build: 4
+build: 0
 tags:
 - Image
 description: 'In this tutorial we will show how to combine both Kornia and PyTorch
@@ -17,24 +17,26 @@ description: 'In this tutorial we will show how to combine both Kornia and PyTor
   '
 requirements:
 - kornia
-- pytorch-lightning !=1.8.0, !=1.8.0.post1
+- lightning
 - torchmetrics
 - torchvision
 - matplotlib
 - pandas
 - seaborn
+- lightning>=2.0.0rc0
 accelerator:
 - CPU
 - GPU
 environment:
-- matplotlib==3.6.2
-- ipython==8.7.0
-- kornia==0.6.9
+- setuptools==67.4.0
+- torchmetrics==0.11.4
+- lightning==2.0.0rc0
 - torchvision==0.14.1+cu116
 - seaborn==0.12.2
-- setuptools==59.5.0
-- torchmetrics==0.10.0
-- pytorch-lightning==1.8.6
+- kornia==0.6.10
+- pandas==1.5.3
+- matplotlib==3.7.1
 - torch==1.13.1+cu116
-- pandas==1.5.1
-published: '2023-01-03T14:57:50.110852'
+- ipython==8.11.0
+- pytorch-lightning==1.9.4
+published: '2023-03-15T10:13:46.040070'
