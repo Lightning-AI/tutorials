@@ -14,14 +14,16 @@ description: 'This tutorial will give a short introduction to PyTorch basics, an
   '
 requirements:
 - matplotlib
+- lightning>=2.0.0rc0
 accelerator:
 - CPU
 - GPU
 environment:
-- torch==1.12.1+cu116
-- matplotlib==3.6.1
-- ipython==8.11.0
-- pytorch-lightning==1.9.4
-- setuptools==67.4.0
 - torchmetrics==0.11.4
-published: '2023-03-14T15:25:16.075226'
+- setuptools==67.4.0
+- lightning==2.0.0rc0
+- torch==1.12.1+cu116
+- ipython==8.11.0
+- matplotlib==3.6.1
+- pytorch-lightning==1.9.4
+published: '2023-03-15T09:49:05.476271'
