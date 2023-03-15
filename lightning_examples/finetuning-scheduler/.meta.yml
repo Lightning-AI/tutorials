@@ -15,5 +15,7 @@ description: |
   and foundation model weights. The required dependencies are installed via the finetuning-scheduler ``[examples]`` extra.
 requirements:
   - finetuning-scheduler[examples]>=0.4.0
+  - datasets<2.8.0  # todo: AttributeError: module 'datasets.arrow_dataset' has no attribute 'Batch'
+  - lightning>=2.0.0rc0
 accelerator:
   - GPU
