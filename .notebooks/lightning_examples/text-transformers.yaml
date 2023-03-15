@@ -21,17 +21,19 @@ requirements:
 - scipy
 - scikit-learn
 - torchtext>=0.9
+- lightning>=2.0.0rc0
 accelerator:
 - GPU
 environment:
-- transformers==4.25.1
+- datasets==2.10.1
+- ipython==8.11.0
+- setuptools==67.4.0
+- transformers==4.26.1
+- scikit-learn==1.2.0
+- scipy==1.10.1
+- torchmetrics==0.11.4
 - torch==1.13.1+cu116
-- datasets==2.8.0
-- scikit-learn==1.0.1
 - torchtext==0.14.1
-- torchmetrics==0.10.0
-- setuptools==59.5.0
-- pytorch-lightning==1.8.6
-- scipy==1.9.3
-- ipython==8.8.0
-published: '2023-01-03T15:56:34.175141'
+- pytorch-lightning==1.9.4
+- lightning==2.0.0rc0
+published: '2023-03-15T11:08:53.611195'
