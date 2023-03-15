@@ -25,5 +25,6 @@ requirements:
   - torch==1.10.*
   - torchvision==0.11.*
   - torchtext==0.11.*
+  - lightning>=2.0.0rc0
 accelerator:
   - GPU
