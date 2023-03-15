@@ -1,7 +1,7 @@
 title: Fine-Tuning Scheduler
 author: '[Dan Dale](https://github.com/speediedan)'
 created: 2021-11-29
-updated: 2022-09-20
+updated: 2023-01-24
 license: CC BY-SA
 build: 0
 tags:
@@ -9,7 +9,7 @@ tags:
 description: 'This notebook introduces the [Fine-Tuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html)
   extension
 
-  and demonstrates the use of it to fine-tune a small foundational model on the
+  and demonstrates the use of it to fine-tune a small foundation model on the
 
   [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task
   of
@@ -20,21 +20,23 @@ description: 'This notebook introduces the [Fine-Tuning Scheduler](https://finet
   schedule. It uses Hugging Face''s ``datasets`` and ``transformers`` libraries to
   retrieve the relevant benchmark data
 
-  and foundational model weights. The required dependencies are installed via the
-  finetuning-scheduler ``[examples]`` extra.
+  and foundation model weights. The required dependencies are installed via the finetuning-scheduler
+  ``[examples]`` extra.
 
   '
 requirements:
-- finetuning-scheduler[examples]>=0.3.0
+- finetuning-scheduler[examples]>=0.4.0
 - datasets<2.8.0
+- lightning>=2.0.0rc0
 accelerator:
 - GPU
 environment:
-- torchmetrics==0.10.0
-- finetuning-scheduler==0.3.3
-- torch==1.12.1+cu116
+- finetuning-scheduler==0.4.1
+- torchmetrics==0.11.4
 - datasets==2.7.1
-- setuptools==65.6.3
-- ipython==8.8.0
-- pytorch-lightning==1.8.4
-published: '2023-01-05T12:07:52.804813'
+- setuptools==67.4.0
+- torch==1.12.1+cu116
+- pytorch-lightning==1.9.4
+- ipython==8.11.0
+- lightning==2.0.0rc0
+published: '2023-03-15T10:49:16.498769'
