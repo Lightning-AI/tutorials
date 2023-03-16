@@ -140,7 +140,7 @@ dm.setup("fit")
 next(iter(dm.train_dataloader()))
 
 # %% [markdown]
-# ### Transformer L.LightningModule
+# ### Transformer LightningModule
 
 
 # %%
