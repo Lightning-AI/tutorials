@@ -194,7 +194,7 @@ class GLUETransformer(L.LightningModule):
 
     def on_validation_epoch_end(self):
         if self.hparams.task_name == "mnli":
-            for i, outputs in enumerate(self.outputs.items()):
+            for i, outputs in self.outputs.items():
                 # matched or mismatched
                 split = self.hparams.eval_splits[i].split("_")[-1]
                 preds = torch.cat([x["preds"] for x in outputs]).detach().cpu().numpy()
