@@ -4,8 +4,8 @@ from datetime import datetime
 from typing import Optional
 
 import datasets
-import torch
 import lightning as L
+import torch
 from torch.utils.data import DataLoader
 from transformers import (
     AdamW,
@@ -141,7 +141,7 @@ dm.setup("fit")
 next(iter(dm.train_dataloader()))
 
 # %% [markdown]
-# ### Transformer L.LightningModule
+# ### Transformer LightningModule
 
 
 # %%
