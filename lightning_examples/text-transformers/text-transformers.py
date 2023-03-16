@@ -1,4 +1,5 @@
 # %%
+from collections import defaultdict
 from datetime import datetime
 from typing import Optional
 
@@ -168,7 +169,7 @@ class GLUETransformer(L.LightningModule):
         self.metric = datasets.load_metric(
             "glue", self.hparams.task_name, experiment_id=datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
         )
-        self.outputs = []
+        self.outputs = defaultdict(list)
 
     def forward(self, **inputs):
         return self.model(**inputs)
@@ -189,16 +190,16 @@ class GLUETransformer(L.LightningModule):
 
         labels = batch["labels"]
 
-        self.outputs.append({"loss": val_loss, "preds": preds, "labels": labels})
+        self.outputs[dataloader_idx].append({"loss": val_loss, "preds": preds, "labels": labels})
 
     def on_validation_epoch_end(self):
         if self.hparams.task_name == "mnli":
-            for i, output in enumerate(self.outputs):
+            for i, outputs in enumerate(self.outputs.items()):
                 # matched or mismatched
                 split = self.hparams.eval_splits[i].split("_")[-1]
-                preds = torch.cat([x["preds"] for x in output]).detach().cpu().numpy()
-                labels = torch.cat([x["labels"] for x in output]).detach().cpu().numpy()
-                loss = torch.stack([x["loss"] for x in output]).mean()
+                preds = torch.cat([x["preds"] for x in outputs]).detach().cpu().numpy()
+                labels = torch.cat([x["labels"] for x in outputs]).detach().cpu().numpy()
+                loss = torch.stack([x["loss"] for x in outputs]).mean()
                 self.log(f"val_loss_{split}", loss, prog_bar=True)
                 split_metrics = {
                     f"{k}_{split}": v for k, v in self.metric.compute(predictions=preds, references=labels).items()
@@ -206,9 +207,13 @@ class GLUETransformer(L.LightningModule):
                 self.log_dict(split_metrics, prog_bar=True)
             return loss
 
-        preds = torch.cat([x["preds"] for x in self.outputs]).detach().cpu().numpy()
-        labels = torch.cat([x["labels"] for x in self.outputs]).detach().cpu().numpy()
-        loss = torch.stack([x["loss"] for x in self.outputs]).mean()
+        flat_outputs = []
+        for lst in self.outputs.values():
+            flat_outputs.extend(lst)
+
+        preds = torch.cat([x["preds"] for x in flat_outputs]).detach().cpu().numpy()
+        labels = torch.cat([x["labels"] for x in flat_outputs]).detach().cpu().numpy()
+        loss = torch.stack([x["loss"] for x in flat_outputs]).mean()
         self.log("val_loss", loss, prog_bar=True)
         self.log_dict(self.metric.compute(predictions=preds, references=labels), prog_bar=True)
         self.outputs.clear()
