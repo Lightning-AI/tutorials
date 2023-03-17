@@ -174,10 +174,9 @@ from typing import Any, Dict, Optional
 import sentencepiece as sp  # noqa: F401 # isort: split
 import datasets
 import evaluate
-import lightning.pytorch as pl
+import lightning as L
 import torch
 from datasets import logging as datasets_logging
-from lightning.fabric.accelerators.cuda import is_cuda_available
 from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
 from lightning.pytorch.loggers.tensorboard import TensorBoardLogger
 from lightning.pytorch.utilities import rank_zero_warn
@@ -546,7 +545,7 @@ def train() -> None:
         max_epochs=100,
         precision="16-mixed",
         accelerator="auto",
-        devices=1 if is_cuda_available() else None,
+        devices=1,
         callbacks=callbacks,
         logger=logger,
     )
