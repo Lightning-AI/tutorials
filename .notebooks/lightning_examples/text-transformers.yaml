@@ -1,9 +1,9 @@
 title: Finetune Transformers Models with PyTorch Lightning
 author: PL team
 created: 2021-01-31
-updated: 2022-02-08
+updated: 2023-03-17
 license: CC BY-SA
-build: 1
+build: 0
 tags:
 - Text
 description: 'This notebook will use HuggingFace''s `datasets` library to get data,
@@ -25,15 +25,15 @@ requirements:
 accelerator:
 - GPU
 environment:
-- datasets==2.10.1
 - ipython==8.11.0
-- setuptools==67.4.0
-- transformers==4.26.1
-- scikit-learn==1.2.0
-- scipy==1.10.1
+- lightning==2.0.0
 - torchmetrics==0.11.4
-- torch==1.13.1+cu116
-- torchtext==0.14.1
+- torch==1.13.1
+- scipy==1.10.1
+- scikit-learn==1.2.0
+- setuptools==67.4.0
 - pytorch-lightning==1.9.4
-- lightning==2.0.0rc0
-published: '2023-03-15T11:08:53.611195'
+- transformers==4.27.1
+- datasets==2.10.1
+- torchtext==0.14.1
+published: '2023-03-17T23:37:47.861743'
