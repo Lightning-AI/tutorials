@@ -51,9 +51,9 @@
 # </div>
 #
 # ```python
-# from lightning.pytorch import Trainer
+# import lightning as L
 # from finetuning_scheduler import FinetuningScheduler
-# trainer = Trainer(callbacks=[FinetuningScheduler()])
+# trainer = L.Trainer(callbacks=[FinetuningScheduler()])
 # ```
 
 # %% [markdown]
@@ -72,9 +72,9 @@
 #    ``LightningModule`` subclass with the suffix ``_ft_schedule.yaml``.
 #
 # ```python
-#     from lightning.pytorch import Trainer
+#     import lightning as L
 #     from finetuning_scheduler import FinetuningScheduler
-#     trainer = Trainer(callbacks=[FinetuningScheduler(gen_ft_sched_only=True)])
+#     trainer = L.Trainer(callbacks=[FinetuningScheduler(gen_ft_sched_only=True)])
 # ```
 #
 # 2. Alter the schedule as desired.
@@ -85,10 +85,10 @@
 #    [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) to commence scheduled training:
 #
 # ```python
-# from lightning.pytorch import Trainer
+# import lightning as L
 # from finetuning_scheduler import FinetuningScheduler
 #
-# trainer = Trainer(callbacks=[FinetuningScheduler(ft_schedule="/path/to/my/schedule/my_schedule.yaml")])
+# trainer = L.Trainer(callbacks=[FinetuningScheduler(ft_schedule="/path/to/my/schedule/my_schedule.yaml")])
 # ```
 
 # %% [markdown]
@@ -123,9 +123,9 @@
 #
 #
 # ```python
-# from pytorch_lightning import Trainer
+# import lightning as L
 # from finetuning_scheduler import FinetuningScheduler
-# trainer = Trainer(callbacks=[FinetuningScheduler()])
+# trainer = L.Trainer(callbacks=[FinetuningScheduler()])
 # trainer.ckpt_path="some/path/to/my_checkpoint.ckpt"
 # trainer.fit(...)
 # ```
@@ -135,7 +135,7 @@
 # By default ([FinetuningScheduler.restore_best](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html?highlight=restore_best#finetuning_scheduler.fts.FinetuningScheduler.params.restore_best) is ``True``), [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) will attempt to restore the best available checkpoint before fine-tuning depth transitions.
 #
 # ```python
-# trainer = Trainer(callbacks=[FinetuningScheduler()])
+# trainer = L.Trainer(callbacks=[FinetuningScheduler()])
 # trainer.ckpt_path="some/path/to/my_kth_best_checkpoint.ckpt"
 # trainer.fit(...)
 # ```
@@ -174,10 +174,9 @@ from typing import Any, Dict, Optional
 import sentencepiece as sp  # noqa: F401 # isort: split
 import datasets
 import evaluate
-import lightning.pytorch as pl
+import lightning as L
 import torch
 from datasets import logging as datasets_logging
-from lightning.fabric.accelerators.cuda import is_cuda_available
 from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
 from lightning.pytorch.loggers.tensorboard import TensorBoardLogger
 from lightning.pytorch.utilities import rank_zero_warn
@@ -211,7 +210,7 @@ for warnf in [
 
 
 # %%
-class RteBoolqDataModule(pl.LightningDataModule):
+class RteBoolqDataModule(L.LightningDataModule):
     """A ``LightningDataModule`` designed for both the RTE or BoolQ SuperGLUE Hugging Face datasets."""
 
     TASK_TEXT_FIELD_MAP = {"rte": ("premise", "hypothesis"), "boolq": ("question", "passage")}
@@ -313,7 +312,7 @@ class RteBoolqDataModule(pl.LightningDataModule):
 
 
 # %%
-class RteBoolqModule(pl.LightningModule):
+class RteBoolqModule(L.LightningModule):
     """A ``LightningModule`` that can be used to fine-tune a foundation model on either the RTE or BoolQ SuperGLUE
     tasks using Hugging Face implementations of a given model and the `SuperGLUE Hugging Face dataset."""
 
@@ -338,8 +337,6 @@ class RteBoolqModule(pl.LightningModule):
                 "default".
         """
         super().__init__()
-        self.training_step_outputs = []
-        self.validation_step_outputs = []
         if task_name not in TASK_NUM_LABELS.keys():
             rank_zero_warn(f"Invalid task_name {task_name!r}. Proceeding with the default task: {DEFAULT_TASK!r}")
             task_name = DEFAULT_TASK
@@ -370,13 +367,10 @@ class RteBoolqModule(pl.LightningModule):
 
     def training_step(self, batch, batch_idx: int):
         loss = self(**batch)[0]
-        self.training_step_outputs.append(loss)
         self.log("train_loss", loss, prog_bar=True)
         return loss
 
     def on_train_epoch_end(self):
-        if self.training_step_outputs:
-            self.training_step_outputs.clear()
         if self.finetuningscheduler_callback:
             self.log("finetuning_schedule_depth", float(self.finetuningscheduler_callback.curr_depth))
 
@@ -388,13 +382,9 @@ class RteBoolqModule(pl.LightningModule):
         elif self.num_labels == 1:
             preds = logits.squeeze()
         labels = batch["labels"]
-        self.validation_step_outputs.append(val_loss)
         self.log("val_loss", val_loss, prog_bar=True)
         metric_dict = self.metric.compute(predictions=preds, references=labels)
         self.log_dict(metric_dict, prog_bar=True)
-
-    def on_validation_epoch_end(self):
-        self.validation_step_outputs.clear()
 
     def configure_optimizers(self):
         # With FTS >= 2.0, ``FinetuningScheduler`` simplifies initial optimizer configuration by ensuring the optimizer
@@ -456,7 +446,7 @@ with open(ft_schedule_name, "w") as f:
 
 # %%
 datasets.logging.disable_progress_bar()
-pl.seed_everything(42)
+L.seed_everything(42)
 dm = RteBoolqDataModule(model_name_or_path="microsoft/deberta-v3-base", tokenizers_parallelism=True)
 
 # %% [markdown]
@@ -541,12 +531,12 @@ enable_progress_bar = False
 
 
 def train() -> None:
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         enable_progress_bar=enable_progress_bar,
         max_epochs=100,
         precision="16-mixed",
         accelerator="auto",
-        devices=1 if is_cuda_available() else None,
+        devices=1,
         callbacks=callbacks,
         logger=logger,
     )
