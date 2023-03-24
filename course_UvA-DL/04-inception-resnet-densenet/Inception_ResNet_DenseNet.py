@@ -417,7 +417,7 @@ def train_model(model_name, save_name=None, **kwargs):
 # %%
 class InceptionBlock(nn.Module):
     def __init__(self, c_in, c_red: dict, c_out: dict, act_fn):
-        """InceptionBlock
+        """InceptionBlock.
 
         Args:
             c_in - Number of input feature maps from the previous layers
@@ -667,7 +667,7 @@ print("GoogleNet Results", googlenet_results)
 
 class ResNetBlock(nn.Module):
     def __init__(self, c_in, act_fn, subsample=False, c_out=-1):
-        """ResNetBlock
+        """ResNetBlock.
 
         Inputs:
             c_in - Number of input features
@@ -713,7 +713,7 @@ class ResNetBlock(nn.Module):
 # %%
 class PreActResNetBlock(nn.Module):
     def __init__(self, c_in, act_fn, subsample=False, c_out=-1):
-        """PreAct ResNet Block
+        """PreAct ResNet Block.
 
         Inputs:
             c_in - Number of input features
@@ -783,7 +783,7 @@ class ResNet(nn.Module):
         block_name="ResNetBlock",
         **kwargs,
     ):
-        """ResNet
+        """ResNet.
 
         Inputs:
             num_classes - Number of classification outputs (10 for CIFAR10)
@@ -953,7 +953,7 @@ resnetpreact_model, resnetpreact_results = train_model(
 # %%
 class DenseLayer(nn.Module):
     def __init__(self, c_in, bn_size, growth_rate, act_fn):
-        """DenseLayer
+        """DenseLayer.
 
         Inputs:
             c_in - Number of input channels
@@ -985,7 +985,7 @@ class DenseLayer(nn.Module):
 # %%
 class DenseBlock(nn.Module):
     def __init__(self, c_in, num_layers, bn_size, growth_rate, act_fn):
-        """Dense Block
+        """Dense Block.
 
         Inputs:
             c_in - Number of input channels

@@ -209,7 +209,7 @@ plt.close()
 # %%
 class AttentionBlock(nn.Module):
     def __init__(self, embed_dim, hidden_dim, num_heads, dropout=0.0):
-        """Attention Block
+        """Attention Block.
 
         Inputs:
             embed_dim - Dimensionality of input and attention feature vectors
@@ -269,7 +269,7 @@ class VisionTransformer(nn.Module):
         num_patches,
         dropout=0.0,
     ):
-        """Vision Transformer
+        """Vision Transformer.
 
         Inputs:
             embed_dim - Dimensionality of the input feature vectors to the Transformer

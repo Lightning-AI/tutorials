@@ -131,7 +131,7 @@ def get_train_images(num):
 # %%
 class Encoder(nn.Module):
     def __init__(self, num_input_channels: int, base_channel_size: int, latent_dim: int, act_fn: object = nn.GELU):
-        """Encoder
+        """Encoder.
 
         Args:
            num_input_channels : Number of input channels of the image. For CIFAR, this parameter is 3
@@ -191,7 +191,7 @@ class Encoder(nn.Module):
 # %%
 class Decoder(nn.Module):
     def __init__(self, num_input_channels: int, base_channel_size: int, latent_dim: int, act_fn: object = nn.GELU):
-        """Decoder
+        """Decoder.
 
         Args:
            num_input_channels : Number of channels of the image to reconstruct. For CIFAR, this parameter is 3

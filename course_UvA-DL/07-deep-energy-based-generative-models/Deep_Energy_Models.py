@@ -335,7 +335,7 @@ class CNNModel(nn.Module):
 # %%
 class Sampler:
     def __init__(self, model, img_shape, sample_size, max_len=8192):
-        """Sampler
+        """Sampler.
 
         Args:
             model: Neural network to use for modeling E_theta

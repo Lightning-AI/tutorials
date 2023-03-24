@@ -21,7 +21,6 @@ PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 
 # %%
 class DQN(nn.Module):
-
     def __init__(self, obs_size: int, n_actions: int, hidden_size: int = 128):
         """Simple MLP network.
 
@@ -113,7 +112,6 @@ class RLDataset(IterableDataset):
 
 # %%
 class Agent:
-
     def __init__(self, env: gym.Env, replay_buffer: ReplayBuffer) -> None:
         """Base Agent class handeling the interaction with the environment.
 
@@ -193,7 +191,6 @@ class Agent:
 
 # %%
 class DQNLightning(LightningModule):
-
     def __init__(
         self,
         batch_size: int = 16,

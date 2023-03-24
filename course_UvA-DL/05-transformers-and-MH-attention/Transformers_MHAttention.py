@@ -463,7 +463,7 @@ class MultiheadAttention(nn.Module):
 # %%
 class EncoderBlock(nn.Module):
     def __init__(self, input_dim, num_heads, dim_feedforward, dropout=0.0):
-        """EncoderBlock
+        """EncoderBlock.
 
         Args:
             input_dim: Dimensionality of the input
@@ -573,7 +573,7 @@ class TransformerEncoder(nn.Module):
 # %%
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=5000):
-        """Positional Encoding
+        """Positional Encoding.
 
         Args:
             d_model: Hidden dimensionality of the input.
@@ -760,7 +760,7 @@ class TransformerPredictor(L.LightningModule):
         dropout=0.0,
         input_dropout=0.0,
     ):
-        """TransformerPredictor
+        """TransformerPredictor.
 
         Args:
             input_dim: Hidden dimensionality of the input

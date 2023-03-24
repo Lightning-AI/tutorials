@@ -162,7 +162,7 @@ class GCNLayer(nn.Module):
         self.projection = nn.Linear(c_in, c_out)
 
     def forward(self, node_feats, adj_matrix):
-        """forward
+        """Forward.
 
         Args:
             node_feats: Tensor with node features of shape [batch_size, num_nodes, c_in]
@@ -318,7 +318,7 @@ class GATLayer(nn.Module):
         nn.init.xavier_uniform_(self.a.data, gain=1.414)
 
     def forward(self, node_feats, adj_matrix, print_attn_probs=False):
-        """forward
+        """Forward.
 
         Args:
             node_feats: Input features of the node. Shape: [batch_size, c_in]
@@ -499,7 +499,7 @@ class GNNModel(nn.Module):
         dp_rate=0.1,
         **kwargs,
     ):
-        """GNNModel
+        """GNNModel.
 
         Args:
             c_in: Dimension of input features
@@ -526,7 +526,7 @@ class GNNModel(nn.Module):
         self.layers = nn.ModuleList(layers)
 
     def forward(self, x, edge_index):
-        """forward
+        """Forward.
 
         Args:
             x: Input features per node
@@ -553,7 +553,7 @@ class GNNModel(nn.Module):
 # %%
 class MLPModel(nn.Module):
     def __init__(self, c_in, c_hidden, c_out, num_layers=2, dp_rate=0.1):
-        """MLPModel
+        """MLPModel.
 
         Args:
             c_in: Dimension of input features
@@ -572,7 +572,7 @@ class MLPModel(nn.Module):
         self.layers = nn.Sequential(*layers)
 
     def forward(self, x, *args, **kwargs):
-        """forward
+        """Forward.
 
         Args:
             x: Input features per node
@@ -850,7 +850,7 @@ print("Batch indices:", batch.batch[:40])
 # %%
 class GraphGNNModel(nn.Module):
     def __init__(self, c_in, c_hidden, c_out, dp_rate_linear=0.5, **kwargs):
-        """GraphGNNModel
+        """GraphGNNModel.
 
         Args:
             c_in: Dimension of input features
@@ -864,7 +864,7 @@ class GraphGNNModel(nn.Module):
         self.head = nn.Sequential(nn.Dropout(dp_rate_linear), nn.Linear(c_hidden, c_out))
 
     def forward(self, x, edge_index, batch_idx):
-        """forward
+        """Forward.
 
         Args:
             x: Input features per node

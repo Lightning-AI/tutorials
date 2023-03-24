@@ -261,7 +261,7 @@ show_imgs([train_set[i][0] for i in range(8)])
 # %%
 class ImageFlow(L.LightningModule):
     def __init__(self, flows, import_samples=8):
-        """ImageFlow
+        """ImageFlow.
 
         Args:
             flows: A list of flows (each a nn.Module) that should be applied on the images.
@@ -402,7 +402,7 @@ class ImageFlow(L.LightningModule):
 # %%
 class Dequantization(nn.Module):
     def __init__(self, alpha=1e-5, quants=256):
-        """Dequantization
+        """Dequantization.
 
         Args:
             alpha: small constant that is used to scale the original input.
@@ -590,7 +590,7 @@ visualize_dequantization(quants=8, prior=np.array([0.075, 0.2, 0.4, 0.2, 0.075, 
 # %%
 class VariationalDequantization(Dequantization):
     def __init__(self, var_flows, alpha=1e-5):
-        """Variational Dequantization
+        """Variational Dequantization.
 
         Args:
             var_flows: A list of flow transformations to use for modeling q(u|x)
@@ -676,7 +676,7 @@ class CouplingLayer(nn.Module):
         self.register_buffer("mask", mask)
 
     def forward(self, z, ldj, reverse=False, orig_img=None):
-        """forward
+        """Forward.
 
         Args:
             z: Latent input to the flow
@@ -804,8 +804,7 @@ class ConcatELU(nn.Module):
 
 class LayerNormChannels(nn.Module):
     def __init__(self, c_in, eps=1e-5):
-        """
-        This module applies layer norm across channels in an image.
+        """This module applies layer norm across channels in an image.
 
         Args:
             c_in: Number of channels of the input
@@ -826,8 +825,7 @@ class LayerNormChannels(nn.Module):
 
 class GatedConv(nn.Module):
     def __init__(self, c_in, c_hidden):
-        """
-        This module applies a two-layer convolutional ResNet block with input gate
+        """This module applies a two-layer convolutional ResNet block with input gate.
 
         Args:
             c_in: Number of channels of the input
@@ -1332,7 +1330,7 @@ for _ in range(3):
 
 # %%
 def visualize_dequant_distribution(model: ImageFlow, imgs: Tensor, title: str = None):
-    """Visualize dequant distribution
+    """Visualize dequant distribution.
 
     Args:
         model: The flow of which we want to visualize the dequantization distribution

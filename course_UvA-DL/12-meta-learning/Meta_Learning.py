@@ -257,7 +257,7 @@ test_set = dataset_from_labels(cifar_all_images, cifar_all_targets, test_classes
 # %%
 class FewShotBatchSampler:
     def __init__(self, dataset_targets, N_way, K_shot, include_query=False, shuffle=True, shuffle_once=False):
-        """FewShot Batch Sampler
+        """FewShot Batch Sampler.
 
         Inputs:
             dataset_targets - PyTorch tensor of the labels of the data elements.
@@ -968,7 +968,7 @@ class ProtoMAML(L.LightningModule):
 # %%
 class TaskBatchSampler:
     def __init__(self, dataset_targets, batch_size, N_way, K_shot, include_query=False, shuffle=True):
-        """Task Batch Sampler
+        """Task Batch Sampler.
 
         Inputs:
             dataset_targets - PyTorch tensor of the labels of the data elements.
