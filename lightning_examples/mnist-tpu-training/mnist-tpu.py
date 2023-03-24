@@ -4,14 +4,16 @@
 # %%
 # ! pip install cloud-tpu-client==0.10 https://storage.googleapis.com/tpu-pytorch/wheels/torch_xla-1.8-cp37-cp37m-linux_x86_64.whl
 
+import lightning as L
+
 # %%
 import torch
 import torch.nn.functional as F
-from pytorch_lightning import LightningDataModule, LightningModule, Trainer
 from torch import nn
 from torch.utils.data import DataLoader, random_split
 from torchmetrics.functional import accuracy
 from torchvision import transforms
+
 # Note - you must have torchvision installed for this example
 from torchvision.datasets import MNIST
 
@@ -21,22 +23,16 @@ BATCH_SIZE = 1024
 # ### Defining The `MNISTDataModule`
 #
 # Below we define `MNISTDataModule`. You can learn more about datamodules
-# in [docs](https://pytorch-lightning.readthedocs.io/en/latest/extensions/datamodules.html).
+# in [docs](https://lightning.ai/docs/pytorch/stable/data/datamodule.html).
 
 
 # %%
-class MNISTDataModule(LightningDataModule):
-
-    def __init__(self, data_dir: str = './'):
+class MNISTDataModule(L.LightningDataModule):
+    def __init__(self, data_dir: str = "./"):
         super().__init__()
         self.data_dir = data_dir
-        self.transform = transforms.Compose([
-            transforms.ToTensor(), transforms.Normalize((0.1307, ), (0.3081, ))
-        ])
+        self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
 
-        # self.dims is returned when you call dm.size()
-        # Setting default dims here because we know them.
-        # Could optionally be assigned dynamically in dm.setup()
         self.dims = (1, 28, 28)
         self.num_classes = 10
 
@@ -46,14 +42,13 @@ class MNISTDataModule(LightningDataModule):
         MNIST(self.data_dir, train=False, download=True)
 
     def setup(self, stage=None):
-
         # Assign train/val datasets for use in dataloaders
-        if stage == 'fit' or stage is None:
+        if stage == "fit" or stage is None:
             mnist_full = MNIST(self.data_dir, train=True, transform=self.transform)
             self.mnist_train, self.mnist_val = random_split(mnist_full, [55000, 5000])
 
         # Assign test dataset for use in dataloader(s)
-        if stage == 'test' or stage is None:
+        if stage == "test" or stage is None:
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def train_dataloader(self):
@@ -73,18 +68,21 @@ class MNISTDataModule(LightningDataModule):
 
 
 # %%
-class LitModel(LightningModule):
-
+class LitModel(L.LightningModule):
     def __init__(self, channels, width, height, num_classes, hidden_size=64, learning_rate=2e-4):
-
         super().__init__()
 
         self.save_hyperparameters()
 
         self.model = nn.Sequential(
-            nn.Flatten(), nn.Linear(channels * width * height, hidden_size), nn.ReLU(), nn.Dropout(0.1),
-            nn.Linear(hidden_size, hidden_size), nn.ReLU(), nn.Dropout(0.1),
-            nn.Linear(hidden_size, num_classes)
+            nn.Flatten(),
+            nn.Linear(channels * width * height, hidden_size),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_size, hidden_size),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_size, num_classes),
         )
 
     def forward(self, x):
@@ -95,7 +93,7 @@ class LitModel(LightningModule):
         x, y = batch
         logits = self(x)
         loss = F.nll_loss(logits, y)
-        self.log('train_loss', loss)
+        self.log("train_loss", loss)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -104,9 +102,8 @@ class LitModel(LightningModule):
         loss = F.nll_loss(logits, y)
         preds = torch.argmax(logits, dim=1)
         acc = accuracy(preds, y)
-        self.log('val_loss', loss, prog_bar=True)
-        self.log('val_acc', acc, prog_bar=True)
-        return loss
+        self.log("val_loss", loss, prog_bar=True)
+        self.log("val_acc", acc, prog_bar=True)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
@@ -118,13 +115,14 @@ class LitModel(LightningModule):
 #
 # Lightning supports training on a single TPU core or 8 TPU cores.
 #
-# The Trainer parameters `tpu_cores` defines how many TPU cores to train on (1 or 8) / Single TPU core to train on [1].
+# The Trainer parameter `devices` defines how many TPU cores to train on (1 or 8) / Single TPU core to train on [1]
+# along with accelerator='tpu'.
 #
 # For Single TPU training, Just pass the TPU core ID [1-8] in a list.
-# Setting `tpu_cores=[5]` will train on TPU core ID 5.
+# Setting `devices=[5]` will train on TPU core ID 5.
 
 # %% [markdown]
-# Train on TPU core ID 5 with `tpu_cores=[5]`.
+# Train on TPU core ID 5 with `devices=[5]`.
 
 # %%
 # Init DataModule
@@ -132,33 +130,45 @@ dm = MNISTDataModule()
 # Init model from datamodule's attributes
 model = LitModel(*dm.size(), dm.num_classes)
 # Init trainer
-trainer = Trainer(max_epochs=3, progress_bar_refresh_rate=20, tpu_cores=[5])
+trainer = L.Trainer(
+    max_epochs=3,
+    accelerator="tpu",
+    devices=[5],
+)
 # Train
 trainer.fit(model, dm)
 
 # %% [markdown]
-# Train on single TPU core with `tpu_cores=1`.
+# Train on single TPU core with `devices=1`.
 
 # %%
 # Init DataModule
 dm = MNISTDataModule()
 # Init model from datamodule's attributes
-model = LitModel(*dm.size(), dm.num_classes)
+model = LitModel(*dm.dims, dm.num_classes)
 # Init trainer
-trainer = Trainer(max_epochs=3, progress_bar_refresh_rate=20, tpu_cores=1)
+trainer = L.Trainer(
+    max_epochs=3,
+    accelerator="tpu",
+    devices=1,
+)
 # Train
 trainer.fit(model, dm)
 
 # %% [markdown]
-# Train on 8 TPU cores with `tpu_cores=8`.
+# Train on 8 TPU cores with `accelerator='tpu'` and `devices=8`.
 # You might have to restart the notebook to run it on 8 TPU cores after training on single TPU core.
 
 # %%
 # Init DataModule
 dm = MNISTDataModule()
 # Init model from datamodule's attributes
-model = LitModel(*dm.size(), dm.num_classes)
+model = LitModel(*dm.dims, dm.num_classes)
 # Init trainer
-trainer = Trainer(max_epochs=3, progress_bar_refresh_rate=20, tpu_cores=8)
+trainer = L.Trainer(
+    max_epochs=3,
+    accelerator="tpu",
+    devices=8,
+)
 # Train
 trainer.fit(model, dm)

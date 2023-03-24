@@ -1,0 +1,24 @@
+title: "Tutorial 3: Initialization and Optimization"
+author: Phillip Lippe
+created: 2021-08-27
+updated: 2023-03-14
+license: CC BY-SA
+tags:
+  - Image
+  - Initialization
+  - Optimizers
+description: |
+  In this tutorial, we will review techniques for optimization and initialization of neural networks.
+  When increasing the depth of neural networks, there are various challenges we face.
+  Most importantly, we need to have a stable gradient flow through the network, as otherwise, we might encounter vanishing or exploding gradients.
+  This is why we will take a closer look at the following concepts: initialization and optimization.
+  This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
+  The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
+requirements:
+  - torchvision
+  - matplotlib
+  - seaborn
+  - lightning>=2.0.0rc0
+accelerator:
+  - CPU
+  - GPU

@@ -1,0 +1,24 @@
+title: "Tutorial 5: Transformers and Multi-Head Attention"
+author: Phillip Lippe
+created: 2021-06-30
+updated: 2023-03-14
+license: CC BY-SA
+build: 0
+tags:
+  - Text
+description: |
+  In this tutorial, we will discuss one of the most impactful architectures of the last 2 years: the Transformer model.
+  Since the paper Attention Is All You Need by Vaswani et al. had been published in 2017,
+  the Transformer architecture has continued to beat benchmarks in many domains, most importantly in Natural Language Processing.
+  Transformers with an incredible amount of parameters can generate long, convincing essays, and opened up new application fields of AI.
+  As the hype of the Transformer architecture seems not to come to an end in the next years,
+  it is important to understand how it works, and have implemented it yourself, which we will do in this notebook.
+  This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
+  The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
+requirements:
+  - torchvision
+  - matplotlib
+  - seaborn
+  - lightning>=2.0.0rc0
+accelerator:
+  - GPU

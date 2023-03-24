@@ -1,0 +1,19 @@
+title: Image Classification on Hymenoptera Dataset
+author: Ethan Harris (ethan@pytorchlightning.ai)
+created: 2021-11-23
+updated: 2022-08-26
+license: CC BY-SA
+build: 3
+tags:
+  - Image Classification
+  - Image
+description: |
+  In this tutorial, we'll go over the basics of lightning Flash by finetuning/predictin with an ImageClassifier on [Hymenoptera Dataset](https://www.kaggle.com/ajayrana/hymenoptera-data) containing ants and bees images.
+requirements:
+  - pytorch-lightning==1.6.*
+  - lightning-flash[image]>=0.7.0
+  - torchmetrics<0.11  # todo: task argument is missing
+  - numpy<1.24
+accelerator:
+  - GPU
+  - CPU

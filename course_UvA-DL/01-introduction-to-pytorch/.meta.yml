@@ -1,0 +1,15 @@
+title: "Tutorial 1: Introduction to PyTorch"
+author: Phillip Lippe
+created: 2021-08-27
+updated: 2023-03-14
+license: CC BY-SA
+description: |
+  This tutorial will give a short introduction to PyTorch basics, and get you setup for writing your own neural networks.
+  This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
+  The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
+requirements:
+  - matplotlib
+  - lightning>=2.0.0rc0
+accelerator:
+  - CPU
+  - GPU

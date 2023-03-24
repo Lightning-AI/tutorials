@@ -1,0 +1,23 @@
+title: "Tutorial 10: Autoregressive Image Modeling"
+author: Phillip Lippe
+created: 2021-07-12
+updated: 2023-03-14
+license: CC BY-SA
+build: 0
+tags:
+  - Image
+description: |
+  In this tutorial, we implement an autoregressive likelihood model for the task of image modeling.
+  Autoregressive models are naturally strong generative models that constitute one of the current
+  state-of-the-art architectures on likelihood-based image modeling,
+  and are also the basis for large language generation models such as GPT3.
+  We will focus on the PixelCNN architecture in this tutorial, and apply it to MNIST modeling.
+  This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
+  The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
+requirements:
+  - torchvision
+  - matplotlib
+  - seaborn
+  - lightning>=2.0.0rc0
+accelerator:
+  - GPU

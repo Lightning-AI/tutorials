@@ -1,0 +1,29 @@
+title: "Tutorial 12: Meta-Learning - Learning to Learn"
+author: Phillip Lippe
+created: 2021-08-21
+updated: 2023-03-14
+license: CC BY-SA
+tags:
+  - Few-shot-learning
+  - MAML
+  - ProtoNet
+description: |
+  In this tutorial, we will discuss algorithms that learn models which can quickly adapt to new classes and/or tasks with few samples.
+  This area of machine learning is called _Meta-Learning_ aiming at "learning to learn".
+  Learning from very few examples is a natural task for humans. In contrast to current deep learning models, we need to see only a few examples of a police car or firetruck to recognize them in daily traffic.
+  This is crucial ability since in real-world application, it is rarely the case that the data stays static and does not change over time.
+  For example, an object detection system for mobile phones trained on data from 2000 will have troubles detecting today's common mobile phones, and thus, needs to adapt to new data without excessive label effort.
+  The optimization techniques we have discussed so far struggle with this because they only aim at obtaining a good performance on a test set that had similar data.
+  However, what if the test set has classes that we do not have in the training set?
+  Or what if we want to test the model on a completely different task?
+  We will discuss and implement three common Meta-Learning algorithms for such situations.
+  This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
+  The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
+requirements:
+  - torchvision
+  - matplotlib
+  - seaborn
+  - lightning>=2.0.0rc0
+accelerator:
+  - CPU
+  - GPU

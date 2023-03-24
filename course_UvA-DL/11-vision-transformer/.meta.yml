@@ -1,0 +1,23 @@
+title: "Tutorial 11: Vision Transformers"
+author: Phillip Lippe
+created: 2021-08-21
+updated: 2023-03-14
+license: CC BY-SA
+description: |
+  In this tutorial, we will take a closer look at a recent new trend: Transformers for Computer Vision.
+  Since [Alexey Dosovitskiy et al.](https://openreview.net/pdf?id=YicbFdNTTy) successfully applied a Transformer on a variety of image recognition benchmarks, there have been an incredible amount of follow-up works showing that CNNs might not be optimal architecture for Computer Vision anymore.
+  But how do Vision Transformers work exactly, and what benefits and drawbacks do they offer in contrast to CNNs?
+  We will answer these questions by implementing a Vision Transformer ourselves, and train it on the popular, small dataset CIFAR10.
+  We will compare these results to popular convolutional architectures such as Inception, ResNet and DenseNet.
+  This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
+  The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
+tags:
+  - Image
+requirements:
+  - torchvision
+  - matplotlib
+  - seaborn
+  - lightning>=2.0.0rc0
+accelerator:
+  - CPU
+  - GPU

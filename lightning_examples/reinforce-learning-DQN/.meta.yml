@@ -1,9 +1,11 @@
 title: How to train a Deep Q Network
 author: PL team
 created: 2021-01-31
-updated: 2021-06-17
+updated: 2021-12-03
 license: CC BY-SA
-build: 0
+build: 2
+tags:
+  - RL
 description: |
   Main takeaways:
 
@@ -12,6 +14,10 @@ description: |
   3. Each training step carries has the agent taking an action in the environment and storing the experience in the IterableDataset
 requirements:
   - gym
+  - pygame
+  - pandas
+  - seaborn
+  - lightning>=2.0.0rc0
 accelerator:
   - CPU
   - GPU

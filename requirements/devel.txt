@@ -1,9 +1,0 @@
-virtualenv
-ipython[notebook]
-jupytext  # converting
-pytest>=6.0
-nbval  # testing
-papermill  # render
-yapf
-flake8
-isort

@@ -1,0 +1,6 @@
+virtualenv>=20.10
+jupytext>=1.10, <1.15  # converting
+pytest>=6.0, <7.0
+# testing with own fork with extended cell timeout
+https://github.com/Borda/nbval/archive/refs/heads/timeout-limit.zip
+papermill>=2.3.4, <2.5.0  # render

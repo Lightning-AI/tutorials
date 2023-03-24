@@ -1,0 +1,28 @@
+title: "Tutorial 8: Deep Autoencoders"
+author: Phillip Lippe
+created: 2021-07-12
+updated: 2023-03-14
+license: CC BY-SA
+build: 0
+tags:
+  - Image
+description: |
+  In this tutorial, we will take a closer look at autoencoders (AE).
+  Autoencoders are trained on encoding input data such as images into a smaller feature vector,
+  and afterward, reconstruct it by a second neural network, called a decoder.
+  The feature vector is called the "bottleneck" of the network as we aim to compress the input data into a smaller amount of features.
+  This property is useful in many applications, in particular in compressing data or comparing images on a metric beyond pixel-level comparisons.
+  Besides learning about the autoencoder framework, we will also see the "deconvolution"
+  (or transposed convolution) operator in action for scaling up feature maps in height and width.
+  Such deconvolution networks are necessary wherever we start from a small feature vector
+  and need to output an image of full size (e.g. in VAE, GANs, or super-resolution applications).
+  This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
+  The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
+requirements:
+  - torchvision
+  - matplotlib
+  - seaborn
+  - lightning>=2.0.0rc0
+accelerator:
+  - CPU
+  - GPU

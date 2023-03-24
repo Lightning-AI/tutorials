@@ -1,0 +1,28 @@
+title: "Tutorial 7: Deep Energy-Based Generative Models"
+author: Phillip Lippe
+created: 2021-07-12
+updated: 2023-03-14
+license: CC BY-SA
+build: 0
+tags:
+  - Image
+description: |
+  In this tutorial, we will look at energy-based deep learning models, and focus on their application as generative models.
+  Energy models have been a popular tool before the huge deep learning hype around 2012 hit.
+  However, in recent years, energy-based models have gained increasing attention because of improved training methods and tricks being proposed.
+  Although they are still in a research stage, they have shown to outperform strong Generative Adversarial Networks
+  in certain cases which have been the state of the art of generating images
+  ([blog post](https://ajolicoeur.wordpress.com/the-new-contender-to-gans-score-matching-with-langevin-sampling/)about strong energy-based models,
+  [blog post](https://medium.com/syncedreview/nvidia-open-sources-hyper-realistic-face-generator-stylegan-f346e1a73826) about the power of GANs).
+  Hence, it is important to be aware of energy-based models, and as the theory can be abstract sometimes,
+  we will show the idea of energy-based models with a lot of examples.
+  This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
+  The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
+requirements:
+  - torchvision
+  - matplotlib
+  - tensorboard
+  - lightning>=2.0.0rc0
+accelerator:
+  - CPU
+  - GPU

@@ -1,0 +1,23 @@
+title: Barlow Twins Tutorial
+author: Ananya Harsh Jha
+created: 2021-09-19
+updated: 2023-03-15
+license: CC BY-SA
+build: 0
+tags:
+  - Image
+  - Self-Supervised
+description: |
+  This notebook describes the self-supervised learning method Barlow Twins.
+  Barlow Twins differs from other recently proposed algorithms as it doesn't
+  fall under the category of either contrastive learning, or methods like knowledge
+  distillation or clustering. The simplicity of the loss function and its effectiveness
+  in comparison to the current state of the art makes Barlow Twins an interesting
+  case study.
+requirements:
+  - torchvision
+  - matplotlib
+  - lightning>=2.0.0rc0
+accelerator:
+  - GPU
+  - CPU

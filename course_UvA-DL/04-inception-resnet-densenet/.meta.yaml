@@ -1,0 +1,23 @@
+title: "Tutorial 4: Inception, ResNet and DenseNet"
+author: Phillip Lippe
+created: 2021-08-27
+updated: 2023-03-14
+license: CC BY-SA
+tags:
+  - Image
+description: |
+  In this tutorial, we will implement and discuss variants of modern CNN architectures.
+  There have been many different architectures been proposed over the past few years.
+  Some of the most impactful ones, and still relevant today, are the following: [GoogleNet](https://arxiv.org/abs/1409.4842)/Inception architecture (winner of ILSVRC 2014), [ResNet](https://arxiv.org/abs/1512.03385) (winner of ILSVRC 2015), and [DenseNet](https://arxiv.org/abs/1608.06993) (best paper award CVPR 2017).
+  All of them were state-of-the-art models when being proposed, and the core ideas of these networks are the foundations for most current state-of-the-art architectures.
+  Thus, it is important to understand these architectures in detail and learn how to implement them.
+  This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
+  The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
+requirements:
+  - torchvision
+  - matplotlib
+  - seaborn
+  - tabulate
+  - lightning>=2.0.0rc0
+accelerator:
+  - GPU
