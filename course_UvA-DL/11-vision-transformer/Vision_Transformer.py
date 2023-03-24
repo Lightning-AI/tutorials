@@ -154,10 +154,10 @@ plt.close()
 # %%
 def img_to_patch(x, patch_size, flatten_channels=True):
     """
-    Inputs:
-        x - Tensor representing the image of shape [B, C, H, W]
-        patch_size - Number of pixels per dimension of the patches (integer)
-        flatten_channels - If True, the patches will be returned in a flattened format
+    Args:
+        x: Tensor representing the image of shape [B, C, H, W]
+        patch_size: Number of pixels per dimension of the patches (integer)
+        flatten_channels: If True, the patches will be returned in a flattened format
                            as a feature vector instead of a image grid.
     """
     B, C, H, W = x.shape
@@ -211,12 +211,12 @@ class AttentionBlock(nn.Module):
     def __init__(self, embed_dim, hidden_dim, num_heads, dropout=0.0):
         """Attention Block.
 
-        Inputs:
-            embed_dim - Dimensionality of input and attention feature vectors
-            hidden_dim - Dimensionality of hidden layer in feed-forward network
+        Args:
+            embed_dim: Dimensionality of input and attention feature vectors
+            hidden_dim: Dimensionality of hidden layer in feed-forward network
                          (usually 2-4x larger than embed_dim)
-            num_heads - Number of heads to use in the Multi-Head Attention block
-            dropout - Amount of dropout to apply in the feed-forward network
+            num_heads: Number of heads to use in the Multi-Head Attention block
+            dropout: Amount of dropout to apply in the feed-forward network
         """
         super().__init__()
 
@@ -271,17 +271,17 @@ class VisionTransformer(nn.Module):
     ):
         """Vision Transformer.
 
-        Inputs:
-            embed_dim - Dimensionality of the input feature vectors to the Transformer
-            hidden_dim - Dimensionality of the hidden layer in the feed-forward networks
+        Args:
+            embed_dim: Dimensionality of the input feature vectors to the Transformer
+            hidden_dim: Dimensionality of the hidden layer in the feed-forward networks
                          within the Transformer
-            num_channels - Number of channels of the input (3 for RGB)
-            num_heads - Number of heads to use in the Multi-Head Attention block
-            num_layers - Number of layers to use in the Transformer
-            num_classes - Number of classes to predict
-            patch_size - Number of pixels that the patches have per dimension
-            num_patches - Maximum number of patches an image can have
-            dropout - Amount of dropout to apply in the feed-forward network and
+            num_channels: Number of channels of the input (3 for RGB)
+            num_heads: Number of heads to use in the Multi-Head Attention block
+            num_layers: Number of layers to use in the Transformer
+            num_classes: Number of classes to predict
+            patch_size: Number of pixels that the patches have per dimension
+            num_patches: Maximum number of patches an image can have
+            dropout: Amount of dropout to apply in the feed-forward network and
                       on the input encoding
         """
         super().__init__()

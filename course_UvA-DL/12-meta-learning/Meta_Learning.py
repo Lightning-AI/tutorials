@@ -153,10 +153,10 @@ cifar_all_targets = torch.LongTensor(cifar_train_set.targets + cifar_test_set.ta
 class ImageDataset(data.Dataset):
     def __init__(self, imgs, targets, img_transform=None):
         """
-        Inputs:
-            imgs - Numpy array of shape [N,32,32,3] containing all images.
-            targets - PyTorch array of shape [N] containing all labels.
-            img_transform - A torchvision transformation that should be applied
+        Args:
+            imgs: Numpy array of shape [N,32,32,3] containing all images.
+            targets: PyTorch array of shape [N] containing all labels.
+            img_transform: A torchvision transformation that should be applied
                             to the images before returning. If none, no transformation
                             is applied.
         """
@@ -259,17 +259,17 @@ class FewShotBatchSampler:
     def __init__(self, dataset_targets, N_way, K_shot, include_query=False, shuffle=True, shuffle_once=False):
         """FewShot Batch Sampler.
 
-        Inputs:
-            dataset_targets - PyTorch tensor of the labels of the data elements.
-            N_way - Number of classes to sample per batch.
-            K_shot - Number of examples to sample per class in the batch.
-            include_query - If True, returns batch of size N_way*K_shot*2, which
+        Args:
+            dataset_targets: PyTorch tensor of the labels of the data elements.
+            N_way: Number of classes to sample per batch.
+            K_shot: Number of examples to sample per class in the batch.
+            include_query: If True, returns batch of size N_way*K_shot*2, which
                             can be split into support and query set. Simplifies
                             the implementation of sampling the same classes but
                             distinct examples for support and query set.
-            shuffle - If True, examples and classes are newly shuffled in each
+            shuffle: If True, examples and classes are newly shuffled in each
                       iteration (for training)
-            shuffle_once - If True, examples and classes are shuffled once in
+            shuffle_once: If True, examples and classes are shuffled once in
                            the beginning, but kept constant across iterations
                            (for validation)
         """
@@ -478,10 +478,11 @@ def get_convnet(output_size):
 # %%
 class ProtoNet(L.LightningModule):
     def __init__(self, proto_dim, lr):
-        """Inputs.
+        """ProtoNet.
 
-        proto_dim - Dimensionality of prototype feature space
-        lr - Learning rate of Adam optimizer
+        Args:
+            proto_dim: Dimensionality of prototype feature space
+            lr: Learning rate of Adam optimizer
         """
         super().__init__()
         self.save_hyperparameters()
@@ -629,15 +630,16 @@ protonet_model = train_model(
 # %%
 @torch.no_grad()
 def test_proto_net(model, dataset, data_feats=None, k_shot=4):
-    """Inputs.
+    """Test proto net.
 
-    model - Pretrained ProtoNet model
-    dataset - The dataset on which the test should be performed.
-              Should be instance of ImageDataset
-    data_feats - The encoded features of all images in the dataset.
-                 If None, they will be newly calculated, and returned
-                 for later usage.
-    k_shot - Number of examples per class in the support set.
+    Args:
+        model: Pretrained ProtoNet model
+        dataset: The dataset on which the test should be performed.
+                  Should be instance of ImageDataset
+        data_feats: The encoded features of all images in the dataset.
+                     If None, they will be newly calculated, and returned
+                     for later usage.
+        k_shot: Number of examples per class in the support set.
     """
     model = model.to(device)
     model.eval()
@@ -848,13 +850,14 @@ plt.close()
 # %%
 class ProtoMAML(L.LightningModule):
     def __init__(self, proto_dim, lr, lr_inner, lr_output, num_inner_steps):
-        """Inputs.
+        """ProtoMAML.
 
-        proto_dim - Dimensionality of prototype feature space
-        lr - Learning rate of the outer loop Adam optimizer
-        lr_inner - Learning rate of the inner loop SGD optimizer
-        lr_output - Learning rate for the output layer in the inner loop
-        num_inner_steps - Number of inner loop updates to perform
+        Args:
+            proto_dim: Dimensionality of prototype feature space
+            lr: Learning rate of the outer loop Adam optimizer
+            lr_inner: Learning rate of the inner loop SGD optimizer
+            lr_output: Learning rate for the output layer in the inner loop
+            num_inner_steps: Number of inner loop updates to perform
         """
         super().__init__()
         self.save_hyperparameters()
@@ -970,16 +973,16 @@ class TaskBatchSampler:
     def __init__(self, dataset_targets, batch_size, N_way, K_shot, include_query=False, shuffle=True):
         """Task Batch Sampler.
 
-        Inputs:
-            dataset_targets - PyTorch tensor of the labels of the data elements.
-            batch_size - Number of tasks to aggregate in a batch
-            N_way - Number of classes to sample per batch.
-            K_shot - Number of examples to sample per class in the batch.
-            include_query - If True, returns batch of size N_way*K_shot*2, which
+        Args:
+            dataset_targets: PyTorch tensor of the labels of the data elements.
+            batch_size: Number of tasks to aggregate in a batch
+            N_way: Number of classes to sample per batch.
+            K_shot: Number of examples to sample per class in the batch.
+            include_query: If True, returns batch of size N_way*K_shot*2, which
                             can be split into support and query set. Simplifies
                             the implementation of sampling the same classes but
                             distinct examples for support and query set.
-            shuffle - If True, examples and classes are newly shuffled in each
+            shuffle: If True, examples and classes are newly shuffled in each
                       iteration (for training)
         """
         super().__init__()
