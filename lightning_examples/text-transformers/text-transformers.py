@@ -1,10 +1,11 @@
 # %%
+from collections import defaultdict
 from datetime import datetime
 from typing import Optional
 
 import datasets
+import lightning as L
 import torch
-from pytorch_lightning import LightningDataModule, LightningModule, Trainer, seed_everything
 from torch.utils.data import DataLoader
 from transformers import (
     AdamW,
@@ -22,7 +23,7 @@ from transformers import (
 
 
 # %%
-class GLUEDataModule(LightningDataModule):
+class GLUEDataModule(L.LightningDataModule):
     task_text_field_map = {
         "cola": ["sentence"],
         "sst2": ["sentence"],
@@ -79,7 +80,7 @@ class GLUEDataModule(LightningDataModule):
         self.num_labels = self.glue_task_num_labels[task_name]
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name_or_path, use_fast=True)
 
-    def setup(self, stage: str):
+    def setup(self, stage=None):
         self.dataset = datasets.load_dataset("glue", self.task_name)
 
         for split in self.dataset.keys():
@@ -144,7 +145,7 @@ next(iter(dm.train_dataloader()))
 
 
 # %%
-class GLUETransformer(LightningModule):
+class GLUETransformer(L.LightningModule):
     def __init__(
         self,
         model_name_or_path: str,
@@ -168,6 +169,7 @@ class GLUETransformer(LightningModule):
         self.metric = datasets.load_metric(
             "glue", self.hparams.task_name, experiment_id=datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
         )
+        self.outputs = defaultdict(list)
 
     def forward(self, **inputs):
         return self.model(**inputs)
@@ -188,16 +190,16 @@ class GLUETransformer(LightningModule):
 
         labels = batch["labels"]
 
-        return {"loss": val_loss, "preds": preds, "labels": labels}
+        self.outputs[dataloader_idx].append({"loss": val_loss, "preds": preds, "labels": labels})
 
-    def validation_epoch_end(self, outputs):
+    def on_validation_epoch_end(self):
         if self.hparams.task_name == "mnli":
-            for i, output in enumerate(outputs):
+            for i, outputs in self.outputs.items():
                 # matched or mismatched
                 split = self.hparams.eval_splits[i].split("_")[-1]
-                preds = torch.cat([x["preds"] for x in output]).detach().cpu().numpy()
-                labels = torch.cat([x["labels"] for x in output]).detach().cpu().numpy()
-                loss = torch.stack([x["loss"] for x in output]).mean()
+                preds = torch.cat([x["preds"] for x in outputs]).detach().cpu().numpy()
+                labels = torch.cat([x["labels"] for x in outputs]).detach().cpu().numpy()
+                loss = torch.stack([x["loss"] for x in outputs]).mean()
                 self.log(f"val_loss_{split}", loss, prog_bar=True)
                 split_metrics = {
                     f"{k}_{split}": v for k, v in self.metric.compute(predictions=preds, references=labels).items()
@@ -205,11 +207,16 @@ class GLUETransformer(LightningModule):
                 self.log_dict(split_metrics, prog_bar=True)
             return loss
 
-        preds = torch.cat([x["preds"] for x in outputs]).detach().cpu().numpy()
-        labels = torch.cat([x["labels"] for x in outputs]).detach().cpu().numpy()
-        loss = torch.stack([x["loss"] for x in outputs]).mean()
+        flat_outputs = []
+        for lst in self.outputs.values():
+            flat_outputs.extend(lst)
+
+        preds = torch.cat([x["preds"] for x in flat_outputs]).detach().cpu().numpy()
+        labels = torch.cat([x["labels"] for x in flat_outputs]).detach().cpu().numpy()
+        loss = torch.stack([x["loss"] for x in flat_outputs]).mean()
         self.log("val_loss", loss, prog_bar=True)
         self.log_dict(self.metric.compute(predictions=preds, references=labels), prog_bar=True)
+        self.outputs.clear()
 
     def configure_optimizers(self):
         """Prepare optimizer and schedule (linear warmup and decay)"""
@@ -246,7 +253,7 @@ class GLUETransformer(LightningModule):
 # CoLA dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=cola)
 
 # %%
-seed_everything(42)
+L.seed_everything(42)
 
 dm = GLUEDataModule(model_name_or_path="albert-base-v2", task_name="cola")
 dm.setup("fit")
@@ -257,10 +264,10 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(
+trainer = L.Trainer(
     max_epochs=1,
     accelerator="auto",
-    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+    devices=1,
 )
 trainer.fit(model, datamodule=dm)
 
@@ -271,7 +278,7 @@ trainer.fit(model, datamodule=dm)
 # MRPC dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=mrpc)
 
 # %%
-seed_everything(42)
+L.seed_everything(42)
 
 dm = GLUEDataModule(
     model_name_or_path="distilbert-base-cased",
@@ -285,10 +292,10 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(
+trainer = L.Trainer(
     max_epochs=3,
     accelerator="auto",
-    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+    devices=1,
 )
 trainer.fit(model, datamodule=dm)
 
@@ -314,9 +321,9 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = Trainer(
+trainer = L.Trainer(
     max_epochs=3,
     accelerator="auto",
-    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+    devices=1,
 )
 trainer.validate(model, dm)

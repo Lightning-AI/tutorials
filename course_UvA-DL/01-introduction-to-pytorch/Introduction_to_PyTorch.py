@@ -25,18 +25,18 @@
 import time
 
 import matplotlib.pyplot as plt
+
+# %matplotlib inline
+import matplotlib_inline.backend_inline
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.utils.data as data
-
-# %matplotlib inline
-from IPython.display import set_matplotlib_formats
 from matplotlib.colors import to_rgba
 from torch import Tensor
 from tqdm.notebook import tqdm  # Progress bar
 
-set_matplotlib_formats("svg", "pdf")
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 
 # %% [markdown]
 # ## The Basics of PyTorch
@@ -185,7 +185,7 @@ print("X1 (after)", x1)
 print("X2 (after)", x2)
 
 # %% [markdown]
-# In-place operations are usually marked with a underscore postfix (e.g. "add_" instead of "add").
+# In-place operations are usually marked with a underscore postfix (for example `torch.add_` instead of `torch.add`).
 #
 # Another common operation aims at changing the shape of a tensor.
 # A tensor of size (2,3) can be re-organized to any other shape with the same number of elements (e.g. a tensor of size (6), or (3,2), ...).
@@ -455,7 +455,7 @@ if torch.cuda.is_available():
 
 # Additionally, some operations on a GPU are implemented stochastic for efficiency
 # We want to ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 # %% [markdown]
