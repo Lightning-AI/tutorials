@@ -2,11 +2,11 @@
 import os
 
 import torch
-from pytorch_lightning import LightningDataModule, LightningModule, seed_everything, Trainer
+from pytorch_lightning import LightningDataModule, LightningModule, Trainer, seed_everything
 from torch import nn
 from torch.nn import functional as F
 from torch.optim import Adam
-from torch.utils.data import DataLoader, random_split, Subset
+from torch.utils.data import DataLoader, Subset, random_split
 from torchvision import transforms
 from torchvision.datasets.mnist import MNIST
 
@@ -15,7 +15,7 @@ from torchvision.datasets.mnist import MNIST
 # data
 # ------------
 seed_everything(1234)
-PATH_DATASETS = os.environ.get('PATH_DATASETS', '.')
+PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 AVAIL_GPUS = min(1, torch.cuda.device_count())
 BATCH_SIZE = 256 if AVAIL_GPUS else 64
 NUM_WORKERS = int(os.cpu_count() / 2)
@@ -25,19 +25,18 @@ MAX_EPOCHS = 3
 
 
 class MNISTDataModule(LightningDataModule):
-
-    def __init__(
-        self, data_dir: str = PATH_DATASETS, batch_size: int = BATCH_SIZE, num_workers: int = NUM_WORKERS
-    ):
+    def __init__(self, data_dir: str = PATH_DATASETS, batch_size: int = BATCH_SIZE, num_workers: int = NUM_WORKERS):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.num_workers = num_workers
 
-        self.transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.1307, ), (0.3081, )),
-        ])
+        self.transform = transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Normalize((0.1307,), (0.3081,)),
+            ]
+        )
 
     def prepare_data(self):
         # download
@@ -83,7 +82,6 @@ mnist = MNISTDataModule()
 
 # %% id="x-34xKCI40yW"
 class LitAutoEncoder(LightningModule):
-
     def __init__(self, batch_size=32, lr=1e-3):
         super().__init__()
         self.encoder = nn.Sequential(nn.Linear(28 * 28, 64), nn.ReLU(), nn.Linear(64, 3))
@@ -102,7 +100,7 @@ class LitAutoEncoder(LightningModule):
         z = self.encoder(x)
         x_hat = self.decoder(z)
         loss = F.mse_loss(x_hat, x)
-        self.log('train_loss', loss)
+        self.log("train_loss", loss)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -111,7 +109,7 @@ class LitAutoEncoder(LightningModule):
         z = self.encoder(x)
         x_hat = self.decoder(z)
         loss = F.mse_loss(x_hat, x)
-        self.log('val_loss', loss)
+        self.log("val_loss", loss)
 
     def test_step(self, batch, batch_idx):
         x, y = batch
@@ -119,7 +117,7 @@ class LitAutoEncoder(LightningModule):
         z = self.encoder(x)
         x_hat = self.decoder(z)
         loss = F.mse_loss(x_hat, x)
-        self.log('test_loss', loss)
+        self.log("test_loss", loss)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
@@ -433,7 +431,7 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% id="idus3ZGahOki"
 # log all the GPUs (on master node only)
-trainer = Trainer(max_epochs=MAX_EPOCHS, log_gpu_memory='all')
+trainer = Trainer(max_epochs=MAX_EPOCHS, log_gpu_memory="all")
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
@@ -443,7 +441,7 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% id="SlvLJnWyhs7J"
 # log only the min and max memory on the master node
-trainer = Trainer(max_epochs=MAX_EPOCHS, log_gpu_memory='min_max')
+trainer = Trainer(max_epochs=MAX_EPOCHS, log_gpu_memory="min_max")
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
@@ -575,7 +573,7 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% id="OO-J0ISvlVCg"
 # dp = DataParallel
-trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=2, accelerator='dp')
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=2, accelerator="dp")
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
@@ -829,7 +827,7 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 # If you insist in using Apex, you can set the amp_backend flag to 'apex' and install Apex on your own.
 
 # %% id="BDV1trAUPc9h"
-trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=1, precision=16, amp_backend='apex')
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=1, precision=16, amp_backend="apex")
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
@@ -846,7 +844,7 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% id="FshMFPowNbWt"
 # default used by the Trainer
-trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=1, precision=16, amp_backend='apex', amp_level='O2')
+trainer = Trainer(max_epochs=MAX_EPOCHS, gpus=1, precision=16, amp_backend="apex", amp_level="O2")
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
@@ -874,7 +872,7 @@ trainer.tune(LitAutoEncoder(), datamodule=mnist)
 #
 
 # %% id="Qx0FbQrphgw1"
-trainer = Trainer(max_epochs=MAX_EPOCHS, auto_scale_batch_size='power')
+trainer = Trainer(max_epochs=MAX_EPOCHS, auto_scale_batch_size="power")
 
 trainer.tune(LitAutoEncoder(), datamodule=mnist)
 
@@ -884,7 +882,7 @@ trainer.tune(LitAutoEncoder(), datamodule=mnist)
 
 # %% id="QObXNs3yNrg9"
 # run batch size scaling, result overrides hparams.batch_size
-trainer = Trainer(max_epochs=MAX_EPOCHS, auto_scale_batch_size='binsearch')
+trainer = Trainer(max_epochs=MAX_EPOCHS, auto_scale_batch_size="binsearch")
 
 trainer.tune(LitAutoEncoder(), datamodule=mnist)
 
@@ -954,7 +952,6 @@ trainer = Trainer(max_epochs=MAX_EPOCHS, auto_lr_find=False)
 
 # %% id="wEb-vIMmPJQf"
 class LitModel(LightningModule):
-
     def __init__(self, learning_rate):
         self.learning_rate = learning_rate
 
@@ -973,7 +970,7 @@ trainer.tune(LitAutoEncoder(), datamodule=mnist)
 #
 
 # %% id="4LKI39IfPLJv"
-trainer = Trainer(max_epochs=MAX_EPOCHS, auto_lr_find='0.01')
+trainer = Trainer(max_epochs=MAX_EPOCHS, auto_lr_find="0.01")
 
 trainer.tune(LitAutoEncoder(), datamodule=mnist)
 
@@ -1070,7 +1067,7 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 # May be set to ‘inf’ infinity-norm.
 
 # %% id="g7TbD6SxlAjP"
-trainer = Trainer(max_epochs=MAX_EPOCHS, track_grad_norm='inf')
+trainer = Trainer(max_epochs=MAX_EPOCHS, track_grad_norm="inf")
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
@@ -1193,7 +1190,6 @@ from pytorch_lightning.callbacks import Callback
 
 
 class PrintCallback(Callback):
-
     def on_train_start(self, trainer, pl_module):
         print("Training is started!")
 
@@ -1245,7 +1241,7 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 # To change the checkpoint path pass in **default_root_dir=**
 
 # %% id="DgdxkrIQhvfw"
-trainer = Trainer(max_epochs=MAX_EPOCHS, default_root_dir='.')
+trainer = Trainer(max_epochs=MAX_EPOCHS, default_root_dir=".")
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
@@ -1271,7 +1267,7 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 # %% id="YzYMivw1rO1O"
 from pytorch_lightning.callbacks import ModelCheckpoint
 
-trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[ModelCheckpoint(monitor='val_loss')])
+trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[ModelCheckpoint(monitor="val_loss")])
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
@@ -1295,9 +1291,9 @@ checkpoint_callback = ModelCheckpoint(
     filepath=os.getcwd(),
     save_top_k=3,
     verbose=True,
-    monitor='val_loss',
-    mode='min',
-    prefix='',
+    monitor="val_loss",
+    mode="min",
+    prefix="",
 )
 
 trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[checkpoint_callback])
@@ -1341,7 +1337,6 @@ print(model.learning_rate)
 
 # %% id="IoMcOh9-kfUP"
 class LitAutoEncoder(LightningModule):
-
     def __init__(self, in_dim, out_dim):
         super().__init__()
         self.save_hyperparameters()
@@ -1387,15 +1382,15 @@ trainer.fit(model)
 
 # %% id="9OwHHFcCsrgT"
 # save to your custom path
-trainer = Trainer(max_epochs=MAX_EPOCHS, weights_save_path='.')
+trainer = Trainer(max_epochs=MAX_EPOCHS, weights_save_path=".")
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% id="PbNtlJ9Wsscf"
 # if checkpoint callback used, then overrides the weights path
 # **NOTE: this saves weights to some/path NOT my/path
-checkpoint = ModelCheckpoint(filepath='.')
-trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[checkpoint], weights_save_path='.')
+checkpoint = ModelCheckpoint(filepath=".")
+trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[checkpoint], weights_save_path=".")
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
 # %% [markdown] id="uDdxCuyHdWQt"
@@ -1414,7 +1409,7 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 # %% id="lFx976CheH93"
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
-trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[EarlyStopping('val_loss')])
+trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[EarlyStopping("val_loss")])
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
@@ -1425,9 +1420,7 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 # %% id="V6I9h6HteK2U"
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
-early_stop_callback = EarlyStopping(
-    monitor='val_accuracy', min_delta=0.00, patience=3, verbose=False, mode='max'
-)
+early_stop_callback = EarlyStopping(monitor="val_accuracy", min_delta=0.00, patience=3, verbose=False, mode="max")
 trainer = Trainer(max_epochs=MAX_EPOCHS, callbacks=[early_stop_callback])
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
@@ -1462,7 +1455,7 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 from pytorch_lightning.loggers import TensorBoardLogger
 
 # default logger used by trainer
-logger = TensorBoardLogger(save_dir=os.getcwd(), version=1, name='lightning_logs')
+logger = TensorBoardLogger(save_dir=os.getcwd(), version=1, name="lightning_logs")
 trainer = Trainer(max_epochs=MAX_EPOCHS, logger=logger)
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
@@ -1475,8 +1468,8 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 # %% id="BlYwMRRyivp_"
 from pytorch_lightning.loggers import TensorBoardLogger, TestTubeLogger
 
-logger1 = TensorBoardLogger('tb_logs', name='my_model')
-logger2 = TestTubeLogger('tb_logs', name='my_model')
+logger1 = TensorBoardLogger("tb_logs", name="my_model")
+logger2 = TestTubeLogger("tb_logs", name="my_model")
 trainer = Trainer(max_epochs=MAX_EPOCHS, logger=[logger1, logger2])
 
 # %% [markdown] id="a7EyspQPh7iQ"
@@ -1522,7 +1515,7 @@ trainer.fit(LitAutoEncoder(), datamodule=mnist)
 # %% id="KTl6EdwDs6j2"
 
 # print full summary of all modules and submodules
-trainer = Trainer(max_epochs=MAX_EPOCHS, weights_summary='full')
+trainer = Trainer(max_epochs=MAX_EPOCHS, weights_summary="full")
 
 trainer.fit(LitAutoEncoder(), datamodule=mnist)
 
