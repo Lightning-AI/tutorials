@@ -30,13 +30,13 @@ accelerator:
 - CPU
 - GPU
 environment:
-- ipython==8.11.0
-- pytorch-lightning==1.9.4
-- matplotlib==3.7.1
+- matplotlib==3.3.4
 - torchmetrics==0.11.4
-- lightning==2.0.0rc0
-- torch==1.13.1+cu116
-- setuptools==67.4.0
-- torchvision==0.14.1+cu116
+- torchvision==0.14.1
+- lightning==2.0.0
 - seaborn==0.12.2
-published: '2023-03-15T09:56:59.917974'
+- pytorch-lightning==1.9.4
+- ipython==8.11.0
+- setuptools==67.4.0
+- torch==1.13.1
+published: '2023-03-24T15:42:07.854427'
