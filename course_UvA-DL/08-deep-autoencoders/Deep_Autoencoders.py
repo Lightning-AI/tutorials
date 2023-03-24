@@ -131,7 +131,8 @@ def get_train_images(num):
 # %%
 class Encoder(nn.Module):
     def __init__(self, num_input_channels: int, base_channel_size: int, latent_dim: int, act_fn: object = nn.GELU):
-        """
+        """Encoder.
+
         Args:
            num_input_channels : Number of input channels of the image. For CIFAR, this parameter is 3
            base_channel_size : Number of channels we use in the first convolutional layers. Deeper layers might use a duplicate of it.
@@ -190,7 +191,8 @@ class Encoder(nn.Module):
 # %%
 class Decoder(nn.Module):
     def __init__(self, num_input_channels: int, base_channel_size: int, latent_dim: int, act_fn: object = nn.GELU):
-        """
+        """Decoder.
+
         Args:
            num_input_channels : Number of channels of the image to reconstruct. For CIFAR, this parameter is 3
            base_channel_size : Number of channels we use in the last convolutional layers. Early layers might use a duplicate of it.
@@ -263,7 +265,7 @@ class Autoencoder(L.LightningModule):
         return x_hat
 
     def _get_reconstruction_loss(self, batch):
-        """Given a batch of images, this function returns the reconstruction loss (MSE in our case)"""
+        """Given a batch of images, this function returns the reconstruction loss (MSE in our case)."""
         x, _ = batch  # We do not need the labels
         x_hat = self.forward(x)
         loss = F.mse_loss(x, x_hat, reduction="none")

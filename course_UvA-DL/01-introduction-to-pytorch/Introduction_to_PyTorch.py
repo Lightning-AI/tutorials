@@ -601,10 +601,11 @@ for name, param in model.named_parameters():
 
 class XORDataset(data.Dataset):
     def __init__(self, size, std=0.1):
-        """
-        Inputs:
-            size - Number of data points we want to generate
-            std - Standard deviation of the noise (see generate_continuous_xor function)
+        """XORDataset.
+
+        Args:
+            size: Number of data points we want to generate
+            std: Standard deviation of the noise (see generate_continuous_xor function)
         """
         super().__init__()
         self.size = size

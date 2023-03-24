@@ -21,10 +21,9 @@ PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 
 # %%
 class DQN(nn.Module):
-    """Simple MLP network."""
-
     def __init__(self, obs_size: int, n_actions: int, hidden_size: int = 128):
-        """
+        """Simple MLP network.
+
         Args:
             obs_size: observation/state size of the environment
             n_actions: number of discrete actions available in the environment
@@ -113,10 +112,9 @@ class RLDataset(IterableDataset):
 
 # %%
 class Agent:
-    """Base Agent class handeling the interaction with the environment."""
-
     def __init__(self, env: gym.Env, replay_buffer: ReplayBuffer) -> None:
-        """
+        """Base Agent class handeling the interaction with the environment.
+
         Args:
             env: training environment
             replay_buffer: replay buffer storing experiences
@@ -172,10 +170,13 @@ class Agent:
         Returns:
             reward, done
         """
-
         action = self.get_action(net, epsilon, device)
 
         # do step in the environment
+        # So, in the deprecated version of gym, the env.step() has 4 values unpacked which is
+        #     obs, reward, done, info = env.step(action)
+        # In the latest version of gym, the step() function returns back an additional variable which is truncated.
+        #     obs, reward, terminated, truncated, info = env.step(action)
         new_state, reward, done, _ = self.env.step(action)
 
         exp = Experience(self.state, action, reward, done, new_state)
@@ -194,8 +195,6 @@ class Agent:
 
 # %%
 class DQNLightning(LightningModule):
-    """Basic DQN Model."""
-
     def __init__(
         self,
         batch_size: int = 16,
@@ -211,7 +210,8 @@ class DQNLightning(LightningModule):
         episode_length: int = 200,
         warm_start_steps: int = 1000,
     ) -> None:
-        """
+        """Basic DQN Model.
+
         Args:
             batch_size: size of the batches")
             lr: learning rate

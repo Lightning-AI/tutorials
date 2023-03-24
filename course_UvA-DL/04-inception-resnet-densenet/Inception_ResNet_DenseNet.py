@@ -217,12 +217,13 @@ L.seed_everything(42)
 # %%
 class CIFARModule(L.LightningModule):
     def __init__(self, model_name, model_hparams, optimizer_name, optimizer_hparams):
-        """
-        Inputs:
-            model_name - Name of the model/CNN to run. Used for creating the model (see function below)
-            model_hparams - Hyperparameters for the model, as dictionary.
-            optimizer_name - Name of the optimizer to use. Currently supported: Adam, SGD
-            optimizer_hparams - Hyperparameters for the optimizer, as dictionary. This includes learning rate, weight decay, etc.
+        """CIFARModule.
+
+        Args:
+            model_name: Name of the model/CNN to run. Used for creating the model (see function below)
+            model_hparams: Hyperparameters for the model, as dictionary.
+            optimizer_name: Name of the optimizer to use. Currently supported: Adam, SGD
+            optimizer_hparams: Hyperparameters for the optimizer, as dictionary. This includes learning rate, weight decay, etc.
         """
         super().__init__()
         # Exports the hyperparameters to a YAML file, and create "self.hparams" namespace
@@ -337,10 +338,11 @@ act_fn_by_name = {"tanh": nn.Tanh, "relu": nn.ReLU, "leakyrelu": nn.LeakyReLU, "
 
 # %%
 def train_model(model_name, save_name=None, **kwargs):
-    """
-    Inputs:
-        model_name - Name of the model you want to run. Is used to look up the class in "model_dict"
-        save_name (optional) - If specified, this name will be used for creating the checkpoint and logging directory.
+    """Train model.
+
+    Args:
+        model_name: Name of the model you want to run. Is used to look up the class in "model_dict"
+        save_name (optional): If specified, this name will be used for creating the checkpoint and logging directory.
     """
     if save_name is None:
         save_name = model_name
@@ -417,12 +419,13 @@ def train_model(model_name, save_name=None, **kwargs):
 # %%
 class InceptionBlock(nn.Module):
     def __init__(self, c_in, c_red: dict, c_out: dict, act_fn):
-        """
-        Inputs:
-            c_in - Number of input feature maps from the previous layers
-            c_red - Dictionary with keys "3x3" and "5x5" specifying the output of the dimensionality reducing 1x1 convolutions
-            c_out - Dictionary with keys "1x1", "3x3", "5x5", and "max"
-            act_fn - Activation class constructor (e.g. nn.ReLU)
+        """InceptionBlock.
+
+        Args:
+            c_in: Number of input feature maps from the previous layers
+            c_red: Dictionary with keys "3x3" and "5x5" specifying the output of the dimensionality reducing 1x1 convolutions
+            c_out: Dictionary with keys "1x1", "3x3", "5x5", and "max"
+            act_fn: Activation class constructor (e.g. nn.ReLU)
         """
         super().__init__()
 
@@ -666,10 +669,11 @@ print("GoogleNet Results", googlenet_results)
 
 class ResNetBlock(nn.Module):
     def __init__(self, c_in, act_fn, subsample=False, c_out=-1):
-        """
-        Inputs:
-            c_in - Number of input features
-            act_fn - Activation class constructor (e.g. nn.ReLU)
+        """ResNetBlock.
+
+        Args:
+            c_in: Number of input features
+            act_fn: Activation class constructor (e.g. nn.ReLU)
             subsample - If True, we want to apply a stride inside the block and reduce the output shape by 2 in height and width
             c_out - Number of output features. Note that this is only relevant if subsample is True, as otherwise, c_out = c_in
         """
@@ -711,8 +715,9 @@ class ResNetBlock(nn.Module):
 # %%
 class PreActResNetBlock(nn.Module):
     def __init__(self, c_in, act_fn, subsample=False, c_out=-1):
-        """
-        Inputs:
+        """PreAct ResNet Block.
+
+        Args:
             c_in - Number of input features
             act_fn - Activation class constructor (e.g. nn.ReLU)
             subsample - If True, we want to apply a stride inside the block and reduce the output shape by 2 in height and width
@@ -780,8 +785,9 @@ class ResNet(nn.Module):
         block_name="ResNetBlock",
         **kwargs,
     ):
-        """
-        Inputs:
+        """ResNet.
+
+        Args:
             num_classes - Number of classification outputs (10 for CIFAR10)
             num_blocks - List with the number of ResNet blocks to use. The first block of each group uses downsampling, except the first.
             c_hidden - List with the hidden dimensionalities in the different blocks. Usually multiplied by 2 the deeper we go.
@@ -949,8 +955,9 @@ resnetpreact_model, resnetpreact_results = train_model(
 # %%
 class DenseLayer(nn.Module):
     def __init__(self, c_in, bn_size, growth_rate, act_fn):
-        """
-        Inputs:
+        """DenseLayer.
+
+        Args:
             c_in - Number of input channels
             bn_size - Bottleneck size (factor of growth rate) for the output of the 1x1 convolution. Typically between 2 and 4.
             growth_rate - Number of output channels of the 3x3 convolution
@@ -980,8 +987,9 @@ class DenseLayer(nn.Module):
 # %%
 class DenseBlock(nn.Module):
     def __init__(self, c_in, num_layers, bn_size, growth_rate, act_fn):
-        """
-        Inputs:
+        """Dense Block.
+
+        Args:
             c_in - Number of input channels
             num_layers - Number of dense layers to apply in the block
             bn_size - Bottleneck size to use in the dense layers
