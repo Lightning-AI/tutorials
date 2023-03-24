@@ -21,14 +21,14 @@ PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 
 # %%
 class DQN(nn.Module):
-    """Simple MLP network."""
 
     def __init__(self, obs_size: int, n_actions: int, hidden_size: int = 128):
-        """
+        """Simple MLP network.
+
         Args:
             obs_size: observation/state size of the environment
             n_actions: number of discrete actions available in the environment
-            hidden_size: size of hidden layers.
+            hidden_size: size of hidden layers
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -113,13 +113,13 @@ class RLDataset(IterableDataset):
 
 # %%
 class Agent:
-    """Base Agent class handeling the interaction with the environment."""
 
     def __init__(self, env: gym.Env, replay_buffer: ReplayBuffer) -> None:
-        """
+        """Base Agent class handeling the interaction with the environment.
+
         Args:
             env: training environment
-            replay_buffer: replay buffer storing experiences.
+            replay_buffer: replay buffer storing experiences
         """
         self.env = env
         self.replay_buffer = replay_buffer
@@ -193,7 +193,6 @@ class Agent:
 
 # %%
 class DQNLightning(LightningModule):
-    """Basic DQN Model."""
 
     def __init__(
         self,
@@ -210,7 +209,8 @@ class DQNLightning(LightningModule):
         episode_length: int = 200,
         warm_start_steps: int = 1000,
     ) -> None:
-        """
+        """Basic DQN Model.
+
         Args:
             batch_size: size of the batches")
             lr: learning rate
@@ -223,7 +223,7 @@ class DQNLightning(LightningModule):
             eps_start: starting value of epsilon
             eps_end: final value of epsilon
             episode_length: max length of an episode
-            warm_start_steps: max episode reward in the environment.
+            warm_start_steps: max episode reward in the environment
         """
         super().__init__()
         self.save_hyperparameters()

@@ -278,12 +278,13 @@ plt.show()
 # %%
 class BaseNetwork(nn.Module):
     def __init__(self, act_fn, input_size=784, num_classes=10, hidden_sizes=[512, 256, 256, 128]):
-        """
+        """Base Network
+
         Args:
             act_fn: Object of the activation function that should be used as non-linearity in the network.
             input_size: Size of the input images in pixels
             num_classes: Number of classes we want to predict
-            hidden_sizes: A list of integers specifying the hidden layer sizes in the NN.
+            hidden_sizes: A list of integers specifying the hidden layer sizes in the NN
         """
         super().__init__()
 
@@ -430,10 +431,11 @@ plt.close()
 
 # %%
 def visualize_gradients(net, color="C0"):
-    """
+    """Visualize gradients
+
     Args:
         net: Object of class BaseNetwork
-        color: Color in which we want to visualize the histogram (for easier separation of activation functions).
+        color: Color in which we want to visualize the histogram (for easier separation of activation functions)
     """
     net.eval()
     small_loader = data.DataLoader(train_set, batch_size=256, shuffle=False)

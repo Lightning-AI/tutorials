@@ -257,7 +257,8 @@ test_set = dataset_from_labels(cifar_all_images, cifar_all_targets, test_classes
 # %%
 class FewShotBatchSampler:
     def __init__(self, dataset_targets, N_way, K_shot, include_query=False, shuffle=True, shuffle_once=False):
-        """
+        """FewShot Batch Sampler
+
         Inputs:
             dataset_targets - PyTorch tensor of the labels of the data elements.
             N_way - Number of classes to sample per batch.
@@ -270,7 +271,7 @@ class FewShotBatchSampler:
                       iteration (for training)
             shuffle_once - If True, examples and classes are shuffled once in
                            the beginning, but kept constant across iterations
-                           (for validation).
+                           (for validation)
         """
         super().__init__()
         self.dataset_targets = dataset_targets
@@ -967,7 +968,8 @@ class ProtoMAML(L.LightningModule):
 # %%
 class TaskBatchSampler:
     def __init__(self, dataset_targets, batch_size, N_way, K_shot, include_query=False, shuffle=True):
-        """
+        """Task Batch Sampler
+
         Inputs:
             dataset_targets - PyTorch tensor of the labels of the data elements.
             batch_size - Number of tasks to aggregate in a batch
@@ -978,7 +980,7 @@ class TaskBatchSampler:
                             the implementation of sampling the same classes but
                             distinct examples for support and query set.
             shuffle - If True, examples and classes are newly shuffled in each
-                      iteration (for training).
+                      iteration (for training)
         """
         super().__init__()
         self.batch_sampler = FewShotBatchSampler(dataset_targets, N_way, K_shot, include_query, shuffle)

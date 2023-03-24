@@ -417,12 +417,13 @@ def train_model(model_name, save_name=None, **kwargs):
 # %%
 class InceptionBlock(nn.Module):
     def __init__(self, c_in, c_red: dict, c_out: dict, act_fn):
-        """
-        Inputs:
+        """InceptionBlock
+
+        Args:
             c_in - Number of input feature maps from the previous layers
             c_red - Dictionary with keys "3x3" and "5x5" specifying the output of the dimensionality reducing 1x1 convolutions
             c_out - Dictionary with keys "1x1", "3x3", "5x5", and "max"
-            act_fn - Activation class constructor (e.g. nn.ReLU).
+            act_fn - Activation class constructor (e.g. nn.ReLU)
         """
         super().__init__()
 
@@ -666,12 +667,13 @@ print("GoogleNet Results", googlenet_results)
 
 class ResNetBlock(nn.Module):
     def __init__(self, c_in, act_fn, subsample=False, c_out=-1):
-        """
+        """ResNetBlock
+
         Inputs:
             c_in - Number of input features
             act_fn - Activation class constructor (e.g. nn.ReLU)
             subsample - If True, we want to apply a stride inside the block and reduce the output shape by 2 in height and width
-            c_out - Number of output features. Note that this is only relevant if subsample is True, as otherwise, c_out = c_in.
+            c_out - Number of output features. Note that this is only relevant if subsample is True, as otherwise, c_out = c_in
         """
         super().__init__()
         if not subsample:
@@ -711,12 +713,13 @@ class ResNetBlock(nn.Module):
 # %%
 class PreActResNetBlock(nn.Module):
     def __init__(self, c_in, act_fn, subsample=False, c_out=-1):
-        """
+        """PreAct ResNet Block
+
         Inputs:
             c_in - Number of input features
             act_fn - Activation class constructor (e.g. nn.ReLU)
             subsample - If True, we want to apply a stride inside the block and reduce the output shape by 2 in height and width
-            c_out - Number of output features. Note that this is only relevant if subsample is True, as otherwise, c_out = c_in.
+            c_out - Number of output features. Note that this is only relevant if subsample is True, as otherwise, c_out = c_in
         """
         super().__init__()
         if not subsample:
@@ -780,13 +783,14 @@ class ResNet(nn.Module):
         block_name="ResNetBlock",
         **kwargs,
     ):
-        """
+        """ResNet
+
         Inputs:
             num_classes - Number of classification outputs (10 for CIFAR10)
             num_blocks - List with the number of ResNet blocks to use. The first block of each group uses downsampling, except the first.
             c_hidden - List with the hidden dimensionalities in the different blocks. Usually multiplied by 2 the deeper we go.
             act_fn_name - Name of the activation function to use, looked up in "act_fn_by_name"
-            block_name - Name of the ResNet block, looked up in "resnet_blocks_by_name".
+            block_name - Name of the ResNet block, looked up in "resnet_blocks_by_name"
         """
         super().__init__()
         assert block_name in resnet_blocks_by_name
@@ -949,12 +953,13 @@ resnetpreact_model, resnetpreact_results = train_model(
 # %%
 class DenseLayer(nn.Module):
     def __init__(self, c_in, bn_size, growth_rate, act_fn):
-        """
+        """DenseLayer
+
         Inputs:
             c_in - Number of input channels
             bn_size - Bottleneck size (factor of growth rate) for the output of the 1x1 convolution. Typically between 2 and 4.
             growth_rate - Number of output channels of the 3x3 convolution
-            act_fn - Activation class constructor (e.g. nn.ReLU).
+            act_fn - Activation class constructor (e.g. nn.ReLU)
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -980,13 +985,14 @@ class DenseLayer(nn.Module):
 # %%
 class DenseBlock(nn.Module):
     def __init__(self, c_in, num_layers, bn_size, growth_rate, act_fn):
-        """
+        """Dense Block
+
         Inputs:
             c_in - Number of input channels
             num_layers - Number of dense layers to apply in the block
             bn_size - Bottleneck size to use in the dense layers
             growth_rate - Growth rate to use in the dense layers
-            act_fn - Activation function to use in the dense layers.
+            act_fn - Activation function to use in the dense layers
         """
         super().__init__()
         layers = []

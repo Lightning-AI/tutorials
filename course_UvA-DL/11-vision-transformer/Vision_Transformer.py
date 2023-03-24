@@ -209,13 +209,14 @@ plt.close()
 # %%
 class AttentionBlock(nn.Module):
     def __init__(self, embed_dim, hidden_dim, num_heads, dropout=0.0):
-        """
+        """Attention Block
+
         Inputs:
             embed_dim - Dimensionality of input and attention feature vectors
             hidden_dim - Dimensionality of hidden layer in feed-forward network
                          (usually 2-4x larger than embed_dim)
             num_heads - Number of heads to use in the Multi-Head Attention block
-            dropout - Amount of dropout to apply in the feed-forward network.
+            dropout - Amount of dropout to apply in the feed-forward network
         """
         super().__init__()
 
@@ -268,7 +269,8 @@ class VisionTransformer(nn.Module):
         num_patches,
         dropout=0.0,
     ):
-        """
+        """Vision Transformer
+
         Inputs:
             embed_dim - Dimensionality of the input feature vectors to the Transformer
             hidden_dim - Dimensionality of the hidden layer in the feed-forward networks
@@ -280,7 +282,7 @@ class VisionTransformer(nn.Module):
             patch_size - Number of pixels that the patches have per dimension
             num_patches - Maximum number of patches an image can have
             dropout - Amount of dropout to apply in the feed-forward network and
-                      on the input encoding.
+                      on the input encoding
         """
         super().__init__()
 
