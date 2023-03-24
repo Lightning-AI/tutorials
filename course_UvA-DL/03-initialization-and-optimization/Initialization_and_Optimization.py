@@ -151,7 +151,8 @@ print(f"Minimum: {imgs.min().item():5.3f}")
 # %%
 class BaseNetwork(nn.Module):
     def __init__(self, act_fn, input_size=784, num_classes=10, hidden_sizes=[512, 256, 256, 128]):
-        """
+        """Base Network.
+
         Args:
             act_fn: Object of the activation function that should be used as non-linearity in the network.
             input_size: Size of the input images in pixels

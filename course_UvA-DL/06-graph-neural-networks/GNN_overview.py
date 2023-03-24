@@ -162,7 +162,8 @@ class GCNLayer(nn.Module):
         self.projection = nn.Linear(c_in, c_out)
 
     def forward(self, node_feats, adj_matrix):
-        """
+        """Forward.
+
         Args:
             node_feats: Tensor with node features of shape [batch_size, num_nodes, c_in]
             adj_matrix: Batch of adjacency matrices of the graph. If there is an edge from i to j,
@@ -317,7 +318,8 @@ class GATLayer(nn.Module):
         nn.init.xavier_uniform_(self.a.data, gain=1.414)
 
     def forward(self, node_feats, adj_matrix, print_attn_probs=False):
-        """
+        """Forward.
+
         Args:
             node_feats: Input features of the node. Shape: [batch_size, c_in]
             adj_matrix: Adjacency matrix including self-connections. Shape: [batch_size, num_nodes, num_nodes]
@@ -497,7 +499,8 @@ class GNNModel(nn.Module):
         dp_rate=0.1,
         **kwargs,
     ):
-        """
+        """GNNModel.
+
         Args:
             c_in: Dimension of input features
             c_hidden: Dimension of hidden features
@@ -523,7 +526,8 @@ class GNNModel(nn.Module):
         self.layers = nn.ModuleList(layers)
 
     def forward(self, x, edge_index):
-        """
+        """Forward.
+
         Args:
             x: Input features per node
             edge_index: List of vertex index pairs representing the edges in the graph (PyTorch geometric notation)
@@ -549,7 +553,8 @@ class GNNModel(nn.Module):
 # %%
 class MLPModel(nn.Module):
     def __init__(self, c_in, c_hidden, c_out, num_layers=2, dp_rate=0.1):
-        """
+        """MLPModel.
+
         Args:
             c_in: Dimension of input features
             c_hidden: Dimension of hidden features
@@ -567,7 +572,8 @@ class MLPModel(nn.Module):
         self.layers = nn.Sequential(*layers)
 
     def forward(self, x, *args, **kwargs):
-        """
+        """Forward.
+
         Args:
             x: Input features per node
         """
@@ -844,7 +850,8 @@ print("Batch indices:", batch.batch[:40])
 # %%
 class GraphGNNModel(nn.Module):
     def __init__(self, c_in, c_hidden, c_out, dp_rate_linear=0.5, **kwargs):
-        """
+        """GraphGNNModel.
+
         Args:
             c_in: Dimension of input features
             c_hidden: Dimension of hidden features
@@ -857,7 +864,8 @@ class GraphGNNModel(nn.Module):
         self.head = nn.Sequential(nn.Dropout(dp_rate_linear), nn.Linear(c_hidden, c_out))
 
     def forward(self, x, edge_index, batch_idx):
-        """
+        """Forward.
+
         Args:
             x: Input features per node
             edge_index: List of vertex index pairs representing the edges in the graph (PyTorch geometric notation)

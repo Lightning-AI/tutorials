@@ -463,7 +463,8 @@ class MultiheadAttention(nn.Module):
 # %%
 class EncoderBlock(nn.Module):
     def __init__(self, input_dim, num_heads, dim_feedforward, dropout=0.0):
-        """
+        """EncoderBlock.
+
         Args:
             input_dim: Dimensionality of the input
             num_heads: Number of heads to use in the attention block
@@ -572,8 +573,9 @@ class TransformerEncoder(nn.Module):
 # %%
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=5000):
-        """
-        Args
+        """Positional Encoding.
+
+        Args:
             d_model: Hidden dimensionality of the input.
             max_len: Maximum length of a sequence to expect.
         """
@@ -758,7 +760,8 @@ class TransformerPredictor(L.LightningModule):
         dropout=0.0,
         input_dropout=0.0,
     ):
-        """
+        """TransformerPredictor.
+
         Args:
             input_dim: Hidden dimensionality of the input
             model_dim: Hidden dimensionality to use inside the Transformer
