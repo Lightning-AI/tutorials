@@ -19,11 +19,11 @@ accelerator:
 - CPU
 - GPU
 environment:
-- torchmetrics==0.11.4
 - setuptools==67.4.0
-- lightning==2.0.0rc0
-- torch==1.12.1+cu116
+- lightning==2.0.0
+- matplotlib==3.3.4
+- torchmetrics==0.11.4
 - ipython==8.11.0
-- matplotlib==3.6.1
+- torch==1.12.1+cu116
 - pytorch-lightning==1.9.4
-published: '2023-03-15T09:49:05.476271'
+published: '2023-03-24T15:33:02.818196'
