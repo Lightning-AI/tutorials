@@ -2,26 +2,24 @@
 
 # ------------------- Preliminaries ------------------- #
 import os
-import pandas as pd
-
-import seaborn as sn
-from IPython.display import display
-
-from typing import Tuple
 from dataclasses import dataclass
+from typing import Tuple
 
-import torch
-from torch import nn
 import lightning as L
+import pandas as pd
+import seaborn as sn
+import torch
+from IPython.display import display
+from lightning.pytorch.loggers import CSVLogger
+from torch import nn
 from torch.nn import functional as F
+from torch.utils.data import DataLoader, random_split
 from torchmetrics import Accuracy
 from torchvision import transforms
 from torchvision.datasets import MNIST
-from torch.utils.data import DataLoader, random_split
-from lightning.pytorch.loggers import CSVLogger
-
 
 # ------------------- Configuration ------------------- #
+
 
 @dataclass
 class Config:
@@ -102,7 +100,6 @@ class MNISTModel(L.LightningModule):
 
         >>> trainer = pl.Trainer()
         >>> trainer.fit(model)
-
     """
 
     def __init__(self):
@@ -130,7 +127,7 @@ class MNISTModel(L.LightningModule):
 
         return activated
 
-    def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_nb: int):
+    def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_nb: int) -> torch.Tensor:
         """Defines a single training step for the model.
 
         Args:
@@ -467,7 +464,7 @@ trainer.fit(model)
 # test using the best saved checkpoint (conditioned on val_loss).
 
 # %%
-trainer.test(ckpt_path = "best")
+trainer.test(ckpt_path="best")
 
 # %% [markdown]
 # ### Bonus Tip
