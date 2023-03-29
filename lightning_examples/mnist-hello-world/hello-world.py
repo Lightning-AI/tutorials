@@ -321,9 +321,9 @@ class LitMNIST(L.LightningModule):
         """Defines a single training step for the MLP.
 
         Args:
-            batch (Tuple[torch.Tensor, torch.Tensor]): A tuple containing the input data and target labels.
+            batch: A tuple containing the input data and target labels.
             
-            batch_idx (int): The index of the current batch.
+            batch_idx: The index of the current batch.
 
         Returns:
             (torch.Tensor): The training loss.
