@@ -167,14 +167,16 @@ class MNISTModel(L.LightningModule):
 mnist_model = MNISTModel()
 
 # Init DataLoader from MNIST Dataset
-train_ds = MNIST(PATH_DATASETS, train=True, download=True, transform=transforms.ToTensor())
-train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE)
+train_ds = MNIST(config.data_dir, train=True, download=True, transform=transforms.ToTensor())
+
+# Create a dataloader
+train_loader = DataLoader(train_ds, batch_size=config.batch_size)
 
 # Initialize a trainer
 trainer = L.Trainer(
-    accelerator="auto",
-    devices=1,
-    max_epochs=3,
+    accelerator=config.accelerator,
+    devices=config.devices,
+    max_epochs=config.max_epochs,
 )
 
 # Train the model ⚡
