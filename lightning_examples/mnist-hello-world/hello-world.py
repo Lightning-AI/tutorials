@@ -320,7 +320,7 @@ class LitMNIST(L.LightningModule):
 
         Args:
             batch: A tuple containing the input data and target labels.
-            
+
             batch_idx: The index of the current batch.
 
         Returns:
