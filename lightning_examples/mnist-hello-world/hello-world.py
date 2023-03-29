@@ -1,18 +1,26 @@
 # %%
-import os
 
-import lightning as L
+# ------------------- Preliminaries ------------------- #
+import os
 import pandas as pd
+
 import seaborn as sn
-import torch
 from IPython.display import display
-from lightning.pytorch.loggers import CSVLogger
+
+from typing import Tuple
+from dataclasses import dataclass
+
+import torch
 from torch import nn
+import lightning as L
 from torch.nn import functional as F
-from torch.utils.data import DataLoader, random_split
 from torchmetrics import Accuracy
 from torchvision import transforms
 from torchvision.datasets import MNIST
+from torch.utils.data import DataLoader, random_split
+from lightning.pytorch.loggers import CSVLogger
+
+
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 BATCH_SIZE = 256 if torch.cuda.is_available() else 64
