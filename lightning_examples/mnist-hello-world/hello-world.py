@@ -74,20 +74,84 @@ config = Config()
 
 
 # %%
+
+
 class MNISTModel(L.LightningModule):
+    """
+    A PyTorch Lightning module for classifying images in the MNIST dataset.
+
+    Attributes:
+        l1 (torch.nn.Linear): A linear layer that maps input features to output features.
+
+    Methods:
+        forward(x: torch.Tensor) -> torch.Tensor:
+            Performs a forward pass through the model.
+
+        training_step(batch: Tuple[torch.Tensor, torch.Tensor], batch_nb: int) -> torch.Tensor:
+            Defines a single training step for the model.
+
+        configure_optimizers() -> torch.optim.Optimizer:
+            Configures the optimizer to use during training.
+
+    Examples:
+        The MNISTModel class can be used to create and train a PyTorch Lightning model for classifying images in the MNIST
+        dataset. To create a new instance of the model, simply instantiate the class:
+
+        >>> model = MNISTModel()
+
+        The model can then be trained using a PyTorch Lightning trainer object:
+
+        >>> trainer = pl.Trainer()
+        >>> trainer.fit(model)
+
+    """
+
     def __init__(self):
+        """
+        Initializes a new instance of the MNISTModel class.
+        """
         super().__init__()
         self.l1 = torch.nn.Linear(28 * 28, 10)
 
-    def forward(self, x):
-        return torch.relu(self.l1(x.view(x.size(0), -1)))
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Performs a forward pass through the model.
 
-    def training_step(self, batch, batch_nb):
+        Args:
+            x (torch.Tensor): The input tensor to pass through the model.
+
+        Returns:
+            activated (torch.Tensor): The output tensor produced by the model.
+        """
+
+        flattened = x.view(x.size(0), -1)
+        hidden = self.l1(flattened)
+        activated = torch.relu(hidden)
+
+        return activated
+
+    def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_nb: int) -> torch.Tensor:
+        """
+        Defines a single training step for the model.
+
+        Args:
+            batch (Tuple[torch.Tensor, torch.Tensor]): A tuple containing the input and target tensors for the batch.
+            batch_nb (int): The batch number.
+
+        Returns:
+            torch.Tensor: The loss value for the current batch.
+        """
         x, y = batch
         loss = F.cross_entropy(self(x), y)
         return loss
 
-    def configure_optimizers(self):
+    def configure_optimizers(self) -> torch.optim.Optimizer:
+        """
+        Configures the optimizer to use during training.
+
+        Returns:
+            torch.optim.Optimizer: The optimizer to use during training.
+        """
         return torch.optim.Adam(self.parameters(), lr=0.02)
 
 
