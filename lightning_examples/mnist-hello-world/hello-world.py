@@ -33,11 +33,11 @@ class Config:
 
         batch_size (int): The batch size to use during training. Defaults to 256 if a GPU is available,
             or 64 otherwise.
-        
+
         max_epochs (int): The maximum number of epochs to train the model for. Defaults to 3.
-        
+
         accelerator (str): The accelerator to use for training. Can be one of "cpu", "gpu", "tpu", "ipu", "auto".
-        
+
         devices (int): The number of devices to use for training. Defaults to 1.
 
     Examples:
@@ -58,7 +58,6 @@ class Config:
     max_epochs: int = 3
     accelerator: str = "auto"
     devices: int = 1
-
 
 
 config = Config()
@@ -160,7 +159,6 @@ class MNISTModel(L.LightningModule):
         return torch.optim.Adam(self.parameters(), lr=0.02)
 
 
-
 # %% [markdown]
 # By using the `Trainer` you automatically get:
 # 1. Tensorboard logging
@@ -224,39 +222,39 @@ class LitMNIST(L.LightningModule):
 
     Attributes:
         data_dir (str): The path to the directory where the MNIST data will be downloaded.
-        
+
         hidden_size (int): The number of units in the hidden layer of the MLP.
-        
+
         learning_rate (float): The learning rate to use for training the MLP.
 
     Methods:
         forward(x):
             Performs a forward pass through the MLP.
-        
+
         training_step(batch, batch_idx):
             Defines a single training step for the MLP.
-        
+
         validation_step(batch, batch_idx):
             Defines a single validation step for the MLP.
-        
+
         test_step(batch, batch_idx):
             Defines a single testing step for the MLP.
-        
+
         configure_optimizers():
             Configures the optimizer to use for training the MLP.
-        
+
         prepare_data():
             Downloads the MNIST dataset.
-        
+
         setup(stage=None):
             Splits the MNIST dataset into train, validation, and test sets.
-        
+
         train_dataloader():
             Returns a DataLoader for the training set.
-        
+
         val_dataloader():
             Returns a DataLoader for the validation set.
-        
+
         test_dataloader():
             Returns a DataLoader for the test set.
     """
@@ -266,9 +264,9 @@ class LitMNIST(L.LightningModule):
 
         Args:
             data_dir (str, optional): The path to the directory where the MNIST data will be downloaded. Defaults to config.data_dir.
-            
+
             hidden_size (int, optional): The number of units in the hidden layer of the MLP (default is 64).
-            
+
             learning_rate (float, optional): The learning rate to use for training the MLP (default is 2e-4).
         """
         super().__init__()
@@ -334,7 +332,6 @@ class LitMNIST(L.LightningModule):
         loss = F.nll_loss(logits, y)
         return loss
 
-
     def validation_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_nb: int) -> None:
         """Defines a single validation step for the MLP.
 
@@ -351,7 +348,6 @@ class LitMNIST(L.LightningModule):
         # Calling self.log will surface up scalars for you in TensorBoard
         self.log("val_loss", loss, prog_bar=True)
         self.log("val_acc", self.val_accuracy, prog_bar=True)
-
 
     def test_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_nb: int) -> None:
         """Defines a single testing step for the MLP.
@@ -370,7 +366,6 @@ class LitMNIST(L.LightningModule):
         self.log("test_loss", loss, prog_bar=True)
         self.log("test_acc", self.test_accuracy, prog_bar=True)
 
-
     def configure_optimizers(self) -> torch.optim.Optimizer:
         """Configures the optimizer to use for training the MLP.
 
@@ -381,7 +376,6 @@ class LitMNIST(L.LightningModule):
 
         return optimizer
 
-
     # ------------------------------------- #
     # DATA RELATED HOOKS
     # ------------------------------------- #
@@ -391,7 +385,6 @@ class LitMNIST(L.LightningModule):
         MNIST(self.data_dir, train=True, download=True)
 
         MNIST(self.data_dir, train=False, download=True)
-
 
     def setup(self, stage: str = None) -> None:
         """Splits the MNIST dataset into train, validation, and test sets.
@@ -409,7 +402,6 @@ class LitMNIST(L.LightningModule):
         if stage == "test" or stage is None:
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
-
     def train_dataloader(self) -> DataLoader:
         """Returns a DataLoader for the training set.
 
@@ -418,7 +410,6 @@ class LitMNIST(L.LightningModule):
         """
 
         return DataLoader(self.mnist_train, batch_size=config.batch_size)
-
 
     def val_dataloader(self) -> DataLoader:
         """Returns a DataLoader for the validation set.
@@ -429,7 +420,6 @@ class LitMNIST(L.LightningModule):
 
         return DataLoader(self.mnist_val, batch_size=config.batch_size)
 
-
     def test_dataloader(self) -> DataLoader:
         """Returns a DataLoader for the test set.
 
@@ -437,7 +427,6 @@ class LitMNIST(L.LightningModule):
             DataLoader: The test DataLoader.
         """
         return DataLoader(self.mnist_test, batch_size=config.batch_size)
-
 
 
 # %%
