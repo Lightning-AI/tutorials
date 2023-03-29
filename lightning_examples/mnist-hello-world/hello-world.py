@@ -497,7 +497,7 @@ trainer.fit(model)
 # test using the best saved checkpoint (conditioned on val_loss).
 
 # %%
-trainer.test()
+trainer.test(ckpt_path = "best")
 
 # %% [markdown]
 # ### Bonus Tip
