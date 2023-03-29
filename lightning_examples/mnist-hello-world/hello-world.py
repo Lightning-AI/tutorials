@@ -2,31 +2,28 @@
 
 # ------------------- Preliminaries ------------------- #
 import os
-import pandas as pd
-
-import seaborn as sn
-from IPython.display import display
-
-from typing import Tuple
 from dataclasses import dataclass
+from typing import Tuple
 
-import torch
-from torch import nn
 import lightning as L
+import pandas as pd
+import seaborn as sn
+import torch
+from IPython.display import display
+from lightning.pytorch.loggers import CSVLogger
+from torch import nn
 from torch.nn import functional as F
+from torch.utils.data import DataLoader, random_split
 from torchmetrics import Accuracy
 from torchvision import transforms
 from torchvision.datasets import MNIST
-from torch.utils.data import DataLoader, random_split
-from lightning.pytorch.loggers import CSVLogger
-
 
 # ------------------- Configuration ------------------- #
 
+
 @dataclass
 class Config:
-    """
-    Configuration options for the Lightning MNIST example.
+    """Configuration options for the Lightning MNIST example.
 
     Attributes:
         data_dir (str): The path to the directory where the MNIST dataset is stored. Defaults to the value of
@@ -77,8 +74,7 @@ config = Config()
 
 
 class MNISTModel(L.LightningModule):
-    """
-    A PyTorch Lightning module for classifying images in the MNIST dataset.
+    """A PyTorch Lightning module for classifying images in the MNIST dataset.
 
     Attributes:
         l1 (torch.nn.Linear): A linear layer that maps input features to output features.
@@ -103,19 +99,15 @@ class MNISTModel(L.LightningModule):
 
         >>> trainer = pl.Trainer()
         >>> trainer.fit(model)
-
     """
 
     def __init__(self):
-        """
-        Initializes a new instance of the MNISTModel class.
-        """
+        """Initializes a new instance of the MNISTModel class."""
         super().__init__()
         self.l1 = torch.nn.Linear(28 * 28, 10)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Performs a forward pass through the model.
+        """Performs a forward pass through the model.
 
         Args:
             x (torch.Tensor): The input tensor to pass through the model.
@@ -131,8 +123,7 @@ class MNISTModel(L.LightningModule):
         return activated
 
     def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_nb: int) -> torch.Tensor:
-        """
-        Defines a single training step for the model.
+        """Defines a single training step for the model.
 
         Args:
             batch (Tuple[torch.Tensor, torch.Tensor]): A tuple containing the input and target tensors for the batch.
@@ -146,8 +137,7 @@ class MNISTModel(L.LightningModule):
         return loss
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
-        """
-        Configures the optimizer to use during training.
+        """Configures the optimizer to use during training.
 
         Returns:
             torch.optim.Optimizer: The optimizer to use during training.
@@ -214,8 +204,7 @@ trainer.fit(mnist_model, train_loader)
 
 
 class LitMNIST(L.LightningModule):
-    """
-    PyTorch Lightning module for training a multi-layer perceptron (MLP) on the MNIST dataset.
+    """PyTorch Lightning module for training a multi-layer perceptron (MLP) on the MNIST dataset.
 
     Attributes
     ----------
@@ -262,8 +251,7 @@ class LitMNIST(L.LightningModule):
     """
 
     def __init__(self, data_dir: str = config.data_dir, hidden_size: int = 64, learning_rate: float = 2e-4):
-        """
-        Initializes a new instance of the LitMNIST class.
+        """Initializes a new instance of the LitMNIST class.
 
         Parameters
         ----------
@@ -312,8 +300,7 @@ class LitMNIST(L.LightningModule):
         self.test_accuracy = Accuracy(task="multiclass", num_classes=10)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Performs a forward pass through the MLP.
+        """Performs a forward pass through the MLP.
 
         Parameters
         ----------
@@ -329,8 +316,7 @@ class LitMNIST(L.LightningModule):
         return F.log_softmax(x, dim=1)
 
     def training_step(self, batch, batch_idx) -> torch.Tensor:
-        """
-        Defines a single training step for the MLP.
+        """Defines a single training step for the MLP.
 
         Parameters
         ----------
@@ -351,8 +337,7 @@ class LitMNIST(L.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx) -> None:
-        """
-        Defines a single validation step for the MLP.
+        """Defines a single validation step for the MLP.
 
         Parameters
         ----------
@@ -372,8 +357,7 @@ class LitMNIST(L.LightningModule):
         self.log("val_acc", self.val_accuracy, prog_bar=True)
 
     def test_step(self, batch, batch_idx) -> None:
-        """
-        Defines a single testing step for the MLP.
+        """Defines a single testing step for the MLP.
 
         Parameters
         ----------
@@ -393,8 +377,7 @@ class LitMNIST(L.LightningModule):
         self.log("test_acc", self.test_accuracy, prog_bar=True)
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
-        """
-        Configures the optimizer to use for training the MLP.
+        """Configures the optimizer to use for training the MLP.
 
         Returns
         -------
@@ -410,16 +393,13 @@ class LitMNIST(L.LightningModule):
     # ------------------------------------- #
 
     def prepare_data(self) -> None:
-        """
-        Downloads the MNIST dataset.
-        """
+        """Downloads the MNIST dataset."""
         MNIST(self.data_dir, train=True, download=True)
 
         MNIST(self.data_dir, train=False, download=True)
 
     def setup(self, stage: str = None) -> None:
-        """
-        Splits the MNIST dataset into train, validation, and test sets.
+        """Splits the MNIST dataset into train, validation, and test sets.
 
         Parameters
         ----------
@@ -438,8 +418,7 @@ class LitMNIST(L.LightningModule):
             self.mnist_test = MNIST(self.data_dir, train=False, transform=self.transform)
 
     def train_dataloader(self) -> DataLoader:
-        """
-        Returns a DataLoader for the training set.
+        """Returns a DataLoader for the training set.
 
         Returns
         -------
@@ -450,8 +429,7 @@ class LitMNIST(L.LightningModule):
         return DataLoader(self.mnist_train, batch_size=config.batch_size)
 
     def val_dataloader(self) -> DataLoader:
-        """
-        Returns a DataLoader for the validation set.
+        """Returns a DataLoader for the validation set.
 
         Returns
         -------
@@ -462,8 +440,7 @@ class LitMNIST(L.LightningModule):
         return DataLoader(self.mnist_val, batch_size=config.batch_size)
 
     def test_dataloader(self) -> DataLoader:
-        """
-        Returns a DataLoader for the test set.
+        """Returns a DataLoader for the test set.
 
         Returns
         -------
@@ -497,7 +474,7 @@ trainer.fit(model)
 # test using the best saved checkpoint (conditioned on val_loss).
 
 # %%
-trainer.test(ckpt_path = "best")
+trainer.test(ckpt_path="best")
 
 # %% [markdown]
 # ### Bonus Tip
