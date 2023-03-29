@@ -474,13 +474,18 @@ class LitMNIST(L.LightningModule):
 
 
 # %%
+# Instantiate the LitMNIST model
 model = LitMNIST()
+
+# Instantiate a PyTorch Lightning trainer with the specified configuration
 trainer = L.Trainer(
-    accelerator="auto",
-    devices=1,
-    max_epochs=3,
-    logger=CSVLogger(save_dir="logs/"),
+    accelerator=config.accelerator,
+    devices=config.devices,
+    max_epochs=config.max_epochs,
+    logger=CSVLogger(save_dir=config.save_dir),
 )
+
+# Train the model using the trainer
 trainer.fit(model)
 
 # %% [markdown]
