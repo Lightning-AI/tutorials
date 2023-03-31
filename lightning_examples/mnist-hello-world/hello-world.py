@@ -26,19 +26,19 @@ class Config:
     """Configuration options for the Lightning MNIST example.
 
     Args:
-        data_dir (str): The path to the directory where the MNIST dataset is stored. Defaults to the value of
+        data_dir : The path to the directory where the MNIST dataset is stored. Defaults to the value of
             the 'PATH_DATASETS' environment variable or '.' if not set.
 
-        save_dir (str): The path to the directory where the training logs will be saved. Defaults to 'logs/'.
+        save_dir : The path to the directory where the training logs will be saved. Defaults to 'logs/'.
 
-        batch_size (int): The batch size to use during training. Defaults to 256 if a GPU is available,
+        batch_size : The batch size to use during training. Defaults to 256 if a GPU is available,
             or 64 otherwise.
 
-        max_epochs (int): The maximum number of epochs to train the model for. Defaults to 3.
+        max_epochs : The maximum number of epochs to train the model for. Defaults to 3.
 
-        accelerator (str): The accelerator to use for training. Can be one of "cpu", "gpu", "tpu", "ipu", "auto".
+        accelerator : The accelerator to use for training. Can be one of "cpu", "gpu", "tpu", "ipu", "auto".
 
-        devices (int): The number of devices to use for training. Defaults to 1.
+        devices : The number of devices to use for training. Defaults to 1.
 
     Examples:
         This dataclass can be used to specify the configuration options for training a PyTorch Lightning model on the
@@ -77,7 +77,7 @@ class MNISTModel(L.LightningModule):
     """A PyTorch Lightning module for classifying images in the MNIST dataset.
 
     Attributes:
-        l1 (torch.nn.Linear): A linear layer that maps input features to output features.
+        l1 : A linear layer that maps input features to output features.
 
     Methods:
         forward(x):
@@ -110,10 +110,10 @@ class MNISTModel(L.LightningModule):
         """Performs a forward pass through the model.
 
         Args:
-            x (torch.Tensor): The input tensor to pass through the model.
+            x : The input tensor to pass through the model.
 
         Returns:
-            activated (torch.Tensor): The output tensor produced by the model.
+            activated : The output tensor produced by the model.
 
         Examples:
             >>> model = MNISTModel()
@@ -221,11 +221,11 @@ class LitMNIST(L.LightningModule):
     """PyTorch Lightning module for training a multi-layer perceptron (MLP) on the MNIST dataset.
 
     Attributes:
-        data_dir (str): The path to the directory where the MNIST data will be downloaded.
+        data_dir : The path to the directory where the MNIST data will be downloaded.
 
-        hidden_size (int): The number of units in the hidden layer of the MLP.
+        hidden_size : The number of units in the hidden layer of the MLP.
 
-        learning_rate (float): The learning rate to use for training the MLP.
+        learning_rate : The learning rate to use for training the MLP.
 
     Methods:
         forward(x):
@@ -263,11 +263,11 @@ class LitMNIST(L.LightningModule):
         """Initializes a new instance of the LitMNIST class.
 
         Args:
-            data_dir (str, optional): The path to the directory where the MNIST data will be downloaded. Defaults to config.data_dir.
+            data_dir : The path to the directory where the MNIST data will be downloaded. Defaults to config.data_dir.
 
-            hidden_size (int, optional): The number of units in the hidden layer of the MLP (default is 64).
+            hidden_size : The number of units in the hidden layer of the MLP (default is 64).
 
-            learning_rate (float, optional): The learning rate to use for training the MLP (default is 2e-4).
+            learning_rate : The learning rate to use for training the MLP (default is 2e-4).
         """
         super().__init__()
 
@@ -307,7 +307,7 @@ class LitMNIST(L.LightningModule):
         """Performs a forward pass through the MLP.
 
         Args:
-            x (torch.Tensor): The input data.
+            x : The input data.
 
         Returns:
             torch.Tensor: The output of the MLP.
@@ -390,7 +390,7 @@ class LitMNIST(L.LightningModule):
         """Splits the MNIST dataset into train, validation, and test sets.
 
         Args:
-            stage (str, optional): The current stage (either "fit" or "test"). Defaults to None.
+            stage : The current stage (either "fit" or "test"). Defaults to None.
         """
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
