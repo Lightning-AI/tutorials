@@ -141,6 +141,7 @@ class ActivationFunction(nn.Module):
 # Both the sigmoid and tanh activation can be also found as PyTorch functions (`torch.sigmoid`, `torch.tanh`) or as modules (`nn.Sigmoid`, `nn.Tanh`).
 # Here, we implement them by hand:
 
+
 # %%
 class Sigmoid(ActivationFunction):
     def forward(self, x):
@@ -165,6 +166,7 @@ class Tanh(ActivationFunction):
 # If interested, a more detailed discussion of the benefits of Swish can be found in [this paper](https://arxiv.org/abs/1710.05941) [1].
 #
 # Let's implement the four activation functions below:
+
 
 # %%
 class ReLU(ActivationFunction):
