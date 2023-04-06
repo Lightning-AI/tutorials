@@ -481,7 +481,7 @@ optimizer_init = {"weight_decay": 1e-05, "eps": 1e-07, "lr": 1e-05}
 # justified [(Loshchilov & Hutter, 2016)](#f4), the particular values provided here are primarily empircally driven.
 #
 # [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) also supports LR scheduler
-# reinitialization in both explicit and implicit finetuning schedule modes. See the [advanced usage documentation](https://finetuning-scheduler.readthedocs.io/en/stable/advanced/lr_scheduler_reinitialization.html) for explanations and demonstration of the extension's support for more complex requirements.
+# reinitialization in both explicit and implicit finetuning schedule modes. See the advanced usage documentation ([LR scheduler reinitialization](https://finetuning-scheduler.readthedocs.io/en/stable/advanced/lr_scheduler_reinitialization.html), [optimizer reinitialization](https://finetuning-scheduler.readthedocs.io/en/stable/advanced/optimizer_reinitialization.html)) for explanations and demonstration of the extension's support for more complex requirements.
 # </div>
 
 
