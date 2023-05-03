@@ -141,6 +141,7 @@ class ActivationFunction(nn.Module):
 # Both the sigmoid and tanh activation can be also found as PyTorch functions (`torch.sigmoid`, `torch.tanh`) or as modules (`nn.Sigmoid`, `nn.Tanh`).
 # Here, we implement them by hand:
 
+
 # %%
 class Sigmoid(ActivationFunction):
     def forward(self, x):
@@ -165,6 +166,7 @@ class Tanh(ActivationFunction):
 # If interested, a more detailed discussion of the benefits of Swish can be found in [this paper](https://arxiv.org/abs/1710.05941) [1].
 #
 # Let's implement the four activation functions below:
+
 
 # %%
 class ReLU(ActivationFunction):
@@ -213,6 +215,7 @@ def get_grads(act_fn, x):
     Args:
         act_fn: An object of the class "ActivationFunction" with an implemented forward pass.
         x: 1D input tensor.
+
     Returns:
         A tensor with the same size of x containing the gradients of act_fn at x.
     """
@@ -277,7 +280,8 @@ plt.show()
 # %%
 class BaseNetwork(nn.Module):
     def __init__(self, act_fn, input_size=784, num_classes=10, hidden_sizes=[512, 256, 256, 128]):
-        """
+        """Base Network.
+
         Args:
             act_fn: Object of the activation function that should be used as non-linearity in the network.
             input_size: Size of the input images in pixels
@@ -429,7 +433,8 @@ plt.close()
 
 # %%
 def visualize_gradients(net, color="C0"):
-    """
+    """Visualize gradients.
+
     Args:
         net: Object of class BaseNetwork
         color: Color in which we want to visualize the histogram (for easier separation of activation functions)
