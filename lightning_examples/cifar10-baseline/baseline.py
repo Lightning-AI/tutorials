@@ -173,7 +173,7 @@ class LitResnet(L.LightningModule):
 model = LitResnet(lr=0.05)
 
 trainer = L.Trainer(
-    max_epochs=20,
+    max_epochs=10,
     accelerator="auto",
     devices=1,
     logger=CSVLogger(save_dir="logs/"),
