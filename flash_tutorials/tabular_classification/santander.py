@@ -12,14 +12,11 @@
 
 import os
 
-import flash
-import matplotlib.pyplot as plt
 import pandas as pd
 import torch
 import torchmetrics
 from flash import Trainer
 from flash.core.classification import LabelsOutput
-from flash.core.data.utils import download_data
 from flash.tabular.classification import TabularClassificationData, TabularClassifier
 from imblearn.over_sampling import SMOTE
 from pytorch_lightning.utilities.seed import seed_everything
