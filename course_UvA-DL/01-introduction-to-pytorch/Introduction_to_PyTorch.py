@@ -801,7 +801,6 @@ def train_model(model, optimizer, data_loader, loss_module, num_epochs=100):
     # Training loop
     for epoch in tqdm(range(num_epochs)):
         for data_inputs, data_labels in data_loader:
-
             # Step 1: Move input data to device (only strictly necessary if we use GPU)
             data_inputs = data_inputs.to(device)
             data_labels = data_labels.to(device)
@@ -898,7 +897,6 @@ def eval_model(model, data_loader):
 
     with torch.no_grad():  # Deactivate gradients for the following code
         for data_inputs, data_labels in data_loader:
-
             # Determine prediction of model on dev set
             data_inputs, data_labels = data_inputs.to(device), data_labels.to(device)
             preds = model(data_inputs)
