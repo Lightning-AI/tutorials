@@ -14,36 +14,35 @@ concurrency:
 
 jobs:
   build-docs:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       PUB_BRANCH: publication
       PATH_DATASETS: ${{ github.workspace }}/.datasets
     timeout-minutes: 20
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0  # fetch all history for all branches and tags
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: 3.8
 
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('docs/requirements.txt') }}
-          restore-keys: ${{ runner.os }}-pip-
+          key: pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('_requirements/docs.txt') }}
+          restore-keys: pip-
 
       - name: Install dependencies
         run: |
+          sudo apt-get update --fix-missing
+          sudo apt-get install -y tree
           # install Texlive, see https://linuxconfig.org/how-to-install-latex-on-ubuntu-20-04-focal-fossa-linux
-          sudo apt-get update
-          sudo apt-get install -y cmake pandoc
-          sudo apt-get install -y texlive-latex-extra dvipng texlive-pictures
+          sudo apt-get install -y cmake pandoc texlive-latex-extra dvipng texlive-pictures
           pip --version
-          pip install --quiet --requirement requirements.txt
-          pip install --quiet --requirement docs/requirements.txt
+          pip install -q -r requirements.txt -r _requirements/docs.txt
           pip list
         shell: bash
 
@@ -59,17 +58,17 @@ jobs:
 
       - name: ">> output"
         id: changed
-        run: python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=dirs::{len(lines)}')"
+        run: python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=nb_dirs::{len(lines)}')"
+
       - uses: oleksiyrudenko/gha-git-credentials@v2.1
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           global: true
-
       - name: Sync to pub
         run: git merge -s resolve origin/$PUB_BRANCH
 
-      - name: Generate notebook
-        if: steps.changed.outputs.dirs != 0
+      - name: Generate notebooks
+        if: steps.changed.outputs.nb_dirs != 0
         run: |
           while IFS= read -r line; do
               python .actions/assistant.py convert-ipynb $line
@@ -81,16 +80,37 @@ jobs:
           DRY_RUN: 1
         shell: bash
 
-      - name: Make Documentation
-        working-directory: ./docs
+      - name: Copy notebooks
+        if: steps.changed.outputs.nb_dirs != 0
         run: |
-          # First run the same pipeline as Read-The-Docs
-          make html --debug SPHINXOPTS="-W --keep-going" -b linkcheck
+          while IFS= read -r line; do
+              dir=$(dirname $line)
+              mkdir -p changed-notebooks/${dir}
+              cp .notebooks/${line}.ipynb changed-notebooks/${dir}/
+          done <<< $(cat changed-folders.txt)
+          tree changed-notebooks
+        shell: bash
+
+      - uses: actions/upload-artifact@v3
+        if: steps.changed.outputs.nb_dirs != 0
+        with:
+          name: notebooks-${{ github.sha }}
+          path: changed-notebooks/
+
+      - name: Make Documentation
+        working-directory: ./_docs
+        run: make html --debug SPHINXOPTS="-W --keep-going"
+
+      - name: Check External Links (Optional)
+        working-directory: ./_docs
+        run: make --jobs $(nproc) linkcheck
+        # ToDO: comment on PR if any link failed
+        continue-on-error: true
 
       - name: Upload built docs
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: docs-results-${{ github.sha }}
-          path: docs/build/html/
+          name: docs-html-${{ github.sha }}
+          path: _docs/build/html/
         # Use always() to always run this step to publish test results when there are test failures
         if: success()

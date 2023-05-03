@@ -1,0 +1,18 @@
+name: General checks
+
+on:
+  push:
+    branches:
+      - "*"
+      - "**"
+      - "!publication"
+  pull_request: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.head_ref }}
+  cancel-in-progress: ${{ ! (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/release/')) }}
+
+jobs:
+
+  check-schema:
+    uses: Lightning-AI/utilities/.github/workflows/check-schema.yml@v0.8.0

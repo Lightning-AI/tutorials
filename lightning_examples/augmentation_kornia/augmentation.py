@@ -1,6 +1,7 @@
 # %%
 import os
 
+import lightning as L
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -9,12 +10,10 @@ import torch
 import torch.nn as nn
 import torchmetrics
 import torchvision
-from IPython.core.display import display
+from IPython.display import display
 from kornia import image_to_tensor, tensor_to_image
 from kornia.augmentation import ColorJitter, RandomChannelShuffle, RandomHorizontalFlip, RandomThinPlateSpline
-from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.callbacks.progress import TQDMProgressBar
-from pytorch_lightning.loggers import CSVLogger
+from lightning.pytorch.loggers import CSVLogger
 from torch import Tensor
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
@@ -25,7 +24,7 @@ sn.set()
 # %% [markdown]
 # ## Define Data Augmentations module
 #
-# [Kornia.org](https://www.kornia.org) is low level Computer Vision library that provides a dedicated module
+# [Kornia](https://github.com/kornia/kornia) is low level Computer Vision library that provides a dedicated module
 # [`kornia.augmentation`](https://kornia.readthedocs.io/en/latest/augmentation.html) module implementing
 # en extensive set of data augmentation techniques for image and video.
 #
@@ -34,7 +33,7 @@ sn.set()
 # where the augmentation_kornia (also subclassing `nn.Module`) are combined with other PyTorch components
 # such as `nn.Sequential`.
 #
-# Checkout the different augmentation operators in Kornia docs and experiment yourself !
+# Checkout the different augmentation operators in Kornia docs and experiment yourself!
 
 
 # %%
@@ -99,15 +98,15 @@ class Preprocess(nn.Module):
 
 
 # %%
-class CoolSystem(LightningModule):
+class CoolSystem(L.LightningModule):
     def __init__(self):
         super().__init__()
         # not the best model: expereiment yourself
         self.model = torchvision.models.resnet18(pretrained=True)
         self.preprocess = Preprocess()  # per sample transforms
         self.transform = DataAugmentation()  # per batch augmentation_kornia
-        self.train_accuracy = torchmetrics.Accuracy()
-        self.val_accuracy = torchmetrics.Accuracy()
+        self.train_accuracy = torchmetrics.Accuracy(task="multiclass", num_classes=1000)
+        self.val_accuracy = torchmetrics.Accuracy(task="multiclass", num_classes=1000)
 
     def forward(self, x):
         return self.model(x)
@@ -186,10 +185,9 @@ model.show_batch(win_size=(14, 14))
 
 # %%
 # Initialize a trainer
-trainer = Trainer(
-    callbacks=[TQDMProgressBar(refresh_rate=20)],
+trainer = L.Trainer(
     accelerator="auto",
-    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+    devices=1,
     max_epochs=10,
     logger=CSVLogger(save_dir="logs/"),
 )

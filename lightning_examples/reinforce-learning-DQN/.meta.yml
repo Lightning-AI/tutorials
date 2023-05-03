@@ -13,10 +13,11 @@ description: |
   2. Handle unsupervised learning by using an IterableDataset where the dataset itself is constantly updated during training
   3. Each training step carries has the agent taking an action in the environment and storing the experience in the IterableDataset
 requirements:
-  - gym
+  - gym <0.24
   - pygame
   - pandas
   - seaborn
+  - lightning>=2.0.0rc0
 accelerator:
   - CPU
   - GPU

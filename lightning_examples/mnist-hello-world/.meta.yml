@@ -1,17 +1,19 @@
-title: Introduction to Pytorch Lightning
+title: Introduction to PyTorch Lightning
 author: PL team
 created: 2020-12-21
-updated: 2021-06-16
+updated: 2023-05-15
 license: CC BY-SA
-build: 4
+build: 0
 tags:
   - Image
 description: In this notebook, we'll go over the basics of lightning by preparing
   models to train on the [MNIST Handwritten Digits dataset](https://en.wikipedia.org/wiki/MNIST_database).
 requirements:
   - torchvision
+  - torchmetrics >=0.11.0
   - pandas
   - seaborn
+  - lightning>=2.0.0rc0
 accelerator:
   - CPU
   - GPU
