@@ -326,7 +326,6 @@ class LitMNIST(L.LightningModule):
         Returns:
             (torch.Tensor): The training loss.
         """
-
         x, y = batch
         logits = self(x)
         loss = F.nll_loss(logits, y)
@@ -408,7 +407,6 @@ class LitMNIST(L.LightningModule):
         Returns:
             DataLoader: The training DataLoader.
         """
-
         return DataLoader(self.mnist_train, batch_size=config.batch_size)
 
     def val_dataloader(self) -> DataLoader:
@@ -417,7 +415,6 @@ class LitMNIST(L.LightningModule):
         Returns:
             DataLoader: The validation DataLoader.
         """
-
         return DataLoader(self.mnist_val, batch_size=config.batch_size)
 
     def test_dataloader(self) -> DataLoader:
