@@ -38,6 +38,7 @@ z_dim = 128
 #
 # Within this transform, we add a third view for our online finetuner, which we explain later on. But, to explain things quickly here, we add a another transform to perform perform test our encoder on a downstream classification task.
 
+
 # %%
 class BarlowTwinsTransform:
     def __init__(self, train=True, input_height=224, gaussian_blur=True, jitter_strength=1.0, normalize=None):
@@ -100,6 +101,7 @@ class BarlowTwinsTransform:
 #
 # We select CIFAR10 as the dataset to demonstrate the pre-training process for Barlow Twins. CIFAR10 images are 32x32 in size and we do not apply a Gaussian blur transformation on them. In this step, we create the training and validation dataloaders for CIFAR10.
 
+
 # %%
 def cifar10_normalization():
     normalize = transforms.Normalize(
@@ -155,6 +157,7 @@ show(img_grid)
 #
 # Then it splits this cross-correlation matrix into two parts. The first part, the diagonal of this matrix is brought closer to 1, which pushes up the cosine similarity between the latent vectors of two views of each image, thus making the backbone invariant to the transformations applied to the views. The second part of the loss pushes the non-diagonal elements of the cross-corrlelation matrix closes to 0. This reduces the redundancy between the different dimensions of the latent vector.
 
+
 # %%
 class BarlowTwinsLoss(nn.Module):
     def __init__(self, batch_size, lambda_coeff=5e-3, z_dim=128):
@@ -205,6 +208,7 @@ encoder.fc = nn.Identity()
 #
 # Unlike SimCLR and BYOL, the downstream performance of Barlow Twins greatly benefits from having a larger projection head after the backbone network. The paper utilizes a 3 layer MLP with 8192 hidden dimensions and 8192 as the output dimenion of the projection head. For the purposes of the tutorial, we use a smaller projection head. But, it is imperative to mention here that in practice, Barlow Twins needs to be trained using a bigger projection head as it is highly sensitive to its architecture and output dimensionality.
 
+
 # %%
 class ProjectionHead(nn.Module):
     def __init__(self, input_dim=2048, hidden_dim=2048, output_dim=128):
@@ -226,6 +230,7 @@ class ProjectionHead(nn.Module):
 #
 # For the purposes of this tutorial, we keep things simple and use a linear warmup schedule with Adam optimizer. In our previous experiments we have found that linear warmup part is much more important for the final performance of a model than the cosine decay component of the schedule.
 
+
 # %%
 def fn(warmup_steps, step):
     if step < warmup_steps:
@@ -242,6 +247,7 @@ def linear_warmup_decay(warmup_steps):
 # ### Barlow Twins Lightning Module
 #
 # We keep the LightningModule for Barlow Twins neat and simple. It takes in an backbone encoder and initializes the projection head and the loss function. We configure the optimizer and the learning rate scheduler in the ``configure_optimizers`` method.
+
 
 # %%
 class BarlowTwins(L.LightningModule):
@@ -310,6 +316,7 @@ class BarlowTwins(L.LightningModule):
 # ### Evaluation
 #
 # We define a callback which appends a linear layer on top of the encoder and trains the classification evaluation head in an online manner. We make sure not to backpropagate the gradients back to the encoder while tuning the linear layer. This technique was used in SimCLR as well and they showed that the final downstream classification peformance is pretty much similar to the results on online finetuning as the training progresses.
+
 
 # %%
 class OnlineFineTuner(Callback):
