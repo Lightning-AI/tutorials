@@ -1,9 +1,9 @@
 title: Finetune Transformers Models with PyTorch Lightning
 author: PL team
 created: 2021-01-31
-updated: 2021-06-21
+updated: 2023-03-17
 license: CC BY-SA
-build: 1
+build: 0
 tags:
   - Text
 description: |
@@ -15,6 +15,7 @@ requirements:
   - datasets
   - scipy
   - scikit-learn
+  - torchtext>=0.9
+  - lightning>=2.0.0rc0
 accelerator:
-  - CPU
   - GPU

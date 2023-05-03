@@ -6,9 +6,10 @@ import os
 import urllib.request
 from urllib.error import HTTPError
 
+import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
-import pytorch_lightning as pl
+import matplotlib_inline.backend_inline
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -16,15 +17,14 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from IPython.display import set_matplotlib_formats
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from lightning.pytorch.callbacks import Callback, LearningRateMonitor, ModelCheckpoint
 from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
 from tqdm.notebook import tqdm
 
 # %matplotlib inline
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 sns.set()
@@ -38,10 +38,10 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial9")
 
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -94,7 +94,7 @@ transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=transform, download=True)
-pl.seed_everything(42)
+L.seed_everything(42)
 train_set, val_set = torch.utils.data.random_split(train_dataset, [45000, 5000])
 
 # Loading the test set
@@ -131,7 +131,8 @@ def get_train_images(num):
 # %%
 class Encoder(nn.Module):
     def __init__(self, num_input_channels: int, base_channel_size: int, latent_dim: int, act_fn: object = nn.GELU):
-        """
+        """Encoder.
+
         Args:
            num_input_channels : Number of input channels of the image. For CIFAR, this parameter is 3
            base_channel_size : Number of channels we use in the first convolutional layers. Deeper layers might use a duplicate of it.
@@ -190,7 +191,8 @@ class Encoder(nn.Module):
 # %%
 class Decoder(nn.Module):
     def __init__(self, num_input_channels: int, base_channel_size: int, latent_dim: int, act_fn: object = nn.GELU):
-        """
+        """Decoder.
+
         Args:
            num_input_channels : Number of channels of the image to reconstruct. For CIFAR, this parameter is 3
            base_channel_size : Number of channels we use in the last convolutional layers. Early layers might use a duplicate of it.
@@ -236,7 +238,7 @@ class Decoder(nn.Module):
 
 
 # %%
-class Autoencoder(pl.LightningModule):
+class Autoencoder(L.LightningModule):
     def __init__(
         self,
         base_channel_size: int,
@@ -263,7 +265,7 @@ class Autoencoder(pl.LightningModule):
         return x_hat
 
     def _get_reconstruction_loss(self, batch):
-        """Given a batch of images, this function returns the reconstruction loss (MSE in our case)"""
+        """Given a batch of images, this function returns the reconstruction loss (MSE in our case)."""
         x, _ = batch  # We do not need the labels
         x_hat = self.forward(x)
         loss = F.mse_loss(x, x_hat, reduction="none")
@@ -352,14 +354,14 @@ for i in range(2):
 
 
 # %%
-class GenerateCallback(pl.Callback):
+class GenerateCallback(Callback):
     def __init__(self, input_imgs, every_n_epochs=1):
         super().__init__()
         self.input_imgs = input_imgs  # Images to reconstruct during training
         # Only save those images every N epochs (otherwise tensorboard gets quite large)
         self.every_n_epochs = every_n_epochs
 
-    def on_epoch_end(self, trainer, pl_module):
+    def on_train_epoch_end(self, trainer, pl_module):
         if trainer.current_epoch % self.every_n_epochs == 0:
             # Reconstruct images
             input_imgs = self.input_imgs.to(pl_module.device)
@@ -383,9 +385,10 @@ class GenerateCallback(pl.Callback):
 # %%
 def train_cifar(latent_dim):
     # Create a PyTorch Lightning trainer with the generation callback
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "cifar10_%i" % latent_dim),
-        gpus=1 if str(device).startswith("cuda") else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=500,
         callbacks=[
             ModelCheckpoint(save_weights_only=True),
@@ -405,8 +408,8 @@ def train_cifar(latent_dim):
         model = Autoencoder(base_channel_size=32, latent_dim=latent_dim)
         trainer.fit(model, train_loader, val_loader)
     # Test best model on validation and test set
-    val_result = trainer.test(model, test_dataloaders=val_loader, verbose=False)
-    test_result = trainer.test(model, test_dataloaders=test_loader, verbose=False)
+    val_result = trainer.test(model, dataloaders=val_loader, verbose=False)
+    test_result = trainer.test(model, dataloaders=test_loader, verbose=False)
     result = {"test": test_result, "val": val_result}
     return model, result
 

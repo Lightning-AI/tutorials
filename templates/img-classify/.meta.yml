@@ -1,0 +1,21 @@
+title: Simple image classification with Lightning Flash
+author: PL team
+created: 2022-04-14
+updated: 2021-06-16
+license: CC BY-SA
+build: 2
+tags:
+  - Image
+description: |
+  This is a template to show simple image classification case if for some reason accelerator is required.
+requirements:
+  - lightning-flash[image]>=0.7
+  - numpy<1.24
+  - pandas>=1.0
+  - matplotlib>=3.0
+  - seaborn
+accelerator:
+  - GPU
+datasets:
+  web:
+    - https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip

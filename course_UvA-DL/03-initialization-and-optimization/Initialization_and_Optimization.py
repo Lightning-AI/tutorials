@@ -13,27 +13,27 @@ import os
 import urllib.request
 from urllib.error import HTTPError
 
+import lightning as L
 import matplotlib.pyplot as plt
+
+# %matplotlib inline
+import matplotlib_inline.backend_inline
 import numpy as np
-import pytorch_lightning as pl
 import seaborn as sns
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data as data
-
-# %matplotlib inline
-from IPython.display import set_matplotlib_formats
 from matplotlib import cm
 from torchvision import transforms
 from torchvision.datasets import FashionMNIST
 from tqdm.notebook import tqdm
 
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 sns.set()
 
 # %% [markdown]
-# Instead of the `set_seed` function as in Tutorial 3, we can use PyTorch Lightning's build-in function `pl.seed_everything`.
+# Instead of the `set_seed` function as in Tutorial 3, we can use Lightning's build-in function `L.seed_everything`.
 # We will reuse the path variables `DATASET_PATH` and `CHECKPOINT_PATH` as in Tutorial 3.
 # Adjust the paths if necessary.
 
@@ -44,10 +44,10 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/InitOptim/")
 
 # Seed everything
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 # Fetching the device that will be used throughout this notebook
@@ -151,7 +151,8 @@ print(f"Minimum: {imgs.min().item():5.3f}")
 # %%
 class BaseNetwork(nn.Module):
     def __init__(self, act_fn, input_size=784, num_classes=10, hidden_sizes=[512, 256, 256, 128]):
-        """
+        """Base Network.
+
         Args:
             act_fn: Object of the activation function that should be used as non-linearity in the network.
             input_size: Size of the input images in pixels
@@ -323,7 +324,7 @@ def visualize_activations(model, color="C0", print_variance=False):
 # %% [markdown]
 # ## Initialization
 #
-# Before starting our discussion about initialization, it should be noted that there exist many very good blog posts about the topic of neural network initialization (for example [deeplearning.ai](https://www.deeplearning.ai/ai-notes/initialization/), or a more [math-focused blog post](https://pouannes.github.io/blog/initialization/#mjx-eqn-eqfwd_K)).
+# Before starting our discussion about initialization, it should be noted that there exist many very good blog posts about the topic of neural network initialization (for example [deeplearning.ai](https://www.deeplearning.ai/ai-notes/initialization/), or a more [math-focused blog post](https://pouannes.github.io/blog/initialization)).
 # In case something remains unclear after this tutorial, we recommend skimming through these blog posts as well.
 #
 # When initializing a neural network, there are a few properties we would like to have.
@@ -457,7 +458,7 @@ visualize_activations(model, print_variance=True)
 # Besides the variance of the activations, another variance we would like to stabilize is the one of the gradients.
 # This ensures a stable optimization for deep networks.
 # It turns out that we can do the same calculation as above starting from $\Delta x=W\Delta y$, and come to the conclusion that we should initialize our layers with $1/d_y$ where $d_y$ is the number of output neurons.
-# You can do the calculation as a practice, or check a thorough explanation in [this blog post](https://pouannes.github.io/blog/initialization/#mjx-eqn-eqfwd_K).
+# You can do the calculation as a practice, or check a thorough explanation in [this blog post](https://pouannes.github.io/blog/initialization).
 # As a compromise between both constraints, [Glorot and Bengio (2010)](http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf?hc_location=ufi) proposed to use the harmonic mean of both values.
 # This leads us to the well-known Xavier initialization:
 #
@@ -938,7 +939,9 @@ def plot_curve(
     curve_fn, x_range=(-5, 5), y_range=(-5, 5), plot_3d=False, cmap=cm.viridis, title="Pathological curvature"
 ):
     fig = plt.figure()
-    ax = fig.gca(projection="3d") if plot_3d else fig.gca()
+    ax = fig.gca()
+    if plot_3d:
+        ax = fig.add_subplot(projection="3d")
 
     x = torch.arange(x_range[0], x_range[1], (x_range[1] - x_range[0]) / 100.0)
     y = torch.arange(y_range[0], y_range[1], (y_range[1] - y_range[0]) / 100.0)
@@ -1042,8 +1045,8 @@ plt.show()
 # %%
 def bivar_gaussian(w1, w2, x_mean=0.0, y_mean=0.0, x_sig=1.0, y_sig=1.0):
     norm = 1 / (2 * np.pi * x_sig * y_sig)
-    x_exp = (-1 * (w1 - x_mean) ** 2) / (2 * x_sig ** 2)
-    y_exp = (-1 * (w2 - y_mean) ** 2) / (2 * y_sig ** 2)
+    x_exp = (-1 * (w1 - x_mean) ** 2) / (2 * x_sig**2)
+    y_exp = (-1 * (w2 - y_mean) ** 2) / (2 * y_sig**2)
     return norm * torch.exp(x_exp + y_exp)
 
 

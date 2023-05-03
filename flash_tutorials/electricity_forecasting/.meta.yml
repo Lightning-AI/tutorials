@@ -1,0 +1,24 @@
+title: Electricity Price Forecasting with N-BEATS
+author: Ethan Harris (ethan@pytorchlightning.ai)
+created: 2021-11-23
+updated: 2021-12-16
+license: CC BY-SA
+build: 3
+tags:
+  - Tabular
+  - Forecasting
+  - Timeseries
+description: |
+  This tutorial covers using Lightning Flash and it's integration with PyTorch Forecasting to train an autoregressive
+  model (N-BEATS) on hourly electricity pricing data. We show how the built-in interpretability tools from PyTorch
+  Forecasting can be used with Flash to plot the trend and daily seasonality in our data discovered by the model. We
+  also cover how features from PyTorch Lightning such as the learning rate finder can be used easily with Flash. As a
+  bonus, we show hat we can resample daily observations from the data to discover weekly trends instead.
+requirements:
+  - pandas==1.1.5
+  - lightning-flash[tabular]>=0.6.0
+  - pytorch-lightning==1.3.6  # todo: update to latest
+  - numpy<1.24
+accelerator:
+  - GPU
+  - CPU

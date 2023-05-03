@@ -1,0 +1,19 @@
+title: Finetuning a Text Classifier on IMDB Dataset
+author: Ethan Harris (ethan@pytorchlightning.ai)
+created: 2021-11-23
+updated: 2022-08-26
+license: CC BY-SA
+build: 3
+tags:
+  - Text Classification
+  - Text
+description: |
+  In this notebook, we'll go over the basics of lightning Flash by finetunig a TextClassifier on IMDB Dataset.
+requirements:
+  - pytorch-lightning==1.6.*
+  - lightning-flash[text]>=0.7.0
+  - torchmetrics<0.11  # todo: update to use task=...
+  - numpy<1.24
+accelerator:
+  - GPU
+  - CPU

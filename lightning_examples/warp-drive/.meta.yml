@@ -1,0 +1,30 @@
+title: Multi-agent Reinforcement Learning With WarpDrive
+author: Sunil Srinivasa (sunil.srinivasa@salesforce.com), Tian Lan (tian.lan@salesforce.com), Huan Wang (huan.wang@salesforce.com) and Stephan Zheng(stephan.zheng@salesforce.com)
+created: 2022-03-01
+license: BSD 3-Clause "New" or "Revised" License
+tags:
+  - Reinforcement Learning
+  - Multi-agent
+  - GPU
+description: This notebook introduces multi-agent reinforcement learning (MARL) with WarpDrive (Lan et al. https://arxiv.org/abs/2108.13976).
+  WarpDrive is a flexible, lightweight, and easy-to-use open-source framework that implements end-to-end deep MARL on GPUs.
+  WarpDrive enables orders-of-magnitude speedups compared to CPU-GPU implementations, using the parallelization capability
+  of GPUs and several design choices to minimize communication overhead. WarpDrive also prioritizes user-friendliness -
+  it has utility functions to easily build MARL environments in CUDA and quality-of-life tools to run end-to-end MARL
+  using just a few lines of code, and is compatible with PyTorch.
+
+  WarpDrive includes the following resources.
+    code - https://github.com/salesforce/warp-drive
+    documentation - http://opensource.salesforce.com/warp-drive/, and
+    white paper - https://arxiv.org/abs/2108.13976.
+
+requirements:
+  - rl-warp-drive==2.1
+  - ffmpeg-python
+  # todo: after merging #155 we will relax this just to `torch<=1.10` and drop TV, TT, etc.
+  - torch==1.10.*
+  - torchvision==0.11.*
+  - torchtext==0.11.*
+  - lightning>=2.0.0rc0
+accelerator:
+  - GPU

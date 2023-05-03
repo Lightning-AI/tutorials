@@ -4,7 +4,7 @@
 # The following notebook is meant to give a short introduction to PyTorch basics, and get you setup for writing your own neural networks.
 # PyTorch is an open source machine learning framework that allows you to write your own neural networks and optimize them efficiently.
 # However, PyTorch is not the only framework of its kind.
-# Alternatives to PyTorch include [TensorFlow](https://www.tensorflow.org/), [JAX](https://github.com/google/jax#quickstart-colab-in-the-cloud) and [Caffe](http://caffe.berkeleyvision.org/).
+# Alternatives to PyTorch include [TensorFlow](https://www.tensorflow.org/), [JAX](https://github.com/google/jax) and [Caffe](http://caffe.berkeleyvision.org/).
 # We choose to teach PyTorch at the University of Amsterdam because it is well established, has a huge developer community (originally developed by Facebook), is very flexible and especially used in research.
 # Many current papers publish their code in PyTorch, and thus it is good to be familiar with PyTorch as well.
 # Meanwhile, TensorFlow (developed by Google) is usually known for being a production-grade deep learning library.
@@ -25,17 +25,18 @@
 import time
 
 import matplotlib.pyplot as plt
+
+# %matplotlib inline
+import matplotlib_inline.backend_inline
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.utils.data as data
-
-# %matplotlib inline
-from IPython.display import set_matplotlib_formats
 from matplotlib.colors import to_rgba
+from torch import Tensor
 from tqdm.notebook import tqdm  # Progress bar
 
-set_matplotlib_formats("svg", "pdf")
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 
 # %% [markdown]
 # ## The Basics of PyTorch
@@ -82,10 +83,10 @@ torch.manual_seed(42)  # Setting the seed
 #
 # Let's first start by looking at different ways of creating a tensor.
 # There are many possible options, the most simple one is to call
-# `torch.Tensor` passing the desired shape as input argument:
+# `Tensor` passing the desired shape as input argument:
 
 # %%
-x = torch.Tensor(2, 3, 4)
+x = Tensor(2, 3, 4)
 print(x)
 
 # %% [markdown]
@@ -101,7 +102,7 @@ print(x)
 
 # %%
 # Create a tensor from a (nested) list
-x = torch.Tensor([[1, 2], [3, 4]])
+x = Tensor([[1, 2], [3, 4]])
 print(x)
 
 # %%
@@ -184,7 +185,7 @@ print("X1 (after)", x1)
 print("X2 (after)", x2)
 
 # %% [markdown]
-# In-place operations are usually marked with a underscore postfix (e.g. "add_" instead of "add").
+# In-place operations are usually marked with a underscore postfix (for example `torch.add_` instead of `torch.add`).
 #
 # Another common operation aims at changing the shape of a tensor.
 # A tensor of size (2,3) can be re-organized to any other shape with the same number of elements (e.g. a tensor of size (6), or (3,2), ...).
@@ -314,7 +315,7 @@ print("X", x)
 
 # %%
 a = x + 2
-b = a ** 2
+b = a**2
 c = b + 3
 y = c.mean()
 print("Y", y)
@@ -423,18 +424,19 @@ end_time = time.time()
 print(f"CPU time: {(end_time - start_time):6.5f}s")
 
 # GPU version
-x = x.to(device)
-# The first operation on a CUDA device can be slow as it has to establish a CPU-GPU communication first.
-# Hence, we run an arbitrary command first without timing it for a fair comparison.
 if torch.cuda.is_available():
-    _ = torch.matmul(x * 0.0, x)
-start_time = time.time()
-_ = torch.matmul(x, x)
-end_time = time.time()
-print(f"GPU time: {(end_time - start_time):6.5f}s")
+    x = x.to(device)
+    # CUDA is asynchronous, so we need to use different timing functions
+    start = torch.cuda.Event(enable_timing=True)
+    end = torch.cuda.Event(enable_timing=True)
+    start.record()
+    _ = torch.matmul(x, x)
+    end.record()
+    torch.cuda.synchronize()  # Waits for everything to finish running on the GPU
+    print(f"GPU time: {0.001 * start.elapsed_time(end):6.5f}s")  # Milliseconds to seconds
 
 # %% [markdown]
-# Depending on the size of the operation and the CPU/GPU in your system, the speedup of this operation can be >500x.
+# Depending on the size of the operation and the CPU/GPU in your system, the speedup of this operation can be >50x.
 # As `matmul` operations are very common in neural networks, we can already see the great benefit of training a NN on a GPU.
 # The time estimate can be relatively noisy here because we haven't run it for multiple times.
 # Feel free to extend this, but it also takes longer to run.
@@ -453,7 +455,7 @@ if torch.cuda.is_available():
 
 # Additionally, some operations on a GPU are implemented stochastic for efficiency
 # We want to ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 # %% [markdown]
@@ -493,7 +495,7 @@ torch.backends.cudnn.benchmark = False
 # %% [markdown]
 # #### nn.Module
 #
-# In PyTorch, a neural network is build up out of modules.
+# In PyTorch, a neural network is built up out of modules.
 # Modules can contain other modules, and a neural network is considered to be a module itself as well.
 # The basic template of a module is as follows:
 
@@ -599,10 +601,11 @@ for name, param in model.named_parameters():
 
 class XORDataset(data.Dataset):
     def __init__(self, size, std=0.1):
-        """
-        Inputs:
-            size - Number of data points we want to generate
-            std - Standard deviation of the noise (see generate_continuous_xor function)
+        """XORDataset.
+
+        Args:
+            size: Number of data points we want to generate
+            std: Standard deviation of the noise (see generate_continuous_xor function)
         """
         super().__init__()
         self.size = size
@@ -647,9 +650,9 @@ print("Data point 0:", dataset[0])
 
 # %%
 def visualize_samples(data, label):
-    if isinstance(data, torch.Tensor):
+    if isinstance(data, Tensor):
         data = data.cpu().numpy()
-    if isinstance(label, torch.Tensor):
+    if isinstance(label, Tensor):
         label = label.cpu().numpy()
     data_0 = data[label == 0]
     data_1 = data[label == 1]
@@ -798,7 +801,6 @@ def train_model(model, optimizer, data_loader, loss_module, num_epochs=100):
     # Training loop
     for epoch in tqdm(range(num_epochs)):
         for data_inputs, data_labels in data_loader:
-
             # Step 1: Move input data to device (only strictly necessary if we use GPU)
             data_inputs = data_inputs.to(device)
             data_labels = data_labels.to(device)
@@ -895,7 +897,6 @@ def eval_model(model, data_loader):
 
     with torch.no_grad():  # Deactivate gradients for the following code
         for data_inputs, data_labels in data_loader:
-
             # Determine prediction of model on dev set
             data_inputs, data_labels = data_inputs.to(device), data_labels.to(device)
             preds = model(data_inputs)
@@ -934,9 +935,9 @@ eval_model(model, test_data_loader)
 # %%
 @torch.no_grad()  # Decorator, same effect as "with torch.no_grad(): ..." over the whole function.
 def visualize_classification(model, data, label):
-    if isinstance(data, torch.Tensor):
+    if isinstance(data, Tensor):
         data = data.cpu().numpy()
-    if isinstance(label, torch.Tensor):
+    if isinstance(label, Tensor):
         label = label.cpu().numpy()
     data_0 = data[label == 0]
     data_1 = data[label == 1]
@@ -951,8 +952,8 @@ def visualize_classification(model, data, label):
 
     # Let's make use of a lot of operations we have learned above
     model.to(device)
-    c0 = torch.Tensor(to_rgba("C0")).to(device)
-    c1 = torch.Tensor(to_rgba("C1")).to(device)
+    c0 = Tensor(to_rgba("C0")).to(device)
+    c1 = Tensor(to_rgba("C1")).to(device)
     x1 = torch.arange(-0.5, 1.5, step=0.01, device=device)
     x2 = torch.arange(-0.5, 1.5, step=0.01, device=device)
     xx1, xx2 = torch.meshgrid(x1, x2)  # Meshgrid function as in numpy
@@ -960,11 +961,11 @@ def visualize_classification(model, data, label):
     preds = model(model_inputs)
     preds = torch.sigmoid(preds)
     # Specifying "None" in a dimension creates a new one
-    output_image = preds * c0[None, None] + (1 - preds) * c1[None, None]
+    output_image = (1 - preds) * c0[None, None] + preds * c1[None, None]
     output_image = (
         output_image.cpu().numpy()
     )  # Convert to numpy array. This only works for tensors on CPU, hence first push to CPU
-    plt.imshow(output_image, origin="upper", extent=(-0.5, 1.5, -0.5, 1.5))
+    plt.imshow(output_image, origin="lower", extent=(-0.5, 1.5, -0.5, 1.5))
     plt.grid(False)
 
 

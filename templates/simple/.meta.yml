@@ -1,0 +1,13 @@
+title: How to write a PyTorch Lightning tutorial
+author: PL team
+created: 2021-06-15
+updated: 2021-06-17
+license: CC
+build: 10
+description: |
+  This is a template to show how to contribute a tutorial.
+requirements:
+  - matplotlib
+accelerator:
+  - CPU
+  - GPU

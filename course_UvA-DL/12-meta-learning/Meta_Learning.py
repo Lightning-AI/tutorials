@@ -1,4 +1,5 @@
 # %% [markdown]
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/035rkmT8FfE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 # Meta-Learning offers solutions to these situations, and we will discuss three popular algorithms: __Prototypical Networks__ ([Snell et al., 2017](https://arxiv.org/pdf/1703.05175.pdf)), __Model-Agnostic Meta-Learning / MAML__ ([Finn et al., 2017](http://proceedings.mlr.press/v70/finn17a.html)), and __Proto-MAML__ ([Triantafillou et al., 2020](https://openreview.net/pdf?id=rkgAGAVKPr)).
 # We will focus on the task of few-shot classification where the training and test set have distinct sets of classes.
 # For instance, we would train the model on the binary classifications of cats-birds and flowers-bikes, but during test time, the model would need to learn from 4 examples each the difference between dogs and otters, two classes we have not seen during training (Figure credit - [Lilian Weng](https://lilianweng.github.io/lil-log/2018/11/30/meta-learning.html)).
@@ -24,26 +25,26 @@ from copy import deepcopy
 from statistics import mean, stdev
 from urllib.error import HTTPError
 
+import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib_inline.backend_inline
 import numpy as np
-import pytorch_lightning as pl
 import seaborn as sns
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from IPython.display import set_matplotlib_formats
+from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from PIL import Image
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR100, SVHN
 from tqdm.auto import tqdm
 
 plt.set_cmap("cividis")
 # %matplotlib inline
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
@@ -56,10 +57,10 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/MetaLearning/")
 
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -152,10 +153,10 @@ cifar_all_targets = torch.LongTensor(cifar_train_set.targets + cifar_test_set.ta
 class ImageDataset(data.Dataset):
     def __init__(self, imgs, targets, img_transform=None):
         """
-        Inputs:
-            imgs - Numpy array of shape [N,32,32,3] containing all images.
-            targets - PyTorch array of shape [N] containing all labels.
-            img_transform - A torchvision transformation that should be applied
+        Args:
+            imgs: Numpy array of shape [N,32,32,3] containing all images.
+            targets: PyTorch array of shape [N] containing all labels.
+            img_transform: A torchvision transformation that should be applied
                             to the images before returning. If none, no transformation
                             is applied.
         """
@@ -182,7 +183,7 @@ class ImageDataset(data.Dataset):
 # We will assign the classes randomly to training, validation and test, and use a 80%-10%-10% split.
 
 # %%
-pl.seed_everything(0)  # Set seed for reproducibility
+L.seed_everything(0)  # Set seed for reproducibility
 classes = torch.randperm(100)  # Returns random permutation of numbers 0 to 99
 train_classes, val_classes, test_classes = classes[:80], classes[80:90], classes[90:]
 
@@ -256,18 +257,19 @@ test_set = dataset_from_labels(cifar_all_images, cifar_all_targets, test_classes
 # %%
 class FewShotBatchSampler:
     def __init__(self, dataset_targets, N_way, K_shot, include_query=False, shuffle=True, shuffle_once=False):
-        """
-        Inputs:
-            dataset_targets - PyTorch tensor of the labels of the data elements.
-            N_way - Number of classes to sample per batch.
-            K_shot - Number of examples to sample per class in the batch.
-            include_query - If True, returns batch of size N_way*K_shot*2, which
+        """FewShot Batch Sampler.
+
+        Args:
+            dataset_targets: PyTorch tensor of the labels of the data elements.
+            N_way: Number of classes to sample per batch.
+            K_shot: Number of examples to sample per class in the batch.
+            include_query: If True, returns batch of size N_way*K_shot*2, which
                             can be split into support and query set. Simplifies
                             the implementation of sampling the same classes but
                             distinct examples for support and query set.
-            shuffle - If True, examples and classes are newly shuffled in each
+            shuffle: If True, examples and classes are newly shuffled in each
                       iteration (for training)
-            shuffle_once - If True, examples and classes are shuffled once in
+            shuffle_once: If True, examples and classes are shuffled once in
                            the beginning, but kept constant across iterations
                            (for validation)
         """
@@ -401,6 +403,8 @@ plt.close(fig)
 
 # %% [markdown]
 # ## Prototypical Networks
+#
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/LhZGPOtTd_Y" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 
 # %% [markdown]
 # The Prototypical Network, or ProtoNet for short, is a metric-based meta-learning algorithm which operates similar to a nearest neighbor classification.
@@ -472,12 +476,13 @@ def get_convnet(output_size):
 
 
 # %%
-class ProtoNet(pl.LightningModule):
+class ProtoNet(L.LightningModule):
     def __init__(self, proto_dim, lr):
-        """Inputs.
+        """ProtoNet.
 
-        proto_dim - Dimensionality of prototype feature space
-        lr - Learning rate of Adam optimizer
+        Args:
+            proto_dim: Dimensionality of prototype feature space
+            lr: Learning rate of Adam optimizer
         """
         super().__init__()
         self.save_hyperparameters()
@@ -550,15 +555,16 @@ class ProtoNet(pl.LightningModule):
 
 # %%
 def train_model(model_class, train_loader, val_loader, **kwargs):
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, model_class.__name__),
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=200,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=0,
+        enable_progress_bar=False,
     )
     trainer.logger._default_hp_metric = None
 
@@ -569,7 +575,7 @@ def train_model(model_class, train_loader, val_loader, **kwargs):
         # Automatically loads the model with the saved hyperparameters
         model = model_class.load_from_checkpoint(pretrained_filename)
     else:
-        pl.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducable
         model = model_class(**kwargs)
         trainer.fit(model, train_loader, val_loader)
         model = model_class.load_from_checkpoint(
@@ -624,15 +630,16 @@ protonet_model = train_model(
 # %%
 @torch.no_grad()
 def test_proto_net(model, dataset, data_feats=None, k_shot=4):
-    """Inputs.
+    """Test proto net.
 
-    model - Pretrained ProtoNet model
-    dataset - The dataset on which the test should be performed.
-              Should be instance of ImageDataset
-    data_feats - The encoded features of all images in the dataset.
-                 If None, they will be newly calculated, and returned
-                 for later usage.
-    k_shot - Number of examples per class in the support set.
+    Args:
+        model: Pretrained ProtoNet model
+        dataset: The dataset on which the test should be performed.
+                  Should be instance of ImageDataset
+        data_feats: The encoded features of all images in the dataset.
+                     If None, they will be newly calculated, and returned
+                     for later usage.
+        k_shot: Number of examples per class in the support set.
     """
     model = model.to(device)
     model.eval()
@@ -743,6 +750,8 @@ plt.close()
 
 # %% [markdown]
 # ## MAML and ProtoMAML
+#
+# <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/xKcA6g-esH4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
 
 # %% [markdown]
 # The second meta-learning algorithm we will look at is MAML, short for Model-Agnostic Meta-Learning.
@@ -839,15 +848,16 @@ plt.close()
 
 
 # %%
-class ProtoMAML(pl.LightningModule):
+class ProtoMAML(L.LightningModule):
     def __init__(self, proto_dim, lr, lr_inner, lr_output, num_inner_steps):
-        """Inputs.
+        """ProtoMAML.
 
-        proto_dim - Dimensionality of prototype feature space
-        lr - Learning rate of the outer loop Adam optimizer
-        lr_inner - Learning rate of the inner loop SGD optimizer
-        lr_output - Learning rate for the output layer in the inner loop
-        num_inner_steps - Number of inner loop updates to perform
+        Args:
+            proto_dim: Dimensionality of prototype feature space
+            lr: Learning rate of the outer loop Adam optimizer
+            lr_inner: Learning rate of the inner loop SGD optimizer
+            lr_output: Learning rate for the output layer in the inner loop
+            num_inner_steps: Number of inner loop updates to perform
         """
         super().__init__()
         self.save_hyperparameters()
@@ -961,17 +971,18 @@ class ProtoMAML(pl.LightningModule):
 # %%
 class TaskBatchSampler:
     def __init__(self, dataset_targets, batch_size, N_way, K_shot, include_query=False, shuffle=True):
-        """
-        Inputs:
-            dataset_targets - PyTorch tensor of the labels of the data elements.
-            batch_size - Number of tasks to aggregate in a batch
-            N_way - Number of classes to sample per batch.
-            K_shot - Number of examples to sample per class in the batch.
-            include_query - If True, returns batch of size N_way*K_shot*2, which
+        """Task Batch Sampler.
+
+        Args:
+            dataset_targets: PyTorch tensor of the labels of the data elements.
+            batch_size: Number of tasks to aggregate in a batch
+            N_way: Number of classes to sample per batch.
+            K_shot: Number of examples to sample per class in the batch.
+            include_query: If True, returns batch of size N_way*K_shot*2, which
                             can be split into support and query set. Simplifies
                             the implementation of sampling the same classes but
                             distinct examples for support and query set.
-            shuffle - If True, examples and classes are newly shuffled in each
+            shuffle: If True, examples and classes are newly shuffled in each
                       iteration (for training)
         """
         super().__init__()
@@ -1086,7 +1097,7 @@ protomaml_model = train_model(
 
 # %%
 def test_protomaml(model, dataset, k_shot=4):
-    pl.seed_everything(42)
+    L.seed_everything(42)
     model = model.to(device)
     num_classes = dataset.targets.unique().shape[0]
 

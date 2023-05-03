@@ -1,6 +1,6 @@
 # %% [markdown]
 # <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/U1fwesIusbg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
-# Throughout this notebook, we make use of [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/latest/).
+# Throughout this notebook, we make use of [PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/).
 # The first cell imports our usual libraries.
 
 # %%
@@ -10,10 +10,11 @@ import time
 import urllib.request
 from urllib.error import HTTPError
 
+import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib_inline.backend_inline
 import numpy as np
-import pytorch_lightning as pl
 import seaborn as sns
 import tabulate
 import torch
@@ -22,15 +23,16 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from IPython.display import HTML, display, set_matplotlib_formats
+from IPython.display import HTML, display
+from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from matplotlib.colors import to_rgb
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from torch import Tensor
 from torchvision import transforms
 from torchvision.datasets import MNIST
 from tqdm.notebook import tqdm
 
 # %matplotlib inline
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
@@ -40,10 +42,10 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial11")
 
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 # Fetching the device that will be used throughout this notebook
@@ -96,7 +98,7 @@ transform = transforms.Compose([transforms.ToTensor(), discretize])
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_dataset = MNIST(root=DATASET_PATH, train=True, transform=transform, download=True)
-pl.seed_everything(42)
+L.seed_everything(42)
 train_set, val_set = torch.utils.data.random_split(train_dataset, [50000, 10000])
 
 # Loading the test set
@@ -117,8 +119,8 @@ test_loader = data.DataLoader(test_set, batch_size=64, shuffle=False, drop_last=
 # %%
 def show_imgs(imgs, title=None, row_size=4):
     # Form a grid of pictures (we use max. 8 columns)
-    num_imgs = imgs.shape[0] if isinstance(imgs, torch.Tensor) else len(imgs)
-    is_int = imgs.dtype == torch.int32 if isinstance(imgs, torch.Tensor) else imgs[0].dtype == torch.int32
+    num_imgs = imgs.shape[0] if isinstance(imgs, Tensor) else len(imgs)
+    is_int = imgs.dtype == torch.int32 if isinstance(imgs, Tensor) else imgs[0].dtype == torch.int32
     nrow = min(num_imgs, row_size)
     ncol = int(math.ceil(num_imgs / nrow))
     imgs = torchvision.utils.make_grid(imgs, nrow=nrow, pad_value=128 if is_int else 0.5)
@@ -257,9 +259,10 @@ show_imgs([train_set[i][0] for i in range(8)])
 
 
 # %%
-class ImageFlow(pl.LightningModule):
+class ImageFlow(L.LightningModule):
     def __init__(self, flows, import_samples=8):
-        """
+        """ImageFlow.
+
         Args:
             flows: A list of flows (each a nn.Module) that should be applied on the images.
             import_samples: Number of importance samples to use during testing (see explanation below). Can be changed at any time
@@ -399,7 +402,8 @@ class ImageFlow(pl.LightningModule):
 # %%
 class Dequantization(nn.Module):
     def __init__(self, alpha=1e-5, quants=256):
-        """
+        """Dequantization.
+
         Args:
             alpha: small constant that is used to scale the original input.
                     Prevents dealing with values very close to 0 and 1 when inverting the sigmoid
@@ -448,7 +452,7 @@ class Dequantization(nn.Module):
 
 # %%
 # Testing invertibility of dequantization layer
-pl.seed_everything(42)
+L.seed_everything(42)
 orig_img = train_set[0][0].unsqueeze(dim=0)
 ldj = torch.zeros(
     1,
@@ -489,7 +493,7 @@ def visualize_dequantization(quants, prior=None):
     # Prior over discrete values. If not given, a uniform is assumed
     if prior is None:
         prior = np.ones(quants, dtype=np.float32) / quants
-    prior = prior / prior.sum() * quants  # In the following, we assume 1 for each value means uniform distribution
+    prior = prior / prior.sum()  # Ensure proper categorical distribution
 
     inp = torch.arange(-4, 4, 0.01).view(-1, 1, 1, 1)  # Possible continuous values we want to consider
     ldj = torch.zeros(inp.shape[0])
@@ -586,7 +590,8 @@ visualize_dequantization(quants=8, prior=np.array([0.075, 0.2, 0.4, 0.2, 0.075, 
 # %%
 class VariationalDequantization(Dequantization):
     def __init__(self, var_flows, alpha=1e-5):
-        """
+        """Variational Dequantization.
+
         Args:
             var_flows: A list of flow transformations to use for modeling q(u|x)
             alpha: Small constant, see Dequantization for details
@@ -671,14 +676,15 @@ class CouplingLayer(nn.Module):
         self.register_buffer("mask", mask)
 
     def forward(self, z, ldj, reverse=False, orig_img=None):
-        """
+        """Forward.
+
         Args:
             z: Latent input to the flow
-            ldj: The current ldj of the previous flows.
-                  The ldj of this layer will be added to this tensor.
+            ldj:
+                The current ldj of the previous flows. The ldj of this layer will be added to this tensor.
             reverse: If True, we apply the inverse of the layer.
-            orig_img (optional): Only needed in VarDeq. Allows external
-                                  input to condition the flow on (e.g. original image)
+            orig_img:
+                Only needed in VarDeq. Allows external input to condition the flow on (e.g. original image)
         """
         # Apply network to masked input
         z_in = z * self.mask
@@ -797,34 +803,38 @@ class ConcatELU(nn.Module):
 
 
 class LayerNormChannels(nn.Module):
-    def __init__(self, c_in):
+    def __init__(self, c_in, eps=1e-5):
         """This module applies layer norm across channels in an image.
 
-        Has been shown to work well with ResNet connections.
         Args:
             c_in: Number of channels of the input
+            eps: Small constant to stabilize std
         """
         super().__init__()
-        self.layer_norm = nn.LayerNorm(c_in)
+        self.gamma = nn.Parameter(torch.ones(1, c_in, 1, 1))
+        self.beta = nn.Parameter(torch.zeros(1, c_in, 1, 1))
+        self.eps = eps
 
     def forward(self, x):
-        x = x.permute(0, 2, 3, 1)
-        x = self.layer_norm(x)
-        x = x.permute(0, 3, 1, 2)
-        return x
+        mean = x.mean(dim=1, keepdim=True)
+        var = x.var(dim=1, unbiased=False, keepdim=True)
+        y = (x - mean) / torch.sqrt(var + self.eps)
+        y = y * self.gamma + self.beta
+        return y
 
 
 class GatedConv(nn.Module):
     def __init__(self, c_in, c_hidden):
-        """
-        This module applies a two-layer convolutional ResNet block with input gate
+        """This module applies a two-layer convolutional ResNet block with input gate.
+
         Args:
             c_in: Number of channels of the input
             c_hidden: Number of hidden dimensions we want to model (usually similar to c_in)
         """
         super().__init__()
         self.net = nn.Sequential(
-            nn.Conv2d(c_in, c_hidden, kernel_size=3, padding=1),
+            ConcatELU(),
+            nn.Conv2d(2 * c_in, c_hidden, kernel_size=3, padding=1),
             ConcatELU(),
             nn.Conv2d(2 * c_hidden, 2 * c_in, kernel_size=1),
         )
@@ -915,9 +925,10 @@ def create_simple_flow(use_vardeq=True):
 # %%
 def train_flow(flow, model_name="MNISTFlow"):
     # Create a PyTorch Lightning trainer
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, model_name),
-        gpus=1 if torch.cuda.is_available() else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=200,
         gradient_clip_val=1.0,
         callbacks=[
@@ -947,9 +958,9 @@ def train_flow(flow, model_name="MNISTFlow"):
     # Test best model on validation and test set if no result has been found
     # Testing can be expensive due to the importance sampling.
     if result is None:
-        val_result = trainer.test(flow, test_dataloaders=val_loader, verbose=False)
+        val_result = trainer.test(flow, dataloaders=val_loader, verbose=False)
         start_time = time.time()
-        test_result = trainer.test(flow, test_dataloaders=test_loader, verbose=False)
+        test_result = trainer.test(flow, dataloaders=test_loader, verbose=False)
         duration = time.time() - start_time
         result = {"test": test_result, "val": val_result, "time": duration / len(test_loader) / flow.import_samples}
 
@@ -1215,12 +1226,12 @@ display(
 # The seeds are set to obtain reproducable generations and are not cherry picked.
 
 # %%
-pl.seed_everything(44)
+L.seed_everything(44)
 samples = flow_dict["vardeq"]["model"].sample(img_shape=[16, 1, 28, 28])
 show_imgs(samples.cpu())
 
 # %%
-pl.seed_everything(44)
+L.seed_everything(44)
 samples = flow_dict["multiscale"]["model"].sample(img_shape=[16, 8, 7, 7])
 show_imgs(samples.cpu())
 
@@ -1244,7 +1255,8 @@ show_imgs(samples.cpu())
 # %%
 @torch.no_grad()
 def interpolate(model, img1, img2, num_steps=8):
-    """
+    """Interpolate.
+
     Args:
         model: object of ImageFlow class that represents the (trained) flow model
         img1, img2: Image tensors of shape [1, 28, 28]. Images between which should be interpolated.
@@ -1261,12 +1273,12 @@ def interpolate(model, img1, img2, num_steps=8):
 exmp_imgs, _ = next(iter(train_loader))
 
 # %%
-pl.seed_everything(42)
+L.seed_everything(42)
 for i in range(2):
     interpolate(flow_dict["vardeq"]["model"], exmp_imgs[2 * i], exmp_imgs[2 * i + 1])
 
 # %%
-pl.seed_everything(42)
+L.seed_everything(42)
 for i in range(2):
     interpolate(flow_dict["multiscale"]["model"], exmp_imgs[2 * i], exmp_imgs[2 * i + 1])
 
@@ -1289,7 +1301,7 @@ for i in range(2):
 # Below we visualize three examples of this:
 
 # %%
-pl.seed_everything(44)
+L.seed_everything(44)
 for _ in range(3):
     z_init = flow_dict["multiscale"]["model"].prior.sample(sample_shape=[1, 8, 7, 7])
     z_init = z_init.expand(8, -1, -1, -1)
@@ -1317,8 +1329,9 @@ for _ in range(3):
 
 
 # %%
-def visualize_dequant_distribution(model: ImageFlow, imgs: torch.Tensor, title: str = None):
-    """
+def visualize_dequant_distribution(model: ImageFlow, imgs: Tensor, title: str = None):
+    """Visualize dequant distribution.
+
     Args:
         model: The flow of which we want to visualize the dequantization distribution
         imgs: Example training images of which we want to visualize the dequantization distribution
