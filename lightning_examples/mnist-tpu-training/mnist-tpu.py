@@ -4,11 +4,11 @@
 # %%
 # ! pip install cloud-tpu-client==0.10 https://storage.googleapis.com/tpu-pytorch/wheels/torch_xla-1.8-cp37-cp37m-linux_x86_64.whl
 
+import lightning as L
+
 # %%
 import torch
 import torch.nn.functional as F
-from pytorch_lightning import LightningDataModule, LightningModule, Trainer
-from pytorch_lightning.callbacks.progress import TQDMProgressBar
 from torch import nn
 from torch.utils.data import DataLoader, random_split
 from torchmetrics.functional import accuracy
@@ -23,11 +23,11 @@ BATCH_SIZE = 1024
 # ### Defining The `MNISTDataModule`
 #
 # Below we define `MNISTDataModule`. You can learn more about datamodules
-# in [docs](https://pytorch-lightning.readthedocs.io/en/stable/data/datamodule.html).
+# in [docs](https://lightning.ai/docs/pytorch/stable/data/datamodule.html).
 
 
 # %%
-class MNISTDataModule(LightningDataModule):
+class MNISTDataModule(L.LightningDataModule):
     def __init__(self, data_dir: str = "./"):
         super().__init__()
         self.data_dir = data_dir
@@ -68,7 +68,7 @@ class MNISTDataModule(LightningDataModule):
 
 
 # %%
-class LitModel(LightningModule):
+class LitModel(L.LightningModule):
     def __init__(self, channels, width, height, num_classes, hidden_size=64, learning_rate=2e-4):
         super().__init__()
 
@@ -130,9 +130,8 @@ dm = MNISTDataModule()
 # Init model from datamodule's attributes
 model = LitModel(*dm.size(), dm.num_classes)
 # Init trainer
-trainer = Trainer(
+trainer = L.Trainer(
     max_epochs=3,
-    callbacks=[TQDMProgressBar(refresh_rate=20)],
     accelerator="tpu",
     devices=[5],
 )
@@ -148,11 +147,10 @@ dm = MNISTDataModule()
 # Init model from datamodule's attributes
 model = LitModel(*dm.dims, dm.num_classes)
 # Init trainer
-trainer = Trainer(
+trainer = L.Trainer(
     max_epochs=3,
     accelerator="tpu",
     devices=1,
-    callbacks=[TQDMProgressBar(refresh_rate=20)],
 )
 # Train
 trainer.fit(model, dm)
@@ -167,9 +165,8 @@ dm = MNISTDataModule()
 # Init model from datamodule's attributes
 model = LitModel(*dm.dims, dm.num_classes)
 # Init trainer
-trainer = Trainer(
+trainer = L.Trainer(
     max_epochs=3,
-    callbacks=[TQDMProgressBar(refresh_rate=20)],
     accelerator="tpu",
     devices=8,
 )
