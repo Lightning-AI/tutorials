@@ -14,13 +14,12 @@
 # ---
 
 # %%
-import prepare_notebook
 
 # %%
 import torch
 import torch.nn.functional as F
 from pytorch_lightning import LightningDataModule, LightningModule, Trainer, seed_everything
-from torch.utils.data import DataLoader, Dataset, random_split
+from torch.utils.data import DataLoader, random_split
 from torchmetrics import Accuracy
 from torchvision import transforms
 from torchvision.datasets import MNIST
@@ -501,7 +500,6 @@ trainer = Trainer(
 
 # %%
 class DPModule(TutorialModule):
-
     # *_step() happens on the replica of the model (each GPU runs this)
     def validation_step(self, batch, batch_idx):
         x, y = batch
