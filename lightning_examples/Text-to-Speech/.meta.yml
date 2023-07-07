@@ -11,7 +11,7 @@ description: |
 
   1. Train the tacotron2 model with tacotron2_tts.py file.
   2. Use the trained model in speech.py to generate speech from text.
-  
+
 requirements:
   - torch
   - torchaudio

@@ -1,14 +1,14 @@
 import torch
-from pytorch_lightning import LightningModule, Trainer
 import torchaudio
+from pytorch_lightning import LightningModule, Trainer
 from torchaudio.models import Tacotron2
 
-class Tacotron2TTS(LightningModule):
 
+class Tacotron2TTS(LightningModule):
     def __init__(self, cfg):
         super().__init__()
         self.model = Tacotron2(cfg)
-        self.dataset = torchaudio.datasets.LJSPEECH(root="/path/to/dataset",download = False)
+        self.dataset = torchaudio.datasets.LJSPEECH(root="/path/to/dataset", download=False)
 
     def forward(self, text):
         mel_spectrogram = self.model(text)
@@ -36,6 +36,7 @@ class Tacotron2TTS(LightningModule):
     def configure_optimizers(self):
         return torch.optim.Adam(self.model.parameters(), lr=1e-3)
 
+
 if __name__ == "__main__":
     cfg = {
         "model": {
@@ -49,5 +50,5 @@ if __name__ == "__main__":
     }
 
     model = Tacotron2TTS(cfg)
-    trainer = Trainer(accelerator='gpu')
+    trainer = Trainer(accelerator="gpu")
     trainer.fit(model)
