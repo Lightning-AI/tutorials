@@ -44,7 +44,7 @@ if __name__ == "__main__":
             "attention_dim": 128,
         },
         "trainer": {
-            "max_epochs": 100,
+            "max_epochs": 10,
         },
     }
 
