@@ -23,14 +23,14 @@ repos:
       - id: detect-private-key
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
+    rev: v3.8.0
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
         name: Upgrade code
 
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.6.0
+    rev: v1.7.3
     hooks:
       - id: docformatter
         args: [--in-place, --wrap-summaries=115, --wrap-descriptions=120]
@@ -47,7 +47,7 @@ repos:
         name: Format code
 
   - repo: https://github.com/asottile/yesqa
-    rev: v1.4.0
+    rev: v1.5.0
     hooks:
       - id: yesqa
 
@@ -60,8 +60,8 @@ repos:
           - mdformat-black
           - mdformat_frontmatter
 
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.263
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.276
     hooks:
       - id: ruff
         args: ["--fix"]
