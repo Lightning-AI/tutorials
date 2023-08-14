@@ -1,0 +1,22 @@
+title: Text-to-Speech Engine with Tacotron2
+author: PL team
+created: 2023-07-07
+updated: 2023-07-07
+license: CC BY-MANO
+build: 1
+tags:
+  - DL
+description: |
+  Main takeaways:
+
+  1. Train the tacotron2 model with tacotron2_tts.py file.
+  2. Use the trained model in speech.py to generate speech from text.
+
+requirements:
+  - torch
+  - torchaudio
+  - torchvision
+  - lightning
+accelerator:
+  - CPU
+  - GPU
