@@ -1,4 +1,4 @@
-setuptools==67.8.0
+setuptools==68.0.0
 matplotlib>=3.0.0, <3.8.0
 ipython[notebook]>=8.0.0, <8.15.0
 urllib3  # for ipython
