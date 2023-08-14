@@ -1,9 +1,9 @@
 title: Barlow Twins Tutorial
-author: Ananya Harsh Jha (ananya@pytorchlightning.ai)
+author: Ananya Harsh Jha
 created: 2021-09-19
-updated: 2021-09-20
+updated: 2023-03-15
 license: CC BY-SA
-build: 1
+build: 0
 tags:
   - Image
   - Self-Supervised
@@ -17,6 +17,7 @@ description: |
 requirements:
   - torchvision
   - matplotlib
+  - lightning>=2.0.0rc0
 accelerator:
   - GPU
   - CPU

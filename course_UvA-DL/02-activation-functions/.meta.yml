@@ -1,7 +1,7 @@
 title: "Tutorial 2: Activation Functions"
 author: Phillip Lippe
 created: 2021-08-27
-updated: 2021-08-27
+updated: 2023-03-14
 license: CC BY-SA
 description: |
   In this tutorial, we will take a closer look at (popular) activation functions and investigate their effect on optimization properties in neural networks.
@@ -14,6 +14,7 @@ requirements:
   - torchvision
   - matplotlib
   - seaborn
+  - lightning>=2.0.0rc0
 accelerator:
   - CPU
   - GPU

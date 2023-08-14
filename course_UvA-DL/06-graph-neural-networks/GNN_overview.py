@@ -11,7 +11,7 @@ import urllib.request
 from urllib.error import HTTPError
 
 # PyTorch Lightning
-import pytorch_lightning as pl
+import lightning as L
 
 # PyTorch
 import torch
@@ -25,7 +25,7 @@ import torch_geometric.data as geom_data
 import torch_geometric.nn as geom_nn
 
 # PL callbacks
-from pytorch_lightning.callbacks import ModelCheckpoint
+from lightning.pytorch.callbacks import ModelCheckpoint
 from torch import Tensor
 
 AVAIL_GPUS = min(1, torch.cuda.device_count())
@@ -36,10 +36,10 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/GNNs/")
 
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 # %% [markdown]
@@ -162,7 +162,8 @@ class GCNLayer(nn.Module):
         self.projection = nn.Linear(c_in, c_out)
 
     def forward(self, node_feats, adj_matrix):
-        """
+        """Forward.
+
         Args:
             node_feats: Tensor with node features of shape [batch_size, num_nodes, c_in]
             adj_matrix: Batch of adjacency matrices of the graph. If there is an edge from i to j,
@@ -317,7 +318,8 @@ class GATLayer(nn.Module):
         nn.init.xavier_uniform_(self.a.data, gain=1.414)
 
     def forward(self, node_feats, adj_matrix, print_attn_probs=False):
-        """
+        """Forward.
+
         Args:
             node_feats: Input features of the node. Shape: [batch_size, c_in]
             adj_matrix: Adjacency matrix including self-connections. Shape: [batch_size, num_nodes, num_nodes]
@@ -497,7 +499,8 @@ class GNNModel(nn.Module):
         dp_rate=0.1,
         **kwargs,
     ):
-        """
+        """GNNModel.
+
         Args:
             c_in: Dimension of input features
             c_hidden: Dimension of hidden features
@@ -523,7 +526,8 @@ class GNNModel(nn.Module):
         self.layers = nn.ModuleList(layers)
 
     def forward(self, x, edge_index):
-        """
+        """Forward.
+
         Args:
             x: Input features per node
             edge_index: List of vertex index pairs representing the edges in the graph (PyTorch geometric notation)
@@ -549,7 +553,8 @@ class GNNModel(nn.Module):
 # %%
 class MLPModel(nn.Module):
     def __init__(self, c_in, c_hidden, c_out, num_layers=2, dp_rate=0.1):
-        """
+        """MLPModel.
+
         Args:
             c_in: Dimension of input features
             c_hidden: Dimension of hidden features
@@ -567,7 +572,8 @@ class MLPModel(nn.Module):
         self.layers = nn.Sequential(*layers)
 
     def forward(self, x, *args, **kwargs):
-        """
+        """Forward.
+
         Args:
             x: Input features per node
         """
@@ -580,7 +586,7 @@ class MLPModel(nn.Module):
 
 
 # %%
-class NodeLevelGNN(pl.LightningModule):
+class NodeLevelGNN(L.LightningModule):
     def __init__(self, model_name, **model_kwargs):
         super().__init__()
         # Saving hyperparameters
@@ -634,7 +640,7 @@ class NodeLevelGNN(pl.LightningModule):
 # Additionally to the Lightning module, we define a training function below.
 # As we have a single graph, we use a batch size of 1 for the data loader and share the same data loader for the train,
 # validation, and test set (the mask is picked inside the Lightning module).
-# Besides, we set the argument `progress_bar_refresh_rate` to zero as it usually shows the progress per epoch,
+# Besides, we set the argument `enable_progress_bar` to False as it usually shows the progress per epoch,
 # but an epoch only consists of a single step.
 # If you have downloaded the pre-trained models in the beginning of the tutorial, we load those instead of training from scratch.
 # Finally, we test the model and return the results.
@@ -642,18 +648,19 @@ class NodeLevelGNN(pl.LightningModule):
 
 # %%
 def train_node_classifier(model_name, dataset, **model_kwargs):
-    pl.seed_everything(42)
+    L.seed_everything(42)
     node_data_loader = geom_data.DataLoader(dataset, batch_size=1)
 
     # Create a PyTorch Lightning trainer
     root_dir = os.path.join(CHECKPOINT_PATH, "NodeLevel" + model_name)
     os.makedirs(root_dir, exist_ok=True)
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-        gpus=AVAIL_GPUS,
+        accelerator="auto",
+        devices=AVAIL_GPUS,
         max_epochs=200,
-        progress_bar_refresh_rate=0,
+        enable_progress_bar=False,
     )  # 0 because epoch size is 1
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
@@ -663,7 +670,7 @@ def train_node_classifier(model_name, dataset, **model_kwargs):
         print("Found pretrained model, loading...")
         model = NodeLevelGNN.load_from_checkpoint(pretrained_filename)
     else:
-        pl.seed_everything()
+        L.seed_everything()
         model = NodeLevelGNN(
             model_name=model_name, c_in=dataset.num_node_features, c_out=dataset.num_classes, **model_kwargs
         )
@@ -843,7 +850,8 @@ print("Batch indices:", batch.batch[:40])
 # %%
 class GraphGNNModel(nn.Module):
     def __init__(self, c_in, c_hidden, c_out, dp_rate_linear=0.5, **kwargs):
-        """
+        """GraphGNNModel.
+
         Args:
             c_in: Dimension of input features
             c_hidden: Dimension of hidden features
@@ -856,7 +864,8 @@ class GraphGNNModel(nn.Module):
         self.head = nn.Sequential(nn.Dropout(dp_rate_linear), nn.Linear(c_hidden, c_out))
 
     def forward(self, x, edge_index, batch_idx):
-        """
+        """Forward.
+
         Args:
             x: Input features per node
             edge_index: List of vertex index pairs representing the edges in the graph (PyTorch geometric notation)
@@ -875,7 +884,7 @@ class GraphGNNModel(nn.Module):
 
 
 # %%
-class GraphLevelGNN(pl.LightningModule):
+class GraphLevelGNN(L.LightningModule):
     def __init__(self, **model_kwargs):
         super().__init__()
         # Saving hyperparameters
@@ -924,17 +933,18 @@ class GraphLevelGNN(pl.LightningModule):
 
 # %%
 def train_graph_classifier(model_name, **model_kwargs):
-    pl.seed_everything(42)
+    L.seed_everything(42)
 
     # Create a PyTorch Lightning trainer with the generation callback
     root_dir = os.path.join(CHECKPOINT_PATH, "GraphLevel" + model_name)
     os.makedirs(root_dir, exist_ok=True)
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-        gpus=AVAIL_GPUS,
+        accelerator="cuda",
+        devices=AVAIL_GPUS,
         max_epochs=500,
-        progress_bar_refresh_rate=0,
+        enable_progress_bar=False,
     )
     trainer.logger._default_hp_metric = None
 
@@ -944,7 +954,7 @@ def train_graph_classifier(model_name, **model_kwargs):
         print("Found pretrained model, loading...")
         model = GraphLevelGNN.load_from_checkpoint(pretrained_filename)
     else:
-        pl.seed_everything(42)
+        L.seed_everything(42)
         model = GraphLevelGNN(
             c_in=tu_dataset.num_node_features,
             c_out=1 if tu_dataset.num_classes == 2 else tu_dataset.num_classes,
