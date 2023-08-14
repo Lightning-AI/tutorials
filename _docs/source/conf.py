@@ -224,8 +224,17 @@ epub_exclude_files = ["search.html"]
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-# intersphinx_mapping = {
-#     "python": ("https://docs.python.org/3", None),
-#     "torch": ("https://pytorch.org/docs/stable/", None),
-#     "numpy": ("https://docs.scipy.org/doc/numpy/", None),
-# }
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "torch": ("https://pytorch.org/docs/stable/", None),
+    "numpy": ("https://docs.scipy.org/doc/numpy/", None),
+}
+
+# skip false positive linkcheck errors from anchors
+linkcheck_anchors = False
+
+# ignore all links in any CHANGELOG file
+linkcheck_exclude_documents = []
+
+# ignore the following relative links (false positive errors during linkcheck)
+linkcheck_ignore = []
