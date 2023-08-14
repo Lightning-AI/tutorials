@@ -129,3 +129,9 @@ dmypy.json
 .pyre/
 
 .idea/
+
+# data artifacts
+logs/
+lightning_logs/
+cifar-10-batches-py
+*.tar.gz

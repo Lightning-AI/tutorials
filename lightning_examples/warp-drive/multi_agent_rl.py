@@ -9,8 +9,8 @@
 # This tutorial provides a demonstration of a multi-agent Reinforcement Learning (RL) training loop with [WarpDrive](https://github.com/salesforce/warp-drive). WarpDrive is a flexible, lightweight, and easy-to-use RL framework that implements end-to-end deep multi-agent RL on a GPU (Graphics Processing Unit). Using the extreme parallelization capability of GPUs, it enables [orders-of-magnitude faster RL](https://arxiv.org/abs/2108.13976) compared to common implementations that blend CPU simulations and GPU models. WarpDrive is extremely efficient as it runs simulations across multiple agents and multiple environment replicas all in parallel and completely eliminates the back-and-forth data copying between the CPU and the GPU during every step. As such, WarpDrive
 # - Can simulate 1000s of agents in each environment and thousands of environments in parallel, harnessing the extreme parallelism capability of GPUs.
 # - Eliminates communication between CPU and GPU, and also within the GPU, as read and write operations occur in-place.
-# - Is fully compatible with Pytorch, a highly flexible and very fast deep learning framework.
-# - Implements parallel action sampling on CUDA C, which is ~3x faster than using Pytorch’s sampling methods.
+# - Is fully compatible with PyTorch, a highly flexible and very fast deep learning framework.
+# - Implements parallel action sampling on CUDA C, which is ~3x faster than using PyTorch’s sampling methods.
 # - Allows for large-scale distributed training on multiple GPUs.
 #
 # Below is an overview of WarpDrive’s layout of computational and data structures on a single GPU.
@@ -22,9 +22,9 @@
 #
 # We invite everyone to **contribute to WarpDrive**, including adding new multi-agent environments, proposing new features and reporting issues on our open source [repository](https://github.com/salesforce/warp-drive).
 #
-# We have integrated WarpDrive with the [Pytorch Lightning](https://www.pytorchlightning.ai/) framework, which greatly reduces the trainer boilerplate code, and improves training modularity and flexibility. It abstracts away most of the engineering pieces of code, so users can focus on research and building models, and iterate on experiments really fast. Pytorch Lightning also provides support for easily running the model on any hardware, performing distributed training, model checkpointing, performance profiling, logging and visualization.
+# We have integrated WarpDrive with the [PyTorch Lightning](https://www.lightning.ai/) framework, which greatly reduces the trainer boilerplate code, and improves training modularity and flexibility. It abstracts away most of the engineering pieces of code, so users can focus on research and building models, and iterate on experiments really fast. PyTorch Lightning also provides support for easily running the model on any hardware, performing distributed training, model checkpointing, performance profiling, logging and visualization.
 #
-# Below, we demonstrate how to use WarpDrive and PytorchLightning together to train a game of [Tag](https://github.com/salesforce/warp-drive/blob/master/example_envs/tag_continuous/tag_continuous.py) where multiple *tagger* agents are trying to run after and tag multiple other *runner* agents. Here's a sample depiction of the game of Tag with $100$ runners and $5$ taggers.
+# Below, we demonstrate how to use WarpDrive and PyTorch Lightning together to train a game of [Tag](https://github.com/salesforce/warp-drive/blob/master/example_envs/tag_continuous/tag_continuous.py) where multiple *tagger* agents are trying to run after and tag multiple other *runner* agents. Here's a sample depiction of the game of Tag with $100$ runners and $5$ taggers.
 # ![](https://blog.salesforceairesearch.com/content/images/2021/08/same_speed_50fps-1.gif)
 
 # %% [markdown]
@@ -213,7 +213,7 @@ perf_stats_callback = PerfStatsCallback(
     log_freq=log_freq,
 )
 
-# Instantiate the PytorchLightning trainer with the callbacks.
+# Instantiate the PyTorch Lightning trainer with the callbacks.
 # Also, set the number of gpus to 1, since this notebook uses just a single GPU.
 num_gpus = 1
 num_episodes = run_config["trainer"]["num_episodes"]

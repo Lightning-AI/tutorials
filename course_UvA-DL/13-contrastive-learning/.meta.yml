@@ -1,7 +1,7 @@
 title: "Tutorial 13: Self-Supervised Contrastive Learning with SimCLR"
 author: Phillip Lippe
 created: 2021-08-30
-updated: 2021-08-30
+updated: 2023-03-14
 license: CC BY-SA
 tags:
   - Image
@@ -20,6 +20,7 @@ requirements:
   - torchvision
   - matplotlib
   - seaborn
+  - lightning>=2.0.0rc0
 accelerator:
   - CPU
   - GPU

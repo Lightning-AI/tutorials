@@ -22,13 +22,14 @@ import urllib.request
 from functools import partial
 from urllib.error import HTTPError
 
+# PyTorch Lightning
+import lightning as L
+
 # Plotting
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib_inline.backend_inline
 import numpy as np
-
-# PyTorch Lightning
-import pytorch_lightning as pl
 import seaborn as sns
 
 # PyTorch
@@ -40,15 +41,14 @@ import torch.utils.data as data
 
 # Torchvision
 import torchvision
-from IPython.display import set_matplotlib_formats
-from pytorch_lightning.callbacks import ModelCheckpoint
+from lightning.pytorch.callbacks import ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR100
 from tqdm.notebook import tqdm
 
 plt.set_cmap("cividis")
 # %matplotlib inline
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
@@ -58,10 +58,10 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/Transformers/")
 
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -246,7 +246,7 @@ def scaled_dot_product(q, k, v, mask=None):
 
 # %%
 seq_len, d_k = 3, 2
-pl.seed_everything(42)
+L.seed_everything(42)
 q = torch.randn(seq_len, d_k)
 k = torch.randn(seq_len, d_k)
 v = torch.randn(seq_len, d_k)
@@ -463,7 +463,8 @@ class MultiheadAttention(nn.Module):
 # %%
 class EncoderBlock(nn.Module):
     def __init__(self, input_dim, num_heads, dim_feedforward, dropout=0.0):
-        """
+        """EncoderBlock.
+
         Args:
             input_dim: Dimensionality of the input
             num_heads: Number of heads to use in the attention block
@@ -572,8 +573,9 @@ class TransformerEncoder(nn.Module):
 # %%
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=5000):
-        """
-        Args
+        """Positional Encoding.
+
+        Args:
             d_model: Hidden dimensionality of the input.
             max_len: Maximum length of a sequence to expect.
         """
@@ -744,7 +746,7 @@ sns.reset_orig()
 
 
 # %%
-class TransformerPredictor(pl.LightningModule):
+class TransformerPredictor(L.LightningModule):
     def __init__(
         self,
         input_dim,
@@ -758,7 +760,8 @@ class TransformerPredictor(pl.LightningModule):
         dropout=0.0,
         input_dropout=0.0,
     ):
-        """
+        """TransformerPredictor.
+
         Args:
             input_dim: Hidden dimensionality of the input
             model_dim: Hidden dimensionality to use inside the Transformer
@@ -958,7 +961,7 @@ class ReversePredictor(TransformerPredictor):
 
 # %% [markdown]
 # Finally, we can create a training function similar to the one we have seen in Tutorial 5 for PyTorch Lightning.
-# We create a `pl.Trainer` object, running for $N$ epochs, logging in TensorBoard, and saving our best model based on the validation.
+# We create a `L.Trainer` object, running for $N$ epochs, logging in TensorBoard, and saving our best model based on the validation.
 # Afterward, we test our models on the test set.
 # An additional parameter we pass to the trainer here is `gradient_clip_val`.
 # This clips the norm of the gradients for all parameters before taking an optimizer step and prevents the model
@@ -976,13 +979,13 @@ def train_reverse(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     root_dir = os.path.join(CHECKPOINT_PATH, "ReverseTask")
     os.makedirs(root_dir, exist_ok=True)
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-        gpus=1 if str(device).startswith("cuda") else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=10,
         gradient_clip_val=5,
-        progress_bar_refresh_rate=1,
     )
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
@@ -1436,13 +1439,13 @@ def train_anomaly(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     root_dir = os.path.join(CHECKPOINT_PATH, "SetAnomalyTask")
     os.makedirs(root_dir, exist_ok=True)
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-        gpus=1 if str(device).startswith("cuda") else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=100,
         gradient_clip_val=2,
-        progress_bar_refresh_rate=1,
     )
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
