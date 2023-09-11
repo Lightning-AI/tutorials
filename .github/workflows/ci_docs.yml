@@ -70,6 +70,7 @@ jobs:
       - name: Generate notebooks
         if: steps.changed.outputs.nb_dirs != 0
         run: |
+          # second half with || [...] is needed for reading the last line
           while read -r line || [ -n "$line" ]; do
               python .actions/assistant.py convert-ipynb $line
               python .actions/assistant.py bash-render $line
@@ -83,6 +84,7 @@ jobs:
       - name: Copy notebooks
         if: steps.changed.outputs.nb_dirs != 0
         run: |
+          # second half with || [...] is needed for reading the last line
           while read -r line || [ -n "$line" ]; do
               dir=$(dirname $line)
               mkdir -p changed-notebooks/${dir}
