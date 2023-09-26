@@ -359,7 +359,7 @@ class ImageFlow(L.LightningModule):
 # ### Dequantization
 #
 # Normalizing flows rely on the rule of change of variables, which is naturally defined in continuous space.
-# Applying flows directly on discrete data leads to undesired density models where arbitrarly high likelihood are placed on a few, particular values.
+# Applying flows directly on discrete data leads to undesired density models where arbitrarily high likelihood are placed on a few, particular values.
 # See the illustration below:
 #
 # <center><img src="dequantization_issue.svg" width="40%"/></center>

@@ -514,7 +514,7 @@ class AssistantCLI:
         # unique folders
         dirs = set(dirs)
         # drop folder with skip folder
-        dirs = [pd for pd in dirs if not any(nd in AssistantCLI._SKIP_DIRS for nd in pd.split(os.path.sep))]
+        dirs = [pdir for pdir in dirs if not any(ndir in AssistantCLI._SKIP_DIRS for ndir in pdir.split(os.path.sep))]
         # valid folder has meta
         dirs_exist = [d for d in dirs if os.path.isdir(d)]
         dirs_invalid = [d for d in dirs_exist if not AssistantCLI._find_meta(d)]
