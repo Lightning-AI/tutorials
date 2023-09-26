@@ -44,7 +44,7 @@ line-length = 120
 exclude = "(.eggs|.git|.hg|.venv|_build|buck-out|build)"
 
 [tool.codespell]
-#skip = '*.py'
+skip = '*.svg'
 quiet-level = 3
 # comma separated list of words; waiting for:
 #  https://github.com/codespell-project/codespell/issues/2839#issuecomment-1731601603
