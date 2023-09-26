@@ -43,10 +43,14 @@ exclude_lines = [
 line-length = 120
 exclude = "(.eggs|.git|.hg|.venv|_build|buck-out|build)"
 
-[tool.isort]
-skip_glob = []
-profile = "black"
-line_length = 120
+[tool.codespell]
+#skip = '*.py'
+quiet-level = 3
+# comma separated list of words; waiting for:
+#  https://github.com/codespell-project/codespell/issues/2839#issuecomment-1731601603
+# also adding links until they ignored by its: nature
+#  https://github.com/codespell-project/codespell/issues/2243#issuecomment-1732019960
+#ignore-words-list = ""
 
 
 [tool.ruff]
