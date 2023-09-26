@@ -30,12 +30,12 @@ requirements:
 accelerator:
 - GPU
 environment:
-- setuptools==68.0.0
-- torch==1.12.1+cu116
-- matplotlib==3.6.1
-- torchmetrics==0.11.4
-- finetuning-scheduler==2.0.7
 - ipython==8.14.0
+- finetuning-scheduler==2.0.7
+- matplotlib==3.6.1
+- torch==1.12.1+cu116
 - urllib3==2.0.5
+- torchmetrics==0.11.4
 - pytorch-lightning==2.0.9
-published: '2023-09-26T11:54:10.523461'
+- setuptools==68.0.0
+published: '2023-09-26T12:19:00.882145'
