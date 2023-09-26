@@ -462,7 +462,7 @@ class AssistantCLI:
 
     @staticmethod
     def _is_ipynb_parent_dir(dir_path: str) -> bool:
-        """Determine in recursive fasion of a folder is valid notebook file or any of sub-folders is."""
+        """Determine in recursive fashion of a folder is valid notebook file or any of sub-folders is."""
         if AssistantCLI._find_meta(dir_path):
             return True
         sub_dirs = [d for d in glob.glob(os.path.join(dir_path, "*")) if os.path.isdir(d)]
@@ -514,7 +514,7 @@ class AssistantCLI:
         # unique folders
         dirs = set(dirs)
         # drop folder with skip folder
-        dirs = [pd for pd in dirs if not any(nd in AssistantCLI._SKIP_DIRS for nd in pd.split(os.path.sep))]
+        dirs = [pdir for pdir in dirs if not any(ndir in AssistantCLI._SKIP_DIRS for ndir in pdir.split(os.path.sep))]
         # valid folder has meta
         dirs_exist = [d for d in dirs if os.path.isdir(d)]
         dirs_invalid = [d for d in dirs_exist if not AssistantCLI._find_meta(d)]
@@ -702,7 +702,7 @@ class AssistantCLI:
         dirs += glob.glob(os.path.join(folder, "**", "*" + include_file_ext))
         if include_file_ext:
             _ignore_base_dir = lambda p: os.path.sep.join(p.split(os.path.sep)[1:])  # noqa: E731
-            # Take the notebook as a folder (notebook are on teh same level as the raw tutorial file mix)
+            # Take the notebook as a folder (notebook are on the same level as the raw tutorial file mix)
             dirs = [os.path.splitext(_ignore_base_dir(p))[0] for p in dirs]
         else:
             dirs = [p for p in dirs if os.path.isdir(p)]

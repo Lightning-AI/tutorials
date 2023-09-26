@@ -75,7 +75,7 @@ trainer.save_checkpoint("tabular_classification_model.pt")
 # # Predicting
 # ## Load the model from a checkpoint
 #
-# `TabularClassifier.load_from_checkpoint` supports both url or local_path to a checkpoint. If provided with an url, the checkpoint will first be downloaded and laoded to re-create the model.
+# `TabularClassifier.load_from_checkpoint` supports both url or local_path to a checkpoint. If provided with an url, the checkpoint will first be downloaded and loaded to re-create the model.
 
 # %%
 model = TabularClassifier.load_from_checkpoint(
