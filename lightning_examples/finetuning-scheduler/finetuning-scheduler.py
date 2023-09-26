@@ -171,10 +171,15 @@ import warnings
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-import sentencepiece as sp  # noqa: F401 # isort: split
 import datasets
 import evaluate
+
+# %%
+# Import the `FinetuningScheduler` PyTorch Lightning extension module we want to use. This will import all necessary callbacks.
+import finetuning_scheduler as fts  # isort: split
+
 import lightning as L
+import sentencepiece as sp  # noqa: F401 # isort: split
 import torch
 from datasets import logging as datasets_logging
 from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
@@ -186,10 +191,6 @@ from torch.utils.data import DataLoader
 from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
 from transformers import logging as transformers_logging
 from transformers.tokenization_utils_base import BatchEncoding
-
-# %%
-# Import the `FinetuningScheduler` PyTorch Lightning extension module we want to use. This will import all necessary callbacks.
-import finetuning_scheduler as fts  # isort: split
 
 # set notebook-level variables
 TASK_NUM_LABELS = {"boolq": 2, "rte": 2}
