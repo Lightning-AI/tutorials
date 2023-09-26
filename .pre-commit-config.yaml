@@ -3,7 +3,7 @@ default_language_version:
 
 ci:
   autofix_prs: true
-  autoupdate_commit_msg: '[pre-commit.ci] pre-commit suggestions'
+  autoupdate_commit_msg: "[pre-commit.ci] pre-commit suggestions"
   autoupdate_schedule: quarterly
   # submodules: true
 
@@ -18,7 +18,7 @@ repos:
       - id: check-yaml
       - id: check-toml
       - id: check-added-large-files
-        args: ['--maxkb=250', '--enforce-all']
+        args: ["--maxkb=250", "--enforce-all"]
       - id: check-docstring-first
       - id: detect-private-key
 
@@ -37,6 +37,13 @@ repos:
           - "--in-place"
           - "--wrap-summaries=119"
           - "--wrap-descriptions=120"
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.3
+    hooks:
+      - id: prettier
+        # https://prettier.io/docs/en/options.html#print-width
+        args: ["--print-width=120"]
 
   - repo: https://github.com/psf/black
     rev: 23.3.0
