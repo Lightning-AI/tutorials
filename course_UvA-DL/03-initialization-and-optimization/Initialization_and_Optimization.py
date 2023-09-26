@@ -33,7 +33,7 @@ matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For exp
 sns.set()
 
 # %% [markdown]
-# Instead of the `set_seed` function as in Tutorial 3, we can use Lightning's build-in function `L.seed_everything`.
+# Instead of the `set_seed` function as in Tutorial 3, we can use Lightning's built-in function `L.seed_everything`.
 # We will reuse the path variables `DATASET_PATH` and `CHECKPOINT_PATH` as in Tutorial 3.
 # Adjust the paths if necessary.
 
@@ -416,7 +416,7 @@ visualize_activations(model, print_variance=True)
 # Actually, as $b$ is a single element per output neuron and is constant across different inputs, we set it to 0 overall.
 #
 # Next, we need to calculate the variance with which we need to initialize the weight parameters.
-# Along the calculation, we will need to following variance rule: given two independent variables, the variance of their product is $\text{Var}(X\cdot Y) = \mathbb{E}(Y)^2\text{Var}(X) + \mathbb{E}(X)^2\text{Var}(Y) + \text{Var}(X)\text{Var}(Y) = \mathbb{E}(Y^2)\mathbb{E}(X^2)-\mathbb{E}(Y)^2\mathbb{E}(X)^2$ ($X$ and $Y$ are not refering to $x$ and $y$, but any random variable).
+# Along the calculation, we will need to following variance rule: given two independent variables, the variance of their product is $\text{Var}(X\cdot Y) = \mathbb{E}(Y)^2\text{Var}(X) + \mathbb{E}(X)^2\text{Var}(Y) + \text{Var}(X)\text{Var}(Y) = \mathbb{E}(Y^2)\mathbb{E}(X^2)-\mathbb{E}(Y)^2\mathbb{E}(X)^2$ ($X$ and $Y$ are not referring to $x$ and $y$, but any random variable).
 #
 # The needed variance of the weights, $\text{Var}(w_{ij})$, is calculated as follows:
 #

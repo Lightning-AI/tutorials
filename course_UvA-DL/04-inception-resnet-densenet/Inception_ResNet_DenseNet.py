@@ -372,7 +372,7 @@ def train_model(model_name, save_name=None, **kwargs):
         # Automatically loads the model with the saved hyperparameters
         model = CIFARModule.load_from_checkpoint(pretrained_filename)
     else:
-        L.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducible
         model = CIFARModule(model_name=model_name, **kwargs)
         trainer.fit(model, train_loader, val_loader)
         model = CIFARModule.load_from_checkpoint(

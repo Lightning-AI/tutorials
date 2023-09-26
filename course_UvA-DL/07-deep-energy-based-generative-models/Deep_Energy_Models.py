@@ -703,7 +703,7 @@ model = train_model(img_shape=(1, 28, 28), batch_size=train_loader.batch_size, l
 # ### Image Generation
 #
 # Another way of evaluating generative models is by sampling a few generated images.
-# Generative models need to be good at generating realistic images as this truely shows that they have modeled the true data distribution.
+# Generative models need to be good at generating realistic images as this truly shows that they have modeled the true data distribution.
 # Thus, let's sample a few images of the model below:
 
 # %%

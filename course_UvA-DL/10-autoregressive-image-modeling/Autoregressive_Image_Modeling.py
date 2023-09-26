@@ -69,7 +69,7 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial12")
 L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 # Fetching the device that will be used throughout this notebook
@@ -504,7 +504,7 @@ class GatedMaskedConv(nn.Module):
 #
 # Using the gated convolutions, we can now build our PixelCNN model.
 # The architecture consists of multiple stacked GatedMaskedConv blocks, where we add an additional dilation factor to a few convolutions.
-# This is used to increase the receptive field of the model and allows to take a larger context into accout during generation.
+# This is used to increase the receptive field of the model and allows to take a larger context into account during generation.
 # As a reminder, dilation on a convolution works looks as follows
 # (figure credit - [Vincent Dumoulin and Francesco Visin](https://arxiv.org/pdf/1603.07285.pdf)):
 #
