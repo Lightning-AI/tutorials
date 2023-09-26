@@ -315,7 +315,7 @@ class BarlowTwins(L.LightningModule):
 # %% [markdown]
 # ### Evaluation
 #
-# We define a callback which appends a linear layer on top of the encoder and trains the classification evaluation head in an online manner. We make sure not to backpropagate the gradients back to the encoder while tuning the linear layer. This technique was used in SimCLR as well and they showed that the final downstream classification peformance is pretty much similar to the results on online finetuning as the training progresses.
+# We define a callback which appends a linear layer on top of the encoder and trains the classification evaluation head in an online manner. We make sure not to backpropagate the gradients back to the encoder while tuning the linear layer. This technique was used in SimCLR as well and they showed that the final downstream classification performance is pretty much similar to the results on online finetuning as the training progresses.
 
 
 # %%

@@ -113,7 +113,7 @@ class RLDataset(IterableDataset):
 # %%
 class Agent:
     def __init__(self, env: gym.Env, replay_buffer: ReplayBuffer) -> None:
-        """Base Agent class handeling the interaction with the environment.
+        """Base Agent class handling the interaction with the environment.
 
         Args:
             env: training environment
@@ -293,7 +293,7 @@ class DQNLightning(LightningModule):
 
     def training_step(self, batch: Tuple[Tensor, Tensor], nb_batch) -> OrderedDict:
         """Carries out a single step through the environment to update the replay buffer. Then calculates loss based on
-        the minibatch recieved.
+        the minibatch received.
 
         Args:
             batch: current mini batch of replay data

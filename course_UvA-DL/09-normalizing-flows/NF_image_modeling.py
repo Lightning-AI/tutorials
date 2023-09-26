@@ -289,7 +289,7 @@ class ImageFlow(L.LightningModule):
     def _get_likelihood(self, imgs, return_ll=False):
         """Given a batch of images, return the likelihood of those.
 
-        If return_ll is True, this function returns the log likelihood of the input. Otherwise, the ouptut metric is
+        If return_ll is True, this function returns the log likelihood of the input. Otherwise, the output metric is
         bits per dimension (scaled negative log likelihood)
         """
         z, ldj = self.encode(imgs)
@@ -352,7 +352,7 @@ class ImageFlow(L.LightningModule):
 
 # %% [markdown]
 # The `test_step` function differs from the training and validation step in that it makes use of importance sampling.
-# We will discuss the motiviation and details behind this after
+# We will discuss the motivation and details behind this after
 # understanding how flows model discrete images in continuous space.
 
 # %% [markdown]
@@ -975,7 +975,7 @@ def train_flow(flow, model_name="MNISTFlow"):
 # One disadvantage of normalizing flows is that they operate on the exact same dimensions as the input.
 # If the input is high-dimensional, so is the latent space, which requires larger computational cost to learn suitable transformations.
 # However, particularly in the image domain, many pixels contain less information in the sense
-# that we could remove them without loosing the semantical information of the image.
+# that we could remove them without losing the semantical information of the image.
 #
 # Based on this intuition, deep normalizing flows on images commonly apply a multi-scale architecture [1].
 # After the first $N$ flow transformations, we split off half of the latent dimensions and directly evaluate them on the prior.
@@ -1208,7 +1208,7 @@ display(
 )
 
 # %% [markdown]
-# As we have intially expected, using variational dequantization improves upon standard dequantization in terms of bits per dimension.
+# As we have initially expected, using variational dequantization improves upon standard dequantization in terms of bits per dimension.
 # Although the difference with 0.04bpd doesn't seem impressive first, it is a considerably step for generative models
 # (most state-of-the-art models improve upon previous models in a range of 0.02-0.1bpd on CIFAR with three times as high bpd).
 # While it takes longer to evaluate the probability of an image due to the variational dequantization,
@@ -1223,7 +1223,7 @@ display(
 # We should note that the samples for variational dequantization and standard dequantization are very similar,
 # and hence we visualize here only the ones for variational dequantization and the multi-scale model.
 # However, feel free to also test out the `"simple"` model.
-# The seeds are set to obtain reproducable generations and are not cherry picked.
+# The seeds are set to obtain reproducible generations and are not cherry picked.
 
 # %%
 L.seed_everything(44)

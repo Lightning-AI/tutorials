@@ -203,7 +203,7 @@ for file_name in pretrained_files:
 #
 # One aspect we haven't discussed yet is the scaling factor of $1/\sqrt{d_k}$.
 # This scaling factor is crucial to maintain an appropriate variance of attention values after initialization.
-# Remember that we intialize our layers with the intention of having equal variance throughout the model, and hence,
+# Remember that we initialize our layers with the intention of having equal variance throughout the model, and hence,
 # $Q$ and $K$ might also have a variance close to $1$.
 # However, performing a dot product over two vectors with a variance $\sigma$ results
 # in a scalar having $d_k$-times higher variance:
