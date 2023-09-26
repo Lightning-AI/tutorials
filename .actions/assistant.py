@@ -220,8 +220,8 @@ class AssistantCLI:
 
     @staticmethod
     def _valid_folder(folder: str, ext: str) -> Tuple[str, str, str]:
-        """Validate notebook folder if it has required meta file, python script or ipython notebook (depending on
-        the stage) and optional thumb.
+        """Validate notebook folder if it has required meta file, python script or ipython notebook (depending on the
+        stage) and optional thumb.
 
         Args:
             folder: path to the folder with python script, meta and artefacts
