@@ -1,8 +1,8 @@
 name: validate Docs
 
-on:  # Trigger the workflow on push or pull request
-#  push:
-#    branches: [main]
+on: # Trigger the workflow on push or pull request
+  #  push:
+  #    branches: [main]
   pull_request: {}
   schedule:
     # At the end of every day
@@ -23,7 +23,7 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # fetch all history for all branches and tags
+          fetch-depth: 0 # fetch all history for all branches and tags
       - uses: actions/setup-python@v4
         with:
           python-version: 3.8
@@ -62,7 +62,7 @@ jobs:
 
       - uses: oleksiyrudenko/gha-git-credentials@v2.1
         with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
+          token: "${{ secrets.GITHUB_TOKEN }}"
           global: true
       - name: Sync to pub
         run: git merge -s resolve origin/$PUB_BRANCH

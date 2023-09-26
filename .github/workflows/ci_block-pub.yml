@@ -1,7 +1,7 @@
 name: Prevent modify publication
 
 # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows
-on:  # Trigger the workflow on PR to master
+on: # Trigger the workflow on PR to master
   pull_request:
     branches: [publication]
 
@@ -9,4 +9,4 @@ jobs:
   block-ipynb:
     runs-on: ubuntu-latest
     steps:
-    - run: exit 1
+      - run: exit 1
