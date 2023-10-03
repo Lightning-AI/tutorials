@@ -235,8 +235,7 @@ class RteBoolqDataModule(L.LightningDataModule):
         tokenizers_parallelism: bool = True,
         **dataloader_kwargs: Any,
     ):
-        r"""Initialize the ``LightningDataModule`` designed for both the RTE or BoolQ SuperGLUE Hugging Face
-        datasets.
+        r"""Initialize the ``LightningDataModule`` designed for both the RTE or BoolQ SuperGLUE Hugging Face datasets.
 
         Args:
             model_name_or_path (str):
