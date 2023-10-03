@@ -64,19 +64,18 @@ jobs:
           printf "Changed folders:\n"
           cat changed-folders.txt
 
-      - name: ">> output"
-        id: changed
-        run: python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=nb_dirs::{len(lines)}')"
+      - name: Count changed notebooks
+        run: python -c "lines = open('changed-folders.txt').readlines(); print(f'NB_DIRS={len(lines)}')" >> $GITHUB_ENV
 
       - uses: oleksiyrudenko/gha-git-credentials@v2.1
         with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
+          token: ${{ secrets.GITHUB_TOKEN }}
           global: true
       - name: Sync to pub
         run: git merge -s resolve origin/$PUB_BRANCH
 
       - name: Generate notebooks
-        if: steps.changed.outputs.nb_dirs != 0
+        if: ${{ env.NB_DIRS != 0 }}
         env:
           DRY_RUN: 1
         run: |
@@ -89,7 +88,7 @@ jobs:
           done <<< $(cat changed-folders.txt)
 
       - name: Copy notebooks
-        if: steps.changed.outputs.nb_dirs != 0
+        if: ${{ env.NB_DIRS != 0 }}
         run: |
           # second half with || [...] is needed for reading the last line
           while read -r line || [ -n "$line" ]; do
@@ -100,7 +99,7 @@ jobs:
           tree changed-notebooks
 
       - uses: actions/upload-artifact@v3
-        if: steps.changed.outputs.nb_dirs != 0
+        if: ${{ matrix.check == 'html' && emv.NB_DIRS != 0 }}
         with:
           name: notebooks-${{ github.sha }}
           path: changed-notebooks/
@@ -116,6 +115,7 @@ jobs:
         run: make html --jobs $(nproc) --debug SPHINXOPTS="-W --keep-going"
 
       - name: Upload built docs
+        if: ${{ matrix.check == 'html' }}
         uses: actions/upload-artifact@v3
         with:
           name: docs-html-${{ github.sha }}
