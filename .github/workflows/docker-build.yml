@@ -1,0 +1,48 @@
+name: "Build (& Push) Dockers"
+
+on: # Trigger the workflow on push or pull request, but only for the main branch
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/docker-build.yml"
+      - "_requirements/*"
+      - "requirements.txt"
+      - "_dockers/**"
+  workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.head_ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  PUSH_DOCKERHUB: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
+
+jobs:
+
+  build-cuda:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        if: env.PUSH_DOCKERHUB == 'true' && github.repository_owner == 'Lightning-AI'
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build (and Push) Devcontainer
+        uses: docker/build-push-action@v5
+        with:
+          #build-args: |
+          #  UBUNTU_VERSION=${{ matrix.ubuntu }}
+          #  PYTHON_VERSION=${{ matrix.python }}
+          #  PYTORCH_VERSION=${{ matrix.pytorch }}
+          #  CUDA_VERSION=${{ matrix.cuda }}
+          file: _dockers/ubuntu-cuda/Dockerfile
+          push: ${{ env.PUSH_DOCKERHUB }}
+          tags: "pytorchlightning/tutorials"
+        timeout-minutes: 55
