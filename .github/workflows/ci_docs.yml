@@ -99,7 +99,7 @@ jobs:
           tree changed-notebooks
 
       - uses: actions/upload-artifact@v3
-        if: ${{ matrix.check == 'html' && emv.NB_DIRS != 0 }}
+        if: ${{ matrix.check == 'html' && env.NB_DIRS != 0 }}
         with:
           name: notebooks-${{ github.sha }}
           path: changed-notebooks/
