@@ -18,7 +18,7 @@
 #
 #
 #
-# <div style="display:inline" id="a1">
+# <div style="display:inline">
 #
 # Fundamentally, [Fine-Tuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html) enables
 # scheduled, multi-phase, fine-tuning of foundation models. Gradual unfreezing (i.e. thawing) can help maximize
@@ -43,7 +43,7 @@
 # ## Basic Usage
 #
 # If no fine-tuning schedule is provided by the user, [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) will generate a
-# [default schedule](#The-Default-Finetuning-Schedule) and proceed to fine-tune according to the generated schedule,
+# [default schedule](#The-Default-Fine-Tuning-Schedule) and proceed to fine-tune according to the generated schedule,
 # using default [FTSEarlyStopping](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSEarlyStopping) and [FTSCheckpoint](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSCheckpoint) callbacks with ``monitor=val_loss``.
 #
 # </div>
@@ -615,12 +615,12 @@ for scenario_name, scenario_callbacks in scenario_callbacks.items():
 # ## Footnotes
 #
 # - [Howard, J., & Ruder, S. (2018)](https://arxiv.org/pdf/1801.06146.pdf). Fine-tuned Language
-#  Models for Text Classification. ArXiv, abs/1801.06146. [↩](#a1)
+#  Models for Text Classification. ArXiv, abs/1801.06146. [↩](#Scheduled-Fine-Tuning-with-the-Fine-Tuning-Scheduler-Extension)
 # - [Chronopoulou, A., Baziotis, C., & Potamianos, A. (2019)](https://arxiv.org/pdf/1902.10547.pdf).
 #  An embarrassingly simple approach for transfer learning from pretrained language models. arXiv
-#  preprint arXiv:1902.10547. [↩](#a1)
+#  preprint arXiv:1902.10547. [↩](#Scheduled-Fine-Tuning-with-the-Fine-Tuning-Scheduler-Extension)
 # - [Peters, M. E., Ruder, S., & Smith, N. A. (2019)](https://arxiv.org/pdf/1903.05987.pdf). To tune or not to
-#  tune? adapting pretrained representations to diverse tasks. arXiv preprint arXiv:1903.05987. [↩](#a1)
+#  tune? adapting pretrained representations to diverse tasks. arXiv preprint arXiv:1903.05987. [↩](#Scheduled-Fine-Tuning-with-the-Fine-Tuning-Scheduler-Extension)
 # - [Sivaprasad, P. T., Mai, F., Vogels, T., Jaggi, M., & Fleuret, F. (2020)](https://arxiv.org/pdf/1910.11758.pdf).
 #  Optimizer benchmarking needs to account for hyperparameter tuning. In International Conference on Machine Learning
 # (pp. 9036-9045). PMLR. [↩](#Optimizer-Configuration)
