@@ -172,8 +172,7 @@ for file_name in pretrained_files:
 # The trick is that we approximate $Z_{\theta}$ by a single Monte-Carlo sample.
 # This gives us the exact same objective as written above.
 #
-# Visually, we can look at the objective as follows (figure credit
-# - [Stefano Ermon and Aditya Grover](https://deepgenerativemodels.github.io/assets/slides/cs236_lecture11.pdf)):
+# Visually, we can look at the objective as follows (figure credit - Stefano Ermon and Aditya Grover: lecture cs236/11):
 #
 # <center width="100%"><img src="contrastive_divergence.svg" width="700px"></center>
 #
@@ -206,8 +205,7 @@ for file_name in pretrained_files:
 # Modeling the probability distribution for sampling new data is not the only application of energy-based models.
 # Any application which requires us to compare two elements is much simpler to learn
 # because we just need to go for the higher energy.
-# A couple of examples are shown below (figure credit
-# - [Stefano Ermon and Aditya Grover](https://deepgenerativemodels.github.io/assets/slides/cs236_lecture11.pdf)).
+# A couple of examples are shown below (figure credit - Stefano Ermon and Aditya Grover: lecture cs236/11).
 # A classification setup like object recognition or sequence labeling can be considered as an energy-based
 # task as we just need to find the $Y$ input that minimizes the output $E(X, Y)$ (hence maximizes probability).
 # Similarly, a popular application of energy-based models is denoising of images.
