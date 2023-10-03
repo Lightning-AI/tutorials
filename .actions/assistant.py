@@ -188,7 +188,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
-            strict: raise error if meta is missing required feilds
+            strict: raise error if meta is missing required fields
         """
         fpath = AssistantCLI._find_meta(folder)
         assert fpath, f"Missing meta file in folder: {folder}"
