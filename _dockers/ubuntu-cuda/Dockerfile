@@ -71,6 +71,7 @@ RUN \
 
 ENV PYTHONPATH="/usr/lib/python${PYTHON_VERSION}/site-packages"
 
+COPY .actions/ .actions/
 COPY requirements.txt .
 COPY _requirements/ _requirements/
 
@@ -79,7 +80,7 @@ RUN \
     CU_VERSION_MM=${CUDA_VERSION_MM//'.'/''} && \
     pip install --no-cache-dir -r requirements.txt \
       --find-links "https://download.pytorch.org/whl/cu${CU_VERSION_MM}/torch_stable.html" && \
-    rm -rf requirements.txt _requirements/
+    rm -rf requirements.txt .actions/ _requirements/
 
 RUN \
     # Show what we have

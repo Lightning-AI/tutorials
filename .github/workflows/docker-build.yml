@@ -43,5 +43,6 @@ jobs:
           #  CUDA_VERSION=${{ matrix.cuda }}
           file: _dockers/ubuntu-cuda/Dockerfile
           push: ${{ env.PUSH_DOCKERHUB }}
+          # todo: publish also tag YYYY.MM
           tags: "pytorchlightning/tutorials"
         timeout-minutes: 55
