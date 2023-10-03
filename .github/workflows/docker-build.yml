@@ -20,7 +20,6 @@ env:
   PUSH_DOCKERHUB: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
 
 jobs:
-
   build-cuda:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
