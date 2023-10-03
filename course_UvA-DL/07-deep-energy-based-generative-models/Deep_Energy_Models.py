@@ -315,7 +315,7 @@ class CNNModel(nn.Module):
 # inside the MCMC sampling to obtain reasonable samples.
 # However, there is a training trick that significantly reduces the sampling cost: using a sampling buffer.
 # The idea is that we store the samples of the last couple of batches in a buffer,
-# and re-use those as the starting point of the MCMC algorithm for the next batches.
+# and reuse those as the starting point of the MCMC algorithm for the next batches.
 # This reduces the sampling cost because the model requires a significantly
 # lower number of steps to converge to reasonable samples.
 # However, to not solely rely on previous samples and allow novel samples as well,

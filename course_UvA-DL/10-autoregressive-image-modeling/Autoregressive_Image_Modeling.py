@@ -905,7 +905,7 @@ plt.close()
 # potentially undesirable behavior. For instance, the value 242 has a
 # 1000x lower likelihood than 243 although they are extremely close and
 # can often not be distinguished. This shows that the model might have not
-# generlized well over pixel values. The better solution to this problem
+# generalized well over pixel values. The better solution to this problem
 # is to use discrete logitics mixtures instead of a softmax distribution.
 # A discrete logistic distribution can be imagined as discretized, binned
 # Gaussians. Using a mixture of discrete logistics instead of a softmax
