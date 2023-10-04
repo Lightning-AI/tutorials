@@ -33,7 +33,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build (and Push) Devcontainer
+      - name: Build (and Push) image
         uses: docker/build-push-action@v5
         with:
           #build-args: |
