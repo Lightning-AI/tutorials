@@ -172,8 +172,7 @@ for file_name in pretrained_files:
 # The trick is that we approximate $Z_{\theta}$ by a single Monte-Carlo sample.
 # This gives us the exact same objective as written above.
 #
-# Visually, we can look at the objective as follows (figure credit
-# - [Stefano Ermon and Aditya Grover](https://deepgenerativemodels.github.io/assets/slides/cs236_lecture11.pdf)):
+# Visually, we can look at the objective as follows (figure credit - Stefano Ermon and Aditya Grover: lecture cs236/11):
 #
 # <center width="100%"><img src="contrastive_divergence.svg" width="700px"></center>
 #
@@ -206,8 +205,7 @@ for file_name in pretrained_files:
 # Modeling the probability distribution for sampling new data is not the only application of energy-based models.
 # Any application which requires us to compare two elements is much simpler to learn
 # because we just need to go for the higher energy.
-# A couple of examples are shown below (figure credit
-# - [Stefano Ermon and Aditya Grover](https://deepgenerativemodels.github.io/assets/slides/cs236_lecture11.pdf)).
+# A couple of examples are shown below (figure credit - Stefano Ermon and Aditya Grover: lecture cs236/11).
 # A classification setup like object recognition or sequence labeling can be considered as an energy-based
 # task as we just need to find the $Y$ input that minimizes the output $E(X, Y)$ (hence maximizes probability).
 # Similarly, a popular application of energy-based models is denoising of images.
@@ -315,7 +313,7 @@ class CNNModel(nn.Module):
 # inside the MCMC sampling to obtain reasonable samples.
 # However, there is a training trick that significantly reduces the sampling cost: using a sampling buffer.
 # The idea is that we store the samples of the last couple of batches in a buffer,
-# and re-use those as the starting point of the MCMC algorithm for the next batches.
+# and reuse those as the starting point of the MCMC algorithm for the next batches.
 # This reduces the sampling cost because the model requires a significantly
 # lower number of steps to converge to reasonable samples.
 # However, to not solely rely on previous samples and allow novel samples as well,
@@ -703,7 +701,7 @@ model = train_model(img_shape=(1, 28, 28), batch_size=train_loader.batch_size, l
 # ### Image Generation
 #
 # Another way of evaluating generative models is by sampling a few generated images.
-# Generative models need to be good at generating realistic images as this truely shows that they have modeled the true data distribution.
+# Generative models need to be good at generating realistic images as this truly shows that they have modeled the true data distribution.
 # Thus, let's sample a few images of the model below:
 
 # %%

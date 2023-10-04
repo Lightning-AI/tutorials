@@ -69,7 +69,7 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial12")
 L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 # Fetching the device that will be used throughout this notebook
@@ -504,7 +504,7 @@ class GatedMaskedConv(nn.Module):
 #
 # Using the gated convolutions, we can now build our PixelCNN model.
 # The architecture consists of multiple stacked GatedMaskedConv blocks, where we add an additional dilation factor to a few convolutions.
-# This is used to increase the receptive field of the model and allows to take a larger context into accout during generation.
+# This is used to increase the receptive field of the model and allows to take a larger context into account during generation.
 # As a reminder, dilation on a convolution works looks as follows
 # (figure credit - [Vincent Dumoulin and Francesco Visin](https://arxiv.org/pdf/1603.07285.pdf)):
 #
@@ -905,7 +905,7 @@ plt.close()
 # potentially undesirable behavior. For instance, the value 242 has a
 # 1000x lower likelihood than 243 although they are extremely close and
 # can often not be distinguished. This shows that the model might have not
-# generlized well over pixel values. The better solution to this problem
+# generalized well over pixel values. The better solution to this problem
 # is to use discrete logitics mixtures instead of a softmax distribution.
 # A discrete logistic distribution can be imagined as discretized, binned
 # Gaussians. Using a mixture of discrete logistics instead of a softmax

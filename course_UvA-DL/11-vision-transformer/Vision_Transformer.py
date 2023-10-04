@@ -398,7 +398,7 @@ def train_model(**kwargs):
         # Automatically loads the model with the saved hyperparameters
         model = ViT.load_from_checkpoint(pretrained_filename)
     else:
-        L.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducible
         model = ViT(**kwargs)
         trainer.fit(model, train_loader, val_loader)
         # Load best checkpoint after training
@@ -503,7 +503,7 @@ print("ViT results", results)
 # In this tutorial, we have implemented our own Vision Transformer from scratch and applied it on the task of image classification.
 # Vision Transformers work by splitting an image into a sequence of smaller patches, use those as input to a standard Transformer encoder.
 # While Vision Transformers achieved outstanding results on large-scale image recognition benchmarks such as ImageNet, they considerably underperform when being trained from scratch on small-scale datasets like CIFAR10.
-# The reason is that in contrast to CNNs, Transformers do not have the inductive biases of translation invariance and the feature hierachy (i.e. larger patterns consist of many smaller patterns).
+# The reason is that in contrast to CNNs, Transformers do not have the inductive biases of translation invariance and the feature hierarchy (i.e. larger patterns consist of many smaller patterns).
 # However, these aspects can be learned when enough data is provided, or the model has been pre-trained on other large-scale tasks.
 # Considering that Vision Transformers have just been proposed end of 2020, there is likely a lot more to come on Transformers for Computer Vision.
 #

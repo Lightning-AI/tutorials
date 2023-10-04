@@ -1,8 +1,8 @@
 name: validate Docs
 
-on:  # Trigger the workflow on push or pull request
-#  push:
-#    branches: [main]
+on: # Trigger the workflow on push or pull request
+  #  push:
+  #    branches: [main]
   pull_request: {}
   schedule:
     # At the end of every day
@@ -10,20 +10,28 @@ on:  # Trigger the workflow on push or pull request
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
-  build-docs:
+  make-docs:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        check: ["html", "linkcheck"]
     env:
       PUB_BRANCH: publication
       PATH_DATASETS: ${{ github.workspace }}/.datasets
     timeout-minutes: 20
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # fetch all history for all branches and tags
+          fetch-depth: 0 # fetch all history for all branches and tags
       - uses: actions/setup-python@v4
         with:
           python-version: 3.8
@@ -35,16 +43,17 @@ jobs:
           key: pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('_requirements/docs.txt') }}
           restore-keys: pip-
 
-      - name: Install dependencies
+      - name: Install Texlive & tree
         run: |
           sudo apt-get update --fix-missing
-          sudo apt-get install -y tree
           # install Texlive, see https://linuxconfig.org/how-to-install-latex-on-ubuntu-20-04-focal-fossa-linux
-          sudo apt-get install -y cmake pandoc texlive-latex-extra dvipng texlive-pictures
+          sudo apt-get install -y cmake tree pandoc texlive-latex-extra dvipng texlive-pictures
+
+      - name: Install dependencies
+        run: |
           pip --version
           pip install -q -r requirements.txt -r _requirements/docs.txt
           pip list
-        shell: bash
 
       - name: Process folders
         run: |
@@ -54,57 +63,60 @@ jobs:
           python .actions/assistant.py group-folders master-diff.txt
           printf "Changed folders:\n"
           cat changed-folders.txt
-        shell: bash
 
-      - name: ">> output"
-        id: changed
-        run: python -c "lines = open('changed-folders.txt').readlines(); print(f'::set-output name=nb_dirs::{len(lines)}')"
+      - name: Count changed notebooks
+        run: python -c "lines = open('changed-folders.txt').readlines(); print(f'NB_DIRS={len(lines)}')" >> $GITHUB_ENV
 
       - uses: oleksiyrudenko/gha-git-credentials@v2.1
         with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
+          token: ${{ secrets.GITHUB_TOKEN }}
           global: true
       - name: Sync to pub
         run: git merge -s resolve origin/$PUB_BRANCH
 
       - name: Generate notebooks
-        if: steps.changed.outputs.nb_dirs != 0
+        if: ${{ env.NB_DIRS != 0 }}
+        env:
+          DRY_RUN: 1
         run: |
-          while IFS= read -r line; do
+          # second half with || [...] is needed for reading the last line
+          while read -r line || [ -n "$line" ]; do
               python .actions/assistant.py convert-ipynb $line
               python .actions/assistant.py bash-render $line
               cat .actions/_ipynb-render.sh
               bash .actions/_ipynb-render.sh
           done <<< $(cat changed-folders.txt)
-        env:
-          DRY_RUN: 1
-        shell: bash
 
       - name: Copy notebooks
-        if: steps.changed.outputs.nb_dirs != 0
+        if: ${{ env.NB_DIRS != 0 }}
         run: |
-          while IFS= read -r line; do
+          # second half with || [...] is needed for reading the last line
+          while read -r line || [ -n "$line" ]; do
               dir=$(dirname $line)
               mkdir -p changed-notebooks/${dir}
               cp .notebooks/${line}.ipynb changed-notebooks/${dir}/
           done <<< $(cat changed-folders.txt)
           tree changed-notebooks
-        shell: bash
 
       - uses: actions/upload-artifact@v3
-        if: steps.changed.outputs.nb_dirs != 0
+        if: ${{ matrix.check == 'html' && env.NB_DIRS != 0 }}
         with:
           name: notebooks-${{ github.sha }}
           path: changed-notebooks/
 
+      - name: Link check
+        working-directory: ./_docs
+        if: ${{ matrix.check == 'linkcheck' }}
+        run: make linkcheck --jobs $(nproc) --debug SPHINXOPTS="--keep-going"
+
       - name: Make Documentation
         working-directory: ./_docs
-        run: make html --jobs $(nproc) --debug SPHINXOPTS="-W --keep-going" linkcheck
+        if: ${{ matrix.check == 'html' }}
+        run: make html --jobs $(nproc) --debug SPHINXOPTS="-W --keep-going"
 
       - name: Upload built docs
+        if: ${{ matrix.check == 'html' }}
         uses: actions/upload-artifact@v3
         with:
           name: docs-html-${{ github.sha }}
           path: _docs/build/html/
-        # Use always() to always run this step to publish test results when there are test failures
-        if: success()

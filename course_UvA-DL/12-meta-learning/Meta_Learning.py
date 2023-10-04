@@ -248,7 +248,7 @@ test_set = dataset_from_labels(cifar_all_images, cifar_all_targets, test_classes
 #
 # This subsection summarizes the code that is needed to create such training batches.
 # In PyTorch, we can specify the data sampling procedure by so-called `Sampler` ([documentation](https://pytorch.org/docs/stable/data.html#data-loading-order-and-sampler)).
-# Samplers are iteratable objects that return indices in the order in which the data elements should be sampled.
+# Samplers are iterable objects that return indices in the order in which the data elements should be sampled.
 # In our previous notebooks, we usually used the option `shuffle=True` in the `data.DataLoader` objects which creates a sampler returning the data indices in a random order.
 # Here, we focus on samplers that return batches of indices that correspond to support and query set batches.
 # Below, we implement such a sampler.
@@ -575,7 +575,7 @@ def train_model(model_class, train_loader, val_loader, **kwargs):
         # Automatically loads the model with the saved hyperparameters
         model = model_class.load_from_checkpoint(pretrained_filename)
     else:
-        L.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducible
         model = model_class(**kwargs)
         trainer.fit(model, train_loader, val_loader)
         model = model_class.load_from_checkpoint(
@@ -777,7 +777,7 @@ plt.close()
 
 # %% [markdown]
 # To obtain gradients for the initial parameters $\theta$ from the optimized model $f_{\theta_i'}$, we actually need second-order gradients, i.e. gradients of gradients, as the support set gradients depend on $\theta$ as well.
-# This makes MAML computationally expensive, especially when using mulitple inner loop steps.
+# This makes MAML computationally expensive, especially when using multiple inner loop steps.
 # A simpler, yet almost equally well performing alternative is First-Order MAML (FOMAML) which only uses first-order gradients.
 # This means that the second-order gradients are ignored, and we can calculate the outer loop gradients (line 10 in algorithm 2) simply by calculating the gradients with respect to $\theta_i'$, and use those as update to $\theta$.
 # Hence, the new update rule becomes:
@@ -1049,7 +1049,7 @@ val_protomaml_loader = data.DataLoader(
 # We use the same feature space size as for ProtoNet, but can use a higher learning rate since the outer loop gradients are accumulated over 16 batches.
 # The inner loop learning rate is set to 0.1, which is much higher than the outer loop lr because we use SGD in the inner loop instead of Adam.
 # Commonly, the learning rate for the output layer is higher than the base model is the base model is very deep or pre-trained.
-# However, for our setup, we observed no noticable impact of using a different learning rate than the base model.
+# However, for our setup, we observed no noticeable impact of using a different learning rate than the base model.
 # The number of inner loop updates is another crucial hyperparmaeter, and depends on the similarity of our training tasks.
 # Since all tasks are on images from the same dataset, we notice that a single inner loop update achieves similar performance as 3 or 5 while training considerably faster.
 # However, especially in RL and NLP, larger number of inner loop steps are often needed.

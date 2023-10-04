@@ -1,7 +1,7 @@
-name: Prevent adding/chnaging notebooks
+name: Prevent adding/changing notebooks
 
 # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows
-on:  # Trigger the workflow on PR to master
+on: # Trigger the workflow on PR to master
   pull_request:
     paths:
       - ./**/*.ipynb
@@ -10,4 +10,4 @@ jobs:
   block-ipynb:
     runs-on: ubuntu-latest
     steps:
-    - run: exit 1
+      - run: exit 1
