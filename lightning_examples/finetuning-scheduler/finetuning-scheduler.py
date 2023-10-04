@@ -18,12 +18,12 @@
 #
 #
 #
-# <div style="display:inline" id="a1">
+# <div style="display:inline">
 #
 # Fundamentally, [Fine-Tuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html) enables
 # scheduled, multi-phase, fine-tuning of foundation models. Gradual unfreezing (i.e. thawing) can help maximize
 # foundation model knowledge retention while allowing (typically upper layers of) the model to
-# optimally adapt to new tasks during transfer learning [1, 2, 3](#f1)
+# optimally adapt to new tasks during transfer learning [1, 2, 3]
 #
 # </div>
 #
@@ -42,10 +42,8 @@
 #
 # ## Basic Usage
 #
-# <div id="basic_usage">
-#
 # If no fine-tuning schedule is provided by the user, [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) will generate a
-# [default schedule](#The-Default-Finetuning-Schedule) and proceed to fine-tune according to the generated schedule,
+# [default schedule](#The-Default-Fine-Tuning-Schedule) and proceed to fine-tune according to the generated schedule,
 # using default [FTSEarlyStopping](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSEarlyStopping) and [FTSCheckpoint](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSCheckpoint) callbacks with ``monitor=val_loss``.
 #
 # </div>
@@ -111,7 +109,7 @@
 #
 #
 #
-# The end-to-end example in this notebook ([Scheduled Fine-Tuning For SuperGLUE](#superglue)) uses [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) in explicit mode to fine-tune a small foundation model on the [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task of [SuperGLUE](https://super.gluebenchmark.com/).
+# The end-to-end example in this notebook ([Scheduled Fine-Tuning For SuperGLUE](#Scheduled-Fine-Tuning-For-SuperGLUE)) uses [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) in explicit mode to fine-tune a small foundation model on the [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task of [SuperGLUE](https://super.gluebenchmark.com/).
 # Please see the [official Fine-Tuning Scheduler documentation](https://finetuning-scheduler.readthedocs.io/en/stable/index.html) if you are interested in a similar [CLI-based example](https://finetuning-scheduler.readthedocs.io/en/stable/index.html#example-scheduled-fine-tuning-for-superglue) using the LightningCLI.
 
 # %% [markdown]
@@ -158,8 +156,6 @@
 # </div>
 
 # %% [markdown]
-# <div id="superglue"></div>
-#
 # ## Scheduled Fine-Tuning For SuperGLUE
 #
 # The following example demonstrates the use of [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) to fine-tune a small foundation model on the [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task of [SuperGLUE](https://super.gluebenchmark.com/). Iterative early-stopping will be applied according to a user-specified schedule.
@@ -235,8 +231,7 @@ class RteBoolqDataModule(L.LightningDataModule):
         tokenizers_parallelism: bool = True,
         **dataloader_kwargs: Any,
     ):
-        r"""Initialize the ``LightningDataModule`` designed for both the RTE or BoolQ SuperGLUE Hugging Face
-        datasets.
+        r"""Initialize the ``LightningDataModule`` designed for both the RTE or BoolQ SuperGLUE Hugging Face datasets.
 
         Args:
             model_name_or_path (str):
@@ -453,12 +448,10 @@ dm = RteBoolqDataModule(model_name_or_path="microsoft/deberta-v3-base", tokenize
 # %% [markdown]
 # ### Optimizer Configuration
 #
-# <div id="a2">
-#
 # Though other optimizers can arguably yield some marginal advantage contingent on the context,
 # the Adam optimizer (and the [AdamW version](https://pytorch.org/docs/stable/_modules/torch/optim/adamw.html#AdamW) which
 # implements decoupled weight decay) remains robust to hyperparameter choices and is commonly used for fine-tuning
-# foundation language models.  See [(Sivaprasad et al., 2020)](#f2) and [(Mosbach, Andriushchenko & Klakow, 2020)](#f3) for theoretical and systematic empirical justifications of Adam and its use in fine-tuning
+# foundation language models.  See (Sivaprasad et al., 2020) and (Mosbach, Andriushchenko & Klakow, 2020) for theoretical and systematic empirical justifications of Adam and its use in fine-tuning
 # large transformer-based language models. The values used here have some justification
 # in the referenced literature but have been largely empirically determined and while a good
 # starting point could be could be further tuned.
@@ -471,15 +464,13 @@ optimizer_init = {"weight_decay": 1e-05, "eps": 1e-07, "lr": 1e-05}
 # %% [markdown]
 # ### LR Scheduler Configuration
 #
-# <div id="a3">
-#
 # The [CosineAnnealingWarmRestarts scheduler](https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.CosineAnnealingWarmRestarts.html?highlight=cosineannealingwarm#torch.optim.lr_scheduler.CosineAnnealingWarmRestarts) nicely fits with our iterative fine-tuning since it does not depend upon a global max_epoch
-# value. The importance of initial warmup is reduced due to the innate warmup effect of Adam bias correction [[5]](#f3)
+# value. The importance of initial warmup is reduced due to the innate warmup effect of Adam bias correction [5]
 # and the gradual thawing we are performing. Note that commonly used LR schedulers that depend on providing
 # max_iterations/epochs (e.g. the
 # [CosineWarmupScheduler](https://github.com/Lightning-AI/tutorials/blob/0c325829101d5a6ebf32ed99bbf5b09badf04a59/course_UvA-DL/05-transformers-and-MH-attention/Transformers_MHAttention.py#L688)
 # used in other pytorch-lightning tutorials) also work with FinetuningScheduler. Though the LR scheduler is theoretically
-# justified [(Loshchilov & Hutter, 2016)](#f4), the particular values provided here are primarily empircally driven.
+# justified (Loshchilov & Hutter, 2016), the particular values provided here are primarily empircally driven.
 #
 # [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) also supports both optimizer and LR scheduler
 # reinitialization in explicit and implicit finetuning schedule modes. See the advanced usage documentation ([LR scheduler reinitialization](https://finetuning-scheduler.readthedocs.io/en/stable/advanced/lr_scheduler_reinitialization.html), [optimizer reinitialization](https://finetuning-scheduler.readthedocs.io/en/stable/advanced/optimizer_reinitialization.html)) for explanations and demonstration of the extension's support for more complex requirements.
@@ -503,7 +494,7 @@ model = RteBoolqModule(**lightning_module_kwargs, experiment_tag="fts_explicit")
 #
 # The only callback required to invoke the [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) is the [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) callback itself.
 # Default versions of [FTSCheckpoint](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSCheckpoint) and [FTSEarlyStopping](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSEarlyStopping)
-# (if not specifying ``epoch_only_transitions``) will be included ([as discussed above](#basic_usage)) if not provided
+# (if not specifying ``epoch_only_transitions``) will be included ([as discussed above](#Basic-Usage)) if not provided
 # in the callbacks list. For demonstration purposes I'm including example configurations of all three callbacks below.
 
 # %%
@@ -623,47 +614,18 @@ for scenario_name, scenario_callbacks in scenario_callbacks.items():
 # %% [markdown]
 # ## Footnotes
 #
-# <ol>
-# <li id="f1">
-#
-# [Howard, J., & Ruder, S. (2018)](https://arxiv.org/pdf/1801.06146.pdf). Fine-tuned Language
-#  Models for Text Classification. ArXiv, abs/1801.06146. [↩](#a1)
-#
-#  </li>
-# <li>
-#
-# [Chronopoulou, A., Baziotis, C., & Potamianos, A. (2019)](https://arxiv.org/pdf/1902.10547.pdf).
+# - [Howard, J., & Ruder, S. (2018)](https://arxiv.org/pdf/1801.06146.pdf). Fine-tuned Language
+#  Models for Text Classification. ArXiv, abs/1801.06146. [↩](#Scheduled-Fine-Tuning-with-the-Fine-Tuning-Scheduler-Extension)
+# - [Chronopoulou, A., Baziotis, C., & Potamianos, A. (2019)](https://arxiv.org/pdf/1902.10547.pdf).
 #  An embarrassingly simple approach for transfer learning from pretrained language models. arXiv
-#  preprint arXiv:1902.10547. [↩](#a1)
-#
-#  </li>
-# <li>
-#
-# [Peters, M. E., Ruder, S., & Smith, N. A. (2019)](https://arxiv.org/pdf/1903.05987.pdf). To tune or not to
-#  tune? adapting pretrained representations to diverse tasks. arXiv preprint arXiv:1903.05987. [↩](#a1)
-#
-# </li>
-# <li id="f2">
-#
-# [Sivaprasad, P. T., Mai, F., Vogels, T., Jaggi, M., & Fleuret, F. (2020)](https://arxiv.org/pdf/1910.11758.pdf).
+#  preprint arXiv:1902.10547. [↩](#Scheduled-Fine-Tuning-with-the-Fine-Tuning-Scheduler-Extension)
+# - [Peters, M. E., Ruder, S., & Smith, N. A. (2019)](https://arxiv.org/pdf/1903.05987.pdf). To tune or not to
+#  tune? adapting pretrained representations to diverse tasks. arXiv preprint arXiv:1903.05987. [↩](#Scheduled-Fine-Tuning-with-the-Fine-Tuning-Scheduler-Extension)
+# - [Sivaprasad, P. T., Mai, F., Vogels, T., Jaggi, M., & Fleuret, F. (2020)](https://arxiv.org/pdf/1910.11758.pdf).
 #  Optimizer benchmarking needs to account for hyperparameter tuning. In International Conference on Machine Learning
-# (pp. 9036-9045). PMLR. [↩](#a2)
-#
-# </li>
-# <li id="f3">
-#
-# [Mosbach, M., Andriushchenko, M., & Klakow, D. (2020)](https://arxiv.org/pdf/2006.04884.pdf). On the stability of
-# fine-tuning bert: Misconceptions, explanations, and strong baselines. arXiv preprint arXiv:2006.04884. [↩](#a2)
-#
-# </li>
-# <li id="f4">
-#
-# [Loshchilov, I., & Hutter, F. (2016)](https://arxiv.org/pdf/1608.03983.pdf). Sgdr: Stochastic gradient descent with
-# warm restarts. arXiv preprint arXiv:1608.03983. [↩](#a3)
-#
-# </li>
-#
-# </ol>
-
-# %% [markdown]
+# (pp. 9036-9045). PMLR. [↩](#Optimizer-Configuration)
+# - [Mosbach, M., Andriushchenko, M., & Klakow, D. (2020)](https://arxiv.org/pdf/2006.04884.pdf). On the stability of
+# fine-tuning bert: Misconceptions, explanations, and strong baselines. arXiv preprint arXiv:2006.04884. [↩](#Optimizer-Configuration)
+# - [Loshchilov, I., & Hutter, F. (2016)](https://arxiv.org/pdf/1608.03983.pdf). Sgdr: Stochastic gradient descent with
+# warm restarts. arXiv preprint arXiv:1608.03983. [↩](#LR-Scheduler-Configuration)
 #

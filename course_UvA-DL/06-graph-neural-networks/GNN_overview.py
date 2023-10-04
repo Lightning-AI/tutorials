@@ -843,7 +843,7 @@ print("Batch indices:", batch.batch[:40])
 # In this case, we will use the average pooling.
 # Hence, we need to know which nodes should be included in which average pool.
 # Using this pooling, we can already create our graph network below.
-# Specifically, we re-use our class `GNNModel` from before,
+# Specifically, we reuse our class `GNNModel` from before,
 # and simply add an average pool and single linear layer for the graph prediction task.
 
 

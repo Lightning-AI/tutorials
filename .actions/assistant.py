@@ -143,16 +143,6 @@ class AssistantCLI:
     DATASETS_FOLDER = os.environ.get("PATH_DATASETS", "_datasets")
     DRY_RUN = bool(int(os.environ.get("DRY_RUN", 0)))
     _META_REQUIRED_FIELDS = ("title", "author", "license", "description")
-    _SKIP_DIRS = (
-        ".actions",
-        ".azure",
-        ".datasets",
-        ".github",
-        "_docs",
-        "_TEMP",
-        "_requirements",
-        DIR_NOTEBOOKS,
-    )
     _META_FILE_REGEX = ".meta.{yaml,yml}"
     _META_PIP_KEY = "pip__"
     _META_ACCEL_DEFAULT = _LOCAL_ACCELERATOR.split(",")
@@ -168,7 +158,7 @@ class AssistantCLI:
     _EXT_ARCHIVE_TAR = (".tar", ".gz")
     _EXT_ARCHIVE = _EXT_ARCHIVE_ZIP + _EXT_ARCHIVE_TAR
     _AZURE_POOL = "lit-rtx-3090"
-    _AZURE_DOCKER = "pytorchlightning/pytorch_lightning:base-cuda-py3.9-torch1.12-cuda11.6.1"
+    _AZURE_DOCKER = "pytorchlightning/tutorials:latest"
 
     @staticmethod
     def _find_meta(folder: str) -> str:
@@ -188,7 +178,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
-            strict: raise error if meta is missing required feilds
+            strict: raise error if meta is missing required fields
         """
         fpath = AssistantCLI._find_meta(folder)
         assert fpath, f"Missing meta file in folder: {folder}"
@@ -463,6 +453,8 @@ class AssistantCLI:
     @staticmethod
     def _is_ipynb_parent_dir(dir_path: str) -> bool:
         """Determine in recursive fashion of a folder is valid notebook file or any of sub-folders is."""
+        if dir_path.startswith("_"):
+            return False
         if AssistantCLI._find_meta(dir_path):
             return True
         sub_dirs = [d for d in glob.glob(os.path.join(dir_path, "*")) if os.path.isdir(d)]
@@ -513,8 +505,8 @@ class AssistantCLI:
             dirs = [os.path.join(root_path, d) for d in dirs]
         # unique folders
         dirs = set(dirs)
-        # drop folder with skip folder
-        dirs = [pdir for pdir in dirs if not any(ndir in AssistantCLI._SKIP_DIRS for ndir in pdir.split(os.path.sep))]
+        # drop folder  that start with . or _ as they are meant to be internal use only
+        dirs = [pdir for pdir in dirs if not any(ndir[0] in (".", "_") for ndir in pdir.split(os.path.sep))]
         # valid folder has meta
         dirs_exist = [d for d in dirs if os.path.isdir(d)]
         dirs_invalid = [d for d in dirs_exist if not AssistantCLI._find_meta(d)]
