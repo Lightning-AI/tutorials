@@ -11,6 +11,6 @@ description: In this notebook, we'll train a model on TPUs. Updating one Trainer
   [here](https://lightning.ai/docs/pytorch/stable/accelerators/tpu.html).
 requirements:
   - torchvision
-  - lightning>=2.0.0rc0
+  - lightning>=2.0.0
 accelerator:
   - TPU

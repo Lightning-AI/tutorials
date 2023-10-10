@@ -12,6 +12,6 @@ requirements:
   - torchvision
   - pandas
   - seaborn
-  - lightning>=2.0.0rc0
+  - lightning>=2.0.0
 accelerator:
   - GPU
