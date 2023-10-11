@@ -94,8 +94,8 @@ TEMPLATE_CARD_ITEM = """
 
 def load_requirements(path_req: str = PATH_REQ_DEFAULT) -> list:
     """Load the requirements from a file."""
-    with open(path_req) as fp:
-        req = fp.readlines()
+    with open(path_req) as fopen:
+        req = fopen.readlines()
     req = [r[: r.index("#")] if "#" in r else r for r in req]
     req = [r.strip() for r in req]
     req = [r for r in req if r]
@@ -334,8 +334,8 @@ class AssistantCLI:
         cmd.append(f"git add {pub_ipynb}")
         if not output_file:
             return os.linesep.join(cmd)
-        with open(output_file, "w") as fp:
-            fp.write(os.linesep.join(cmd))
+        with open(output_file, "w") as fopen:
+            fopen.write(os.linesep.join(cmd))
 
     @staticmethod
     def bash_test(folder: str, output_file: str = PATH_SCRIPT_TEST) -> Optional[str]:
@@ -385,8 +385,8 @@ class AssistantCLI:
         cmd += ["deactivate", f"rm -rf {os.path.join(folder, 'venv')}"]
         if not output_file:
             return os.linesep.join(cmd)
-        with open(output_file, "w") as fp:
-            fp.write(os.linesep.join(cmd))
+        with open(output_file, "w") as fopen:
+            fopen.write(os.linesep.join(cmd))
 
     @staticmethod
     def convert_ipynb(folder: str) -> None:
@@ -396,8 +396,8 @@ class AssistantCLI:
             folder: folder with python script
         """
         fpath, _, _ = AssistantCLI._valid_folder(folder, ext=".py")
-        with open(fpath) as fp:
-            py_script = fp.readlines()
+        with open(fpath) as fopen:
+            py_script = fopen.readlines()
 
         meta = AssistantCLI._load_meta(folder, strict=True)
         meta.update(
@@ -413,8 +413,8 @@ class AssistantCLI:
 
         py_script = AssistantCLI._replace_images(py_script, folder)
 
-        with open(fpath, "w") as fp:
-            fp.writelines(py_script)
+        with open(fpath, "w") as fopen:
+            fopen.writelines(py_script)
 
         os.system(f'python -m jupytext --set-formats "ipynb,py:percent" {fpath}')
 
@@ -441,8 +441,8 @@ class AssistantCLI:
             else:
                 url_path = "/".join([URL_PL_DOWNLOAD, local_dir, p_img])
                 p_local_img = os.path.join(local_dir, p_img)
-                with open(p_local_img, "rb") as fp:
-                    im = fp.read()
+                with open(p_local_img, "rb") as fopen:
+                    im = fopen.read()
             im_base64 = base64.b64encode(im).decode("utf-8")
             _, ext = os.path.splitext(p_img)
             md = md.replace(f'src="{p_img}"', f'src="{url_path}"')
@@ -488,8 +488,8 @@ class AssistantCLI:
             $ python assistant.py group-folders ../target-diff.txt \
                 --fpath_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
         """
-        with open(fpath_gitdiff) as fp:
-            changed = [ln.strip() for ln in fp.readlines()]
+        with open(fpath_gitdiff) as fopen:
+            changed = [ln.strip() for ln in fopen.readlines()]
         dirs = [os.path.dirname(ln) for ln in changed]
         # not empty paths
         dirs = [ln for ln in dirs if ln]
@@ -519,12 +519,12 @@ class AssistantCLI:
                 raise FileNotFoundError(f"{msg} nor sub-folder: \n {os.linesep.join(dirs_invalid)}")
 
         dirs_change = [d for d in dirs_exist if AssistantCLI._find_meta(d)]
-        with open(fpath_change_folders, "w") as fp:
-            fp.write(os.linesep.join(sorted(dirs_change)))
+        with open(fpath_change_folders, "w") as fopen:
+            fopen.write(os.linesep.join(sorted(dirs_change)))
 
         dirs_drop = [d for d in dirs if not os.path.isdir(d)]
-        with open(fpath_drop_folders, "w") as fp:
-            fp.write(os.linesep.join(sorted(dirs_drop)))
+        with open(fpath_drop_folders, "w") as fopen:
+            fopen.write(os.linesep.join(sorted(dirs_drop)))
 
     @staticmethod
     def generate_matrix(fpath_change_folders: str) -> str:
@@ -533,8 +533,8 @@ class AssistantCLI:
         Args:
             fpath_change_folders: output of previous ``group_folders``
         """
-        with open(fpath_change_folders) as fp:
-            folders = [ln.strip() for ln in fp.readlines()]
+        with open(fpath_change_folders) as fopen:
+            folders = [ln.strip() for ln in fopen.readlines()]
         # set default so the matrix has at least one runner
         if not folders:
             return ""
@@ -644,13 +644,13 @@ class AssistantCLI:
 
             print(f"{path_ipynb} -> {new_ipynb}")
 
-            with open(path_ipynb) as f:
-                ipynb = json.load(f)
+            with open(path_ipynb) as fopen:
+                ipynb = json.load(fopen)
 
             ipynb["cells"].append(AssistantCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb))
 
-            with open(new_ipynb, "w") as f:
-                json.dump(ipynb, f, indent=4)
+            with open(new_ipynb, "w") as fopen:
+                json.dump(ipynb, fopen, indent=4)
 
             ipynb_content.append(os.path.join("notebooks", sub_ipynb))
 
@@ -664,8 +664,8 @@ class AssistantCLI:
         """
         meta = AssistantCLI._load_meta(folder)
         # default is COU runtime
-        with open(PATH_REQ_DEFAULT) as fp:
-            req = fp.readlines()
+        with open(PATH_REQ_DEFAULT) as fopen:
+            req = fopen.readlines()
         req += meta.get("requirements", [])
         req = [r.strip() for r in req]
 
