@@ -28,19 +28,19 @@ requirements:
 - torchvision
 - matplotlib
 - seaborn
-- lightning>=2.0.0rc0
+- lightning>=2.0.0
 accelerator:
 - CPU
 - GPU
 environment:
-- seaborn==0.12.2
-- setuptools==68.0.0
 - torchvision==0.15.2
-- matplotlib==3.7.3
-- pytorch-lightning==2.0.9
-- torchmetrics==0.11.4
-- lightning==2.1.0rc0
-- ipython==8.14.0
-- urllib3==1.25.8
+- setuptools==68.2.2
+- seaborn==0.13.0
+- ipython==8.16.1
+- matplotlib==3.8.0
+- pytorch-lightning==2.0.9.post0
+- urllib3==2.0.6
+- lightning==2.0.9.post0
+- torchmetrics==1.2.0
 - torch==2.0.1
-published: '2023-09-26T20:18:02.371069'
+published: '2023-10-11T15:49:26.708230'
