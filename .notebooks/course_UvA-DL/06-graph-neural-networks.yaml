@@ -39,21 +39,23 @@ requirements:
 - torch-cluster
 - torch-spline-conv
 - torch-geometric
-- lightning>=2.0.0rc0
+- lightning>=2.0.0
 pip__find-link:
 - https://pytorch-geometric.com/whl/torch-%(TORCH_MAJOR_DOT_MINOR)s.0+%(DEVICE)s.html
 accelerator:
 - GPU
 environment:
-- pytorch-lightning==1.9.4
-- ipython==8.11.0
-- torch-scatter==2.1.0+pt112cu116
-- lightning==2.0.0rc0
-- torch-sparse==0.6.16+pt112cu116
-- torch-cluster==1.6.0+pt112cu116
-- torch-spline-conv==1.2.1+pt112cu116
-- setuptools==67.4.0
-- torch-geometric==2.2.0
-- torch==1.12.1+cu116
-- torchmetrics==0.11.4
-published: '2023-03-14T15:55:28.400945'
+- torch-spline-conv==1.2.2+pt20cu118
+- matplotlib==3.8.0
+- ipython==8.16.1
+- lightning==2.0.9.post0
+- torch-geometric==2.3.1
+- torch-cluster==1.6.2+pt20cu118
+- torchmetrics==1.2.0
+- setuptools==68.2.2
+- torch-sparse==0.6.18+pt20cu118
+- urllib3==2.0.6
+- pytorch-lightning==2.0.9.post0
+- torch==2.0.1+cu118
+- torch-scatter==2.1.2+pt20cu118
+published: '2023-10-11T16:03:26.026950'
