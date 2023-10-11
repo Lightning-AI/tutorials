@@ -23,20 +23,21 @@ requirements:
 - matplotlib
 - pandas
 - seaborn
-- lightning>=2.0.0rc0
+- lightning>=2.0.0
 accelerator:
 - CPU
 - GPU
 environment:
-- setuptools==67.4.0
-- torchmetrics==0.11.4
-- lightning==2.0.0rc0
-- torchvision==0.14.1+cu116
-- seaborn==0.12.2
-- kornia==0.6.10
-- pandas==1.5.3
-- matplotlib==3.7.1
-- torch==1.13.1+cu116
-- ipython==8.11.0
-- pytorch-lightning==1.9.4
-published: '2023-03-15T10:13:46.040070'
+- pytorch-lightning==2.0.9.post0
+- lightning==2.0.9.post0
+- ipython==8.16.1
+- matplotlib==3.8.0
+- torchmetrics==1.2.0
+- setuptools==68.2.2
+- torchvision==0.15.2
+- torch==2.0.1
+- seaborn==0.13.0
+- urllib3==2.0.6
+- pandas==2.1.1
+- kornia==0.7.0
+published: '2023-10-11T18:34:47.237161'
