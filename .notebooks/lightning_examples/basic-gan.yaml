@@ -1,5 +1,5 @@
 title: PyTorch Lightning Basic GAN Tutorial
-author: PL team
+author: Lightning.ai
 created: 2020-12-21
 updated: 2023-03-15
 license: CC BY-SA
@@ -18,16 +18,20 @@ description: 'How to train a GAN!
   '
 requirements:
 - torchvision
-- lightning>=2.0.0rc0
+- lightning>=2.0.0
+- tensorboard
 accelerator:
 - CPU
 - GPU
 environment:
-- lightning==2.0.0rc0
-- torch==1.13.1+cu116
-- pytorch-lightning==1.9.4
-- setuptools==67.4.0
-- torchvision==0.14.1+cu116
-- ipython==8.11.0
-- torchmetrics==0.11.4
-published: '2023-03-15T10:22:09.889148'
+- setuptools==68.2.2
+- lightning==2.0.9.post0
+- torchmetrics==1.2.0
+- pytorch-lightning==2.0.9.post0
+- torchvision==0.15.2
+- torch==2.0.1
+- tensorboard==2.14.1
+- matplotlib==3.8.0
+- urllib3==2.0.6
+- ipython==8.16.1
+published: '2023-10-11T18:47:55.069494'
