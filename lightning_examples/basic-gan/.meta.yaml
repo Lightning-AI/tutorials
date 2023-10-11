@@ -15,6 +15,7 @@ description: |
 requirements:
   - torchvision
   - lightning>=2.0.0
+  - tensorboard
 accelerator:
   - CPU
   - GPU

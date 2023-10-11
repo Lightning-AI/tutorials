@@ -19,5 +19,6 @@ requirements:
   - seaborn
   - tabulate
   - lightning>=2.0.0
+  - tensorboard
 accelerator:
   - GPU
