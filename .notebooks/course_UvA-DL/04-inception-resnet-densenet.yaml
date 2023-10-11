@@ -32,19 +32,21 @@ requirements:
 - matplotlib
 - seaborn
 - tabulate
-- lightning>=2.0.0rc0
+- lightning>=2.0.0
+- tensorboard
 accelerator:
 - GPU
 environment:
-- matplotlib==3.7.3
-- tabulate==0.9.0
-- ipython==8.14.0
-- urllib3==1.25.8
-- torchvision==0.15.2
-- seaborn==0.12.2
-- pytorch-lightning==2.0.9
-- torchmetrics==0.11.4
-- setuptools==68.0.0
-- lightning==2.1.0rc0
+- setuptools==68.2.2
 - torch==2.0.1
-published: '2023-09-26T20:22:37.528965'
+- seaborn==0.13.0
+- tabulate==0.9.0
+- matplotlib==3.8.0
+- torchvision==0.15.2
+- tensorboard==2.14.1
+- urllib3==2.0.6
+- torchmetrics==1.2.0
+- lightning==2.0.9.post0
+- pytorch-lightning==2.0.9.post0
+- ipython==8.16.1
+published: '2023-10-11T15:56:33.957662'
