@@ -1,5 +1,5 @@
 title: Introduction to PyTorch Lightning
-author: PL team
+author: Lightning.ai
 created: 2020-12-21
 updated: 2023-05-15
 license: CC BY-SA
@@ -13,7 +13,7 @@ requirements:
   - torchmetrics >=0.11.0
   - pandas
   - seaborn
-  - lightning>=2.0.0rc0
+  - lightning>=2.0.0
 accelerator:
   - CPU
   - GPU
