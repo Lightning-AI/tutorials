@@ -547,7 +547,7 @@ class AssistantCLI:
                 # TODO: allow defining some custom images with with python or PT
                 "docker-image": AssistantCLI._AZURE_DOCKER,
             }
-        return json.dumps(mtx)
+        return json.dumps(mtx, indent=4)
 
     @staticmethod
     def _get_card_item_cell(path_ipynb: str, path_meta: str, path_thumb: Optional[str]) -> Dict[str, Any]:
@@ -650,7 +650,7 @@ class AssistantCLI:
             ipynb["cells"].append(AssistantCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb))
 
             with open(new_ipynb, "w") as f:
-                json.dump(ipynb, f)
+                json.dump(ipynb, f, indent=4)
 
             ipynb_content.append(os.path.join("notebooks", sub_ipynb))
 
