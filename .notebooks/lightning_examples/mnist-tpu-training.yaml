@@ -1,5 +1,5 @@
 title: TPU training with PyTorch Lightning
-author: PL team
+author: Lightning.ai
 created: 2020-12-21
 updated: 2023-05-15
 license: CC BY-SA
@@ -11,15 +11,17 @@ description: In this notebook, we'll train a model on TPUs. Updating one Trainer
   be found [here](https://lightning.ai/docs/pytorch/stable/accelerators/tpu.html).
 requirements:
 - torchvision
-- lightning>=2.0.0rc0
+- lightning>=2.0.0
 accelerator:
 - TPU
 environment:
-- ipython==8.11.0
-- setuptools==67.4.0
-- pytorch-lightning==1.9.4
-- torch==1.13.1+cu116
-- lightning==2.0.0rc0
-- torchmetrics==0.11.4
-- torchvision==0.14.1+cu116
-published: '2023-03-15T10:56:38.894499'
+- lightning==2.0.9.post0
+- pytorch-lightning==2.0.9.post0
+- urllib3==2.0.6
+- ipython==8.16.1
+- torchvision==0.16.0+cu118
+- matplotlib==3.8.0
+- setuptools==68.2.2
+- torchmetrics==1.2.0
+- torch==2.1.0+cu118
+published: '2023-10-12T02:31:19.642620'
