@@ -5,3 +5,4 @@ CI/CD:
   - .actions/**/*
   - .azure-*/**/*
   - .github/**/*
+  - _dockers/**/*

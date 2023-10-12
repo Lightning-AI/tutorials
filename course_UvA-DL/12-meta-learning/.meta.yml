@@ -25,6 +25,7 @@ requirements:
   - seaborn
   - lightning>=2.0.0
   - tensorboard
+  - scipy
 accelerator:
   - CPU
   - GPU

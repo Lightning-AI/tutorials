@@ -108,7 +108,8 @@ for file_name in pretrained_files:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
             print(
-                "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
+                "Something went wrong. Please try to download the file from the GDrive folder,"
+                " or contact the author with the full output including the following error:\n",
                 e,
             )
 
