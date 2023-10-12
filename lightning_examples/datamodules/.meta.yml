@@ -11,6 +11,7 @@ description: This notebook will walk you through how to start using Datamodules.
   [here](https://lightning.ai/docs/pytorch/stable/data/datamodule.html).
 requirements:
   - torchvision
+  - lightning>=2.0.0
 accelerator:
   - CPU
   - GPU
