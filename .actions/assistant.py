@@ -622,15 +622,17 @@ class AssistantCLI:
             patterns: patterns to use when glob-ing notebooks
             ignore: ignore some specific notebooks even when the given string is in path
         """
+        all_ipynb = []
+        for pattern in patterns:
+            all_ipynb += glob.glob(os.path.join(path_root, DIR_NOTEBOOKS, pattern, "*.ipynb"))
+        os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
         if ignore and not isinstance(ignore, (list, set, tuple)):
             ignore = [ignore]
         elif not ignore:
             ignore = []
-        ls_ipynb = [glob.glob(os.path.join(path_root, DIR_NOTEBOOKS, sub, "*.ipynb")) for sub in patterns]
-        os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
 
         ipynb_content = []
-        for path_ipynb in tqdm.tqdm(ls_ipynb):
+        for path_ipynb in tqdm.tqdm(all_ipynb):
             if any(skip in path_ipynb for skip in ignore):
                 print(f"ignore/skip copy: {path_ipynb}")
                 continue
