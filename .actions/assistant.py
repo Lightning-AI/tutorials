@@ -624,6 +624,8 @@ class AssistantCLI:
         """
         if ignore and not isinstance(ignore, (list, set, tuple)):
             ignore = [ignore]
+        elif not ignore:
+            ignore = []
         ls_ipynb = [glob.glob(os.path.join(path_root, DIR_NOTEBOOKS, sub, "*.ipynb")) for sub in patterns]
         os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
 
