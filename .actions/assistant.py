@@ -251,7 +251,7 @@ class AssistantCLI:
             for k, v in meta.items()
             if k.startswith(AssistantCLI._META_PIP_KEY)
         }
-        pip_args = ["--extra-index-url https://download.pytorch.org/whl/" + _RUNTIME_VERSIONS.get("DEVICE")]
+        pip_args = ['--find-links="https://download.pytorch.org/whl/"' + _RUNTIME_VERSIONS.get("DEVICE")]
         for pip_key in meta_pip_args:
             if not isinstance(meta_pip_args[pip_key], (list, tuple, set)):
                 meta_pip_args[pip_key] = [meta_pip_args[pip_key]]
