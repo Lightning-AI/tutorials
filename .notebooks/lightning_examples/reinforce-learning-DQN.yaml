@@ -1,5 +1,5 @@
 title: How to train a Deep Q Network
-author: PL team
+author: Lightning.ai
 created: 2021-01-31
 updated: 2021-12-03
 license: CC BY-SA
@@ -23,21 +23,21 @@ requirements:
 - pygame
 - pandas
 - seaborn
-- lightning>=2.0.0rc0
+- lightning>=2.0.0
 accelerator:
 - CPU
 - GPU
 environment:
-- setuptools==68.0.0
+- ipython==8.16.1
 - gym==0.23.1
-- torch==1.12.1+cu116
-- ipython==8.14.0
-- lightning==2.1.0rc0
-- torchmetrics==0.11.4
+- urllib3==2.0.6
+- torch==2.0.1+cu118
+- torchmetrics==1.2.0
+- setuptools==68.2.2
+- pandas==2.1.1
 - pygame==2.5.2
-- seaborn==0.12.2
-- pandas==2.0.2
-- matplotlib==3.7.3
-- pytorch-lightning==2.0.9
-- urllib3==1.25.8
-published: '2023-09-26T11:57:11.584728'
+- pytorch-lightning==2.0.9.post0
+- seaborn==0.13.0
+- matplotlib==3.8.0
+- lightning==2.0.9.post0
+published: '2023-10-12T02:32:42.644089'
