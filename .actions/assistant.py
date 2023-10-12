@@ -610,6 +610,7 @@ class AssistantCLI:
         path_docs_ipynb: str = "notebooks",
         path_docs_images: str = "_static/images",
         patterns: Sequence[str] = (".", "**"),
+        ignore: Optional[Sequence[str]] = None,
     ) -> None:
         """Copy all notebooks from a folder to doc folder.
 
@@ -619,40 +620,61 @@ class AssistantCLI:
             path_docs_ipynb: destination path to the notebooks' location relative to ``docs_root``
             path_docs_images: destination path to the images' location relative to ``docs_root``
             patterns: patterns to use when glob-ing notebooks
+            ignore: ignore some specific notebooks even when the given string is in path
         """
-        ls_ipynb = []
-        for sub in patterns:
-            ls_ipynb += glob.glob(os.path.join(path_root, DIR_NOTEBOOKS, sub, "*.ipynb"))
-
+        all_ipynb = []
+        for pattern in patterns:
+            all_ipynb += glob.glob(os.path.join(path_root, DIR_NOTEBOOKS, pattern, "*.ipynb"))
         os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
+        if ignore and not isinstance(ignore, (list, set, tuple)):
+            ignore = [ignore]
+        elif not ignore:
+            ignore = []
+
         ipynb_content = []
-        for path_ipynb in tqdm.tqdm(ls_ipynb):
-            ipynb = path_ipynb.split(os.path.sep)
-            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(DIR_NOTEBOOKS) + 1 :])
-            new_ipynb = os.path.join(docs_root, path_docs_ipynb, sub_ipynb)
-            os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
+        for path_ipynb in tqdm.tqdm(all_ipynb):
+            if any(skip in path_ipynb for skip in ignore):
+                print(f"ignore/skip copy: {path_ipynb}")
+                continue
+            path_ipynb_in_dir = AssistantCLI._copy_notebook(
+                path_ipynb,
+                path_root=path_root,
+                docs_root=docs_root,
+                path_docs_ipynb=path_docs_ipynb,
+                path_docs_images=path_docs_images,
+            )
+            ipynb_content.append(os.path.join(path_docs_ipynb, path_ipynb_in_dir))
 
-            path_meta = path_ipynb.replace(".ipynb", ".yaml")
-            path_thumb = AssistantCLI._resolve_path_thumb(path_ipynb, path_meta)
+    @staticmethod
+    def _copy_notebook(
+        path_ipynb: str, path_root: str, docs_root: str, path_docs_ipynb: str, path_docs_images: str
+    ) -> str:
+        """Copy particular notebook."""
+        ipynb = path_ipynb.split(os.path.sep)
+        path_ipynb_in_dir = os.path.sep.join(ipynb[ipynb.index(DIR_NOTEBOOKS) + 1 :])
+        new_ipynb = os.path.join(docs_root, path_docs_ipynb, path_ipynb_in_dir)
+        os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
 
-            if path_thumb is not None:
-                new_thumb = os.path.join(docs_root, path_docs_images, path_thumb)
-                old_path_thumb = os.path.join(path_root, DIR_NOTEBOOKS, path_thumb)
-                os.makedirs(os.path.dirname(new_thumb), exist_ok=True)
-                copyfile(old_path_thumb, new_thumb)
-                path_thumb = os.path.join(path_docs_images, path_thumb)
+        path_meta = path_ipynb.replace(".ipynb", ".yaml")
+        path_thumb = AssistantCLI._resolve_path_thumb(path_ipynb, path_meta)
 
-            print(f"{path_ipynb} -> {new_ipynb}")
+        if path_thumb is not None:
+            new_thumb = os.path.join(docs_root, path_docs_images, path_thumb)
+            old_path_thumb = os.path.join(path_root, DIR_NOTEBOOKS, path_thumb)
+            os.makedirs(os.path.dirname(new_thumb), exist_ok=True)
+            copyfile(old_path_thumb, new_thumb)
+            path_thumb = os.path.join(path_docs_images, path_thumb)
 
-            with open(path_ipynb) as f:
-                ipynb = json.load(f)
+        print(f"{path_ipynb} -> {new_ipynb}")
 
-            ipynb["cells"].append(AssistantCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb))
+        with open(path_ipynb) as fopen:
+            ipynb = json.load(fopen)
 
-            with open(new_ipynb, "w") as f:
-                json.dump(ipynb, f)
+        ipynb["cells"].append(AssistantCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb))
 
-            ipynb_content.append(os.path.join("notebooks", sub_ipynb))
+        with open(new_ipynb, "w") as fopen:
+            json.dump(ipynb, fopen, indent=4)
+        return path_ipynb_in_dir
 
     @staticmethod
     def update_env_details(folder: str, base_path: str = DIR_NOTEBOOKS) -> str:
