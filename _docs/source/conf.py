@@ -45,8 +45,7 @@ github_repo = project
 AssistantCLI.copy_notebooks(
     _PATH_ROOT,
     _PATH_HERE,
-    # ToDo: fix coping this specific notebooks, some JSON encode issue
-    ignore=["course_UvA-DL/13-contrastive-learning"],
+    #ignore=["course_UvA-DL/13-contrastive-learning"],
 )
 
 # with open(os.path.join(_PATH_HERE, 'ipynb_content.rst'), 'w') as fp:

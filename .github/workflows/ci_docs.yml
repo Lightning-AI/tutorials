@@ -1,12 +1,12 @@
-name: validate Docs
+name: Docs validation
 
 on: # Trigger the workflow on push or pull request
   #  push:
   #    branches: [main]
   pull_request: {}
-  schedule:
-    # At the end of every day
-    - cron: "0 0 * * *"
+  #schedule:
+  #  # At the end of every day
+  #  - cron: "0 0 * * *"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
@@ -22,10 +22,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        check: ["html", "linkcheck"]
+        target: ["html", "linkcheck"]
     env:
       PUB_BRANCH: publication
       PATH_DATASETS: ${{ github.workspace }}/.datasets
+      TORCH_URL: "https://download.pytorch.org/whl/cpu/torch_stable.html"
     timeout-minutes: 20
     steps:
       - name: Checkout 🛎️
@@ -52,7 +53,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip --version
-          pip install -q -r requirements.txt -r _requirements/docs.txt
+          pip install -q -r requirements.txt -r _requirements/docs.txt -f ${TORCH_URL}
           pip list
 
       - name: Process folders
@@ -99,23 +100,17 @@ jobs:
           tree changed-notebooks
 
       - uses: actions/upload-artifact@v3
-        if: ${{ matrix.check == 'html' && env.NB_DIRS != 0 }}
+        if: ${{ matrix.target == 'html' && env.NB_DIRS != 0 }}
         with:
           name: notebooks-${{ github.sha }}
           path: changed-notebooks/
 
-      - name: Link check
-        working-directory: ./_docs
-        if: ${{ matrix.check == 'linkcheck' }}
-        run: make linkcheck --jobs $(nproc) --debug SPHINXOPTS="--keep-going"
-
-      - name: Make Documentation
-        working-directory: ./_docs
-        if: ${{ matrix.check == 'html' }}
-        run: make html --jobs $(nproc) --debug SPHINXOPTS="-W --keep-going"
+      - name: Make ${{ matrix.target }}
+        working-directory: ./_docs=
+        run: make ${{ matrix.target }} --jobs $(nproc) --debug SPHINXOPTS="-W --keep-going"
 
       - name: Upload built docs
-        if: ${{ matrix.check == 'html' }}
+        if: ${{ matrix.target == 'html' }}
         uses: actions/upload-artifact@v3
         with:
           name: docs-html-${{ github.sha }}
