@@ -528,11 +528,12 @@ class AssistantCLI:
             fopen.write(os.linesep.join(sorted(dirs_drop)))
 
     @staticmethod
-    def generate_matrix(fpath_change_folders: str) -> str:
+    def generate_matrix(fpath_change_folders: str, json_indent: Optional[int] = None) -> str:
         """Generate Azure matrix with leaf for each changed notebook.
 
         Args:
             fpath_change_folders: output of previous ``group_folders``
+            json_indent: makes the json more readable, recommendation is 4
         """
         with open(fpath_change_folders) as fopen:
             folders = [ln.strip() for ln in fopen.readlines()]
@@ -548,7 +549,7 @@ class AssistantCLI:
                 # TODO: allow defining some custom images with with python or PT
                 "docker-image": AssistantCLI._AZURE_DOCKER,
             }
-        return json.dumps(mtx, indent=4)
+        return json.dumps(mtx, indent=json_indent)
 
     @staticmethod
     def _get_card_item_cell(path_ipynb: str, path_meta: str, path_thumb: Optional[str]) -> Dict[str, Any]:
@@ -652,7 +653,12 @@ class AssistantCLI:
 
     @staticmethod
     def _copy_notebook(
-        path_ipynb: str, path_root: str, docs_root: str, path_docs_ipynb: str, path_docs_images: str
+        path_ipynb: str,
+        path_root: str,
+        docs_root: str,
+        path_docs_ipynb: str,
+        path_docs_images: str,
+        json_indent: Optional[int] = None,
     ) -> str:
         """Copy particular notebook."""
         ipynb = path_ipynb.split(os.path.sep)
@@ -678,7 +684,7 @@ class AssistantCLI:
         ipynb["cells"].append(AssistantCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb))
 
         with open(new_ipynb, "w") as fopen:
-            json.dump(ipynb, fopen, indent=4)
+            json.dump(ipynb, fopen, indent=json_indent)
         return path_ipynb_in_dir
 
     @staticmethod
