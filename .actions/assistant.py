@@ -2,6 +2,7 @@ import base64
 import json
 import os
 import re
+import warnings
 from datetime import datetime
 from shutil import copyfile
 from textwrap import wrap
@@ -636,13 +637,17 @@ class AssistantCLI:
             if any(skip in path_ipynb for skip in ignore):
                 print(f"ignore/skip copy: {path_ipynb}")
                 continue
-            path_ipynb_in_dir = AssistantCLI._copy_notebook(
-                path_ipynb,
-                path_root=path_root,
-                docs_root=docs_root,
-                path_docs_ipynb=path_docs_ipynb,
-                path_docs_images=path_docs_images,
-            )
+            try:
+                path_ipynb_in_dir = AssistantCLI._copy_notebook(
+                    path_ipynb,
+                    path_root=path_root,
+                    docs_root=docs_root,
+                    path_docs_ipynb=path_docs_ipynb,
+                    path_docs_images=path_docs_images,
+                )
+            except Exception as ex:
+                warnings.warn(f"Failed to copy notebook: {path_ipynb}\n{ex}", ResourceWarning)
+                continue
             ipynb_content.append(os.path.join(path_docs_ipynb, path_ipynb_in_dir))
 
     @staticmethod
