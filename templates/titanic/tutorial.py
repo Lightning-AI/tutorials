@@ -39,7 +39,7 @@ datamodule = TabularClassificationData.from_csv(
     target_fields="Survived",
     train_file=csv_train,
     val_split=0.1,
-    batch_size=8,
+    batch_size=32,
 )
 
 # %% [markdown]
@@ -49,7 +49,7 @@ datamodule = TabularClassificationData.from_csv(
 model = TabularClassifier.from_data(
     datamodule,
     learning_rate=0.1,
-    optimizer="Adam",
+    optimizer="AdamW",
     n_a=8,
     gamma=0.3,
 )
@@ -81,6 +81,7 @@ del metrics["epoch"]
 sns.relplot(data=metrics, kind="line")
 plt.gca().set_ylim([0, 1.25])
 plt.gcf().set_size_inches(10, 5)
+plt.grid()
 
 # %% [markdown]
 # ## 4. Generate predictions from a CSV
@@ -88,13 +89,21 @@ plt.gcf().set_size_inches(10, 5)
 # %%
 df_test = pd.read_csv(csv_test)
 
-predictions = model.predict(csv_test)
-print(predictions[0])
+dm = TabularClassificationData.from_data_frame(
+    predict_data_frame=df_test,
+    parameters=datamodule.parameters,
+    batch_size=datamodule.batch_size,
+)
+preds = trainer.predict(model, datamodule=dm, output="classes")
+print(preds[0][:10])
 
 # %%
+import itertools  # noqa: E402]
+
 import numpy as np  # noqa: E402]
 
-assert len(df_test) == len(predictions)
+predictions = list(itertools.chain(*preds))
+# assert len(df_test) == len(predictions)
 
 df_test["Survived"] = np.argmax(predictions, axis=-1)
 df_test.set_index("PassengerId", inplace=True)
