@@ -43,6 +43,7 @@ RUN \
         openmpi-bin \
         cmake \
         git \
+        git-lfs \
         wget \
         curl \
         unzip \
