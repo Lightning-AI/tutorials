@@ -46,8 +46,6 @@
 # [default schedule](#The-Default-Fine-Tuning-Schedule) and proceed to fine-tune according to the generated schedule,
 # using default [FTSEarlyStopping](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSEarlyStopping) and [FTSCheckpoint](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSCheckpoint) callbacks with ``monitor=val_loss``.
 #
-# </div>
-#
 # ```python
 # import lightning as L
 # from finetuning_scheduler import FinetuningScheduler
@@ -455,8 +453,6 @@ dm = RteBoolqDataModule(model_name_or_path="microsoft/deberta-v3-base", tokenize
 # large transformer-based language models. The values used here have some justification
 # in the referenced literature but have been largely empirically determined and while a good
 # starting point could be could be further tuned.
-#
-# </div>
 
 # %%
 optimizer_init = {"weight_decay": 1e-05, "eps": 1e-07, "lr": 1e-05}
@@ -474,8 +470,7 @@ optimizer_init = {"weight_decay": 1e-05, "eps": 1e-07, "lr": 1e-05}
 #
 # [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) also supports both optimizer and LR scheduler
 # reinitialization in explicit and implicit finetuning schedule modes. See the advanced usage documentation ([LR scheduler reinitialization](https://finetuning-scheduler.readthedocs.io/en/stable/advanced/lr_scheduler_reinitialization.html), [optimizer reinitialization](https://finetuning-scheduler.readthedocs.io/en/stable/advanced/optimizer_reinitialization.html)) for explanations and demonstration of the extension's support for more complex requirements.
-# </div>
-
+#
 
 # %%
 lr_scheduler_init = {"T_0": 1, "T_mult": 2, "eta_min": 1e-07}
