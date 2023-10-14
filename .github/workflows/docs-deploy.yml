@@ -3,10 +3,10 @@ on:
   push:
     branches: [publication]
   workflow_dispatch: {}
-  workflow_run:
-    workflows: ["Publish notebook"]
-    types:
-      - completed
+  #workflow_run:
+  #  workflows: ["Publish notebook"]
+  #  types:
+  #    - completed
 
 jobs:
   # https://github.com/marketplace/actions/deploy-to-github-pages
@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       PATH_DATASETS: ${{ github.workspace }}/.datasets
+      TORCH_URL: "https://download.pytorch.org/whl/cpu/torch_stable.html"
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
@@ -34,11 +35,11 @@ jobs:
         run: |
           mkdir -p ${PATH_DATASETS}
           # install Texlive, see https://linuxconfig.org/how-to-install-latex-on-ubuntu-20-04-focal-fossa-linux
-          sudo apt-get update
+          sudo apt-get update --fix-missing
           sudo apt-get install -y cmake pandoc
           sudo apt-get install -y texlive-latex-extra dvipng texlive-pictures
           pip --version
-          pip install --quiet --requirement _requirements/docs.txt
+          pip install --quiet -r _requirements/docs.txt -f ${TORCH_URL}
           pip list
         shell: bash
 
@@ -55,4 +56,3 @@ jobs:
           clean: true # Automatically remove deleted files from the deploy branch
           target-folder: docs # If you'd like to push the contents of the deployment folder into a specific directory
           single-commit: true # you'd prefer to have a single commit on the deployment branch instead of full history
-        if: success()
