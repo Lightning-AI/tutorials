@@ -16,7 +16,7 @@ updates:
     # Allow up to 5 open pull requests for pip dependencies
     open-pull-requests-limit: 5
     reviewers:
-      - "Lightning-AI/teams/core-lightning"
+      - "Borda"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -27,4 +27,4 @@ updates:
       separator: "-"
     open-pull-requests-limit: 5
     reviewers:
-      - "Lightning-AI/core-lightning"
+      - "Borda"
