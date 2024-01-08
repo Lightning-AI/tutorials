@@ -609,18 +609,18 @@ for scenario_name, scenario_callbacks in scenario_callbacks.items():
 # %% [markdown]
 # ## Footnotes
 #
-# - [Howard, J., & Ruder, S. (2018)](https://arxiv.org/pdf/1801.06146.pdf). Fine-tuned Language
+# - [Howard, J., & Ruder, S. (2018)](https://arxiv.org/abs/1801.06146). Fine-tuned Language
 #  Models for Text Classification. ArXiv, abs/1801.06146. [↩](#Scheduled-Fine-Tuning-with-the-Fine-Tuning-Scheduler-Extension)
-# - [Chronopoulou, A., Baziotis, C., & Potamianos, A. (2019)](https://arxiv.org/pdf/1902.10547.pdf).
+# - [Chronopoulou, A., Baziotis, C., & Potamianos, A. (2019)](https://arxiv.org/abs/1902.10547).
 #  An embarrassingly simple approach for transfer learning from pretrained language models. arXiv
 #  preprint arXiv:1902.10547. [↩](#Scheduled-Fine-Tuning-with-the-Fine-Tuning-Scheduler-Extension)
-# - [Peters, M. E., Ruder, S., & Smith, N. A. (2019)](https://arxiv.org/pdf/1903.05987.pdf). To tune or not to
+# - [Peters, M. E., Ruder, S., & Smith, N. A. (2019)](https://arxiv.org/abs/1903.05987). To tune or not to
 #  tune? adapting pretrained representations to diverse tasks. arXiv preprint arXiv:1903.05987. [↩](#Scheduled-Fine-Tuning-with-the-Fine-Tuning-Scheduler-Extension)
-# - [Sivaprasad, P. T., Mai, F., Vogels, T., Jaggi, M., & Fleuret, F. (2020)](https://arxiv.org/pdf/1910.11758.pdf).
+# - [Sivaprasad, P. T., Mai, F., Vogels, T., Jaggi, M., & Fleuret, F. (2020)](https://arxiv.org/abs/1910.11758).
 #  Optimizer benchmarking needs to account for hyperparameter tuning. In International Conference on Machine Learning
 # (pp. 9036-9045). PMLR. [↩](#Optimizer-Configuration)
-# - [Mosbach, M., Andriushchenko, M., & Klakow, D. (2020)](https://arxiv.org/pdf/2006.04884.pdf). On the stability of
+# - [Mosbach, M., Andriushchenko, M., & Klakow, D. (2020)](https://arxiv.org/abs/2006.04884). On the stability of
 # fine-tuning bert: Misconceptions, explanations, and strong baselines. arXiv preprint arXiv:2006.04884. [↩](#Optimizer-Configuration)
-# - [Loshchilov, I., & Hutter, F. (2016)](https://arxiv.org/pdf/1608.03983.pdf). Sgdr: Stochastic gradient descent with
+# - [Loshchilov, I., & Hutter, F. (2016)](https://arxiv.org/abs/1608.03983). Sgdr: Stochastic gradient descent with
 # warm restarts. arXiv preprint arXiv:1608.03983. [↩](#LR-Scheduler-Configuration)
 #

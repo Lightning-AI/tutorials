@@ -744,7 +744,7 @@ print_results(node_gnn_result)
 # Tutorials and papers for this topic include:
 #
 # * [PyTorch Geometric example](https://github.com/rusty1s/pytorch_geometric/blob/master/examples/link_pred.py)
-# * [Graph Neural Networks: A Review of Methods and Applications](https://arxiv.org/pdf/1812.08434.pdf), Zhou et al.
+# * [Graph Neural Networks: A Review of Methods and Applications](https://arxiv.org/abs/1812.08434), Zhou et al.
 # 2019
 # * [Link Prediction Based on Graph Neural Networks](https://papers.nips.cc/paper/2018/file/53f0d7c537d99b3824f0f99d62ea2428-Paper.pdf), Zhang and Chen, 2018.
 
