@@ -1384,7 +1384,7 @@ visualize_dequant_distribution(flow_dict["vardeq"]["model"], sample_imgs, title=
 # and we have the guarantee that every possible input $x$ has a corresponding latent vector $z$.
 # However, even beyond continuous inputs and images, flows can be applied and allow us to exploit
 # the data structure in latent space, as e.g. on graphs for the task of molecule generation [6].
-# Recent advances in [Neural ODEs](https://arxiv.org/pdf/1806.07366.pdf) allow a flow with infinite number of layers,
+# Recent advances in [Neural ODEs](https://arxiv.org/abs/1806.07366) allow a flow with infinite number of layers,
 # called Continuous Normalizing Flows, whose potential is yet to fully explore.
 # Overall, normalizing flows are an exciting research area which will continue over the next couple of years.
 
