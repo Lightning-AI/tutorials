@@ -65,7 +65,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
     "sphinx.ext.napoleon",
-    "sphinx.ext.imgmath",
     "sphinx.ext.githubpages",
     "nbsphinx",
     "myst_parser",
