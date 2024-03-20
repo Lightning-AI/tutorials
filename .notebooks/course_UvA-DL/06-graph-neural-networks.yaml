@@ -1,12 +1,12 @@
-title: 'Tutorial 6: Basics of Graph Neural Networks'
+title: "Tutorial 6: Basics of Graph Neural Networks"
 author: Phillip Lippe
 created: 2021-06-07
 updated: 2023-03-14
 license: CC BY-SA
 build: 0
 tags:
-- Graph
-description: 'In this tutorial, we will discuss the application of neural networks
+  - Graph
+description: "In this tutorial, we will discuss the application of neural networks
   on graphs.
 
   Graph Neural Networks (GNNs) have recently gained increasing popularity in both
@@ -32,30 +32,30 @@ description: 'In this tutorial, we will discuss the application of neural networ
 
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 
-  '
+  "
 requirements:
-- torch-scatter
-- torch-sparse
-- torch-cluster
-- torch-spline-conv
-- torch-geometric
-- lightning>=2.0.0
+  - torch-scatter
+  - torch-sparse
+  - torch-cluster
+  - torch-spline-conv
+  - torch-geometric
+  - lightning>=2.0.0
 pip__find-link:
-- https://pytorch-geometric.com/whl/torch-%(TORCH_MAJOR_DOT_MINOR)s.0+%(DEVICE)s.html
+  - https://pytorch-geometric.com/whl/torch-%(TORCH_MAJOR_DOT_MINOR)s.0+%(DEVICE)s.html
 accelerator:
-- GPU
+  - GPU
 environment:
-- torch-spline-conv==1.2.2+pt20cu118
-- matplotlib==3.8.0
-- ipython==8.16.1
-- lightning==2.0.9.post0
-- torch-geometric==2.3.1
-- torch-cluster==1.6.2+pt20cu118
-- torchmetrics==1.2.0
-- setuptools==68.2.2
-- torch-sparse==0.6.18+pt20cu118
-- urllib3==2.0.6
-- pytorch-lightning==2.0.9.post0
-- torch==2.0.1+cu118
-- torch-scatter==2.1.2+pt20cu118
-published: '2023-10-11T16:03:26.026950'
+  - torch-spline-conv==1.2.2+pt20cu118
+  - matplotlib==3.8.0
+  - ipython==8.16.1
+  - lightning==2.0.9.post0
+  - torch-geometric==2.3.1
+  - torch-cluster==1.6.2+pt20cu118
+  - torchmetrics==1.2.0
+  - setuptools==68.2.2
+  - torch-sparse==0.6.18+pt20cu118
+  - urllib3==2.0.6
+  - pytorch-lightning==2.0.9.post0
+  - torch==2.0.1+cu118
+  - torch-scatter==2.1.2+pt20cu118
+published: "2023-10-11T16:03:26.026950"

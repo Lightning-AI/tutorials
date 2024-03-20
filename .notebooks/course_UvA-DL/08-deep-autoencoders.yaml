@@ -1,11 +1,11 @@
-title: 'Tutorial 8: Deep Autoencoders'
+title: "Tutorial 8: Deep Autoencoders"
 author: Phillip Lippe
 created: 2021-07-12
 updated: 2023-03-14
 license: CC BY-SA
 build: 0
 tags:
-- Image
+  - Image
 description: 'In this tutorial, we will take a closer look at autoencoders (AE).
 
   Autoencoders are trained on encoding input data such as images into a smaller feature
@@ -37,24 +37,24 @@ description: 'In this tutorial, we will take a closer look at autoencoders (AE).
 
   '
 requirements:
-- torchvision
-- matplotlib
-- seaborn
-- lightning>=2.0.0
-- tensorboard
+  - torchvision
+  - matplotlib
+  - seaborn
+  - lightning>=2.0.0
+  - tensorboard
 accelerator:
-- CPU
-- GPU
+  - CPU
+  - GPU
 environment:
-- urllib3==2.0.6
-- torch==2.0.1
-- lightning==2.0.9.post0
-- tensorboard==2.14.1
-- torchvision==0.15.2
-- ipython==8.16.1
-- pytorch-lightning==2.0.9.post0
-- torchmetrics==1.2.0
-- seaborn==0.13.0
-- setuptools==68.2.2
-- matplotlib==3.8.0
-published: '2023-10-11T16:13:53.336890'
+  - urllib3==2.0.6
+  - torch==2.0.1
+  - lightning==2.0.9.post0
+  - tensorboard==2.14.1
+  - torchvision==0.15.2
+  - ipython==8.16.1
+  - pytorch-lightning==2.0.9.post0
+  - torchmetrics==1.2.0
+  - seaborn==0.13.0
+  - setuptools==68.2.2
+  - matplotlib==3.8.0
+published: "2023-10-11T16:13:53.336890"

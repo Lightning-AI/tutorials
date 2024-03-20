@@ -5,11 +5,11 @@ updated: 2023-03-15
 license: CC BY-SA
 build: 0
 tags:
-- Image
-- Self-Supervised
-description: 'This notebook describes the self-supervised learning method Barlow Twins.
+  - Image
+  - Self-Supervised
+description: "This notebook describes the self-supervised learning method Barlow Twins.
 
-  Barlow Twins differs from other recently proposed algorithms as it doesn''t
+  Barlow Twins differs from other recently proposed algorithms as it doesn't
 
   fall under the category of either contrastive learning, or methods like knowledge
 
@@ -19,22 +19,22 @@ description: 'This notebook describes the self-supervised learning method Barlow
 
   case study.
 
-  '
+  "
 requirements:
-- torchvision
-- matplotlib
-- lightning>=2.0.0
+  - torchvision
+  - matplotlib
+  - lightning>=2.0.0
 accelerator:
-- GPU
-- CPU
+  - GPU
+  - CPU
 environment:
-- torchmetrics==1.2.0
-- torch==2.0.1
-- torchvision==0.15.2
-- setuptools==68.2.2
-- urllib3==2.0.6
-- lightning==2.0.9.post0
-- pytorch-lightning==2.0.9.post0
-- ipython==8.16.1
-- matplotlib==3.8.0
-published: '2023-10-11T18:39:30.898335'
+  - torchmetrics==1.2.0
+  - torch==2.0.1
+  - torchvision==0.15.2
+  - setuptools==68.2.2
+  - urllib3==2.0.6
+  - lightning==2.0.9.post0
+  - pytorch-lightning==2.0.9.post0
+  - ipython==8.16.1
+  - matplotlib==3.8.0
+published: "2023-10-11T18:39:30.898335"

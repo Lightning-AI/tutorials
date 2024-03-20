@@ -5,8 +5,8 @@ updated: 2023-03-17
 license: CC BY-SA
 build: 0
 tags:
-- Text
-description: 'This notebook will use HuggingFace''s `datasets` library to get data,
+  - Text
+description: "This notebook will use HuggingFace's `datasets` library to get data,
   which will be wrapped in a `LightningDataModule`.
 
   Then, we write a class to perform text classification on any dataset from the [GLUE
@@ -14,28 +14,28 @@ description: 'This notebook will use HuggingFace''s `datasets` library to get da
 
   (We just show CoLA and MRPC due to constraint on compute/disk)
 
-  '
+  "
 requirements:
-- transformers
-- datasets
-- scipy
-- scikit-learn
-- torchtext>=0.9
-- lightning>=2.0.0
+  - transformers
+  - datasets
+  - scipy
+  - scikit-learn
+  - torchtext>=0.9
+  - lightning>=2.0.0
 accelerator:
-- GPU
+  - GPU
 environment:
-- lightning==2.0.9.post0
-- scipy==1.11.3
-- urllib3==2.0.6
-- torch==2.0.1
-- datasets==2.14.5
-- torchtext==0.15.2
-- torchmetrics==1.2.0
-- setuptools==68.2.2
-- ipython==8.16.1
-- scikit-learn==1.3.1
-- pytorch-lightning==2.0.9.post0
-- transformers==4.34.0
-- matplotlib==3.8.0
-published: '2023-10-12T02:41:16.771129'
+  - lightning==2.0.9.post0
+  - scipy==1.11.3
+  - urllib3==2.0.6
+  - torch==2.0.1
+  - datasets==2.14.5
+  - torchtext==0.15.2
+  - torchmetrics==1.2.0
+  - setuptools==68.2.2
+  - ipython==8.16.1
+  - scikit-learn==1.3.1
+  - pytorch-lightning==2.0.9.post0
+  - transformers==4.34.0
+  - matplotlib==3.8.0
+published: "2023-10-12T02:41:16.771129"

@@ -1,13 +1,13 @@
-title: 'Tutorial 13: Self-Supervised Contrastive Learning with SimCLR'
+title: "Tutorial 13: Self-Supervised Contrastive Learning with SimCLR"
 author: Phillip Lippe
 created: 2021-08-30
 updated: 2023-03-14
 license: CC BY-SA
 tags:
-- Image
-- Self-Supervised
-- Contrastive-Learning
-description: 'In this tutorial, we will take a closer look at self-supervised contrastive
+  - Image
+  - Self-Supervised
+  - Contrastive-Learning
+description: "In this tutorial, we will take a closer look at self-supervised contrastive
   learning.
 
   Self-supervised learning, or also sometimes called unsupervised learning, describes
@@ -29,26 +29,26 @@ description: 'In this tutorial, we will take a closer look at self-supervised co
 
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 
-  '
+  "
 requirements:
-- torchvision
-- matplotlib
-- seaborn
-- lightning>=2.0.0
-- tensorboard
+  - torchvision
+  - matplotlib
+  - seaborn
+  - lightning>=2.0.0
+  - tensorboard
 accelerator:
-- CPU
-- GPU
+  - CPU
+  - GPU
 environment:
-- torchvision==0.15.2
-- ipython==8.16.1
-- torchmetrics==1.2.0
-- seaborn==0.13.0
-- tensorboard==2.14.1
-- urllib3==2.0.6
-- pytorch-lightning==2.0.9.post0
-- matplotlib==3.8.0
-- lightning==2.0.9.post0
-- torch==2.0.1
-- setuptools==68.2.2
-published: '2023-10-12T10:18:10.317373'
+  - torchvision==0.15.2
+  - ipython==8.16.1
+  - torchmetrics==1.2.0
+  - seaborn==0.13.0
+  - tensorboard==2.14.1
+  - urllib3==2.0.6
+  - pytorch-lightning==2.0.9.post0
+  - matplotlib==3.8.0
+  - lightning==2.0.9.post0
+  - torch==2.0.1
+  - setuptools==68.2.2
+published: "2023-10-12T10:18:10.317373"

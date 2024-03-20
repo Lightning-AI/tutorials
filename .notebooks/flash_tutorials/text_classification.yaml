@@ -5,28 +5,28 @@ updated: 2022-08-26
 license: CC BY-SA
 build: 3
 tags:
-- Text Classification
-- Text
-description: 'In this notebook, we''ll go over the basics of lightning Flash by finetunig
+  - Text Classification
+  - Text
+description: "In this notebook, we'll go over the basics of lightning Flash by finetunig
   a TextClassifier on IMDB Dataset.
 
-  '
+  "
 requirements:
-- pytorch-lightning==1.6.*
-- lightning-flash[text]>=0.7.0
-- torchmetrics<0.11
-- numpy<1.24
+  - pytorch-lightning==1.6.*
+  - lightning-flash[text]>=0.7.0
+  - torchmetrics<0.11
+  - numpy<1.24
 accelerator:
-- GPU
-- CPU
+  - GPU
+  - CPU
 environment:
-- matplotlib==3.6.1
-- torch==2.0.1
-- setuptools==59.5.0
-- lightning-flash==0.8.1.post0
-- urllib3==1.25.8
-- ipython==8.14.0
-- pytorch-lightning==1.6.5
-- torchmetrics==0.10.3
-- numpy==1.23.5
-published: '2023-09-26T12:13:16.509642'
+  - matplotlib==3.6.1
+  - torch==2.0.1
+  - setuptools==59.5.0
+  - lightning-flash==0.8.1.post0
+  - urllib3==1.25.8
+  - ipython==8.14.0
+  - pytorch-lightning==1.6.5
+  - torchmetrics==0.10.3
+  - numpy==1.23.5
+published: "2023-09-26T12:13:16.509642"
