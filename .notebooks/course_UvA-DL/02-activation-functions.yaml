@@ -1,9 +1,9 @@
-title: 'Tutorial 2: Activation Functions'
+title: "Tutorial 2: Activation Functions"
 author: Phillip Lippe
 created: 2021-08-27
 updated: 2023-03-14
 license: CC BY-SA
-description: 'In this tutorial, we will take a closer look at (popular) activation
+description: "In this tutorial, we will take a closer look at (popular) activation
   functions and investigate their effect on optimization properties in neural networks.
 
   Activation functions are a crucial part of deep learning models as they add the
@@ -13,31 +13,31 @@ description: 'In this tutorial, we will take a closer look at (popular) activati
   more beneficial than others.
 
   The goal of this tutorial is to show the importance of choosing a good activation
-  function (and how to do so), and what problems might occur if we don''t.
+  function (and how to do so), and what problems might occur if we don't.
 
   This notebook is part of a lecture series on Deep Learning at the University of
   Amsterdam.
 
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 
-  '
+  "
 requirements:
-- torchvision
-- matplotlib
-- seaborn
-- lightning>=2.0.0
+  - torchvision
+  - matplotlib
+  - seaborn
+  - lightning>=2.0.0
 accelerator:
-- CPU
-- GPU
+  - CPU
+  - GPU
 environment:
-- pytorch-lightning==2.0.9.post0
-- torchvision==0.15.2
-- setuptools==68.2.2
-- matplotlib==3.8.0
-- torchmetrics==1.2.0
-- lightning==2.0.9.post0
-- urllib3==2.0.6
-- seaborn==0.13.0
-- torch==2.0.1
-- ipython==8.16.1
-published: '2023-10-11T15:36:52.722595'
+  - pytorch-lightning==2.0.9.post0
+  - torchvision==0.15.2
+  - setuptools==68.2.2
+  - matplotlib==3.8.0
+  - torchmetrics==1.2.0
+  - lightning==2.0.9.post0
+  - urllib3==2.0.6
+  - seaborn==0.13.0
+  - torch==2.0.1
+  - ipython==8.16.1
+published: "2023-10-11T15:36:52.722595"

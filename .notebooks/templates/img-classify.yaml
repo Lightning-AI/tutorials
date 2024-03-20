@@ -5,31 +5,31 @@ updated: 2021-06-16
 license: CC BY-SA
 build: 2
 tags:
-- Image
-description: 'This is a template to show simple image classification case if for some
+  - Image
+description: "This is a template to show simple image classification case if for some
   reason accelerator is required.
 
-  '
+  "
 requirements:
-- lightning-flash[image]>=0.7
-- numpy<1.24
-- pandas>=1.0
-- matplotlib>=3.0
-- seaborn
+  - lightning-flash[image]>=0.7
+  - numpy<1.24
+  - pandas>=1.0
+  - matplotlib>=3.0
+  - seaborn
 accelerator:
-- GPU
+  - GPU
 datasets:
   web:
-  - https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip
+    - https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip
 environment:
-- numpy==1.23.5
-- matplotlib==3.6.2
-- torch==1.13.1+cu116
-- pandas==1.5.1
-- seaborn==0.12.2
-- torchmetrics==0.10.0
-- pytorch-lightning==1.8.6
-- setuptools==59.5.0
-- lightning-flash==0.8.1.post0
-- ipython==8.8.0
-published: '2023-01-05T13:55:21.081717'
+  - numpy==1.23.5
+  - matplotlib==3.6.2
+  - torch==1.13.1+cu116
+  - pandas==1.5.1
+  - seaborn==0.12.2
+  - torchmetrics==0.10.0
+  - pytorch-lightning==1.8.6
+  - setuptools==59.5.0
+  - lightning-flash==0.8.1.post0
+  - ipython==8.8.0
+published: "2023-01-05T13:55:21.081717"

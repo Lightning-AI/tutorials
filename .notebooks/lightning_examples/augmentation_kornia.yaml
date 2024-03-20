@@ -5,8 +5,8 @@ updated: 2023-03-15
 license: CC BY-SA
 build: 0
 tags:
-- Image
-description: 'In this tutorial we will show how to combine both Kornia and PyTorch
+  - Image
+description: "In this tutorial we will show how to combine both Kornia and PyTorch
   Lightning
 
   to perform efficient data augmentation to train a simple model using the GPU in
@@ -14,30 +14,30 @@ description: 'In this tutorial we will show how to combine both Kornia and PyTor
 
   mode without additional effort.
 
-  '
+  "
 requirements:
-- kornia
-- lightning
-- torchmetrics
-- torchvision
-- matplotlib
-- pandas
-- seaborn
-- lightning>=2.0.0
+  - kornia
+  - lightning
+  - torchmetrics
+  - torchvision
+  - matplotlib
+  - pandas
+  - seaborn
+  - lightning>=2.0.0
 accelerator:
-- CPU
-- GPU
+  - CPU
+  - GPU
 environment:
-- pytorch-lightning==2.0.9.post0
-- lightning==2.0.9.post0
-- ipython==8.16.1
-- matplotlib==3.8.0
-- torchmetrics==1.2.0
-- setuptools==68.2.2
-- torchvision==0.15.2
-- torch==2.0.1
-- seaborn==0.13.0
-- urllib3==2.0.6
-- pandas==2.1.1
-- kornia==0.7.0
-published: '2023-10-11T18:34:47.237161'
+  - pytorch-lightning==2.0.9.post0
+  - lightning==2.0.9.post0
+  - ipython==8.16.1
+  - matplotlib==3.8.0
+  - torchmetrics==1.2.0
+  - setuptools==68.2.2
+  - torchvision==0.15.2
+  - torch==2.0.1
+  - seaborn==0.13.0
+  - urllib3==2.0.6
+  - pandas==2.1.1
+  - kornia==0.7.0
+published: "2023-10-11T18:34:47.237161"

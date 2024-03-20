@@ -65,12 +65,12 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
     "sphinx.ext.napoleon",
-    "sphinx.ext.imgmath",
     "sphinx.ext.githubpages",
     "nbsphinx",
     "myst_parser",
     "sphinx_paramlinks",
     "pt_lightning_sphinx_theme.extensions.lightning",
+    "sphinx.ext.mathjax",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -206,6 +206,11 @@ texinfo_documents = [
         "" "Miscellaneous",  # about.__docs__,
     ),
 ]
+
+# MathJax configuration
+mathjax3_config = {
+    "tex": {"packages": {"[+]": ["ams", "newcommand", "configMacros"]}},
+}
 
 # -- Options for Epub output -------------------------------------------------
 

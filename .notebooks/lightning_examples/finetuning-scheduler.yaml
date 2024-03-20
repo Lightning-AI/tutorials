@@ -1,12 +1,13 @@
 title: Fine-Tuning Scheduler
-author: '[Dan Dale](https://github.com/speediedan)'
+author: "[Dan Dale](https://github.com/speediedan)"
 created: 2021-11-29
 updated: 2023-04-06
 license: CC BY-SA
 build: 0
 tags:
-- Fine-Tuning
-description: 'This notebook introduces the [Fine-Tuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html)
+  - Fine-Tuning
+description:
+  "This notebook introduces the [Fine-Tuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html)
   extension
 
   and demonstrates the use of it to fine-tune a small foundation model on the
@@ -17,25 +18,25 @@ description: 'This notebook introduces the [Fine-Tuning Scheduler](https://finet
   [SuperGLUE](https://super.gluebenchmark.com/) with iterative early-stopping defined
   according to a user-specified
 
-  schedule. It uses Hugging Face''s ``datasets`` and ``transformers`` libraries to
+  schedule. It uses Hugging Face's ``datasets`` and ``transformers`` libraries to
   retrieve the relevant benchmark data
 
   and foundation model weights. The required dependencies are installed via the finetuning-scheduler
   ``[examples]`` extra.
 
-  '
+  "
 requirements:
-- finetuning-scheduler[examples]>=2.0.0
-- torch>=1.12.1
+  - finetuning-scheduler[examples]>=2.0.0
+  - torch>=1.12.1
 accelerator:
-- GPU
+  - GPU
 environment:
-- torchmetrics==1.2.0
-- ipython==8.16.1
-- finetuning-scheduler==2.0.9
-- pytorch-lightning==2.0.9.post0
-- setuptools==68.2.2
-- urllib3==2.0.6
-- matplotlib==3.8.0
-- torch==2.0.1+cu118
-published: '2023-10-04T01:04:14.627522'
+  - torchmetrics==1.2.0
+  - ipython==8.16.1
+  - finetuning-scheduler==2.0.9
+  - pytorch-lightning==2.0.9.post0
+  - setuptools==68.2.2
+  - urllib3==2.0.6
+  - matplotlib==3.8.0
+  - torch==2.0.1+cu118
+published: "2023-10-04T01:04:14.627522"

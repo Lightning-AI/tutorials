@@ -4,10 +4,10 @@ author: Sunil Srinivasa (sunil.srinivasa@salesforce.com), Tian Lan (tian.lan@sal
 created: 2022-03-01
 license: BSD 3-Clause "New" or "Revised" License
 tags:
-- Reinforcement Learning
-- Multi-agent
-- GPU
-description: 'This notebook introduces multi-agent reinforcement learning (MARL) with
+  - Reinforcement Learning
+  - Multi-agent
+  - GPU
+description: "This notebook introduces multi-agent reinforcement learning (MARL) with
   WarpDrive (Lan et al. https://arxiv.org/abs/2108.13976). WarpDrive is a flexible,
   lightweight, and easy-to-use open-source framework that implements end-to-end deep
   MARL on GPUs. WarpDrive enables orders-of-magnitude speedups compared to CPU-GPU
@@ -19,23 +19,23 @@ description: 'This notebook introduces multi-agent reinforcement learning (MARL)
 
   WarpDrive includes the following resources. code - https://github.com/salesforce/warp-drive
   documentation - http://opensource.salesforce.com/warp-drive/, and white paper -
-  https://arxiv.org/abs/2108.13976.'
+  https://arxiv.org/abs/2108.13976."
 requirements:
-- rl-warp-drive>=1.6.5
-- ffmpeg-python
-- torch==1.10.*
-- torchvision==0.11.*
-- torchtext==0.11.*
+  - rl-warp-drive>=1.6.5
+  - ffmpeg-python
+  - torch==1.10.*
+  - torchvision==0.11.*
+  - torchtext==0.11.*
 accelerator:
-- GPU
+  - GPU
 environment:
-- setuptools==59.5.0
-- torchmetrics==0.7.2
-- torch==1.10.2+cu111
-- ffmpeg-python==0.2.0
-- ipython==8.1.1
-- rl-warp-drive==1.6.5
-- torchtext==0.11.2
-- torchvision==0.11.3+cu111
-- pytorch-lightning==1.6.3
-published: '2022-05-18T01:33:06.584850'
+  - setuptools==59.5.0
+  - torchmetrics==0.7.2
+  - torch==1.10.2+cu111
+  - ffmpeg-python==0.2.0
+  - ipython==8.1.1
+  - rl-warp-drive==1.6.5
+  - torchtext==0.11.2
+  - torchvision==0.11.3+cu111
+  - pytorch-lightning==1.6.3
+published: "2022-05-18T01:33:06.584850"

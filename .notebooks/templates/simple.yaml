@@ -4,20 +4,20 @@ created: 2021-06-15
 updated: 2021-06-17
 license: CC
 build: 11
-description: 'This is a template to show how to contribute a tutorial.
+description: "This is a template to show how to contribute a tutorial.
 
-  '
+  "
 requirements:
-- matplotlib
+  - matplotlib
 accelerator:
-- CPU
-- GPU
+  - CPU
+  - GPU
 environment:
-- urllib3==1.25.8
-- ipython==8.14.0
-- torchmetrics==0.11.4
-- setuptools==68.0.0
-- matplotlib==3.6.1
-- pytorch-lightning==2.0.8
-- torch==1.12.1+cu116
-published: '2023-09-11T18:24:49.335082'
+  - urllib3==1.25.8
+  - ipython==8.14.0
+  - torchmetrics==0.11.4
+  - setuptools==68.0.0
+  - matplotlib==3.6.1
+  - pytorch-lightning==2.0.8
+  - torch==1.12.1+cu116
+published: "2023-09-11T18:24:49.335082"

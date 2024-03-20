@@ -5,8 +5,8 @@ updated: 2023-03-15
 license: CC BY-SA
 build: 0
 tags:
-- Image
-description: 'How to train a GAN!
+  - Image
+description: "How to train a GAN!
 
 
   Main takeaways:
@@ -15,23 +15,23 @@ description: 'How to train a GAN!
 
   2. training_step does both the generator and discriminator training.
 
-  '
+  "
 requirements:
-- torchvision
-- lightning>=2.0.0
-- tensorboard
+  - torchvision
+  - lightning>=2.0.0
+  - tensorboard
 accelerator:
-- CPU
-- GPU
+  - CPU
+  - GPU
 environment:
-- setuptools==68.2.2
-- lightning==2.0.9.post0
-- torchmetrics==1.2.0
-- pytorch-lightning==2.0.9.post0
-- torchvision==0.15.2
-- torch==2.0.1
-- tensorboard==2.14.1
-- matplotlib==3.8.0
-- urllib3==2.0.6
-- ipython==8.16.1
-published: '2023-10-11T18:47:55.069494'
+  - setuptools==68.2.2
+  - lightning==2.0.9.post0
+  - torchmetrics==1.2.0
+  - pytorch-lightning==2.0.9.post0
+  - torchvision==0.15.2
+  - torch==2.0.1
+  - tensorboard==2.14.1
+  - matplotlib==3.8.0
+  - urllib3==2.0.6
+  - ipython==8.16.1
+published: "2023-10-11T18:47:55.069494"
