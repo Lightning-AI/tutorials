@@ -660,7 +660,7 @@ plt.show()
 # In fact, training a deep Transformer without learning rate warm-up can make the model diverge
 # and achieve a much worse performance on training and testing.
 # Take for instance the following plot by [Liu et al.
-# (2019)](https://arxiv.org/pdf/1908.03265.pdf) comparing Adam-vanilla (i.e. Adam without warm-up)
+# (2019)](https://arxiv.org/abs/1908.03265) comparing Adam-vanilla (i.e. Adam without warm-up)
 # vs Adam with a warm-up:
 #
 # <center width="100%"><img src="warmup_loss_plot.svg" width="350px"></center>

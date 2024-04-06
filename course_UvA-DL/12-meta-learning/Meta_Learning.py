@@ -1,6 +1,6 @@
 # %% [markdown]
 # <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/035rkmT8FfE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
-# Meta-Learning offers solutions to these situations, and we will discuss three popular algorithms: __Prototypical Networks__ ([Snell et al., 2017](https://arxiv.org/pdf/1703.05175.pdf)), __Model-Agnostic Meta-Learning / MAML__ ([Finn et al., 2017](http://proceedings.mlr.press/v70/finn17a.html)), and __Proto-MAML__ ([Triantafillou et al., 2020](https://openreview.net/pdf?id=rkgAGAVKPr)).
+# Meta-Learning offers solutions to these situations, and we will discuss three popular algorithms: __Prototypical Networks__ ([Snell et al., 2017](https://arxiv.org/abs/1703.05175)), __Model-Agnostic Meta-Learning / MAML__ ([Finn et al., 2017](http://proceedings.mlr.press/v70/finn17a.html)), and __Proto-MAML__ ([Triantafillou et al., 2020](https://openreview.net/pdf?id=rkgAGAVKPr)).
 # We will focus on the task of few-shot classification where the training and test set have distinct sets of classes.
 # For instance, we would train the model on the binary classifications of cats-birds and flowers-bikes, but during test time, the model would need to learn from 4 examples each the difference between dogs and otters, two classes we have not seen during training (Figure credit - [Lilian Weng](https://lilianweng.github.io/lil-log/2018/11/30/meta-learning.html)).
 #
@@ -418,7 +418,7 @@ plt.close(fig)
 # $$\mathbf{v}_c=\frac{1}{|S_c|}\sum_{(\mathbf{x}_i,y_i)\in S_c}f_{\theta}(\mathbf{x}_i)$$
 #
 # where $S_c$ is the part of the support set $S$ for which $y_i=c$, and $\mathbf{v}_c$ represents the _prototype_ of class $c$.
-# The prototype calculation is visualized below for a 2-dimensional feature space and 3 classes (Figure credit - [Snell et al.](https://arxiv.org/pdf/1703.05175.pdf)).
+# The prototype calculation is visualized below for a 2-dimensional feature space and 3 classes (Figure credit - [Snell et al.](https://arxiv.org/abs/1703.05175)).
 # The colored dots represent encoded support elements with color-corresponding class label, and the black dots next to the class label are the averaged prototypes.
 #
 # <center width="100%"><img src="protonet_classification.svg" width="300px"></center>
@@ -1329,7 +1329,7 @@ plt.close()
 # [1] Snell, Jake, Kevin Swersky, and Richard S. Zemel.
 # "Prototypical networks for few-shot learning."
 # NeurIPS 2017.
-# ([link](https://arxiv.org/pdf/1703.05175.pdf))
+# ([link](https://arxiv.org/abs/1703.05175))
 #
 # [2] Chelsea Finn, Pieter Abbeel, Sergey Levine.
 # "Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks."
