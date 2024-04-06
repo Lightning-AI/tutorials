@@ -167,6 +167,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         files = glob.glob(os.path.join(folder, AssistantCLI._META_FILE_REGEX), flags=glob.BRACE)
         if len(files) == 1:
@@ -180,6 +181,7 @@ class AssistantCLI:
         Args:
             folder: path to the folder with python script, meta and artefacts
             strict: raise error if meta is missing required fields
+
         """
         fpath = AssistantCLI._find_meta(folder)
         assert fpath, f"Missing meta file in folder: {folder}"
@@ -197,6 +199,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         meta_files = [os.path.join(folder, f".meta.{ext}") for ext in ("yml", "yaml")]
         meta_files = [pf for pf in meta_files if os.path.isfile(pf)]
@@ -217,6 +220,7 @@ class AssistantCLI:
         Args:
             folder: path to the folder with python script, meta and artefacts
             ext: extension determining the stage - ".py" for python script nad ".ipynb" for notebook
+
         """
         files = glob.glob(os.path.join(folder, f"*{ext}"))
         if len(files) != 1:
@@ -231,6 +235,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         meta = AssistantCLI._load_meta(folder)
         meta_accels = [acc.lower() for acc in meta.get("accelerator", AssistantCLI._META_ACCEL_DEFAULT)]
@@ -243,6 +248,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         meta = AssistantCLI._load_meta(folder)
         reqs = meta.get("requirements", [])
@@ -268,6 +274,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         meta = AssistantCLI._load_meta(folder)
         datasets = meta.get("datasets", {})
@@ -299,6 +306,7 @@ class AssistantCLI:
 
         Returns:
             string with nash script content
+
         """
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE) + [f"# Rendering: {folder}"]
         if not AssistantCLI.DRY_RUN:
@@ -348,6 +356,7 @@ class AssistantCLI:
 
         Returns:
             string with nash script content
+
         """
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE) + [f"# Testing: {folder}"]
         cmd += AssistantCLI._bash_download_data(folder)
@@ -395,6 +404,7 @@ class AssistantCLI:
 
         Args:
             folder: folder with python script
+
         """
         fpath, _, _ = AssistantCLI._valid_folder(folder, ext=".py")
         with open(fpath) as fopen:
@@ -426,6 +436,7 @@ class AssistantCLI:
         Args:
             lines: string lines from python script
             local_dir: relative path to the folder with script
+
         """
         md = os.linesep.join([ln.rstrip() for ln in lines])
         p_imgs = []
@@ -488,6 +499,7 @@ class AssistantCLI:
         Example:
             $ python assistant.py group-folders ../target-diff.txt \
                 --fpath_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
+
         """
         with open(fpath_gitdiff) as fopen:
             changed = [ln.strip() for ln in fopen.readlines()]
@@ -534,6 +546,7 @@ class AssistantCLI:
         Args:
             fpath_change_folders: output of previous ``group_folders``
             json_indent: makes the json more readable, recommendation is 4
+
         """
         with open(fpath_change_folders) as fopen:
             folders = [ln.strip() for ln in fopen.readlines()]
@@ -623,6 +636,7 @@ class AssistantCLI:
             path_docs_images: destination path to the images' location relative to ``docs_root``
             patterns: patterns to use when glob-ing notebooks
             ignore: ignore some specific notebooks even when the given string is in path
+
         """
         all_ipynb = []
         for pattern in patterns:
@@ -694,6 +708,7 @@ class AssistantCLI:
         Args:
              folder: path to the folder
              base_path:
+
         """
         meta = AssistantCLI._load_meta(folder)
         # default is COU runtime

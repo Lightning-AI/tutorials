@@ -470,6 +470,7 @@ class EncoderBlock(nn.Module):
             num_heads: Number of heads to use in the attention block
             dim_feedforward: Dimensionality of the hidden layer in the MLP
             dropout: Dropout probability to use in the dropout layers
+
         """
         super().__init__()
 
@@ -578,6 +579,7 @@ class PositionalEncoding(nn.Module):
         Args:
             d_model: Hidden dimensionality of the input.
             max_len: Maximum length of a sequence to expect.
+
         """
         super().__init__()
 
@@ -773,6 +775,7 @@ class TransformerPredictor(L.LightningModule):
             max_iters: Number of maximum iterations the model is trained for. This is needed for the CosineWarmup scheduler
             dropout: Dropout to apply inside the model
             input_dropout: Dropout to apply on the input features
+
         """
         super().__init__()
         self.save_hyperparameters()
@@ -822,6 +825,7 @@ class TransformerPredictor(L.LightningModule):
         """Function for extracting the attention matrices of the whole Transformer for a single batch.
 
         Input arguments same as the forward pass.
+
         """
         x = self.input_net(x)
         if add_positional_encoding:
@@ -1314,6 +1318,7 @@ class SetAnomalyDataset(data.Dataset):
         """Samples a new set of images, given the label of the anomaly.
 
         The sampled images come from a different class than anomaly_label
+
         """
         # Sample class from 0,...,num_classes-1 while skipping anomaly_label as class
         set_label = np.random.randint(self.num_labels - 1)

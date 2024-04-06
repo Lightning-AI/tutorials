@@ -272,6 +272,7 @@ class FewShotBatchSampler:
             shuffle_once: If True, examples and classes are shuffled once in
                            the beginning, but kept constant across iterations
                            (for validation)
+
         """
         super().__init__()
         self.dataset_targets = dataset_targets
@@ -483,6 +484,7 @@ class ProtoNet(L.LightningModule):
         Args:
             proto_dim: Dimensionality of prototype feature space
             lr: Learning rate of Adam optimizer
+
         """
         super().__init__()
         self.save_hyperparameters()
@@ -640,6 +642,7 @@ def test_proto_net(model, dataset, data_feats=None, k_shot=4):
                      If None, they will be newly calculated, and returned
                      for later usage.
         k_shot: Number of examples per class in the support set.
+
     """
     model = model.to(device)
     model.eval()
@@ -858,6 +861,7 @@ class ProtoMAML(L.LightningModule):
             lr_inner: Learning rate of the inner loop SGD optimizer
             lr_output: Learning rate for the output layer in the inner loop
             num_inner_steps: Number of inner loop updates to perform
+
         """
         super().__init__()
         self.save_hyperparameters()
@@ -888,7 +892,7 @@ class ProtoMAML(L.LightningModule):
         local_optim.zero_grad()
         # Create output layer weights with prototype-based initialization
         init_weight = 2 * prototypes
-        init_bias = -torch.norm(prototypes, dim=1) ** 2
+        init_bias = -(torch.norm(prototypes, dim=1) ** 2)
         output_weight = init_weight.detach().requires_grad_()
         output_bias = init_bias.detach().requires_grad_()
 
@@ -984,6 +988,7 @@ class TaskBatchSampler:
                             distinct examples for support and query set.
             shuffle: If True, examples and classes are newly shuffled in each
                       iteration (for training)
+
         """
         super().__init__()
         self.batch_sampler = FewShotBatchSampler(dataset_targets, N_way, K_shot, include_query, shuffle)

@@ -158,6 +158,7 @@ class BaseNetwork(nn.Module):
             input_size: Size of the input images in pixels
             num_classes: Number of classes we want to predict
             hidden_sizes: A list of integers specifying the hidden layer sizes in the NN
+
         """
         super().__init__()
 
@@ -618,6 +619,7 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
         patience: If the performance on the validation set has not improved for #patience epochs, we stop training early
         batch_size: Size of batches used in training
         overwrite: Determines how to handle the case when there already exists a checkpoint. If True, it will be overwritten. Otherwise, we skip training.
+
     """
     file_exists = os.path.isfile(_get_model_file(CHECKPOINT_PATH, model_name))
     if file_exists and not overwrite:
@@ -718,6 +720,7 @@ def test_model(net, data_loader):
     Args:
         net: Trained model of type BaseNetwork
         data_loader: DataLoader object of the dataset to test on (validation or test)
+
     """
     net.eval()
     true_preds, count = 0.0, 0
