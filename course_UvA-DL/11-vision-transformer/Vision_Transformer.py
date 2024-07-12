@@ -217,6 +217,7 @@ class AttentionBlock(nn.Module):
                          (usually 2-4x larger than embed_dim)
             num_heads: Number of heads to use in the Multi-Head Attention block
             dropout: Amount of dropout to apply in the feed-forward network
+
         """
         super().__init__()
 
@@ -283,6 +284,7 @@ class VisionTransformer(nn.Module):
             num_patches: Maximum number of patches an image can have
             dropout: Amount of dropout to apply in the feed-forward network and
                       on the input encoding
+
         """
         super().__init__()
 

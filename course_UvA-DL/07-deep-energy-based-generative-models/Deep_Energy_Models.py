@@ -340,6 +340,7 @@ class Sampler:
             img_shape: Shape of the images to model
             sample_size: Batch size of the samples
             max_len: Maximum number of data points to keep in the buffer
+
         """
         super().__init__()
         self.model = model
@@ -354,6 +355,7 @@ class Sampler:
         Args:
             steps: Number of iterations in the MCMC algorithm
             step_size: Learning rate nu in the algorithm above
+
         """
         # Choose 95% of the batch from the buffer, 5% generate from scratch
         n_new = np.random.binomial(self.sample_size, 0.05)
@@ -379,6 +381,7 @@ class Sampler:
             steps: Number of iterations in the MCMC algorithm.
             step_size: Learning rate nu in the algorithm above
             return_img_per_step: If True, we return the sample at every iteration of the MCMC
+
         """
         # Before MCMC: set model parameters to "required_grad=False"
         # because we are only interested in the gradients of the input.

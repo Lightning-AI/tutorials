@@ -266,6 +266,7 @@ class ImageFlow(L.LightningModule):
         Args:
             flows: A list of flows (each a nn.Module) that should be applied on the images.
             import_samples: Number of importance samples to use during testing (see explanation below). Can be changed at any time
+
         """
         super().__init__()
         self.flows = nn.ModuleList(flows)
@@ -291,6 +292,7 @@ class ImageFlow(L.LightningModule):
 
         If return_ll is True, this function returns the log likelihood of the input. Otherwise, the output metric is
         bits per dimension (scaled negative log likelihood)
+
         """
         z, ldj = self.encode(imgs)
         log_pz = self.prior.log_prob(z).sum(dim=[1, 2, 3])
@@ -408,6 +410,7 @@ class Dequantization(nn.Module):
             alpha: small constant that is used to scale the original input.
                     Prevents dealing with values very close to 0 and 1 when inverting the sigmoid
             quants: Number of possible discrete values (usually 256 for 8-bit image)
+
         """
         super().__init__()
         self.alpha = alpha
@@ -595,6 +598,7 @@ class VariationalDequantization(Dequantization):
         Args:
             var_flows: A list of flow transformations to use for modeling q(u|x)
             alpha: Small constant, see Dequantization for details
+
         """
         super().__init__(alpha=alpha)
         self.flows = nn.ModuleList(var_flows)
@@ -667,6 +671,7 @@ class CouplingLayer(nn.Module):
             mask: Binary mask (0 or 1) where 0 denotes that the element should be transformed,
                    while 1 means the latent will be used as input to the NN.
             c_in: Number of input channels
+
         """
         super().__init__()
         self.network = network
@@ -685,6 +690,7 @@ class CouplingLayer(nn.Module):
             reverse: If True, we apply the inverse of the layer.
             orig_img:
                 Only needed in VarDeq. Allows external input to condition the flow on (e.g. original image)
+
         """
         # Apply network to masked input
         z_in = z * self.mask
@@ -796,6 +802,7 @@ class ConcatELU(nn.Module):
     """Activation function that applies ELU in both direction (inverted and plain).
 
     Allows non-linearity while providing strong gradients for any input (important for final convolution)
+
     """
 
     def forward(self, x):
@@ -809,6 +816,7 @@ class LayerNormChannels(nn.Module):
         Args:
             c_in: Number of channels of the input
             eps: Small constant to stabilize std
+
         """
         super().__init__()
         self.gamma = nn.Parameter(torch.ones(1, c_in, 1, 1))
@@ -830,6 +838,7 @@ class GatedConv(nn.Module):
         Args:
             c_in: Number of channels of the input
             c_hidden: Number of hidden dimensions we want to model (usually similar to c_in)
+
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -854,6 +863,7 @@ class GatedConvNet(nn.Module):
             c_hidden: Number of hidden dimensions to use within the network
             c_out: Number of output channels. If -1, 2 times the input channels are used (affine coupling)
             num_layers: Number of gated ResNet blocks to apply
+
         """
         super().__init__()
         c_out = c_out if c_out > 0 else 2 * c_in
@@ -1261,6 +1271,7 @@ def interpolate(model, img1, img2, num_steps=8):
         model: object of ImageFlow class that represents the (trained) flow model
         img1, img2: Image tensors of shape [1, 28, 28]. Images between which should be interpolated.
         num_steps: Number of interpolation steps. 8 interpolation steps mean 6 intermediate pictures besides img1 and img2
+
     """
     imgs = torch.stack([img1, img2], dim=0).to(model.device)
     z, _ = model.encode(imgs)
@@ -1335,6 +1346,7 @@ def visualize_dequant_distribution(model: ImageFlow, imgs: Tensor, title: str = 
     Args:
         model: The flow of which we want to visualize the dequantization distribution
         imgs: Example training images of which we want to visualize the dequantization distribution
+
     """
     imgs = imgs.to(device)
     ldj = torch.zeros(imgs.shape[0], dtype=torch.float32).to(device)

@@ -138,6 +138,7 @@ class Encoder(nn.Module):
            base_channel_size : Number of channels we use in the first convolutional layers. Deeper layers might use a duplicate of it.
            latent_dim : Dimensionality of latent representation z
            act_fn : Activation function used throughout the encoder network
+
         """
         super().__init__()
         c_hid = base_channel_size
@@ -198,6 +199,7 @@ class Decoder(nn.Module):
            base_channel_size : Number of channels we use in the last convolutional layers. Early layers might use a duplicate of it.
            latent_dim : Dimensionality of latent representation z
            act_fn : Activation function used throughout the decoder network
+
         """
         super().__init__()
         c_hid = base_channel_size

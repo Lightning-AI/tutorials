@@ -28,6 +28,7 @@ class DQN(nn.Module):
             obs_size: observation/state size of the environment
             n_actions: number of discrete actions available in the environment
             hidden_size: size of hidden layers
+
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -58,6 +59,7 @@ class ReplayBuffer:
 
     Args:
         capacity: size of the buffer
+
     """
 
     def __init__(self, capacity: int) -> None:
@@ -71,6 +73,7 @@ class ReplayBuffer:
 
         Args:
             experience: tuple (state, action, reward, done, new_state)
+
         """
         self.buffer.append(experience)
 
@@ -94,6 +97,7 @@ class RLDataset(IterableDataset):
     Args:
         buffer: replay buffer
         sample_size: number of experiences to sample at a time
+
     """
 
     def __init__(self, buffer: ReplayBuffer, sample_size: int = 200) -> None:
@@ -118,6 +122,7 @@ class Agent:
         Args:
             env: training environment
             replay_buffer: replay buffer storing experiences
+
         """
         self.env = env
         self.replay_buffer = replay_buffer
@@ -138,6 +143,7 @@ class Agent:
 
         Returns:
             action
+
         """
         if np.random.random() < epsilon:
             action = self.env.action_space.sample()
@@ -169,6 +175,7 @@ class Agent:
 
         Returns:
             reward, done
+
         """
         action = self.get_action(net, epsilon, device)
 
@@ -225,6 +232,7 @@ class DQNLightning(LightningModule):
             eps_end: final value of epsilon
             episode_length: max length of an episode
             warm_start_steps: max episode reward in the environment
+
         """
         super().__init__()
         self.save_hyperparameters()
@@ -248,6 +256,7 @@ class DQNLightning(LightningModule):
 
         Args:
             steps: number of random steps to populate the buffer with
+
         """
         for _ in range(steps):
             self.agent.play_step(self.net, epsilon=1.0)
@@ -260,6 +269,7 @@ class DQNLightning(LightningModule):
 
         Returns:
             q values
+
         """
         output = self.net(x)
         return output
@@ -272,6 +282,7 @@ class DQNLightning(LightningModule):
 
         Returns:
             loss
+
         """
         states, actions, rewards, dones, next_states = batch
 
@@ -301,6 +312,7 @@ class DQNLightning(LightningModule):
 
         Returns:
             Training loss and log metrics
+
         """
         device = self.get_device(batch)
         epsilon = self.get_epsilon(self.hparams.eps_start, self.hparams.eps_end, self.hparams.eps_last_frame)
