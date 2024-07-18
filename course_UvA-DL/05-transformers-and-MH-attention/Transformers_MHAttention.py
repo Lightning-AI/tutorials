@@ -87,7 +87,7 @@ for file_name in pretrained_files:
         os.makedirs(file_path.rsplit("/", 1)[0], exist_ok=True)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -470,6 +470,7 @@ class EncoderBlock(nn.Module):
             num_heads: Number of heads to use in the attention block
             dim_feedforward: Dimensionality of the hidden layer in the MLP
             dropout: Dropout probability to use in the dropout layers
+
         """
         super().__init__()
 
@@ -578,6 +579,7 @@ class PositionalEncoding(nn.Module):
         Args:
             d_model: Hidden dimensionality of the input.
             max_len: Maximum length of a sequence to expect.
+
         """
         super().__init__()
 
@@ -773,6 +775,7 @@ class TransformerPredictor(L.LightningModule):
             max_iters: Number of maximum iterations the model is trained for. This is needed for the CosineWarmup scheduler
             dropout: Dropout to apply inside the model
             input_dropout: Dropout to apply on the input features
+
         """
         super().__init__()
         self.save_hyperparameters()
@@ -793,7 +796,7 @@ class TransformerPredictor(L.LightningModule):
             num_heads=self.hparams.num_heads,
             dropout=self.hparams.dropout,
         )
-        # Output classifier per sequence lement
+        # Output classifier per sequence element
         self.output_net = nn.Sequential(
             nn.Linear(self.hparams.model_dim, self.hparams.model_dim),
             nn.LayerNorm(self.hparams.model_dim),
@@ -822,6 +825,7 @@ class TransformerPredictor(L.LightningModule):
         """Function for extracting the attention matrices of the whole Transformer for a single batch.
 
         Input arguments same as the forward pass.
+
         """
         x = self.input_net(x)
         if add_positional_encoding:
@@ -944,8 +948,8 @@ class ReversePredictor(TransformerPredictor):
         acc = (preds.argmax(dim=-1) == labels).float().mean()
 
         # Logging
-        self.log("%s_loss" % mode, loss)
-        self.log("%s_acc" % mode, acc)
+        self.log(f"{mode}_loss", loss)
+        self.log(f"{mode}_acc", acc)
         return loss, acc
 
     def training_step(self, batch, batch_idx):
@@ -1314,6 +1318,7 @@ class SetAnomalyDataset(data.Dataset):
         """Samples a new set of images, given the label of the anomaly.
 
         The sampled images come from a different class than anomaly_label
+
         """
         # Sample class from 0,...,num_classes-1 while skipping anomaly_label as class
         set_label = np.random.randint(self.num_labels - 1)
@@ -1414,8 +1419,8 @@ class AnomalyPredictor(TransformerPredictor):
         preds = preds.squeeze(dim=-1)  # Shape: [Batch_size, set_size]
         loss = F.cross_entropy(preds, labels)  # Softmax/CE over set dimension
         acc = (preds.argmax(dim=-1) == labels).float().mean()
-        self.log("%s_loss" % mode, loss)
-        self.log("%s_acc" % mode, acc, on_step=False, on_epoch=True)
+        self.log(f"{mode}_loss", loss)
+        self.log(f"{mode}_acc", acc, on_step=False, on_epoch=True)
         return loss, acc
 
     def training_step(self, batch, batch_idx):

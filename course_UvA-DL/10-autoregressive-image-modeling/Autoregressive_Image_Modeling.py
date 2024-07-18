@@ -92,7 +92,7 @@ for file_name in pretrained_files:
     file_path = os.path.join(CHECKPOINT_PATH, file_name)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -193,6 +193,7 @@ class MaskedConvolution(nn.Module):
             mask: Tensor of shape [kernel_size_H, kernel_size_W] with 0s where
                    the convolution should be masked, and 1s otherwise.
             kwargs: Additional arguments for the convolution
+
         """
         super().__init__()
         # For simplicity: calculate padding automatically
@@ -296,6 +297,7 @@ def show_center_recep_field(img, out):
         img: Input image for which we want to calculate the receptive field on.
         out: Output features/loss which is used for backpropagation, and should be
               the output of the network/computation graph.
+
     """
     # Determine gradients
     loss = out[0, :, img.shape[2] // 2, img.shape[3] // 2].sum()  # L1 loss for simplicity
@@ -560,6 +562,7 @@ class PixelCNN(L.LightningModule):
 
         Args:
             x: Image tensor with integer values between 0 and 255.
+
         """
         # Scale input from 0 to 255 back to -1 to 1
         x = (x.float() / 255.0) * 2 - 1
@@ -594,6 +597,7 @@ class PixelCNN(L.LightningModule):
             img (optional): If given, this tensor will be used as
                              a starting image. The pixels to fill
                              should be -1 in the input tensor.
+
         """
         # Create empty image
         if img is None:

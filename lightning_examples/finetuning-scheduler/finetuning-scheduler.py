@@ -246,6 +246,7 @@ class RteBoolqDataModule(L.LightningDataModule):
             eval_batch_size (int, optional): Batch size to use for validation and testing splits. Defaults to 16.
             tokenizers_parallelism (bool, optional): Whether to use parallelism in the tokenizer. Defaults to True.
             \**dataloader_kwargs: Arguments passed when initializing the dataloader.
+
         """
         super().__init__()
         task_name = task_name if task_name in TASK_NUM_LABELS.keys() else DEFAULT_TASK
@@ -294,6 +295,7 @@ class RteBoolqDataModule(L.LightningDataModule):
 
         Returns:
             ``BatchEncoding``: A batch of encoded examples (note default tokenizer batch_size=1000).
+
         """
         text_pairs = list(zip(example_batch[self.text_fields[0]], example_batch[self.text_fields[1]]))
         # Tokenize the text/text pairs

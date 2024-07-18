@@ -68,7 +68,7 @@ for file_name in pretrained_files:
         os.makedirs(file_path.rsplit("/", 1)[0], exist_ok=True)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -340,6 +340,7 @@ class Sampler:
             img_shape: Shape of the images to model
             sample_size: Batch size of the samples
             max_len: Maximum number of data points to keep in the buffer
+
         """
         super().__init__()
         self.model = model
@@ -354,6 +355,7 @@ class Sampler:
         Args:
             steps: Number of iterations in the MCMC algorithm
             step_size: Learning rate nu in the algorithm above
+
         """
         # Choose 95% of the batch from the buffer, 5% generate from scratch
         n_new = np.random.binomial(self.sample_size, 0.05)
@@ -379,6 +381,7 @@ class Sampler:
             steps: Number of iterations in the MCMC algorithm.
             step_size: Learning rate nu in the algorithm above
             return_img_per_step: If True, we return the sample at every iteration of the MCMC
+
         """
         # Before MCMC: set model parameters to "required_grad=False"
         # because we are only interested in the gradients of the input.
@@ -767,7 +770,7 @@ with torch.no_grad():
     rand_imgs = torch.rand((128,) + model.hparams.img_shape).to(model.device)
     rand_imgs = rand_imgs * 2 - 1.0
     rand_out = model.cnn(rand_imgs).mean()
-    print("Average score for random images: %4.2f" % (rand_out.item()))
+    print(f"Average score for random images: {rand_out.item():4.2f}")
 
 # %% [markdown]
 # As we hoped, the model assigns very low probability to those noisy images.
@@ -778,7 +781,7 @@ with torch.no_grad():
     train_imgs, _ = next(iter(train_loader))
     train_imgs = train_imgs.to(model.device)
     train_out = model.cnn(train_imgs).mean()
-    print("Average score for training images: %4.2f" % (train_out.item()))
+    print(f"Average score for training images: {train_out.item():4.2f}")
 
 # %% [markdown]
 # The scores are close to 0 because of the regularization objective that was added to the training.
@@ -800,8 +803,8 @@ def compare_images(img1, img2):
     plt.xticks([(img1.shape[2] + 2) * (0.5 + j) for j in range(2)], labels=["Original image", "Transformed image"])
     plt.yticks([])
     plt.show()
-    print("Score original image: %4.2f" % score1)
-    print("Score transformed image: %4.2f" % score2)
+    print(f"Score original image: {score1:4.2f}")
+    print(f"Score transformed image: {score2:4.2f}")
 
 
 # %% [markdown]
