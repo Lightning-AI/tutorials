@@ -92,7 +92,7 @@ for file_name in pretrained_files:
         os.makedirs(file_path.rsplit("/", 1)[0], exist_ok=True)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -525,8 +525,8 @@ class ProtoNet(L.LightningModule):
         preds, labels, acc = self.classify_feats(prototypes, classes, query_feats, query_targets)
         loss = F.cross_entropy(preds, labels)
 
-        self.log("%s_loss" % mode, loss)
-        self.log("%s_acc" % mode, acc)
+        self.log(f"{mode}_loss", loss)
+        self.log(f"{mode}_acc", acc)
         return loss
 
     def training_step(self, batch, batch_idx):
@@ -573,7 +573,7 @@ def train_model(model_class, train_loader, val_loader, **kwargs):
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, model_class.__name__ + ".ckpt")
     if os.path.isfile(pretrained_filename):
-        print("Found pretrained model at %s, loading..." % pretrained_filename)
+        print(f"Found pretrained model at {pretrained_filename}, loading...")
         # Automatically loads the model with the saved hyperparameters
         model = model_class.load_from_checkpoint(pretrained_filename)
     else:
@@ -947,8 +947,8 @@ class ProtoMAML(L.LightningModule):
             opt.step()
             opt.zero_grad()
 
-        self.log("%s_loss" % mode, sum(losses) / len(losses))
-        self.log("%s_acc" % mode, sum(accuracies) / len(accuracies))
+        self.log(f"{mode}_loss", sum(losses) / len(losses))
+        self.log(f"{mode}_acc", sum(accuracies) / len(accuracies))
 
     def training_step(self, batch, batch_idx):
         self.outer_loop(batch, mode="train")
