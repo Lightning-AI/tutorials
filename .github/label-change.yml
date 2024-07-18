@@ -1,8 +1,12 @@
-documentation:
-  - _docs/**/*
+"topic: documentation":
+  - changed-files:
+      - any-glob-to-any-file:
+          - _docs/**/*
 
-CI/CD:
-  - .actions/**/*
-  - .azure-*/**/*
-  - .github/**/*
-  - _dockers/**/*
+"topic: CI/CD":
+  - changed-files:
+      - any-glob-to-any-file:
+          - .actions/**/*
+          - .azure-*/**/*
+          - .github/**/*
+          - _dockers/**/*
