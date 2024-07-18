@@ -87,7 +87,7 @@ for file_name in pretrained_files:
         os.makedirs(file_path.rsplit("/", 1)[0], exist_ok=True)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -796,7 +796,7 @@ class TransformerPredictor(L.LightningModule):
             num_heads=self.hparams.num_heads,
             dropout=self.hparams.dropout,
         )
-        # Output classifier per sequence lement
+        # Output classifier per sequence element
         self.output_net = nn.Sequential(
             nn.Linear(self.hparams.model_dim, self.hparams.model_dim),
             nn.LayerNorm(self.hparams.model_dim),
@@ -948,8 +948,8 @@ class ReversePredictor(TransformerPredictor):
         acc = (preds.argmax(dim=-1) == labels).float().mean()
 
         # Logging
-        self.log("%s_loss" % mode, loss)
-        self.log("%s_acc" % mode, acc)
+        self.log(f"{mode}_loss", loss)
+        self.log(f"{mode}_acc", acc)
         return loss, acc
 
     def training_step(self, batch, batch_idx):
@@ -1419,8 +1419,8 @@ class AnomalyPredictor(TransformerPredictor):
         preds = preds.squeeze(dim=-1)  # Shape: [Batch_size, set_size]
         loss = F.cross_entropy(preds, labels)  # Softmax/CE over set dimension
         acc = (preds.argmax(dim=-1) == labels).float().mean()
-        self.log("%s_loss" % mode, loss)
-        self.log("%s_acc" % mode, acc, on_step=False, on_epoch=True)
+        self.log(f"{mode}_loss", loss)
+        self.log(f"{mode}_acc", acc, on_step=False, on_epoch=True)
         return loss, acc
 
     def training_step(self, batch, batch_idx):

@@ -760,7 +760,7 @@ def train_resnet(batch_size, max_epochs=100, **kwargs):
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, "ResNet.ckpt")
     if os.path.isfile(pretrained_filename):
-        print("Found pretrained model at %s, loading..." % pretrained_filename)
+        print(f"Found pretrained model at {pretrained_filename}, loading...")
         model = ResNet.load_from_checkpoint(pretrained_filename)
     else:
         L.seed_everything(42)  # To be reproducible

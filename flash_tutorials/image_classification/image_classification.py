@@ -1,5 +1,5 @@
 # %% [markdown]
-# In this tutorial, we'll go over the basics of lightning Flash by finetuning/predictin with an ImageClassifier on [Hymenoptera Dataset](https://www.kaggle.com/ajayrana/hymenoptera-data) containing ants and bees images.
+# In this tutorial, we'll go over the basics of lightning Flash by finetuning/prediction with an ImageClassifier on [Hymenoptera Dataset](https://www.kaggle.com/ajayrana/hymenoptera-data) containing ants and bees images.
 #
 # # Finetuning
 #
