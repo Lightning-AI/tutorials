@@ -19,14 +19,29 @@ jobs:
     env:
       PATH_DATASETS: ${{ github.workspace }}/.datasets
     steps:
-      - name: Checkout 🛎️
+      - name: Checkout 🛎️ Publication
+        if: ${{ github.event_name != 'pull_request' }}
         uses: actions/checkout@v4
         with:
           ref: publication
+      - name: Checkout 🛎️ PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.9"
           cache: pip
+
+      - name: pull notebooks from Publication
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          git checkout publication
+          mkdir -p _notebooks
+          cp -r .notebooks _notebooks
+          git checkout ${{ github.ref }}
+          mv _notebooks .notebooks
 
       - name: List notebooks
         working-directory: .notebooks/
