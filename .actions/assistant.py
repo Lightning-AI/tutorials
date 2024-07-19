@@ -711,6 +711,7 @@ class AssistantCLI:
 
         Returns:
             path the updated YAML file
+
         """
         meta = AssistantCLI._load_meta(folder)
         # default is COU runtime
