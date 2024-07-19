@@ -31,7 +31,7 @@ jobs:
       - name: List notebooks
         working-directory: .notebooks/
         run: |
-          pip install py-tree
+          pip install -q py-tree
           py-tree .
 
       - name: Install dependencies
