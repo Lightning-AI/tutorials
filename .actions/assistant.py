@@ -113,7 +113,7 @@ def get_running_cuda_version() -> str:
         return ""
 
 
-def get_running_torch_version():
+def get_running_torch_version() -> str:
     """Extract the version of actual PyTorch for this runtime."""
     try:
         import torch
@@ -322,7 +322,13 @@ class AssistantCLI:
             # dry run does not execute the notebooks just takes them as they are
             cmd.append(f"cp {ipynb_file} {pub_ipynb}")
             # copy and add meta config
-            cmd += [f"cp {meta_file} {pub_meta}", f"cat {pub_meta}", f"git add {pub_meta}"]
+            cmd += [
+                f"cp {meta_file} {pub_meta}",
+                'echo "#====== START OF YAML FILE ======#"',
+                f"cat {pub_meta}",
+                'echo "#======= END OF YAML FILE =======#"',
+                f"git add {pub_meta}",
+            ]
         else:
             pip_req, pip_args = AssistantCLI._parse_requirements(folder)
             cmd += [f"pip install {pip_req} --quiet {pip_args}", "pip list"]
@@ -335,7 +341,13 @@ class AssistantCLI:
             # Export the actual packages used in runtime
             cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder})")
             # copy and add to version the enriched meta config
-            cmd += ["echo $meta_file", "cat $meta_file", "git add $meta_file"]
+            cmd += [
+                "echo $meta_file",
+                'echo "#====== START OF YAML FILE ======#"',
+                "cat $meta_file",
+                'echo "#======= END OF YAML FILE =======#"',
+                "git add $meta_file",
+            ]
         # if thumb image is linked to the notebook, copy and version it too
         if thumb_file:
             cmd += [f"cp {thumb_file} {pub_thumb}", f"git add {pub_thumb}"]
@@ -347,7 +359,7 @@ class AssistantCLI:
             fopen.write(os.linesep.join(cmd))
 
     @staticmethod
-    def bash_test(folder: str, output_file: str = PATH_SCRIPT_TEST) -> Optional[str]:
+    def bash_test(folder: str, output_file: str = PATH_SCRIPT_TEST, virtualenv: bool = False) -> Optional[str]:
         """Prepare bash script for running tests of a particular notebook.
 
         Args:
@@ -364,11 +376,12 @@ class AssistantCLI:
 
         # prepare isolated environment with inheriting the global packages
         path_venv = os.path.join(folder, "venv")
-        cmd += [
-            f"python -m virtualenv --system-site-packages {path_venv}",
-            f"source {os.path.join(path_venv, 'bin', 'activate')}",
-            "pip --version",
-        ]
+        if virtualenv:
+            cmd += [
+                f"python -m virtualenv --system-site-packages {path_venv}",
+                f"source {os.path.join(path_venv, 'bin', 'activate')}",
+                "pip --version",
+            ]
 
         cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}")
         if AssistantCLI._valid_accelerator(folder):
@@ -378,8 +391,14 @@ class AssistantCLI:
             # Export the actual packages used in runtime
             cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
             # show created meta config
-            cmd += ["echo $meta_file", "cat $meta_file"]
-            cmd.append(f"python -m pytest {ipynb_file} -v --nbval --nbval-cell-timeout=300")
+            cmd += [
+                "echo $meta_file",
+                'echo "#====== START OF YAML FILE ======#"',
+                "cat $meta_file",
+                'echo "#======= END OF YAML FILE =======#"',
+            ]
+            # use standard jupyter's executable via CMD
+            cmd.append(f"jupyter execute {ipynb_file} --inplace")
         else:
             pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
             pub_meta = pub_ipynb.replace(".ipynb", ".yaml")
@@ -387,12 +406,15 @@ class AssistantCLI:
             cmd += [
                 f"mkdir -p {os.path.dirname(pub_meta)}",
                 f"cp {meta_file} {pub_meta}",
+                'echo "#====== START OF YAML FILE ======#"',
                 f"cat {pub_meta}",
+                'echo "#======= END OF YAML FILE =======#"',
                 f"git add {pub_meta}",
             ]
             warn("Invalid notebook's accelerator for this device. So no tests will be run!!!", RuntimeWarning)
         # deactivate and clean local environment
-        cmd += ["deactivate", f"rm -rf {os.path.join(folder, 'venv')}"]
+        if virtualenv:
+            cmd += ["deactivate", f"rm -rf {os.path.join(folder, 'venv')}"]
         if not output_file:
             return os.linesep.join(cmd)
         with open(output_file, "w") as fopen:
@@ -707,7 +729,10 @@ class AssistantCLI:
 
         Args:
              folder: path to the folder
-             base_path:
+             base_path: base path with notebooks
+
+        Returns:
+            path the updated YAML file
 
         """
         meta = AssistantCLI._load_meta(folder)
