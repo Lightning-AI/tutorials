@@ -50,9 +50,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip --version
-          pip install -q -r requirements.txt -r _requirements/docs.txt \
-            -f ${TORCH_URL}
+          set -ex
+          pip install -q -r requirements.txt -r _requirements/docs.txt -f ${TORCH_URL}
           pip list
 
       - name: Process folders
@@ -105,7 +104,7 @@ jobs:
           path: changed-notebooks/
 
       - name: Make ${{ matrix.target }}
-        working-directory: ./_docs=
+        working-directory: ./_docs
         run: make ${{ matrix.target }} --jobs $(nproc) --debug SPHINXOPTS="-W --keep-going"
 
       - name: Upload built docs
