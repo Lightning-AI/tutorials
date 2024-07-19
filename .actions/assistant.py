@@ -397,6 +397,7 @@ class AssistantCLI:
                 "cat $meta_file",
                 'echo "#======= END OF YAML FILE =======#"',
             ]
+            # use standard jupyter's executable via CMD
             cmd.append(f"jupyter execute {ipynb_file} --inplace")
         else:
             pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
