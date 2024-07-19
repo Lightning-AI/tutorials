@@ -40,7 +40,7 @@ jobs:
           git checkout publication
           mkdir -p _notebooks
           cp -r .notebooks _notebooks
-          git checkout ${{ github.ref }}
+          git checkout ${{ github.head_ref }}
           mv _notebooks .notebooks
 
       - name: List notebooks
