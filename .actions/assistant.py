@@ -526,8 +526,6 @@ class AssistantCLI:
         with open(fpath_gitdiff) as fopen:
             changed = [ln.strip() for ln in fopen.readlines()]
         dirs = [os.path.dirname(ln) for ln in changed]
-        # not empty paths
-        dirs = [ln for ln in dirs if ln]
 
         if fpath_actual_dirs:
             assert isinstance(fpath_actual_dirs, list)
@@ -535,6 +533,8 @@ class AssistantCLI:
             dir_sets = [{ln.strip() for ln in open(fp).readlines()} for fp in fpath_actual_dirs]
             # get only different
             dirs += list(set.union(*dir_sets) - set.intersection(*dir_sets))
+        # not empty paths
+        dirs = [ln for ln in dirs if ln]
 
         if root_path:
             dirs = [os.path.join(root_path, d) for d in dirs]

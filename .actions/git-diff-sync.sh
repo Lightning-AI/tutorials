@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 printf "Detect changes for: $1 >> $2\n\n"
 
 b1="${1//'/'/'_'}"
@@ -30,8 +30,8 @@ printf "\n\n"
 git merge --ff -s resolve origin/$1
 
 python _TEMP/.actions/assistant.py group-folders target-diff.txt --fpath_actual_dirs "['dirs-$b1.txt', 'dirs-$b2.txt']"
-printf "\n\nChanged folders:\n"
+printf "\n================\nChanged folders:\n----------------\n"
 cat changed-folders.txt
-printf "\n\nDropped folders:\n"
+printf "\n================\nDropped folders:\n----------------\n"
 cat dropped-folders.txt
 printf "\n"
