@@ -41,9 +41,9 @@ jobs:
           git checkout publication
           py-tree .notebooks/
           mkdir -p _notebooks
-          cp -r .notebooks _notebooks/
+          cp -r .notebooks/ _notebooks/
           git checkout ${{ github.head_ref }}
-          mv _notebooks .notebooks
+          cp -r _notebooks/ .notebooks/
 
       - name: List notebooks
         run: py-tree .notebooks/
