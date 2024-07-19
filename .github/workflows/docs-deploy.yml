@@ -2,6 +2,10 @@ name: Deploy Docs
 on:
   push:
     branches: [publication]
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/docs-deploy.yml"
   workflow_dispatch: {}
   workflow_run:
     workflows: ["Publish notebook"]
@@ -47,6 +51,7 @@ jobs:
         run: make html --jobs $(nproc)
 
       - name: Deploy 🚀
+        if: ${{ github.event_name != 'pull_request' }}
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -55,4 +60,3 @@ jobs:
           clean: true # Automatically remove deleted files from the deploy branch
           target-folder: docs # If you'd like to push the contents of the deployment folder into a specific directory
           single-commit: true # you'd prefer to have a single commit on the deployment branch instead of full history
-        if: success()
