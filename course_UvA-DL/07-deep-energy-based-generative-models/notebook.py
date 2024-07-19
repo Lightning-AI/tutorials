@@ -227,7 +227,7 @@ for file_name in pretrained_files:
 # if the hyperparameters are not well tuned.
 # We will rely on training tricks proposed in the paper
 # [Implicit Generation and Generalization in Energy-Based Models](https://arxiv.org/abs/1903.08689)
-# by Yilun Du and Igor Mordatch ([blog](https://openai.com/research/energy-based-models)).
+# by Yilun Du and Igor Mordatch ([blog](https://openai.com/index/energy-based-models/)).
 # The important part of this notebook is however to see how the theory above can actually be used in a model.
 #
 # ### Dataset
