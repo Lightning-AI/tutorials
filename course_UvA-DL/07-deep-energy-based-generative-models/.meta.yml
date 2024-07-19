@@ -22,7 +22,7 @@ requirements:
   - torchvision
   - matplotlib
   - tensorboard
-  - lightning>=2.0.0
+  - pytorch-lightning>=2.0.0
 accelerator:
   - CPU
   - GPU

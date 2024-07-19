@@ -373,7 +373,7 @@ print(x.grad)
 # <center style="width: 100%"><img src="comparison_CPU_GPU.png" width="700px"></center>
 #
 # CPUs and GPUs have both different advantages and disadvantages, which is why many computers contain both components and use them for different tasks.
-# In case you are not familiar with GPUs, you can read up more details in this [NVIDIA blog post](https://blogs.nvidia.com/blog/2009/12/16/whats-the-difference-between-a-cpu-and-a-gpu/) or [here](https://www.intel.com/content/www/us/en/products/docs/processors/what-is-a-gpu.html).
+# In case you are not familiar with GPUs, you can read up more details in this [NVIDIA blog post](https://blogs.nvidia.com/blog/2009/12/16/whats-the-difference-between-a-cpu-and-a-gpu/) or [here](https://blogs.nvidia.com/blog/whats-the-difference-between-a-cpu-and-a-gpu/).
 #
 # GPUs can accelerate the training of your network up to a factor of $100$ which is essential for large neural networks.
 # PyTorch implements a lot of functionality for supporting GPUs (mostly those of NVIDIA due to the libraries [CUDA](https://developer.nvidia.com/cuda-zone) and [cuDNN](https://developer.nvidia.com/cudnn)).
