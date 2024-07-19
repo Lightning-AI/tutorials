@@ -1,6 +1,6 @@
 Fire
 tqdm
-PyYAML <6.0.0  $ todo: racing issue with cython compile
+PyYAML <6.0.0  # todo: racing issue with cython compile
 wcmatch
 requests
 pip
