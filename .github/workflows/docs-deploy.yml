@@ -41,13 +41,18 @@ jobs:
           sudo apt-get install -y cmake pandoc
           # install Texlive, see https://linuxconfig.org/how-to-install-latex-on-ubuntu-20-04-focal-fossa-linux
           sudo apt-get install -y texlive-latex-extra dvipng texlive-pictures
-          pip install --quiet --requirement _requirements/docs.txt
+          pip install -q -r _requirements/docs.txt
           pip list
         shell: bash
 
       - name: Make Documentation
         working-directory: ./_docs
         run: make html --jobs $(nproc)
+
+      - name: Copied notebooks [debugging]
+        if: failure()
+        working-directory: ./_docs/source/
+        run: py-tree notebooks
 
       - name: Deploy 🚀
         if: ${{ github.event_name != 'pull_request' }}
