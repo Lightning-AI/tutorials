@@ -9,9 +9,6 @@ import random
 import urllib.request
 from urllib.error import HTTPError
 
-# PyTorch Lightning
-import lightning as L
-
 # Plotting
 import matplotlib
 import matplotlib.pyplot as plt
@@ -19,6 +16,9 @@ import matplotlib.pyplot as plt
 # %matplotlib inline
 import matplotlib_inline.backend_inline
 import numpy as np
+
+# PyTorch Lightning
+import pytorch_lightning as pl
 
 # PyTorch
 import torch
@@ -28,7 +28,7 @@ import torch.utils.data as data
 
 # Torchvision
 import torchvision
-from lightning.pytorch.callbacks import Callback, LearningRateMonitor, ModelCheckpoint
+from pytorch_lightning.callbacks import Callback, LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import MNIST
 
@@ -41,7 +41,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial8")
 
 # Setting the seed
-L.seed_everything(42)
+pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.deterministic = True
@@ -465,7 +465,7 @@ class Sampler:
 
 
 # %%
-class DeepEnergyModel(L.LightningModule):
+class DeepEnergyModel(pl.LightningModule):
     def __init__(self, img_shape, batch_size, alpha=0.1, lr=1e-4, beta1=0.0, **CNN_args):
         super().__init__()
         self.save_hyperparameters()
@@ -640,7 +640,7 @@ class OutlierCallback(Callback):
 # %%
 def train_model(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "MNIST"),
         accelerator="auto",
         devices=1,
@@ -660,7 +660,7 @@ def train_model(**kwargs):
         print("Found pretrained model, loading...")
         model = DeepEnergyModel.load_from_checkpoint(pretrained_filename)
     else:
-        L.seed_everything(42)
+        pl.seed_everything(42)
         model = DeepEnergyModel(**kwargs)
         trainer.fit(model, train_loader, test_loader)
         model = DeepEnergyModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
@@ -709,7 +709,7 @@ model = train_model(img_shape=(1, 28, 28), batch_size=train_loader.batch_size, l
 
 # %%
 model.to(device)
-L.seed_everything(43)
+pl.seed_everything(43)
 callback = GenerateCallback(batch_size=4, vis_steps=8, num_steps=256)
 imgs_per_step = callback.generate_imgs(model)
 imgs_per_step = imgs_per_step.cpu()
