@@ -25,7 +25,7 @@ jobs:
           ref: publication
       - uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: "3.9"
           cache: pip
 
       - name: List notebooks
@@ -52,7 +52,7 @@ jobs:
       - name: Copied notebooks [debugging]
         if: failure()
         working-directory: ./_docs/source/
-        run: py-tree notebooks
+        run: py-tree notebooks/
 
       - name: Deploy 🚀
         if: ${{ github.event_name != 'pull_request' }}
