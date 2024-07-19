@@ -91,7 +91,7 @@ On the back side of publishing workflow you can find in principle these three st
 # 1) convert script to notebooks
 jupytext --set-formats ipynb,py:percent notebook.py
 
-# 2) testing the created notebook
+# 2) [OPTIONAL] testing the created notebook
 pytest -v notebook.ipynb  --nbval
 
 # 3) generating notebooks outputs

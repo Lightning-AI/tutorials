@@ -113,7 +113,7 @@ def get_running_cuda_version() -> str:
         return ""
 
 
-def get_running_torch_version():
+def get_running_torch_version() -> str:
     """Extract the version of actual PyTorch for this runtime."""
     try:
         import torch
@@ -379,7 +379,7 @@ class AssistantCLI:
             cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
             # show created meta config
             cmd += ["echo $meta_file", "cat $meta_file"]
-            cmd.append(f"python -m pytest {ipynb_file} -v --nbval --nbval-cell-timeout=300")
+            cmd.append(f"jupyter nbconvert --execute {ipynb_file}")
         else:
             pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
             pub_meta = pub_ipynb.replace(".ipynb", ".yaml")
@@ -707,8 +707,10 @@ class AssistantCLI:
 
         Args:
              folder: path to the folder
-             base_path:
+             base_path: base path with notebooks
 
+        Returns:
+            path the updated YAML file
         """
         meta = AssistantCLI._load_meta(folder)
         # default is COU runtime
