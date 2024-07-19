@@ -34,7 +34,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build (and Push) image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           #build-args: |
           #  UBUNTU_VERSION=${{ matrix.ubuntu }}
