@@ -648,6 +648,7 @@ class AssistantCLI:
         path_docs_images: str = "_static/images",
         patterns: Sequence[str] = (".", "**"),
         ignore: Optional[Sequence[str]] = None,
+        strict: bool = True,
     ) -> None:
         """Copy all notebooks from a folder to doc folder.
 
@@ -658,11 +659,13 @@ class AssistantCLI:
             path_docs_images: destination path to the images' location relative to ``docs_root``
             patterns: patterns to use when glob-ing notebooks
             ignore: ignore some specific notebooks even when the given string is in path
+            strict: raise exception if copy fails
 
         """
         all_ipynb = []
         for pattern in patterns:
             all_ipynb += glob.glob(os.path.join(path_root, DIR_NOTEBOOKS, pattern, "*.ipynb"))
+        print(f"Copy following notebooks to docs folder: {all_ipynb}")
         os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
         if ignore and not isinstance(ignore, (list, set, tuple)):
             ignore = [ignore]
@@ -683,8 +686,11 @@ class AssistantCLI:
                     path_docs_images=path_docs_images,
                 )
             except Exception as ex:
-                warnings.warn(f"Failed to copy notebook: {path_ipynb}\n{ex}", ResourceWarning)
-                continue
+                msg = f"Failed to copy notebook: {path_ipynb}\n{ex}"
+                if not strict:
+                    warnings.warn(msg, ResourceWarning)
+                    continue
+                raise FileNotFoundError(msg)
             ipynb_content.append(os.path.join(path_docs_ipynb, path_ipynb_in_dir))
 
     @staticmethod
