@@ -1,0 +1,55 @@
+title: 'Tutorial 13: Self-Supervised Contrastive Learning with SimCLR'
+author: Phillip Lippe
+created: 2021-08-30
+updated: 2023-03-14
+license: CC BY-SA
+tags:
+- Image
+- Self-Supervised
+- Contrastive-Learning
+description: 'In this tutorial, we will take a closer look at self-supervised contrastive
+  learning.
+
+  Self-supervised learning, or also sometimes called unsupervised learning, describes
+  the scenario where we have given input data, but no accompanying labels to train
+  in a classical supervised way.
+
+  However, this data still contains a lot of information from which we can learn:
+  how are the images different from each other?
+
+  What patterns are descriptive for certain images?
+
+  Can we cluster the images?
+
+  To get an insight into these questions, we will implement a popular, simple contrastive
+  learning method, SimCLR, and apply it to the STL10 dataset.
+
+  This notebook is part of a lecture series on Deep Learning at the University of
+  Amsterdam.
+
+  The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
+
+  '
+requirements:
+- torchvision
+- matplotlib
+- seaborn
+- lightning>=2.0.0
+- tensorboard
+accelerator:
+- CPU
+- GPU
+environment:
+- pytorch-lightning==2.0.9.post0
+- ipython==8.16.1
+- urllib3==2.2.2
+- seaborn==0.13.2
+- torch==2.0.1
+- tensorboard==2.17.0
+- matplotlib==3.8.4
+- torchvision==0.15.2
+- lightning==2.3.3
+- numpy==1.26.4
+- torchmetrics==1.2.1
+- setuptools==69.0.3
+published: '2024-07-19T20:31:47.750096'
