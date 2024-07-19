@@ -1,0 +1,38 @@
+title: PyTorch Lightning Basic GAN Tutorial
+author: Lightning.ai
+created: 2020-12-21
+updated: 2023-03-15
+license: CC BY-SA
+build: 0
+tags:
+- Image
+description: 'How to train a GAN!
+
+
+  Main takeaways:
+
+  1. Generator and discriminator are arbitrary PyTorch modules.
+
+  2. training_step does both the generator and discriminator training.
+
+  '
+requirements:
+- torchvision
+- lightning>=2.0.0
+- tensorboard
+accelerator:
+- CPU
+- GPU
+environment:
+- pytorch-lightning==2.0.9.post0
+- torchvision==0.15.2
+- urllib3==2.2.2
+- matplotlib==3.8.4
+- setuptools==69.0.3
+- torch==2.0.1
+- lightning==2.3.3
+- tensorboard==2.17.0
+- ipython==8.16.1
+- torchmetrics==1.2.1
+- numpy==1.26.4
+published: '2024-07-19T20:56:09.893587'
