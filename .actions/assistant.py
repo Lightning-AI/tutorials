@@ -359,7 +359,7 @@ class AssistantCLI:
             fopen.write(os.linesep.join(cmd))
 
     @staticmethod
-    def bash_test(folder: str, output_file: str = PATH_SCRIPT_TEST) -> Optional[str]:
+    def bash_test(folder: str, output_file: str = PATH_SCRIPT_TEST, virtualenv: bool = False) -> Optional[str]:
         """Prepare bash script for running tests of a particular notebook.
 
         Args:
@@ -376,11 +376,12 @@ class AssistantCLI:
 
         # prepare isolated environment with inheriting the global packages
         path_venv = os.path.join(folder, "venv")
-        cmd += [
-            f"python -m virtualenv --system-site-packages {path_venv}",
-            f"source {os.path.join(path_venv, 'bin', 'activate')}",
-            "pip --version",
-        ]
+        if virtualenv:
+            cmd += [
+                f"python -m virtualenv --system-site-packages {path_venv}",
+                f"source {os.path.join(path_venv, 'bin', 'activate')}",
+                "pip --version",
+            ]
 
         cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}")
         if AssistantCLI._valid_accelerator(folder):
@@ -411,7 +412,8 @@ class AssistantCLI:
             ]
             warn("Invalid notebook's accelerator for this device. So no tests will be run!!!", RuntimeWarning)
         # deactivate and clean local environment
-        cmd += ["deactivate", f"rm -rf {os.path.join(folder, 'venv')}"]
+        if virtualenv:
+            cmd += ["deactivate", f"rm -rf {os.path.join(folder, 'venv')}"]
         if not output_file:
             return os.linesep.join(cmd)
         with open(output_file, "w") as fopen:
