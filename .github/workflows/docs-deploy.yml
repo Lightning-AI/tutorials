@@ -33,21 +33,20 @@ jobs:
         with:
           python-version: "3.9"
           cache: pip
+      - run: pip install -q py-tree
 
       - name: pull notebooks from Publication
         if: ${{ github.event_name == 'pull_request' }}
         run: |
           git checkout publication
+          py-tree .notebooks/
           mkdir -p _notebooks
-          cp -r .notebooks _notebooks
+          cp -r .notebooks _notebooks/
           git checkout ${{ github.head_ref }}
           mv _notebooks .notebooks
 
       - name: List notebooks
-        working-directory: .notebooks/
-        run: |
-          pip install -q py-tree
-          py-tree .
+        run: py-tree .notebooks/
 
       - name: Install dependencies
         run: |
