@@ -218,6 +218,7 @@ def get_grads(act_fn, x):
 
     Returns:
         A tensor with the same size of x containing the gradients of act_fn at x.
+
     """
     x = x.clone().requires_grad_()  # Mark the input as tensor for which we want to store gradients
     out = act_fn(x)
@@ -287,6 +288,7 @@ class BaseNetwork(nn.Module):
             input_size: Size of the input images in pixels
             num_classes: Number of classes we want to predict
             hidden_sizes: A list of integers specifying the hidden layer sizes in the NN
+
         """
         super().__init__()
 
@@ -338,6 +340,7 @@ def load_model(model_path, model_name, net=None):
         model_path: Path of the checkpoint directory
         model_name: Name of the model (str)
         net: (Optional) If given, the state dict is loaded into this model. Otherwise, a new model is created.
+
     """
     config_file, model_file = _get_config_file(model_path, model_name), _get_model_file(model_path, model_name)
     assert os.path.isfile(
@@ -363,6 +366,7 @@ def save_model(model, model_path, model_name):
         model: Network object to save parameters from
         model_path: Path of the checkpoint directory
         model_name: Name of the model (str)
+
     """
     config_dict = model.config
     os.makedirs(model_path, exist_ok=True)
@@ -438,6 +442,7 @@ def visualize_gradients(net, color="C0"):
     Args:
         net: Object of class BaseNetwork
         color: Color in which we want to visualize the histogram (for easier separation of activation functions)
+
     """
     net.eval()
     small_loader = data.DataLoader(train_set, batch_size=256, shuffle=False)
@@ -519,6 +524,7 @@ def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, over
         patience: If the performance on the validation set has not improved for #patience epochs, we stop training early
         batch_size: Size of batches used in training
         overwrite: Determines how to handle the case when there already exists a checkpoint. If True, it will be overwritten. Otherwise, we skip training.
+
     """
     file_exists = os.path.isfile(_get_model_file(CHECKPOINT_PATH, model_name))
     if file_exists and not overwrite:
@@ -591,6 +597,7 @@ def test_model(net, data_loader):
     Args:
         net: Trained model of type BaseNetwork
         data_loader: DataLoader object of the dataset to test on (validation or test)
+
     """
     net.eval()
     true_preds, count = 0.0, 0
@@ -717,6 +724,7 @@ def measure_number_dead_neurons(net):
 
     For each neuron, we create a boolean variable initially set to 1. If it has an activation unequals 0 at any time, we
     set this variable to 0. After running through the whole training set, only dead neurons will have a 1.
+
     """
     neurons_dead = [
         torch.ones(layer.weight.shape[0], device=device, dtype=torch.bool)

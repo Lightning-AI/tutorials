@@ -224,6 +224,7 @@ class CIFARModule(L.LightningModule):
             model_hparams: Hyperparameters for the model, as dictionary.
             optimizer_name: Name of the optimizer to use. Currently supported: Adam, SGD
             optimizer_hparams: Hyperparameters for the optimizer, as dictionary. This includes learning rate, weight decay, etc.
+
         """
         super().__init__()
         # Exports the hyperparameters to a YAML file, and create "self.hparams" namespace
@@ -343,6 +344,7 @@ def train_model(model_name, save_name=None, **kwargs):
     Args:
         model_name: Name of the model you want to run. Is used to look up the class in "model_dict"
         save_name (optional): If specified, this name will be used for creating the checkpoint and logging directory.
+
     """
     if save_name is None:
         save_name = model_name
@@ -426,6 +428,7 @@ class InceptionBlock(nn.Module):
             c_red: Dictionary with keys "3x3" and "5x5" specifying the output of the dimensionality reducing 1x1 convolutions
             c_out: Dictionary with keys "1x1", "3x3", "5x5", and "max"
             act_fn: Activation class constructor (e.g. nn.ReLU)
+
         """
         super().__init__()
 
@@ -676,6 +679,7 @@ class ResNetBlock(nn.Module):
             act_fn: Activation class constructor (e.g. nn.ReLU)
             subsample - If True, we want to apply a stride inside the block and reduce the output shape by 2 in height and width
             c_out - Number of output features. Note that this is only relevant if subsample is True, as otherwise, c_out = c_in
+
         """
         super().__init__()
         if not subsample:
@@ -722,6 +726,7 @@ class PreActResNetBlock(nn.Module):
             act_fn - Activation class constructor (e.g. nn.ReLU)
             subsample - If True, we want to apply a stride inside the block and reduce the output shape by 2 in height and width
             c_out - Number of output features. Note that this is only relevant if subsample is True, as otherwise, c_out = c_in
+
         """
         super().__init__()
         if not subsample:
@@ -793,6 +798,7 @@ class ResNet(nn.Module):
             c_hidden - List with the hidden dimensionalities in the different blocks. Usually multiplied by 2 the deeper we go.
             act_fn_name - Name of the activation function to use, looked up in "act_fn_by_name"
             block_name - Name of the ResNet block, looked up in "resnet_blocks_by_name"
+
         """
         super().__init__()
         assert block_name in resnet_blocks_by_name
@@ -962,6 +968,7 @@ class DenseLayer(nn.Module):
             bn_size - Bottleneck size (factor of growth rate) for the output of the 1x1 convolution. Typically between 2 and 4.
             growth_rate - Number of output channels of the 3x3 convolution
             act_fn - Activation class constructor (e.g. nn.ReLU)
+
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -995,6 +1002,7 @@ class DenseBlock(nn.Module):
             bn_size - Bottleneck size to use in the dense layers
             growth_rate - Growth rate to use in the dense layers
             act_fn - Activation function to use in the dense layers
+
         """
         super().__init__()
         layers = []
