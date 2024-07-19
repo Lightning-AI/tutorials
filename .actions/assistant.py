@@ -379,7 +379,7 @@ class AssistantCLI:
             cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
             # show created meta config
             cmd += ["echo $meta_file", "cat $meta_file"]
-            cmd.append(f"jupyter nbconvert --execute {ipynb_file}")
+            cmd.append(f"jupyter execute {ipynb_file}")
         else:
             pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
             pub_meta = pub_ipynb.replace(".ipynb", ".yaml")
