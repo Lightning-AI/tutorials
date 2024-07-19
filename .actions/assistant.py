@@ -322,7 +322,13 @@ class AssistantCLI:
             # dry run does not execute the notebooks just takes them as they are
             cmd.append(f"cp {ipynb_file} {pub_ipynb}")
             # copy and add meta config
-            cmd += [f"cp {meta_file} {pub_meta}", f"cat {pub_meta}", f"git add {pub_meta}"]
+            cmd += [
+                f"cp {meta_file} {pub_meta}",
+                'echo "#====== START OF YAML FILE ======#"',
+                f"cat {pub_meta}",
+                'echo "#======= END OF YAML FILE =======#"',
+                f"git add {pub_meta}",
+            ]
         else:
             pip_req, pip_args = AssistantCLI._parse_requirements(folder)
             cmd += [f"pip install {pip_req} --quiet {pip_args}", "pip list"]
