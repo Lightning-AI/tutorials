@@ -770,7 +770,7 @@ with torch.no_grad():
     rand_imgs = torch.rand((128,) + model.hparams.img_shape).to(model.device)
     rand_imgs = rand_imgs * 2 - 1.0
     rand_out = model.cnn(rand_imgs).mean()
-    print(f"Average score for random images: {rand_out.item():4.2f}")
+    print(f"Average score for random images: {rand_out.item()}")
 
 # %% [markdown]
 # As we hoped, the model assigns very low probability to those noisy images.
@@ -803,8 +803,8 @@ def compare_images(img1, img2):
     plt.xticks([(img1.shape[2] + 2) * (0.5 + j) for j in range(2)], labels=["Original image", "Transformed image"])
     plt.yticks([])
     plt.show()
-    print(f"Score original image: {score1:4.2f}")
-    print(f"Score transformed image: {score2:4.2f}")
+    print(f"Score original image: {score1}")
+    print(f"Score transformed image: {score2}")
 
 
 # %% [markdown]
