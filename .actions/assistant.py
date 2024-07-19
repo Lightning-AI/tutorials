@@ -341,7 +341,13 @@ class AssistantCLI:
             # Export the actual packages used in runtime
             cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder})")
             # copy and add to version the enriched meta config
-            cmd += ["echo $meta_file", "cat $meta_file", "git add $meta_file"]
+            cmd += [
+                "echo $meta_file",
+                'echo "#====== START OF YAML FILE ======#"',
+                "cat $meta_file",
+                'echo "#======= END OF YAML FILE =======#"',
+                "git add $meta_file",
+            ]
         # if thumb image is linked to the notebook, copy and version it too
         if thumb_file:
             cmd += [f"cp {thumb_file} {pub_thumb}", f"git add {pub_thumb}"]
@@ -384,8 +390,13 @@ class AssistantCLI:
             # Export the actual packages used in runtime
             cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
             # show created meta config
-            cmd += ["echo $meta_file", "cat $meta_file"]
-            cmd.append(f"jupyter execute {ipynb_file}")
+            cmd += [
+                "echo $meta_file",
+                'echo "#====== START OF YAML FILE ======#"',
+                "cat $meta_file",
+                'echo "#======= END OF YAML FILE =======#"',
+            ]
+            cmd.append(f"jupyter execute {ipynb_file} --inplace")
         else:
             pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
             pub_meta = pub_ipynb.replace(".ipynb", ".yaml")
@@ -393,7 +404,9 @@ class AssistantCLI:
             cmd += [
                 f"mkdir -p {os.path.dirname(pub_meta)}",
                 f"cp {meta_file} {pub_meta}",
+                'echo "#====== START OF YAML FILE ======#"',
                 f"cat {pub_meta}",
+                'echo "#======= END OF YAML FILE =======#"',
                 f"git add {pub_meta}",
             ]
             warn("Invalid notebook's accelerator for this device. So no tests will be run!!!", RuntimeWarning)
