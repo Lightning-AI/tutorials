@@ -1,6 +1,6 @@
 # PytorchLightning Tutorials
 
-[![CI internal](https://github.com/Lightning-AI/tutorials/actions/workflows/ci_test-acts.yml/badge.svg?event=push)](https://github.com/Lightning-AI/tutorials/actions/workflows/ci_test-acts.yml)
+[![CI internal](https://github.com/Lightning-AI/tutorials/actions/workflows/ci_internal.yml/badge.svg?event=push)](https://github.com/Lightning-AI/tutorials/actions/workflows/ci_internal.yml)
 [![Build Status](https://dev.azure.com/Lightning-AI/Tutorials/_apis/build/status/Lightning-AI.tutorials%20%5Bpublish%5D?branchName=main)](https://dev.azure.com/Lightning-AI/Tutorials/_build/latest?definitionId=29&branchName=main)
 [![codecov](https://codecov.io/gh/Lightning-AI/tutorials/branch/main/graph/badge.svg?token=C6T3XOOR56)](https://codecov.io/gh/Lightning-AI/tutorials)
 [![Deploy Docs](https://github.com/Lightning-AI/tutorials/actions/workflows/docs-deploy.yml/badge.svg)](https://github.com/Lightning-AI/tutorials/actions/workflows/docs-deploy.yml)
