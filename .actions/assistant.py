@@ -154,7 +154,7 @@ class AssistantCLI:
         "lightning_examples": "Lightning-Examples",
         "flash_tutorials": "Kaggle",
     }
-    _BASH_SCRIPT_BASE = ("#!/bin/bash", "set -e", "")
+    _BASH_SCRIPT_BASE = ("#!/bin/bash", "set -ex", "")
     _EXT_ARCHIVE_ZIP = (".zip",)
     _EXT_ARCHIVE_TAR = (".tar", ".gz")
     _EXT_ARCHIVE = _EXT_ARCHIVE_ZIP + _EXT_ARCHIVE_TAR
