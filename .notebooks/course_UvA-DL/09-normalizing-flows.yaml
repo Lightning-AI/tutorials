@@ -1,12 +1,12 @@
-title: 'Tutorial 9: Normalizing Flows for Image Modeling'
+title: "Tutorial 9: Normalizing Flows for Image Modeling"
 author: Phillip Lippe
 created: 2021-06-07
 updated: 2023-03-14
 license: CC BY-SA
 build: 0
 tags:
-- Image
-description: 'In this tutorial, we will take a closer look at complex, deep normalizing
+  - Image
+description: "In this tutorial, we will take a closer look at complex, deep normalizing
   flows.
 
   The most popular, current application of deep normalizing flows is to model datasets
@@ -39,27 +39,27 @@ description: 'In this tutorial, we will take a closer look at complex, deep norm
 
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 
-  '
+  "
 requirements:
-- torchvision
-- matplotlib
-- seaborn
-- tabulate
-- lightning>=2.0.0
+  - torchvision
+  - matplotlib
+  - seaborn
+  - tabulate
+  - lightning>=2.0.0
 accelerator:
-- CPU
-- GPU
+  - CPU
+  - GPU
 environment:
-- matplotlib==3.8.4
-- torchmetrics==1.2.1
-- torchvision==0.15.2
-- numpy==1.26.4
-- pytorch-lightning==2.0.9.post0
-- setuptools==69.0.3
-- urllib3==2.2.2
-- tabulate==0.9.0
-- lightning==2.3.3
-- seaborn==0.13.2
-- torch==2.0.1
-- ipython==8.16.1
-published: '2024-07-19T19:56:56.208867'
+  - matplotlib==3.8.4
+  - torchmetrics==1.2.1
+  - torchvision==0.15.2
+  - numpy==1.26.4
+  - pytorch-lightning==2.0.9.post0
+  - setuptools==69.0.3
+  - urllib3==2.2.2
+  - tabulate==0.9.0
+  - lightning==2.3.3
+  - seaborn==0.13.2
+  - torch==2.0.1
+  - ipython==8.16.1
+published: "2024-07-19T19:56:56.208867"

@@ -5,8 +5,8 @@ updated: 2021-12-03
 license: CC BY-SA
 build: 2
 tags:
-- RL
-description: 'Main takeaways:
+  - RL
+description: "Main takeaways:
 
 
   1. RL has the same flow as previous models we have seen, with a few additions
@@ -17,28 +17,28 @@ description: 'Main takeaways:
   3. Each training step carries has the agent taking an action in the environment
   and storing the experience in the IterableDataset
 
-  '
+  "
 requirements:
-- gym <0.24
-- pygame
-- pandas
-- seaborn
-- lightning>=2.0.0
+  - gym <0.24
+  - pygame
+  - pandas
+  - seaborn
+  - lightning>=2.0.0
 accelerator:
-- CPU
-- GPU
+  - CPU
+  - GPU
 environment:
-- lightning==2.3.3
-- pytorch-lightning==1.5.3
-- pandas==2.2.2
-- matplotlib==3.8.4
-- seaborn==0.13.2
-- setuptools==69.0.3
-- torchmetrics==1.2.1
-- numpy==1.26.4
-- torch==2.0.1+cu118
-- pygame==2.6.0
-- gym==0.23.1
-- urllib3==2.2.2
-- ipython==8.16.1
-published: '2024-07-20T00:14:43.650667'
+  - lightning==2.3.3
+  - pytorch-lightning==1.5.3
+  - pandas==2.2.2
+  - matplotlib==3.8.4
+  - seaborn==0.13.2
+  - setuptools==69.0.3
+  - torchmetrics==1.2.1
+  - numpy==1.26.4
+  - torch==2.0.1+cu118
+  - pygame==2.6.0
+  - gym==0.23.1
+  - urllib3==2.2.2
+  - ipython==8.16.1
+published: "2024-07-20T00:14:43.650667"

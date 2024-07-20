@@ -1,12 +1,12 @@
-title: 'Tutorial 12: Meta-Learning - Learning to Learn'
+title: "Tutorial 12: Meta-Learning - Learning to Learn"
 author: Phillip Lippe
 created: 2021-08-21
 updated: 2023-03-14
 license: CC BY-SA
 tags:
-- Few-shot-learning
-- MAML
-- ProtoNet
+  - Few-shot-learning
+  - MAML
+  - ProtoNet
 description: 'In this tutorial, we will discuss algorithms that learn models which
   can quickly adapt to new classes and/or tasks with few samples.
 
@@ -39,27 +39,27 @@ description: 'In this tutorial, we will discuss algorithms that learn models whi
 
   '
 requirements:
-- torchvision
-- matplotlib
-- seaborn
-- lightning>=2.0.0
-- tensorboard
-- scipy
+  - torchvision
+  - matplotlib
+  - seaborn
+  - lightning>=2.0.0
+  - tensorboard
+  - scipy
 accelerator:
-- CPU
-- GPU
+  - CPU
+  - GPU
 environment:
-- matplotlib==3.8.4
-- numpy==1.26.4
-- ipython==8.16.1
-- torch==2.0.1
-- torchmetrics==1.2.1
-- torchvision==0.15.2
-- lightning==2.3.3
-- tensorboard==2.17.0
-- seaborn==0.13.2
-- urllib3==2.2.2
-- pytorch-lightning==2.0.9.post0
-- setuptools==69.0.3
-- scipy==1.14.0
-published: '2024-07-19T20:22:41.980859'
+  - matplotlib==3.8.4
+  - numpy==1.26.4
+  - ipython==8.16.1
+  - torch==2.0.1
+  - torchmetrics==1.2.1
+  - torchvision==0.15.2
+  - lightning==2.3.3
+  - tensorboard==2.17.0
+  - seaborn==0.13.2
+  - urllib3==2.2.2
+  - pytorch-lightning==2.0.9.post0
+  - setuptools==69.0.3
+  - scipy==1.14.0
+published: "2024-07-19T20:22:41.980859"
