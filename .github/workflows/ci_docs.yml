@@ -97,8 +97,6 @@ jobs:
           name: notebooks-${{ github.sha }}
           path: changed-notebooks/
 
-      - working-directory: _docs/source
-        run: cat conf.py
       - name: Make ${{ matrix.target }}
         working-directory: ./_docs
         run: make ${{ matrix.target }} --jobs $(nproc) --debug SPHINXOPTS="-W --keep-going"
