@@ -34,13 +34,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.8
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('_requirements/docs.txt') }}
-          restore-keys: pip-
+          cache: pip
 
       - name: Install Texlive & tree
         run: |
@@ -60,7 +54,7 @@ jobs:
           head=$(git rev-parse origin/"${{ github.base_ref }}")
           git diff --name-only $head --output=master-diff.txt
           python .actions/assistant.py group-folders master-diff.txt
-          printf "Changed folders:\n"
+          printf "Changed folders:\n----------------\n"
           cat changed-folders.txt
 
       - name: Count changed notebooks
@@ -103,6 +97,8 @@ jobs:
           name: notebooks-${{ github.sha }}
           path: changed-notebooks/
 
+      - working-directory: _docs/source
+        run: cat conf.py
       - name: Make ${{ matrix.target }}
         working-directory: ./_docs
         run: make ${{ matrix.target }} --jobs $(nproc) --debug SPHINXOPTS="-W --keep-going"
