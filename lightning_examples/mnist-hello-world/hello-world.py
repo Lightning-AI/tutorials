@@ -50,6 +50,7 @@ class Config:
         overridden when creating a new instance of the dataclass:
 
         >>> config = Config(batch_size=128, max_epochs=5)
+
     """
 
     data_dir: str = os.environ.get("PATH_DATASETS", ".")
@@ -99,6 +100,7 @@ class MNISTModel(L.LightningModule):
 
         >>> trainer = pl.Trainer()
         >>> trainer.fit(model)
+
     """
 
     def __init__(self):
@@ -119,6 +121,7 @@ class MNISTModel(L.LightningModule):
             >>> model = MNISTModel()
             >>> x = torch.randn(1, 1, 28, 28)
             >>> output = model(x)
+
         """
         flattened = x.view(x.size(0), -1)
         hidden = self.l1(flattened)
@@ -141,6 +144,7 @@ class MNISTModel(L.LightningModule):
             >>> x = torch.randn(1, 1, 28, 28)
             >>> y = torch.tensor([1])
             >>> loss = model.training_step((x, y), 0)
+
         """
         x, y = batch
         loss = F.cross_entropy(self(x), y)
@@ -155,6 +159,7 @@ class MNISTModel(L.LightningModule):
         Examples:
             >>> model = MNISTModel()
             >>> optimizer = model.configure_optimizers()
+
         """
         return torch.optim.Adam(self.parameters(), lr=0.02)
 
@@ -257,6 +262,7 @@ class LitMNIST(L.LightningModule):
 
         test_dataloader():
             Returns a DataLoader for the test set.
+
     """
 
     def __init__(self, data_dir: str = config.data_dir, hidden_size: int = 64, learning_rate: float = 2e-4):
@@ -268,6 +274,7 @@ class LitMNIST(L.LightningModule):
             hidden_size : The number of units in the hidden layer of the MLP (default is 64).
 
             learning_rate : The learning rate to use for training the MLP (default is 2e-4).
+
         """
         super().__init__()
 
@@ -311,6 +318,7 @@ class LitMNIST(L.LightningModule):
 
         Returns:
             torch.Tensor: The output of the MLP.
+
         """
         x = self.model(x)
         return F.log_softmax(x, dim=1)
@@ -325,6 +333,7 @@ class LitMNIST(L.LightningModule):
 
         Returns:
             (torch.Tensor): The training loss.
+
         """
         x, y = batch
         logits = self(x)
@@ -337,6 +346,7 @@ class LitMNIST(L.LightningModule):
         Args:
             batch : A tuple containing the input data and target labels.
             batch_idx : The index of the current batch.
+
         """
         x, y = batch
         logits = self(x)
@@ -354,6 +364,7 @@ class LitMNIST(L.LightningModule):
         Args:
             batch : A tuple containing the input data and target labels.
             batch_idx : The index of the current batch.
+
         """
         x, y = batch
         logits = self(x)
@@ -370,6 +381,7 @@ class LitMNIST(L.LightningModule):
 
         Returns:
             torch.optim.Optimizer: The optimizer.
+
         """
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
 
@@ -390,6 +402,7 @@ class LitMNIST(L.LightningModule):
 
         Args:
             stage : The current stage (either "fit" or "test"). Defaults to None.
+
         """
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
@@ -406,6 +419,7 @@ class LitMNIST(L.LightningModule):
 
         Returns:
             DataLoader: The training DataLoader.
+
         """
         return DataLoader(self.mnist_train, batch_size=config.batch_size)
 
@@ -414,6 +428,7 @@ class LitMNIST(L.LightningModule):
 
         Returns:
             DataLoader: The validation DataLoader.
+
         """
         return DataLoader(self.mnist_val, batch_size=config.batch_size)
 
@@ -422,6 +437,7 @@ class LitMNIST(L.LightningModule):
 
         Returns:
             DataLoader: The test DataLoader.
+
         """
         return DataLoader(self.mnist_test, batch_size=config.batch_size)
 

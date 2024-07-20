@@ -18,10 +18,10 @@
 # For instance, in autoregressive models, we cannot interpolate between two images because of the lack of a latent representation.
 # We will explore and discuss these benefits and drawbacks alongside with our implementation.
 #
-# Our implementation will focus on the [PixelCNN](https://arxiv.org/pdf/1606.05328.pdf) [2] model which has been discussed in detail in the lecture.
+# Our implementation will focus on the [PixelCNN](https://arxiv.org/abs/1606.05328) [2] model which has been discussed in detail in the lecture.
 # Most current SOTA models use PixelCNN as their fundamental architecture,
 # and various additions have been proposed to improve the performance
-# (e.g. [PixelCNN++](https://arxiv.org/pdf/1701.05517.pdf) and [PixelSNAIL](http://proceedings.mlr.press/v80/chen18h/chen18h.pdf)).
+# (e.g. [PixelCNN++](https://arxiv.org/abs/1701.05517) and [PixelSNAIL](http://proceedings.mlr.press/v80/chen18h/chen18h.pdf)).
 # Hence, implementing PixelCNN is a good starting point for our short tutorial.
 #
 # First of all, we need to import our standard libraries. Similarly as in
@@ -92,7 +92,7 @@ for file_name in pretrained_files:
     file_path = os.path.join(CHECKPOINT_PATH, file_name)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -173,7 +173,7 @@ show_imgs([train_set[i][0] for i in range(8)])
 # If we now want to apply this to our convolutions, we need to ensure that the prediction of pixel 1
 # is not influenced by its own "true" input, and all pixels on its right and in any lower row.
 # In convolutions, this means that we want to set those entries of the weight matrix to zero that take pixels on the right and below into account.
-# As an example for a 5x5 kernel, see a mask below (figure credit - [Aaron van den Oord](https://arxiv.org/pdf/1606.05328.pdf)):
+# As an example for a 5x5 kernel, see a mask below (figure credit - [Aaron van den Oord](https://arxiv.org/abs/1606.05328)):
 #
 # <center width="100%" style="padding: 10px"><img src="masked_convolution.svg" width="150px"></center>
 #
@@ -193,6 +193,7 @@ class MaskedConvolution(nn.Module):
             mask: Tensor of shape [kernel_size_H, kernel_size_W] with 0s where
                    the convolution should be masked, and 1s otherwise.
             kwargs: Additional arguments for the convolution
+
         """
         super().__init__()
         # For simplicity: calculate padding automatically
@@ -216,10 +217,10 @@ class MaskedConvolution(nn.Module):
 #
 # To build our own autoregressive image model, we could simply stack a few masked convolutions on top of each other.
 # This was actually the case for the original PixelCNN model, discussed in the paper
-# [Pixel Recurrent Neural Networks](https://arxiv.org/pdf/1601.06759.pdf), but this leads to a considerable issue.
+# [Pixel Recurrent Neural Networks](https://arxiv.org/abs/1601.06759), but this leads to a considerable issue.
 # When sequentially applying a couple of masked convolutions, the receptive field of a pixel
 # show to have a "blind spot" on the right upper side, as shown in the figure below
-# (figure credit - [Aaron van den Oord et al. ](https://arxiv.org/pdf/1606.05328.pdf)):
+# (figure credit - [Aaron van den Oord et al. ](https://arxiv.org/abs/1606.05328)):
 #
 # <center width="100%" style="padding: 10px"><img src="pixelcnn_blind_spot.svg" width="275px"></center>
 #
@@ -296,6 +297,7 @@ def show_center_recep_field(img, out):
         img: Input image for which we want to calculate the receptive field on.
         out: Output features/loss which is used for backpropagation, and should be
               the output of the network/computation graph.
+
     """
     # Determine gradients
     loss = out[0, :, img.shape[2] // 2, img.shape[3] // 2].sum()  # L1 loss for simplicity
@@ -445,7 +447,7 @@ del inp_img, horiz_conv, vert_conv
 # For visualizing the receptive field, we assumed a very simplified stack of vertical and horizontal convolutions.
 # Obviously, there are more sophisticated ways of doing it, and PixelCNN uses gated convolutions for this.
 # Specifically, the Gated Convolution block in PixelCNN looks as follows
-# (figure credit - [Aaron van den Oord et al. ](https://arxiv.org/pdf/1606.05328.pdf)):
+# (figure credit - [Aaron van den Oord et al. ](https://arxiv.org/abs/1606.05328)):
 #
 # <center width="100%"><img src="PixelCNN_GatedConv.svg" width="700px" style="padding: 15px"/></center>
 #
@@ -506,7 +508,7 @@ class GatedMaskedConv(nn.Module):
 # The architecture consists of multiple stacked GatedMaskedConv blocks, where we add an additional dilation factor to a few convolutions.
 # This is used to increase the receptive field of the model and allows to take a larger context into account during generation.
 # As a reminder, dilation on a convolution works looks as follows
-# (figure credit - [Vincent Dumoulin and Francesco Visin](https://arxiv.org/pdf/1603.07285.pdf)):
+# (figure credit - [Vincent Dumoulin and Francesco Visin](https://arxiv.org/abs/1603.07285)):
 #
 # <center width="100%"><img src="https://raw.githubusercontent.com/vdumoulin/conv_arithmetic/master/gif/dilation.gif" width="250px"></center>
 #
@@ -560,6 +562,7 @@ class PixelCNN(L.LightningModule):
 
         Args:
             x: Image tensor with integer values between 0 and 255.
+
         """
         # Scale input from 0 to 255 back to -1 to 1
         x = (x.float() / 255.0) * 2 - 1
@@ -594,6 +597,7 @@ class PixelCNN(L.LightningModule):
             img (optional): If given, this tensor will be used as
                              a starting image. The pixels to fill
                              should be -1 in the input tensor.
+
         """
         # Create empty image
         if img is None:
@@ -655,7 +659,7 @@ del inp, out, test_model
 # %% [markdown]
 # The visualization shows that for predicting any pixel, we can take almost half of the image into account.
 # However, keep in mind that this is the "theoretical" receptive field and not necessarily
-# the [effective receptive field](https://arxiv.org/pdf/1701.04128.pdf), which is usually much smaller.
+# the [effective receptive field](https://arxiv.org/abs/1701.04128), which is usually much smaller.
 # For a stronger model, we should therefore try to increase the receptive
 # field even further. Especially, for the pixel on the bottom right, the
 # very last pixel, we would be allowed to take into account the whole
@@ -869,7 +873,7 @@ plt.close()
 # Interestingly, the pixel values 64, 128 and 191 also stand out which is likely due to the quantization used during the creation of the dataset.
 # For RGB images, we would also see two peaks around 0 and 255,
 # but the values in between would be much more frequent than in MNIST
-# (see Figure 1 in the [PixelCNN++](https://arxiv.org/pdf/1701.05517.pdf) for a visualization on CIFAR10).
+# (see Figure 1 in the [PixelCNN++](https://arxiv.org/abs/1701.05517) for a visualization on CIFAR10).
 #
 # Next, we can visualize the distribution our model predicts (in average):
 

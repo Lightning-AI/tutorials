@@ -38,10 +38,13 @@ exclude_lines = [
 ]
 
 
-[tool.black]
-# https://github.com/psf/black
-line-length = 120
-exclude = "(.eggs|.git|.hg|.venv|_build|buck-out|build)"
+[tool.docformatter]
+recursive = true
+# this need to be shorter as some docstings are r"""...
+wrap-summaries = 119
+wrap-descriptions = 120
+blank = true
+
 
 [tool.codespell]
 skip = '*.svg'
@@ -55,11 +58,19 @@ ignore-words-list = "nd"
 
 [tool.ruff]
 line-length = 120
-# Enable Pyflakes `E` and `F` codes by default.
+target-version = "py38"
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    "docs"
+]
+
+[tool.ruff.lint]
 select = [
     "E", "W",  # see: https://pypi.org/project/pycodestyle
     "F",  # see: https://pypi.org/project/pyflakes
     "I",  # isort
+    "RUF018",  # see: https://docs.astral.sh/ruff/rules/assignment-in-assert
+    "UP", # see: https://docs.astral.sh/ruff/rules/#pyupgrade-up
 #    "D",  # see: https://pypi.org/project/pydocstyle
 #    "N",  # see: https://pypi.org/project/pep8-naming
 ]
@@ -74,31 +85,17 @@ ignore = [
     # TODO: we shall format all long comments as it comes from text cells
     "E501",  # Line too long
 ]
-# Exclude a variety of commonly ignored directories.
-exclude = [
-    ".eggs",
-    ".git",
-    ".ruff_cache",
-    "__pypackages__",
-    "_build",
-    "build",
-    "dist",
-    "docs"
-]
-ignore-init-module-imports = true
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "setup.py" = ["D100", "SIM115"]
 "__about__.py" = ["D100"]
 "__init__.py" = ["D100"]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 # Use Google-style docstrings.
 convention = "google"
 
-[tool.ruff.pycodestyle]
-ignore-overlong-task-comments = true
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 # Unlike Flake8, default to a complexity level of 10.
 max-complexity = 10
