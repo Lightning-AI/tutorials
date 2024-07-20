@@ -2,6 +2,7 @@ import base64
 import json
 import os
 import re
+import warnings
 from datetime import datetime
 from shutil import copyfile
 from textwrap import wrap
@@ -94,8 +95,8 @@ TEMPLATE_CARD_ITEM = """
 
 def load_requirements(path_req: str = PATH_REQ_DEFAULT) -> list:
     """Load the requirements from a file."""
-    with open(path_req) as fp:
-        req = fp.readlines()
+    with open(path_req) as fopen:
+        req = fopen.readlines()
     req = [r[: r.index("#")] if "#" in r else r for r in req]
     req = [r.strip() for r in req]
     req = [r for r in req if r]
@@ -112,7 +113,7 @@ def get_running_cuda_version() -> str:
         return ""
 
 
-def get_running_torch_version():
+def get_running_torch_version() -> str:
     """Extract the version of actual PyTorch for this runtime."""
     try:
         import torch
@@ -143,16 +144,6 @@ class AssistantCLI:
     DATASETS_FOLDER = os.environ.get("PATH_DATASETS", "_datasets")
     DRY_RUN = bool(int(os.environ.get("DRY_RUN", 0)))
     _META_REQUIRED_FIELDS = ("title", "author", "license", "description")
-    _SKIP_DIRS = (
-        ".actions",
-        ".azure",
-        ".datasets",
-        ".github",
-        "_docs",
-        "_TEMP",
-        "_requirements",
-        DIR_NOTEBOOKS,
-    )
     _META_FILE_REGEX = ".meta.{yaml,yml}"
     _META_PIP_KEY = "pip__"
     _META_ACCEL_DEFAULT = _LOCAL_ACCELERATOR.split(",")
@@ -163,12 +154,12 @@ class AssistantCLI:
         "lightning_examples": "Lightning-Examples",
         "flash_tutorials": "Kaggle",
     }
-    _BASH_SCRIPT_BASE = ("#!/bin/bash", "set -e", "")
+    _BASH_SCRIPT_BASE = ("#!/bin/bash", "set -ex", "")
     _EXT_ARCHIVE_ZIP = (".zip",)
     _EXT_ARCHIVE_TAR = (".tar", ".gz")
     _EXT_ARCHIVE = _EXT_ARCHIVE_ZIP + _EXT_ARCHIVE_TAR
     _AZURE_POOL = "lit-rtx-3090"
-    _AZURE_DOCKER = "pytorchlightning/pytorch_lightning:base-cuda-py3.9-torch1.12-cuda11.6.1"
+    _AZURE_DOCKER = "pytorchlightning/tutorials:latest"
 
     @staticmethod
     def _find_meta(folder: str) -> str:
@@ -176,6 +167,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         files = glob.glob(os.path.join(folder, AssistantCLI._META_FILE_REGEX), flags=glob.BRACE)
         if len(files) == 1:
@@ -188,7 +180,8 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
-            strict: raise error if meta is missing required feilds
+            strict: raise error if meta is missing required fields
+
         """
         fpath = AssistantCLI._find_meta(folder)
         assert fpath, f"Missing meta file in folder: {folder}"
@@ -206,6 +199,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         meta_files = [os.path.join(folder, f".meta.{ext}") for ext in ("yml", "yaml")]
         meta_files = [pf for pf in meta_files if os.path.isfile(pf)]
@@ -220,12 +214,13 @@ class AssistantCLI:
 
     @staticmethod
     def _valid_folder(folder: str, ext: str) -> Tuple[str, str, str]:
-        """Validate notebook folder if it has required meta file, python script or ipython notebook (depending on
-        the stage) and optional thumb.
+        """Validate notebook folder if it has required meta file, python script or ipython notebook (depending on the
+        stage) and optional thumb.
 
         Args:
             folder: path to the folder with python script, meta and artefacts
             ext: extension determining the stage - ".py" for python script nad ".ipynb" for notebook
+
         """
         files = glob.glob(os.path.join(folder, f"*{ext}"))
         if len(files) != 1:
@@ -240,6 +235,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         meta = AssistantCLI._load_meta(folder)
         meta_accels = [acc.lower() for acc in meta.get("accelerator", AssistantCLI._META_ACCEL_DEFAULT)]
@@ -252,6 +248,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         meta = AssistantCLI._load_meta(folder)
         reqs = meta.get("requirements", [])
@@ -261,7 +258,7 @@ class AssistantCLI:
             for k, v in meta.items()
             if k.startswith(AssistantCLI._META_PIP_KEY)
         }
-        pip_args = ["--extra-index-url https://download.pytorch.org/whl/" + _RUNTIME_VERSIONS.get("DEVICE")]
+        pip_args = ['--find-links="https://download.pytorch.org/whl/"' + _RUNTIME_VERSIONS.get("DEVICE")]
         for pip_key in meta_pip_args:
             if not isinstance(meta_pip_args[pip_key], (list, tuple, set)):
                 meta_pip_args[pip_key] = [meta_pip_args[pip_key]]
@@ -277,6 +274,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         meta = AssistantCLI._load_meta(folder)
         datasets = meta.get("datasets", {})
@@ -308,6 +306,7 @@ class AssistantCLI:
 
         Returns:
             string with nash script content
+
         """
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE) + [f"# Rendering: {folder}"]
         if not AssistantCLI.DRY_RUN:
@@ -323,7 +322,13 @@ class AssistantCLI:
             # dry run does not execute the notebooks just takes them as they are
             cmd.append(f"cp {ipynb_file} {pub_ipynb}")
             # copy and add meta config
-            cmd += [f"cp {meta_file} {pub_meta}", f"cat {pub_meta}", f"git add {pub_meta}"]
+            cmd += [
+                f"cp {meta_file} {pub_meta}",
+                'echo "#====== START OF YAML FILE ======#"',
+                f"cat {pub_meta}",
+                'echo "#======= END OF YAML FILE =======#"',
+                f"git add {pub_meta}",
+            ]
         else:
             pip_req, pip_args = AssistantCLI._parse_requirements(folder)
             cmd += [f"pip install {pip_req} --quiet {pip_args}", "pip list"]
@@ -336,7 +341,13 @@ class AssistantCLI:
             # Export the actual packages used in runtime
             cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder})")
             # copy and add to version the enriched meta config
-            cmd += ["echo $meta_file", "cat $meta_file", "git add $meta_file"]
+            cmd += [
+                "echo $meta_file",
+                'echo "#====== START OF YAML FILE ======#"',
+                "cat $meta_file",
+                'echo "#======= END OF YAML FILE =======#"',
+                "git add $meta_file",
+            ]
         # if thumb image is linked to the notebook, copy and version it too
         if thumb_file:
             cmd += [f"cp {thumb_file} {pub_thumb}", f"git add {pub_thumb}"]
@@ -344,11 +355,11 @@ class AssistantCLI:
         cmd.append(f"git add {pub_ipynb}")
         if not output_file:
             return os.linesep.join(cmd)
-        with open(output_file, "w") as fp:
-            fp.write(os.linesep.join(cmd))
+        with open(output_file, "w") as fopen:
+            fopen.write(os.linesep.join(cmd))
 
     @staticmethod
-    def bash_test(folder: str, output_file: str = PATH_SCRIPT_TEST) -> Optional[str]:
+    def bash_test(folder: str, output_file: str = PATH_SCRIPT_TEST, virtualenv: bool = False) -> Optional[str]:
         """Prepare bash script for running tests of a particular notebook.
 
         Args:
@@ -357,6 +368,7 @@ class AssistantCLI:
 
         Returns:
             string with nash script content
+
         """
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE) + [f"# Testing: {folder}"]
         cmd += AssistantCLI._bash_download_data(folder)
@@ -364,11 +376,12 @@ class AssistantCLI:
 
         # prepare isolated environment with inheriting the global packages
         path_venv = os.path.join(folder, "venv")
-        cmd += [
-            f"python -m virtualenv --system-site-packages {path_venv}",
-            f"source {os.path.join(path_venv, 'bin', 'activate')}",
-            "pip --version",
-        ]
+        if virtualenv:
+            cmd += [
+                f"python -m virtualenv --system-site-packages {path_venv}",
+                f"source {os.path.join(path_venv, 'bin', 'activate')}",
+                "pip --version",
+            ]
 
         cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}")
         if AssistantCLI._valid_accelerator(folder):
@@ -378,8 +391,14 @@ class AssistantCLI:
             # Export the actual packages used in runtime
             cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
             # show created meta config
-            cmd += ["echo $meta_file", "cat $meta_file"]
-            cmd.append(f"python -m pytest {ipynb_file} -v --nbval --nbval-cell-timeout=300")
+            cmd += [
+                "echo $meta_file",
+                'echo "#====== START OF YAML FILE ======#"',
+                "cat $meta_file",
+                'echo "#======= END OF YAML FILE =======#"',
+            ]
+            # use standard jupyter's executable via CMD
+            cmd.append(f"jupyter execute {ipynb_file} --inplace")
         else:
             pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
             pub_meta = pub_ipynb.replace(".ipynb", ".yaml")
@@ -387,16 +406,19 @@ class AssistantCLI:
             cmd += [
                 f"mkdir -p {os.path.dirname(pub_meta)}",
                 f"cp {meta_file} {pub_meta}",
+                'echo "#====== START OF YAML FILE ======#"',
                 f"cat {pub_meta}",
+                'echo "#======= END OF YAML FILE =======#"',
                 f"git add {pub_meta}",
             ]
             warn("Invalid notebook's accelerator for this device. So no tests will be run!!!", RuntimeWarning)
         # deactivate and clean local environment
-        cmd += ["deactivate", f"rm -rf {os.path.join(folder, 'venv')}"]
+        if virtualenv:
+            cmd += ["deactivate", f"rm -rf {os.path.join(folder, 'venv')}"]
         if not output_file:
             return os.linesep.join(cmd)
-        with open(output_file, "w") as fp:
-            fp.write(os.linesep.join(cmd))
+        with open(output_file, "w") as fopen:
+            fopen.write(os.linesep.join(cmd))
 
     @staticmethod
     def convert_ipynb(folder: str) -> None:
@@ -404,10 +426,11 @@ class AssistantCLI:
 
         Args:
             folder: folder with python script
+
         """
         fpath, _, _ = AssistantCLI._valid_folder(folder, ext=".py")
-        with open(fpath) as fp:
-            py_script = fp.readlines()
+        with open(fpath) as fopen:
+            py_script = fopen.readlines()
 
         meta = AssistantCLI._load_meta(folder, strict=True)
         meta.update(
@@ -423,8 +446,8 @@ class AssistantCLI:
 
         py_script = AssistantCLI._replace_images(py_script, folder)
 
-        with open(fpath, "w") as fp:
-            fp.writelines(py_script)
+        with open(fpath, "w") as fopen:
+            fopen.writelines(py_script)
 
         os.system(f'python -m jupytext --set-formats "ipynb,py:percent" {fpath}')
 
@@ -435,6 +458,7 @@ class AssistantCLI:
         Args:
             lines: string lines from python script
             local_dir: relative path to the folder with script
+
         """
         md = os.linesep.join([ln.rstrip() for ln in lines])
         p_imgs = []
@@ -451,8 +475,8 @@ class AssistantCLI:
             else:
                 url_path = "/".join([URL_PL_DOWNLOAD, local_dir, p_img])
                 p_local_img = os.path.join(local_dir, p_img)
-                with open(p_local_img, "rb") as fp:
-                    im = fp.read()
+                with open(p_local_img, "rb") as fopen:
+                    im = fopen.read()
             im_base64 = base64.b64encode(im).decode("utf-8")
             _, ext = os.path.splitext(p_img)
             md = md.replace(f'src="{p_img}"', f'src="{url_path}"')
@@ -462,7 +486,9 @@ class AssistantCLI:
 
     @staticmethod
     def _is_ipynb_parent_dir(dir_path: str) -> bool:
-        """Determine in recursive fasion of a folder is valid notebook file or any of sub-folders is."""
+        """Determine in recursive fashion of a folder is valid notebook file or any of sub-folders is."""
+        if dir_path.startswith("_"):
+            return False
         if AssistantCLI._find_meta(dir_path):
             return True
         sub_dirs = [d for d in glob.glob(os.path.join(dir_path, "*")) if os.path.isdir(d)]
@@ -495,12 +521,11 @@ class AssistantCLI:
         Example:
             $ python assistant.py group-folders ../target-diff.txt \
                 --fpath_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
+
         """
-        with open(fpath_gitdiff) as fp:
-            changed = [ln.strip() for ln in fp.readlines()]
+        with open(fpath_gitdiff) as fopen:
+            changed = [ln.strip() for ln in fopen.readlines()]
         dirs = [os.path.dirname(ln) for ln in changed]
-        # not empty paths
-        dirs = [ln for ln in dirs if ln]
 
         if fpath_actual_dirs:
             assert isinstance(fpath_actual_dirs, list)
@@ -508,13 +533,15 @@ class AssistantCLI:
             dir_sets = [{ln.strip() for ln in open(fp).readlines()} for fp in fpath_actual_dirs]
             # get only different
             dirs += list(set.union(*dir_sets) - set.intersection(*dir_sets))
+        # not empty paths
+        dirs = [ln for ln in dirs if ln]
 
         if root_path:
             dirs = [os.path.join(root_path, d) for d in dirs]
         # unique folders
         dirs = set(dirs)
-        # drop folder with skip folder
-        dirs = [pd for pd in dirs if not any(nd in AssistantCLI._SKIP_DIRS for nd in pd.split(os.path.sep))]
+        # drop folder  that start with . or _ as they are meant to be internal use only
+        dirs = [pdir for pdir in dirs if not any(ndir[0] in (".", "_") for ndir in pdir.split(os.path.sep))]
         # valid folder has meta
         dirs_exist = [d for d in dirs if os.path.isdir(d)]
         dirs_invalid = [d for d in dirs_exist if not AssistantCLI._find_meta(d)]
@@ -527,22 +554,24 @@ class AssistantCLI:
                 raise FileNotFoundError(f"{msg} nor sub-folder: \n {os.linesep.join(dirs_invalid)}")
 
         dirs_change = [d for d in dirs_exist if AssistantCLI._find_meta(d)]
-        with open(fpath_change_folders, "w") as fp:
-            fp.write(os.linesep.join(sorted(dirs_change)))
+        with open(fpath_change_folders, "w") as fopen:
+            fopen.write(os.linesep.join(sorted(dirs_change)))
 
         dirs_drop = [d for d in dirs if not os.path.isdir(d)]
-        with open(fpath_drop_folders, "w") as fp:
-            fp.write(os.linesep.join(sorted(dirs_drop)))
+        with open(fpath_drop_folders, "w") as fopen:
+            fopen.write(os.linesep.join(sorted(dirs_drop)))
 
     @staticmethod
-    def generate_matrix(fpath_change_folders: str) -> str:
+    def generate_matrix(fpath_change_folders: str, json_indent: Optional[int] = None) -> str:
         """Generate Azure matrix with leaf for each changed notebook.
 
         Args:
             fpath_change_folders: output of previous ``group_folders``
+            json_indent: makes the json more readable, recommendation is 4
+
         """
-        with open(fpath_change_folders) as fp:
-            folders = [ln.strip() for ln in fp.readlines()]
+        with open(fpath_change_folders) as fopen:
+            folders = [ln.strip() for ln in fopen.readlines()]
         # set default so the matrix has at least one runner
         if not folders:
             return ""
@@ -555,7 +584,7 @@ class AssistantCLI:
                 # TODO: allow defining some custom images with with python or PT
                 "docker-image": AssistantCLI._AZURE_DOCKER,
             }
-        return json.dumps(mtx)
+        return json.dumps(mtx, indent=json_indent)
 
     @staticmethod
     def _get_card_item_cell(path_ipynb: str, path_meta: str, path_thumb: Optional[str]) -> Dict[str, Any]:
@@ -618,6 +647,8 @@ class AssistantCLI:
         path_docs_ipynb: str = "notebooks",
         path_docs_images: str = "_static/images",
         patterns: Sequence[str] = (".", "**"),
+        ignore: Optional[Sequence[str]] = None,
+        strict: bool = True,
     ) -> None:
         """Copy all notebooks from a folder to doc folder.
 
@@ -627,40 +658,78 @@ class AssistantCLI:
             path_docs_ipynb: destination path to the notebooks' location relative to ``docs_root``
             path_docs_images: destination path to the images' location relative to ``docs_root``
             patterns: patterns to use when glob-ing notebooks
+            ignore: ignore some specific notebooks even when the given string is in path
+            strict: raise exception if copy fails
+
         """
-        ls_ipynb = []
-        for sub in patterns:
-            ls_ipynb += glob.glob(os.path.join(path_root, DIR_NOTEBOOKS, sub, "*.ipynb"))
-
         os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
+        all_ipynb = [
+            os.path.realpath(ipynb)
+            for pattern in patterns
+            for ipynb in glob.glob(os.path.join(path_root, DIR_NOTEBOOKS, pattern, "*.ipynb"))
+        ]
+        print(f"Copy following notebooks to docs folder: {all_ipynb}")
+        if ignore and not isinstance(ignore, (list, set, tuple)):
+            ignore = [ignore]
+        elif not ignore:
+            ignore = []
+
         ipynb_content = []
-        for path_ipynb in tqdm.tqdm(ls_ipynb):
-            ipynb = path_ipynb.split(os.path.sep)
-            sub_ipynb = os.path.sep.join(ipynb[ipynb.index(DIR_NOTEBOOKS) + 1 :])
-            new_ipynb = os.path.join(docs_root, path_docs_ipynb, sub_ipynb)
-            os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
+        for path_ipynb in tqdm.tqdm(all_ipynb):
+            if any(skip in path_ipynb for skip in ignore):
+                print(f"ignore/skip copy: {path_ipynb}")
+                continue
+            try:
+                path_ipynb_in_dir = AssistantCLI._copy_notebook(
+                    path_ipynb,
+                    path_root=path_root,
+                    docs_root=docs_root,
+                    path_docs_ipynb=path_docs_ipynb,
+                    path_docs_images=path_docs_images,
+                )
+            except Exception as ex:
+                msg = f"Failed to copy notebook: {path_ipynb}\n{ex}"
+                if not strict:
+                    warnings.warn(msg, ResourceWarning)
+                    continue
+                raise FileNotFoundError(msg)
+            ipynb_content.append(os.path.join(path_docs_ipynb, path_ipynb_in_dir))
 
-            path_meta = path_ipynb.replace(".ipynb", ".yaml")
-            path_thumb = AssistantCLI._resolve_path_thumb(path_ipynb, path_meta)
+    @staticmethod
+    def _copy_notebook(
+        path_ipynb: str,
+        path_root: str,
+        docs_root: str,
+        path_docs_ipynb: str,
+        path_docs_images: str,
+        json_indent: Optional[int] = None,
+    ) -> str:
+        """Copy particular notebook."""
+        ipynb = path_ipynb.split(os.path.sep)
+        path_ipynb_in_dir = os.path.sep.join(ipynb[ipynb.index(DIR_NOTEBOOKS) + 1 :])
+        new_ipynb = os.path.join(docs_root, path_docs_ipynb, path_ipynb_in_dir)
+        os.makedirs(os.path.dirname(new_ipynb), exist_ok=True)
 
-            if path_thumb is not None:
-                new_thumb = os.path.join(docs_root, path_docs_images, path_thumb)
-                old_path_thumb = os.path.join(path_root, DIR_NOTEBOOKS, path_thumb)
-                os.makedirs(os.path.dirname(new_thumb), exist_ok=True)
-                copyfile(old_path_thumb, new_thumb)
-                path_thumb = os.path.join(path_docs_images, path_thumb)
+        path_meta = path_ipynb.replace(".ipynb", ".yaml")
+        path_thumb = AssistantCLI._resolve_path_thumb(path_ipynb, path_meta)
 
-            print(f"{path_ipynb} -> {new_ipynb}")
+        if path_thumb is not None:
+            new_thumb = os.path.join(docs_root, path_docs_images, path_thumb)
+            old_path_thumb = os.path.join(path_root, DIR_NOTEBOOKS, path_thumb)
+            os.makedirs(os.path.dirname(new_thumb), exist_ok=True)
+            copyfile(old_path_thumb, new_thumb)
+            path_thumb = os.path.join(path_docs_images, path_thumb)
 
-            with open(path_ipynb) as f:
-                ipynb = json.load(f)
+        print(f"{path_ipynb} -> {new_ipynb}")
 
-            ipynb["cells"].append(AssistantCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb))
+        with open(path_ipynb) as fopen:
+            ipynb = json.load(fopen)
 
-            with open(new_ipynb, "w") as f:
-                json.dump(ipynb, f)
+        ipynb["cells"].append(AssistantCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb))
 
-            ipynb_content.append(os.path.join("notebooks", sub_ipynb))
+        with open(new_ipynb, "w") as fopen:
+            json.dump(ipynb, fopen, indent=json_indent)
+        return path_ipynb_in_dir
 
     @staticmethod
     def update_env_details(folder: str, base_path: str = DIR_NOTEBOOKS) -> str:
@@ -668,12 +737,16 @@ class AssistantCLI:
 
         Args:
              folder: path to the folder
-             base_path:
+             base_path: base path with notebooks
+
+        Returns:
+            path the updated YAML file
+
         """
         meta = AssistantCLI._load_meta(folder)
         # default is COU runtime
-        with open(PATH_REQ_DEFAULT) as fp:
-            req = fp.readlines()
+        with open(PATH_REQ_DEFAULT) as fopen:
+            req = fopen.readlines()
         req += meta.get("requirements", [])
         req = [r.strip() for r in req]
 
@@ -702,7 +775,7 @@ class AssistantCLI:
         dirs += glob.glob(os.path.join(folder, "**", "*" + include_file_ext))
         if include_file_ext:
             _ignore_base_dir = lambda p: os.path.sep.join(p.split(os.path.sep)[1:])  # noqa: E731
-            # Take the notebook as a folder (notebook are on teh same level as the raw tutorial file mix)
+            # Take the notebook as a folder (notebook are on the same level as the raw tutorial file mix)
             dirs = [os.path.splitext(_ignore_base_dir(p))[0] for p in dirs]
         else:
             dirs = [p for p in dirs if os.path.isdir(p)]

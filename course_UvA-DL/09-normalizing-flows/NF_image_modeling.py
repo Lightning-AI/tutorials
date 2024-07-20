@@ -68,7 +68,7 @@ for file_name in pretrained_files:
     file_path = os.path.join(CHECKPOINT_PATH, file_name)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -266,6 +266,7 @@ class ImageFlow(L.LightningModule):
         Args:
             flows: A list of flows (each a nn.Module) that should be applied on the images.
             import_samples: Number of importance samples to use during testing (see explanation below). Can be changed at any time
+
         """
         super().__init__()
         self.flows = nn.ModuleList(flows)
@@ -289,8 +290,9 @@ class ImageFlow(L.LightningModule):
     def _get_likelihood(self, imgs, return_ll=False):
         """Given a batch of images, return the likelihood of those.
 
-        If return_ll is True, this function returns the log likelihood of the input. Otherwise, the ouptut metric is
+        If return_ll is True, this function returns the log likelihood of the input. Otherwise, the output metric is
         bits per dimension (scaled negative log likelihood)
+
         """
         z, ldj = self.encode(imgs)
         log_pz = self.prior.log_prob(z).sum(dim=[1, 2, 3])
@@ -352,14 +354,14 @@ class ImageFlow(L.LightningModule):
 
 # %% [markdown]
 # The `test_step` function differs from the training and validation step in that it makes use of importance sampling.
-# We will discuss the motiviation and details behind this after
+# We will discuss the motivation and details behind this after
 # understanding how flows model discrete images in continuous space.
 
 # %% [markdown]
 # ### Dequantization
 #
 # Normalizing flows rely on the rule of change of variables, which is naturally defined in continuous space.
-# Applying flows directly on discrete data leads to undesired density models where arbitrarly high likelihood are placed on a few, particular values.
+# Applying flows directly on discrete data leads to undesired density models where arbitrarily high likelihood are placed on a few, particular values.
 # See the illustration below:
 #
 # <center><img src="dequantization_issue.svg" width="40%"/></center>
@@ -408,6 +410,7 @@ class Dequantization(nn.Module):
             alpha: small constant that is used to scale the original input.
                     Prevents dealing with values very close to 0 and 1 when inverting the sigmoid
             quants: Number of possible discrete values (usually 256 for 8-bit image)
+
         """
         super().__init__()
         self.alpha = alpha
@@ -515,7 +518,7 @@ def visualize_dequantization(quants, prior=None):
         plt.plot([inp[indices[0][-1]]] * 2, [0, prob[indices[0][-1]]], color=color)
         x_ticks.append(inp[indices[0][0]])
     x_ticks.append(inp.max())
-    plt.xticks(x_ticks, ["%.1f" % x for x in x_ticks])
+    plt.xticks(x_ticks, [f"{x:.1f}" for x in x_ticks])
     plt.plot(inp, prob, color=(0.0, 0.0, 0.0))
     # Set final plot properties
     plt.ylim(0, prob.max() * 1.1)
@@ -595,6 +598,7 @@ class VariationalDequantization(Dequantization):
         Args:
             var_flows: A list of flow transformations to use for modeling q(u|x)
             alpha: Small constant, see Dequantization for details
+
         """
         super().__init__(alpha=alpha)
         self.flows = nn.ModuleList(var_flows)
@@ -667,6 +671,7 @@ class CouplingLayer(nn.Module):
             mask: Binary mask (0 or 1) where 0 denotes that the element should be transformed,
                    while 1 means the latent will be used as input to the NN.
             c_in: Number of input channels
+
         """
         super().__init__()
         self.network = network
@@ -685,6 +690,7 @@ class CouplingLayer(nn.Module):
             reverse: If True, we apply the inverse of the layer.
             orig_img:
                 Only needed in VarDeq. Allows external input to condition the flow on (e.g. original image)
+
         """
         # Apply network to masked input
         z_in = z * self.mask
@@ -796,6 +802,7 @@ class ConcatELU(nn.Module):
     """Activation function that applies ELU in both direction (inverted and plain).
 
     Allows non-linearity while providing strong gradients for any input (important for final convolution)
+
     """
 
     def forward(self, x):
@@ -809,6 +816,7 @@ class LayerNormChannels(nn.Module):
         Args:
             c_in: Number of channels of the input
             eps: Small constant to stabilize std
+
         """
         super().__init__()
         self.gamma = nn.Parameter(torch.ones(1, c_in, 1, 1))
@@ -830,6 +838,7 @@ class GatedConv(nn.Module):
         Args:
             c_in: Number of channels of the input
             c_hidden: Number of hidden dimensions we want to model (usually similar to c_in)
+
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -854,6 +863,7 @@ class GatedConvNet(nn.Module):
             c_hidden: Number of hidden dimensions to use within the network
             c_out: Number of output channels. If -1, 2 times the input channels are used (affine coupling)
             num_layers: Number of gated ResNet blocks to apply
+
         """
         super().__init__()
         c_out = c_out if c_out > 0 else 2 * c_in
@@ -975,7 +985,7 @@ def train_flow(flow, model_name="MNISTFlow"):
 # One disadvantage of normalizing flows is that they operate on the exact same dimensions as the input.
 # If the input is high-dimensional, so is the latent space, which requires larger computational cost to learn suitable transformations.
 # However, particularly in the image domain, many pixels contain less information in the sense
-# that we could remove them without loosing the semantical information of the image.
+# that we could remove them without losing the semantical information of the image.
 #
 # Based on this intuition, deep normalizing flows on images commonly apply a multi-scale architecture [1].
 # After the first $N$ flow transformations, we split off half of the latent dimensions and directly evaluate them on the prior.
@@ -1189,8 +1199,8 @@ flow_dict["multiscale"]["model"], flow_dict["multiscale"]["result"] = train_flow
 table = [
     [
         key,
-        "%4.3f bpd" % flow_dict[key]["result"]["val"][0]["test_bpd"],
-        "%4.3f bpd" % flow_dict[key]["result"]["test"][0]["test_bpd"],
+        "{:4.3f} bpd".format(flow_dict[key]["result"]["val"][0]["test_bpd"]),
+        "{:4.3f} bpd".format(flow_dict[key]["result"]["test"][0]["test_bpd"]),
         "%2.0f ms" % (1000 * flow_dict[key]["result"]["time"]),
         "%2.0f ms" % (1000 * flow_dict[key]["result"].get("samp_time", 0)),
         "{:,}".format(sum(np.prod(p.shape) for p in flow_dict[key]["model"].parameters())),
@@ -1208,7 +1218,7 @@ display(
 )
 
 # %% [markdown]
-# As we have intially expected, using variational dequantization improves upon standard dequantization in terms of bits per dimension.
+# As we have initially expected, using variational dequantization improves upon standard dequantization in terms of bits per dimension.
 # Although the difference with 0.04bpd doesn't seem impressive first, it is a considerably step for generative models
 # (most state-of-the-art models improve upon previous models in a range of 0.02-0.1bpd on CIFAR with three times as high bpd).
 # While it takes longer to evaluate the probability of an image due to the variational dequantization,
@@ -1223,7 +1233,7 @@ display(
 # We should note that the samples for variational dequantization and standard dequantization are very similar,
 # and hence we visualize here only the ones for variational dequantization and the multi-scale model.
 # However, feel free to also test out the `"simple"` model.
-# The seeds are set to obtain reproducable generations and are not cherry picked.
+# The seeds are set to obtain reproducible generations and are not cherry picked.
 
 # %%
 L.seed_everything(44)
@@ -1261,6 +1271,7 @@ def interpolate(model, img1, img2, num_steps=8):
         model: object of ImageFlow class that represents the (trained) flow model
         img1, img2: Image tensors of shape [1, 28, 28]. Images between which should be interpolated.
         num_steps: Number of interpolation steps. 8 interpolation steps mean 6 intermediate pictures besides img1 and img2
+
     """
     imgs = torch.stack([img1, img2], dim=0).to(model.device)
     z, _ = model.encode(imgs)
@@ -1335,6 +1346,7 @@ def visualize_dequant_distribution(model: ImageFlow, imgs: Tensor, title: str = 
     Args:
         model: The flow of which we want to visualize the dequantization distribution
         imgs: Example training images of which we want to visualize the dequantization distribution
+
     """
     imgs = imgs.to(device)
     ldj = torch.zeros(imgs.shape[0], dtype=torch.float32).to(device)
@@ -1384,7 +1396,7 @@ visualize_dequant_distribution(flow_dict["vardeq"]["model"], sample_imgs, title=
 # and we have the guarantee that every possible input $x$ has a corresponding latent vector $z$.
 # However, even beyond continuous inputs and images, flows can be applied and allow us to exploit
 # the data structure in latent space, as e.g. on graphs for the task of molecule generation [6].
-# Recent advances in [Neural ODEs](https://arxiv.org/pdf/1806.07366.pdf) allow a flow with infinite number of layers,
+# Recent advances in [Neural ODEs](https://arxiv.org/abs/1806.07366) allow a flow with infinite number of layers,
 # called Continuous Normalizing Flows, whose potential is yet to fully explore.
 # Overall, normalizing flows are an exciting research area which will continue over the next couple of years.
 

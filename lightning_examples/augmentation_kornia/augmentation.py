@@ -52,7 +52,7 @@ class DataAugmentation(nn.Module):
 
         self.jitter = ColorJitter(0.5, 0.5, 0.5, 0.5)
 
-    @torch.no_grad()  # disable gradients for effiency
+    @torch.no_grad()  # disable gradients for efficiency
     def forward(self, x: Tensor) -> Tensor:
         x_out = self.transforms(x)  # BxCxHxW
         if self._apply_color_jitter:
@@ -76,7 +76,7 @@ class DataAugmentation(nn.Module):
 class Preprocess(nn.Module):
     """Module to perform pre-process using Kornia on torch tensors."""
 
-    @torch.no_grad()  # disable gradients for effiency
+    @torch.no_grad()  # disable gradients for efficiency
     def forward(self, x) -> Tensor:
         x_tmp: np.ndarray = np.array(x)  # HxWxC
         x_out: Tensor = image_to_tensor(x_tmp, keepdim=True)  # CxHxW

@@ -1,5 +1,5 @@
 title: PyTorch Lightning Basic GAN Tutorial
-author: PL team
+author: Lightning.ai
 created: 2020-12-21
 updated: 2023-03-15
 license: CC BY-SA
@@ -14,7 +14,8 @@ description: |
   2. training_step does both the generator and discriminator training.
 requirements:
   - torchvision
-  - lightning>=2.0.0rc0
+  - lightning>=2.0.0
+  - tensorboard
 accelerator:
   - CPU
   - GPU
