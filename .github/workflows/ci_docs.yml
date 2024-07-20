@@ -34,19 +34,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.8
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('_requirements/docs.txt') }}
-          restore-keys: pip-
+          cache: pip
 
       - name: Install Texlive & tree
         run: |
           sudo apt-get update --fix-missing
-          # install Texlive, see https://linuxconfig.org/how-to-install-latex-on-ubuntu-20-04-focal-fossa-linux
-          sudo apt-get install -y cmake tree pandoc texlive-latex-extra dvipng texlive-pictures
+          sudo apt-get install -y cmake tree pandoc
 
       - name: Install dependencies
         run: |
@@ -60,7 +53,7 @@ jobs:
           head=$(git rev-parse origin/"${{ github.base_ref }}")
           git diff --name-only $head --output=master-diff.txt
           python .actions/assistant.py group-folders master-diff.txt
-          printf "Changed folders:\n"
+          printf "Changed folders:\n----------------\n"
           cat changed-folders.txt
 
       - name: Count changed notebooks

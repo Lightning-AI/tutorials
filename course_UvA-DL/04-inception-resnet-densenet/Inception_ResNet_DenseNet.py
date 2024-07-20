@@ -244,7 +244,7 @@ class CIFARModule(L.LightningModule):
         # We will support Adam or SGD as optimizers.
         if self.hparams.optimizer_name == "Adam":
             # AdamW is Adam with a correct implementation of weight decay (see here
-            # for details: https://arxiv.org/pdf/1711.05101.pdf)
+            # for details: https://arxiv.org/abs/1711.05101)
             optimizer = optim.AdamW(self.parameters(), **self.hparams.optimizer_hparams)
         elif self.hparams.optimizer_name == "SGD":
             optimizer = optim.SGD(self.parameters(), **self.hparams.optimizer_hparams)
@@ -875,8 +875,8 @@ model_dict["ResNet"] = ResNet
 # One difference to the GoogleNet training is that we explicitly use SGD with Momentum as optimizer instead of Adam.
 # Adam often leads to a slightly worse accuracy on plain, shallow ResNets.
 # It is not 100% clear why Adam performs worse in this context, but one possible explanation is related to ResNet's loss surface.
-# ResNet has been shown to produce smoother loss surfaces than networks without skip connection (see [Li et al., 2018](https://arxiv.org/pdf/1712.09913.pdf) for details).
-# A possible visualization of the loss surface with/out skip connections is below (figure credit - [Li et al. ](https://arxiv.org/pdf/1712.09913.pdf)):
+# ResNet has been shown to produce smoother loss surfaces than networks without skip connection (see [Li et al., 2018](https://arxiv.org/abs/1712.09913) for details).
+# A possible visualization of the loss surface with/out skip connections is below (figure credit - [Li et al. ](https://arxiv.org/abs/1712.09913)):
 #
 # <center width="100%"><img src="resnet_loss_surface.png" style="display: block; margin-left: auto; margin-right: auto;" width="600px"/></center>
 #

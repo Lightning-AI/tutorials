@@ -515,7 +515,7 @@ print("ViT results", results)
 # Dosovitskiy, Alexey, et al.
 # "An image is worth 16x16 words: Transformers for image recognition at scale."
 # International Conference on Representation Learning (2021).
-# [link](https://arxiv.org/pdf/2010.11929.pdf)
+# [link](https://arxiv.org/abs/2010.11929)
 #
 # Chen, Xiangning, et al.
 # "When Vision Transformers Outperform ResNets without Pretraining or Strong Data Augmentations."
