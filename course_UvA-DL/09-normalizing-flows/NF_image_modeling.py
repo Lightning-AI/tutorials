@@ -68,7 +68,7 @@ for file_name in pretrained_files:
     file_path = os.path.join(CHECKPOINT_PATH, file_name)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -518,7 +518,7 @@ def visualize_dequantization(quants, prior=None):
         plt.plot([inp[indices[0][-1]]] * 2, [0, prob[indices[0][-1]]], color=color)
         x_ticks.append(inp[indices[0][0]])
     x_ticks.append(inp.max())
-    plt.xticks(x_ticks, ["%.1f" % x for x in x_ticks])
+    plt.xticks(x_ticks, [f"{x:.1f}" for x in x_ticks])
     plt.plot(inp, prob, color=(0.0, 0.0, 0.0))
     # Set final plot properties
     plt.ylim(0, prob.max() * 1.1)
@@ -1199,8 +1199,8 @@ flow_dict["multiscale"]["model"], flow_dict["multiscale"]["result"] = train_flow
 table = [
     [
         key,
-        "%4.3f bpd" % flow_dict[key]["result"]["val"][0]["test_bpd"],
-        "%4.3f bpd" % flow_dict[key]["result"]["test"][0]["test_bpd"],
+        "{:4.3f} bpd".format(flow_dict[key]["result"]["val"][0]["test_bpd"]),
+        "{:4.3f} bpd".format(flow_dict[key]["result"]["test"][0]["test_bpd"]),
         "%2.0f ms" % (1000 * flow_dict[key]["result"]["time"]),
         "%2.0f ms" % (1000 * flow_dict[key]["result"].get("samp_time", 0)),
         "{:,}".format(sum(np.prod(p.shape) for p in flow_dict[key]["model"].parameters())),
@@ -1396,7 +1396,7 @@ visualize_dequant_distribution(flow_dict["vardeq"]["model"], sample_imgs, title=
 # and we have the guarantee that every possible input $x$ has a corresponding latent vector $z$.
 # However, even beyond continuous inputs and images, flows can be applied and allow us to exploit
 # the data structure in latent space, as e.g. on graphs for the task of molecule generation [6].
-# Recent advances in [Neural ODEs](https://arxiv.org/pdf/1806.07366.pdf) allow a flow with infinite number of layers,
+# Recent advances in [Neural ODEs](https://arxiv.org/abs/1806.07366) allow a flow with infinite number of layers,
 # called Continuous Normalizing Flows, whose potential is yet to fully explore.
 # Overall, normalizing flows are an exciting research area which will continue over the next couple of years.
 

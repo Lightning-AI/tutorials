@@ -61,7 +61,7 @@ for file_name in pretrained_files:
         os.makedirs(file_path.rsplit("/", 1)[0], exist_ok=True)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -616,7 +616,7 @@ class NodeLevelGNN(L.LightningModule):
         elif mode == "test":
             mask = data.test_mask
         else:
-            assert False, "Unknown forward mode: %s" % mode
+            assert False, f"Unknown forward mode: {mode}"
 
         loss = self.loss_module(x[mask], data.y[mask])
         acc = (x[mask].argmax(dim=-1) == data.y[mask]).sum().float() / mask.sum()
@@ -671,7 +671,7 @@ def train_node_classifier(model_name, dataset, **model_kwargs):
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
     # Check whether pretrained model exists. If yes, load it and skip training
-    pretrained_filename = os.path.join(CHECKPOINT_PATH, "NodeLevel%s.ckpt" % model_name)
+    pretrained_filename = os.path.join(CHECKPOINT_PATH, f"NodeLevel{model_name}.ckpt")
     if os.path.isfile(pretrained_filename):
         print("Found pretrained model, loading...")
         model = NodeLevelGNN.load_from_checkpoint(pretrained_filename)
@@ -750,7 +750,7 @@ print_results(node_gnn_result)
 # Tutorials and papers for this topic include:
 #
 # * [PyTorch Geometric example](https://github.com/rusty1s/pytorch_geometric/blob/master/examples/link_pred.py)
-# * [Graph Neural Networks: A Review of Methods and Applications](https://arxiv.org/pdf/1812.08434.pdf), Zhou et al.
+# * [Graph Neural Networks: A Review of Methods and Applications](https://arxiv.org/abs/1812.08434), Zhou et al.
 # 2019
 # * [Link Prediction Based on Graph Neural Networks](https://papers.nips.cc/paper/2018/file/53f0d7c537d99b3824f0f99d62ea2428-Paper.pdf), Zhang and Chen, 2018.
 
@@ -790,7 +790,7 @@ tu_dataset = torch_geometric.datasets.TUDataset(root=DATASET_PATH, name="MUTAG")
 # %%
 print("Data object:", tu_dataset.data)
 print("Length:", len(tu_dataset))
-print("Average label: %4.2f" % (tu_dataset.data.y.float().mean().item()))
+print(f"Average label: {tu_dataset.data.y.float().mean().item():4.2f}")
 
 # %% [markdown]
 # The first line shows how the dataset stores different graphs.
@@ -957,7 +957,7 @@ def train_graph_classifier(model_name, **model_kwargs):
     trainer.logger._default_hp_metric = None
 
     # Check whether pretrained model exists. If yes, load it and skip training
-    pretrained_filename = os.path.join(CHECKPOINT_PATH, "GraphLevel%s.ckpt" % model_name)
+    pretrained_filename = os.path.join(CHECKPOINT_PATH, f"GraphLevel{model_name}.ckpt")
     if os.path.isfile(pretrained_filename):
         print("Found pretrained model, loading...")
         model = GraphLevelGNN.load_from_checkpoint(pretrained_filename)

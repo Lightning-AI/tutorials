@@ -9,9 +9,6 @@ import random
 import urllib.request
 from urllib.error import HTTPError
 
-# PyTorch Lightning
-import lightning as L
-
 # Plotting
 import matplotlib
 import matplotlib.pyplot as plt
@@ -19,6 +16,9 @@ import matplotlib.pyplot as plt
 # %matplotlib inline
 import matplotlib_inline.backend_inline
 import numpy as np
+
+# PyTorch Lightning
+import pytorch_lightning as pl
 
 # PyTorch
 import torch
@@ -28,7 +28,7 @@ import torch.utils.data as data
 
 # Torchvision
 import torchvision
-from lightning.pytorch.callbacks import Callback, LearningRateMonitor, ModelCheckpoint
+from pytorch_lightning.callbacks import Callback, LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import MNIST
 
@@ -41,7 +41,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial8")
 
 # Setting the seed
-L.seed_everything(42)
+pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.deterministic = True
@@ -68,7 +68,7 @@ for file_name in pretrained_files:
         os.makedirs(file_path.rsplit("/", 1)[0], exist_ok=True)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -227,7 +227,7 @@ for file_name in pretrained_files:
 # if the hyperparameters are not well tuned.
 # We will rely on training tricks proposed in the paper
 # [Implicit Generation and Generalization in Energy-Based Models](https://arxiv.org/abs/1903.08689)
-# by Yilun Du and Igor Mordatch ([blog](https://openai.com/research/energy-based-models)).
+# by Yilun Du and Igor Mordatch ([blog](https://openai.com/index/energy-based-models/)).
 # The important part of this notebook is however to see how the theory above can actually be used in a model.
 #
 # ### Dataset
@@ -465,7 +465,7 @@ class Sampler:
 
 
 # %%
-class DeepEnergyModel(L.LightningModule):
+class DeepEnergyModel(pl.LightningModule):
     def __init__(self, img_shape, batch_size, alpha=0.1, lr=1e-4, beta1=0.0, **CNN_args):
         super().__init__()
         self.save_hyperparameters()
@@ -640,7 +640,7 @@ class OutlierCallback(Callback):
 # %%
 def train_model(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "MNIST"),
         accelerator="auto",
         devices=1,
@@ -660,7 +660,7 @@ def train_model(**kwargs):
         print("Found pretrained model, loading...")
         model = DeepEnergyModel.load_from_checkpoint(pretrained_filename)
     else:
-        L.seed_everything(42)
+        pl.seed_everything(42)
         model = DeepEnergyModel(**kwargs)
         trainer.fit(model, train_loader, test_loader)
         model = DeepEnergyModel.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
@@ -709,7 +709,7 @@ model = train_model(img_shape=(1, 28, 28), batch_size=train_loader.batch_size, l
 
 # %%
 model.to(device)
-L.seed_everything(43)
+pl.seed_everything(43)
 callback = GenerateCallback(batch_size=4, vis_steps=8, num_steps=256)
 imgs_per_step = callback.generate_imgs(model)
 imgs_per_step = imgs_per_step.cpu()
@@ -770,7 +770,7 @@ with torch.no_grad():
     rand_imgs = torch.rand((128,) + model.hparams.img_shape).to(model.device)
     rand_imgs = rand_imgs * 2 - 1.0
     rand_out = model.cnn(rand_imgs).mean()
-    print("Average score for random images: %4.2f" % (rand_out.item()))
+    print(f"Average score for random images: {rand_out.item()}")
 
 # %% [markdown]
 # As we hoped, the model assigns very low probability to those noisy images.
@@ -781,7 +781,7 @@ with torch.no_grad():
     train_imgs, _ = next(iter(train_loader))
     train_imgs = train_imgs.to(model.device)
     train_out = model.cnn(train_imgs).mean()
-    print("Average score for training images: %4.2f" % (train_out.item()))
+    print(f"Average score for training images: {train_out.item():4.2f}")
 
 # %% [markdown]
 # The scores are close to 0 because of the regularization objective that was added to the training.
@@ -803,8 +803,8 @@ def compare_images(img1, img2):
     plt.xticks([(img1.shape[2] + 2) * (0.5 + j) for j in range(2)], labels=["Original image", "Transformed image"])
     plt.yticks([])
     plt.show()
-    print("Score original image: %4.2f" % score1)
-    print("Score transformed image: %4.2f" % score2)
+    print(f"Score original image: {score1}")
+    print(f"Score transformed image: {score2}")
 
 
 # %% [markdown]
