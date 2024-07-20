@@ -1,6 +1,6 @@
 # %% [markdown]
 # <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/035rkmT8FfE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
-# Meta-Learning offers solutions to these situations, and we will discuss three popular algorithms: __Prototypical Networks__ ([Snell et al., 2017](https://arxiv.org/pdf/1703.05175.pdf)), __Model-Agnostic Meta-Learning / MAML__ ([Finn et al., 2017](http://proceedings.mlr.press/v70/finn17a.html)), and __Proto-MAML__ ([Triantafillou et al., 2020](https://openreview.net/pdf?id=rkgAGAVKPr)).
+# Meta-Learning offers solutions to these situations, and we will discuss three popular algorithms: __Prototypical Networks__ ([Snell et al., 2017](https://arxiv.org/abs/1703.05175)), __Model-Agnostic Meta-Learning / MAML__ ([Finn et al., 2017](http://proceedings.mlr.press/v70/finn17a.html)), and __Proto-MAML__ ([Triantafillou et al., 2020](https://openreview.net/pdf?id=rkgAGAVKPr)).
 # We will focus on the task of few-shot classification where the training and test set have distinct sets of classes.
 # For instance, we would train the model on the binary classifications of cats-birds and flowers-bikes, but during test time, the model would need to learn from 4 examples each the difference between dogs and otters, two classes we have not seen during training (Figure credit - [Lilian Weng](https://lilianweng.github.io/lil-log/2018/11/30/meta-learning.html)).
 #
@@ -92,7 +92,7 @@ for file_name in pretrained_files:
         os.makedirs(file_path.rsplit("/", 1)[0], exist_ok=True)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -272,6 +272,7 @@ class FewShotBatchSampler:
             shuffle_once: If True, examples and classes are shuffled once in
                            the beginning, but kept constant across iterations
                            (for validation)
+
         """
         super().__init__()
         self.dataset_targets = dataset_targets
@@ -417,7 +418,7 @@ plt.close(fig)
 # $$\mathbf{v}_c=\frac{1}{|S_c|}\sum_{(\mathbf{x}_i,y_i)\in S_c}f_{\theta}(\mathbf{x}_i)$$
 #
 # where $S_c$ is the part of the support set $S$ for which $y_i=c$, and $\mathbf{v}_c$ represents the _prototype_ of class $c$.
-# The prototype calculation is visualized below for a 2-dimensional feature space and 3 classes (Figure credit - [Snell et al.](https://arxiv.org/pdf/1703.05175.pdf)).
+# The prototype calculation is visualized below for a 2-dimensional feature space and 3 classes (Figure credit - [Snell et al.](https://arxiv.org/abs/1703.05175)).
 # The colored dots represent encoded support elements with color-corresponding class label, and the black dots next to the class label are the averaged prototypes.
 #
 # <center width="100%"><img src="protonet_classification.svg" width="300px"></center>
@@ -483,6 +484,7 @@ class ProtoNet(L.LightningModule):
         Args:
             proto_dim: Dimensionality of prototype feature space
             lr: Learning rate of Adam optimizer
+
         """
         super().__init__()
         self.save_hyperparameters()
@@ -523,8 +525,8 @@ class ProtoNet(L.LightningModule):
         preds, labels, acc = self.classify_feats(prototypes, classes, query_feats, query_targets)
         loss = F.cross_entropy(preds, labels)
 
-        self.log("%s_loss" % mode, loss)
-        self.log("%s_acc" % mode, acc)
+        self.log(f"{mode}_loss", loss)
+        self.log(f"{mode}_acc", acc)
         return loss
 
     def training_step(self, batch, batch_idx):
@@ -571,7 +573,7 @@ def train_model(model_class, train_loader, val_loader, **kwargs):
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, model_class.__name__ + ".ckpt")
     if os.path.isfile(pretrained_filename):
-        print("Found pretrained model at %s, loading..." % pretrained_filename)
+        print(f"Found pretrained model at {pretrained_filename}, loading...")
         # Automatically loads the model with the saved hyperparameters
         model = model_class.load_from_checkpoint(pretrained_filename)
     else:
@@ -640,6 +642,7 @@ def test_proto_net(model, dataset, data_feats=None, k_shot=4):
                      If None, they will be newly calculated, and returned
                      for later usage.
         k_shot: Number of examples per class in the support set.
+
     """
     model = model.to(device)
     model.eval()
@@ -858,6 +861,7 @@ class ProtoMAML(L.LightningModule):
             lr_inner: Learning rate of the inner loop SGD optimizer
             lr_output: Learning rate for the output layer in the inner loop
             num_inner_steps: Number of inner loop updates to perform
+
         """
         super().__init__()
         self.save_hyperparameters()
@@ -888,7 +892,7 @@ class ProtoMAML(L.LightningModule):
         local_optim.zero_grad()
         # Create output layer weights with prototype-based initialization
         init_weight = 2 * prototypes
-        init_bias = -torch.norm(prototypes, dim=1) ** 2
+        init_bias = -(torch.norm(prototypes, dim=1) ** 2)
         output_weight = init_weight.detach().requires_grad_()
         output_bias = init_bias.detach().requires_grad_()
 
@@ -943,8 +947,8 @@ class ProtoMAML(L.LightningModule):
             opt.step()
             opt.zero_grad()
 
-        self.log("%s_loss" % mode, sum(losses) / len(losses))
-        self.log("%s_acc" % mode, sum(accuracies) / len(accuracies))
+        self.log(f"{mode}_loss", sum(losses) / len(losses))
+        self.log(f"{mode}_acc", sum(accuracies) / len(accuracies))
 
     def training_step(self, batch, batch_idx):
         self.outer_loop(batch, mode="train")
@@ -984,6 +988,7 @@ class TaskBatchSampler:
                             distinct examples for support and query set.
             shuffle: If True, examples and classes are newly shuffled in each
                       iteration (for training)
+
         """
         super().__init__()
         self.batch_sampler = FewShotBatchSampler(dataset_targets, N_way, K_shot, include_query, shuffle)
@@ -1324,7 +1329,7 @@ plt.close()
 # [1] Snell, Jake, Kevin Swersky, and Richard S. Zemel.
 # "Prototypical networks for few-shot learning."
 # NeurIPS 2017.
-# ([link](https://arxiv.org/pdf/1703.05175.pdf))
+# ([link](https://arxiv.org/abs/1703.05175))
 #
 # [2] Chelsea Finn, Pieter Abbeel, Sergey Levine.
 # "Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks."

@@ -158,6 +158,7 @@ class BaseNetwork(nn.Module):
             input_size: Size of the input images in pixels
             num_classes: Number of classes we want to predict
             hidden_sizes: A list of integers specifying the hidden layer sizes in the NN
+
         """
         super().__init__()
 
@@ -523,7 +524,7 @@ visualize_activations(model, print_variance=True)
 #
 # Thus, we see that we have an additional factor of 1/2 in the equation, so that our desired weight variance becomes $2/d_x$.
 # This gives us the Kaiming initialization (see [He, K. et al.
-# (2015)](https://arxiv.org/pdf/1502.01852.pdf)).
+# (2015)](https://arxiv.org/abs/1502.01852)).
 # Note that the Kaiming initialization does not use the harmonic mean between input and output size.
 # In their paper (Section 2.2, Backward Propagation, last paragraph), they argue that using $d_x$ or $d_y$ both lead to stable gradients throughout the network, and only depend on the overall input and output size of the network.
 # Hence, we can use here only the input $d_x$:
@@ -618,6 +619,7 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
         patience: If the performance on the validation set has not improved for #patience epochs, we stop training early
         batch_size: Size of batches used in training
         overwrite: Determines how to handle the case when there already exists a checkpoint. If True, it will be overwritten. Otherwise, we skip training.
+
     """
     file_exists = os.path.isfile(_get_model_file(CHECKPOINT_PATH, model_name))
     if file_exists and not overwrite:
@@ -718,6 +720,7 @@ def test_model(net, data_loader):
     Args:
         net: Trained model of type BaseNetwork
         data_loader: DataLoader object of the dataset to test on (validation or test)
+
     """
     net.eval()
     true_preds, count = 0.0, 0
@@ -1095,7 +1098,7 @@ plt.show()
 # The short answer: no.
 # There are many papers saying that in certain situations, SGD (with momentum) generalizes better where Adam often tends to overfit [5,6].
 # This is related to the idea of finding wider optima.
-# For instance, see the illustration of different optima below (credit: [Keskar et al., 2017](https://arxiv.org/pdf/1609.04836.pdf)):
+# For instance, see the illustration of different optima below (credit: [Keskar et al., 2017](https://arxiv.org/abs/1609.04836)):
 #
 # <center width="100%"><img src="flat_vs_sharp_minima.svg" width="500px"></center>
 #
@@ -1125,7 +1128,7 @@ plt.show()
 # "Understanding the difficulty of training deep feedforward neural networks."
 # Proceedings of the thirteenth international conference on artificial intelligence and statistics.
 # 2010.
-# [link](http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf)
+# [link](https://proceedings.mlr.press/v9/glorot10a)
 #
 # [2] He, Kaiming, et al.
 # "Delving deep into rectifiers: Surpassing human-level performance on imagenet classification."

@@ -2,6 +2,11 @@ name: Deploy Docs
 on:
   push:
     branches: [publication]
+  pull_request:
+    branches: [main]
+    paths:
+      - ".actions/assistant.py"
+      - ".github/workflows/docs-deploy.yml"
   workflow_dispatch: {}
   workflow_run:
     workflows: ["Publish notebook"]
@@ -14,31 +19,43 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       PATH_DATASETS: ${{ github.workspace }}/.datasets
+      TORCH_URL: "https://download.pytorch.org/whl/cpu/torch_stable.html"
     steps:
-      - name: Checkout 🛎️
+      - name: Checkout 🛎️ Publication
+        if: ${{ github.event_name != 'pull_request' }}
         uses: actions/checkout@v4
         with:
           ref: publication
+      - name: Checkout 🛎️ PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: "3.9"
+          cache: pip
+      - run: pip install -q py-tree
 
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('_requirements/docs.txt') }}
-          restore-keys: ${{ runner.os }}-pip-
+      - name: pull notebooks from Publication
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          git checkout publication
+          py-tree .notebooks/
+          mkdir -p _notebooks
+          cp -r .notebooks/* _notebooks/
+          git checkout ${{ github.head_ref }}
+          cp -r _notebooks/* .notebooks/
+
+      - name: List notebooks
+        run: py-tree .notebooks/
 
       - name: Install dependencies
         run: |
           mkdir -p ${PATH_DATASETS}
-          # install Texlive, see https://linuxconfig.org/how-to-install-latex-on-ubuntu-20-04-focal-fossa-linux
-          sudo apt-get update
+          sudo apt-get update --fix-missing
           sudo apt-get install -y cmake pandoc
-          sudo apt-get install -y texlive-latex-extra dvipng texlive-pictures
-          pip --version
-          pip install --quiet --requirement _requirements/docs.txt
+          pip install -q -r _requirements/docs.txt -f ${TORCH_URL}
           pip list
         shell: bash
 
@@ -46,7 +63,13 @@ jobs:
         working-directory: ./_docs
         run: make html --jobs $(nproc)
 
+      - name: Copied notebooks [debugging]
+        if: failure()
+        working-directory: ./_docs/source/
+        run: py-tree notebooks/
+
       - name: Deploy 🚀
+        if: ${{ github.event_name != 'pull_request' }}
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -55,4 +78,3 @@ jobs:
           clean: true # Automatically remove deleted files from the deploy branch
           target-folder: docs # If you'd like to push the contents of the deployment folder into a specific directory
           single-commit: true # you'd prefer to have a single commit on the deployment branch instead of full history
-        if: success()

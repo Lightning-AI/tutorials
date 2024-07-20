@@ -113,7 +113,7 @@ def get_running_cuda_version() -> str:
         return ""
 
 
-def get_running_torch_version():
+def get_running_torch_version() -> str:
     """Extract the version of actual PyTorch for this runtime."""
     try:
         import torch
@@ -154,7 +154,7 @@ class AssistantCLI:
         "lightning_examples": "Lightning-Examples",
         "flash_tutorials": "Kaggle",
     }
-    _BASH_SCRIPT_BASE = ("#!/bin/bash", "set -e", "")
+    _BASH_SCRIPT_BASE = ("#!/bin/bash", "set -ex", "")
     _EXT_ARCHIVE_ZIP = (".zip",)
     _EXT_ARCHIVE_TAR = (".tar", ".gz")
     _EXT_ARCHIVE = _EXT_ARCHIVE_ZIP + _EXT_ARCHIVE_TAR
@@ -167,6 +167,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         files = glob.glob(os.path.join(folder, AssistantCLI._META_FILE_REGEX), flags=glob.BRACE)
         if len(files) == 1:
@@ -180,6 +181,7 @@ class AssistantCLI:
         Args:
             folder: path to the folder with python script, meta and artefacts
             strict: raise error if meta is missing required fields
+
         """
         fpath = AssistantCLI._find_meta(folder)
         assert fpath, f"Missing meta file in folder: {folder}"
@@ -197,6 +199,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         meta_files = [os.path.join(folder, f".meta.{ext}") for ext in ("yml", "yaml")]
         meta_files = [pf for pf in meta_files if os.path.isfile(pf)]
@@ -217,6 +220,7 @@ class AssistantCLI:
         Args:
             folder: path to the folder with python script, meta and artefacts
             ext: extension determining the stage - ".py" for python script nad ".ipynb" for notebook
+
         """
         files = glob.glob(os.path.join(folder, f"*{ext}"))
         if len(files) != 1:
@@ -231,6 +235,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         meta = AssistantCLI._load_meta(folder)
         meta_accels = [acc.lower() for acc in meta.get("accelerator", AssistantCLI._META_ACCEL_DEFAULT)]
@@ -243,6 +248,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         meta = AssistantCLI._load_meta(folder)
         reqs = meta.get("requirements", [])
@@ -268,6 +274,7 @@ class AssistantCLI:
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+
         """
         meta = AssistantCLI._load_meta(folder)
         datasets = meta.get("datasets", {})
@@ -299,6 +306,7 @@ class AssistantCLI:
 
         Returns:
             string with nash script content
+
         """
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE) + [f"# Rendering: {folder}"]
         if not AssistantCLI.DRY_RUN:
@@ -314,7 +322,13 @@ class AssistantCLI:
             # dry run does not execute the notebooks just takes them as they are
             cmd.append(f"cp {ipynb_file} {pub_ipynb}")
             # copy and add meta config
-            cmd += [f"cp {meta_file} {pub_meta}", f"cat {pub_meta}", f"git add {pub_meta}"]
+            cmd += [
+                f"cp {meta_file} {pub_meta}",
+                'echo "#====== START OF YAML FILE ======#"',
+                f"cat {pub_meta}",
+                'echo "#======= END OF YAML FILE =======#"',
+                f"git add {pub_meta}",
+            ]
         else:
             pip_req, pip_args = AssistantCLI._parse_requirements(folder)
             cmd += [f"pip install {pip_req} --quiet {pip_args}", "pip list"]
@@ -327,7 +341,13 @@ class AssistantCLI:
             # Export the actual packages used in runtime
             cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder})")
             # copy and add to version the enriched meta config
-            cmd += ["echo $meta_file", "cat $meta_file", "git add $meta_file"]
+            cmd += [
+                "echo $meta_file",
+                'echo "#====== START OF YAML FILE ======#"',
+                "cat $meta_file",
+                'echo "#======= END OF YAML FILE =======#"',
+                "git add $meta_file",
+            ]
         # if thumb image is linked to the notebook, copy and version it too
         if thumb_file:
             cmd += [f"cp {thumb_file} {pub_thumb}", f"git add {pub_thumb}"]
@@ -339,7 +359,7 @@ class AssistantCLI:
             fopen.write(os.linesep.join(cmd))
 
     @staticmethod
-    def bash_test(folder: str, output_file: str = PATH_SCRIPT_TEST) -> Optional[str]:
+    def bash_test(folder: str, output_file: str = PATH_SCRIPT_TEST, virtualenv: bool = False) -> Optional[str]:
         """Prepare bash script for running tests of a particular notebook.
 
         Args:
@@ -348,6 +368,7 @@ class AssistantCLI:
 
         Returns:
             string with nash script content
+
         """
         cmd = list(AssistantCLI._BASH_SCRIPT_BASE) + [f"# Testing: {folder}"]
         cmd += AssistantCLI._bash_download_data(folder)
@@ -355,11 +376,12 @@ class AssistantCLI:
 
         # prepare isolated environment with inheriting the global packages
         path_venv = os.path.join(folder, "venv")
-        cmd += [
-            f"python -m virtualenv --system-site-packages {path_venv}",
-            f"source {os.path.join(path_venv, 'bin', 'activate')}",
-            "pip --version",
-        ]
+        if virtualenv:
+            cmd += [
+                f"python -m virtualenv --system-site-packages {path_venv}",
+                f"source {os.path.join(path_venv, 'bin', 'activate')}",
+                "pip --version",
+            ]
 
         cmd.append(f"# available: {AssistantCLI.DEVICE_ACCELERATOR}")
         if AssistantCLI._valid_accelerator(folder):
@@ -369,8 +391,14 @@ class AssistantCLI:
             # Export the actual packages used in runtime
             cmd.append(f"meta_file=$(python .actions/assistant.py update-env-details {folder} --base_path .)")
             # show created meta config
-            cmd += ["echo $meta_file", "cat $meta_file"]
-            cmd.append(f"python -m pytest {ipynb_file} -v --nbval --nbval-cell-timeout=300")
+            cmd += [
+                "echo $meta_file",
+                'echo "#====== START OF YAML FILE ======#"',
+                "cat $meta_file",
+                'echo "#======= END OF YAML FILE =======#"',
+            ]
+            # use standard jupyter's executable via CMD
+            cmd.append(f"jupyter execute {ipynb_file} --inplace")
         else:
             pub_ipynb = os.path.join(DIR_NOTEBOOKS, f"{folder}.ipynb")
             pub_meta = pub_ipynb.replace(".ipynb", ".yaml")
@@ -378,12 +406,15 @@ class AssistantCLI:
             cmd += [
                 f"mkdir -p {os.path.dirname(pub_meta)}",
                 f"cp {meta_file} {pub_meta}",
+                'echo "#====== START OF YAML FILE ======#"',
                 f"cat {pub_meta}",
+                'echo "#======= END OF YAML FILE =======#"',
                 f"git add {pub_meta}",
             ]
             warn("Invalid notebook's accelerator for this device. So no tests will be run!!!", RuntimeWarning)
         # deactivate and clean local environment
-        cmd += ["deactivate", f"rm -rf {os.path.join(folder, 'venv')}"]
+        if virtualenv:
+            cmd += ["deactivate", f"rm -rf {os.path.join(folder, 'venv')}"]
         if not output_file:
             return os.linesep.join(cmd)
         with open(output_file, "w") as fopen:
@@ -395,6 +426,7 @@ class AssistantCLI:
 
         Args:
             folder: folder with python script
+
         """
         fpath, _, _ = AssistantCLI._valid_folder(folder, ext=".py")
         with open(fpath) as fopen:
@@ -426,6 +458,7 @@ class AssistantCLI:
         Args:
             lines: string lines from python script
             local_dir: relative path to the folder with script
+
         """
         md = os.linesep.join([ln.rstrip() for ln in lines])
         p_imgs = []
@@ -488,12 +521,11 @@ class AssistantCLI:
         Example:
             $ python assistant.py group-folders ../target-diff.txt \
                 --fpath_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
+
         """
         with open(fpath_gitdiff) as fopen:
             changed = [ln.strip() for ln in fopen.readlines()]
         dirs = [os.path.dirname(ln) for ln in changed]
-        # not empty paths
-        dirs = [ln for ln in dirs if ln]
 
         if fpath_actual_dirs:
             assert isinstance(fpath_actual_dirs, list)
@@ -501,6 +533,8 @@ class AssistantCLI:
             dir_sets = [{ln.strip() for ln in open(fp).readlines()} for fp in fpath_actual_dirs]
             # get only different
             dirs += list(set.union(*dir_sets) - set.intersection(*dir_sets))
+        # not empty paths
+        dirs = [ln for ln in dirs if ln]
 
         if root_path:
             dirs = [os.path.join(root_path, d) for d in dirs]
@@ -534,6 +568,7 @@ class AssistantCLI:
         Args:
             fpath_change_folders: output of previous ``group_folders``
             json_indent: makes the json more readable, recommendation is 4
+
         """
         with open(fpath_change_folders) as fopen:
             folders = [ln.strip() for ln in fopen.readlines()]
@@ -613,6 +648,7 @@ class AssistantCLI:
         path_docs_images: str = "_static/images",
         patterns: Sequence[str] = (".", "**"),
         ignore: Optional[Sequence[str]] = None,
+        strict: bool = True,
     ) -> None:
         """Copy all notebooks from a folder to doc folder.
 
@@ -623,11 +659,16 @@ class AssistantCLI:
             path_docs_images: destination path to the images' location relative to ``docs_root``
             patterns: patterns to use when glob-ing notebooks
             ignore: ignore some specific notebooks even when the given string is in path
+            strict: raise exception if copy fails
+
         """
-        all_ipynb = []
-        for pattern in patterns:
-            all_ipynb += glob.glob(os.path.join(path_root, DIR_NOTEBOOKS, pattern, "*.ipynb"))
         os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
+        all_ipynb = [
+            os.path.realpath(ipynb)
+            for pattern in patterns
+            for ipynb in glob.glob(os.path.join(path_root, DIR_NOTEBOOKS, pattern, "*.ipynb"))
+        ]
+        print(f"Copy following notebooks to docs folder: {all_ipynb}")
         if ignore and not isinstance(ignore, (list, set, tuple)):
             ignore = [ignore]
         elif not ignore:
@@ -647,8 +688,11 @@ class AssistantCLI:
                     path_docs_images=path_docs_images,
                 )
             except Exception as ex:
-                warnings.warn(f"Failed to copy notebook: {path_ipynb}\n{ex}", ResourceWarning)
-                continue
+                msg = f"Failed to copy notebook: {path_ipynb}\n{ex}"
+                if not strict:
+                    warnings.warn(msg, ResourceWarning)
+                    continue
+                raise FileNotFoundError(msg)
             ipynb_content.append(os.path.join(path_docs_ipynb, path_ipynb_in_dir))
 
     @staticmethod
@@ -693,7 +737,11 @@ class AssistantCLI:
 
         Args:
              folder: path to the folder
-             base_path:
+             base_path: base path with notebooks
+
+        Returns:
+            path the updated YAML file
+
         """
         meta = AssistantCLI._load_meta(folder)
         # default is COU runtime
