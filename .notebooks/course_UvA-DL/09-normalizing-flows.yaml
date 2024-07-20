@@ -50,16 +50,16 @@ accelerator:
 - CPU
 - GPU
 environment:
-- matplotlib==3.8.4
 - torchmetrics==1.2.1
 - torchvision==0.15.2
-- numpy==1.26.4
-- pytorch-lightning==2.0.9.post0
-- setuptools==69.0.3
-- urllib3==2.2.2
 - tabulate==0.9.0
-- lightning==2.3.3
+- numpy==1.26.4
 - seaborn==0.13.2
-- torch==2.0.1
 - ipython==8.16.1
-published: '2024-07-19T19:56:56.208867'
+- torch==2.0.1
+- matplotlib==3.8.4
+- urllib3==2.2.2
+- setuptools==69.0.3
+- pytorch-lightning==1.5.3
+- lightning==2.3.3
+published: '2024-07-20T11:14:10.059891'
