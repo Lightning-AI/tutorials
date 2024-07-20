@@ -4,9 +4,7 @@ created: 2021–10–09
 updated: 2021–10–09
 license: CC
 description: |
- This tutorial shows how to implement a Behaviour-Sequence-Transformer model from Alibaba for session recommendations.
-requirements:
- — TODO
-accelerator:
- — CPU
- — GPU
+  This tutorial shows how to implement a Behaviour-Sequence-Transformer model from Alibaba for session recommendations.
+requirements: — TODO
+accelerator: — CPU
+  — GPU
