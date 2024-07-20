@@ -11,6 +11,9 @@ import warnings
 from urllib.error import HTTPError
 
 import matplotlib.pyplot as plt
+
+# %matplotlib inline
+import matplotlib_inline.backend_inline
 import numpy as np
 import seaborn as sns
 import torch
@@ -19,14 +22,11 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-
-# %matplotlib inline
-from IPython.display import set_matplotlib_formats
 from torchvision import transforms
 from torchvision.datasets import FashionMNIST
 from tqdm.notebook import tqdm
 
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 sns.set()
 
 # %% [markdown]
@@ -64,7 +64,7 @@ set_seed(42)
 
 # Additionally, some operations on a GPU are implemented stochastic for efficiency
 # We want to ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 # Fetching the device that will be used throughout this notebook
@@ -141,6 +141,7 @@ class ActivationFunction(nn.Module):
 # Both the sigmoid and tanh activation can be also found as PyTorch functions (`torch.sigmoid`, `torch.tanh`) or as modules (`nn.Sigmoid`, `nn.Tanh`).
 # Here, we implement them by hand:
 
+
 # %%
 class Sigmoid(ActivationFunction):
     def forward(self, x):
@@ -165,6 +166,7 @@ class Tanh(ActivationFunction):
 # If interested, a more detailed discussion of the benefits of Swish can be found in [this paper](https://arxiv.org/abs/1710.05941) [1].
 #
 # Let's implement the four activation functions below:
+
 
 # %%
 class ReLU(ActivationFunction):
@@ -213,8 +215,10 @@ def get_grads(act_fn, x):
     Args:
         act_fn: An object of the class "ActivationFunction" with an implemented forward pass.
         x: 1D input tensor.
+
     Returns:
         A tensor with the same size of x containing the gradients of act_fn at x.
+
     """
     x = x.clone().requires_grad_()  # Mark the input as tensor for which we want to store gradients
     out = act_fn(x)
@@ -277,12 +281,14 @@ plt.show()
 # %%
 class BaseNetwork(nn.Module):
     def __init__(self, act_fn, input_size=784, num_classes=10, hidden_sizes=[512, 256, 256, 128]):
-        """
+        """Base Network.
+
         Args:
             act_fn: Object of the activation function that should be used as non-linearity in the network.
             input_size: Size of the input images in pixels
             num_classes: Number of classes we want to predict
             hidden_sizes: A list of integers specifying the hidden layer sizes in the NN
+
         """
         super().__init__()
 
@@ -334,6 +340,7 @@ def load_model(model_path, model_name, net=None):
         model_path: Path of the checkpoint directory
         model_name: Name of the model (str)
         net: (Optional) If given, the state dict is loaded into this model. Otherwise, a new model is created.
+
     """
     config_file, model_file = _get_config_file(model_path, model_name), _get_model_file(model_path, model_name)
     assert os.path.isfile(
@@ -359,6 +366,7 @@ def save_model(model, model_path, model_name):
         model: Network object to save parameters from
         model_path: Path of the checkpoint directory
         model_name: Name of the model (str)
+
     """
     config_dict = model.config
     os.makedirs(model_path, exist_ok=True)
@@ -429,10 +437,12 @@ plt.close()
 
 # %%
 def visualize_gradients(net, color="C0"):
-    """
+    """Visualize gradients.
+
     Args:
         net: Object of class BaseNetwork
         color: Color in which we want to visualize the histogram (for easier separation of activation functions)
+
     """
     net.eval()
     small_loader = data.DataLoader(train_set, batch_size=256, shuffle=False)
@@ -514,6 +524,7 @@ def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, over
         patience: If the performance on the validation set has not improved for #patience epochs, we stop training early
         batch_size: Size of batches used in training
         overwrite: Determines how to handle the case when there already exists a checkpoint. If True, it will be overwritten. Otherwise, we skip training.
+
     """
     file_exists = os.path.isfile(_get_model_file(CHECKPOINT_PATH, model_name))
     if file_exists and not overwrite:
@@ -586,6 +597,7 @@ def test_model(net, data_loader):
     Args:
         net: Trained model of type BaseNetwork
         data_loader: DataLoader object of the dataset to test on (validation or test)
+
     """
     net.eval()
     true_preds, count = 0.0, 0
@@ -712,6 +724,7 @@ def measure_number_dead_neurons(net):
 
     For each neuron, we create a boolean variable initially set to 1. If it has an activation unequals 0 at any time, we
     set this variable to 0. After running through the whole training set, only dead neurons will have a 1.
+
     """
     neurons_dead = [
         torch.ones(layer.weight.shape[0], device=device, dtype=torch.bool)

@@ -22,13 +22,14 @@ import urllib.request
 from functools import partial
 from urllib.error import HTTPError
 
+# PyTorch Lightning
+import lightning as L
+
 # Plotting
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib_inline.backend_inline
 import numpy as np
-
-# PyTorch Lightning
-import pytorch_lightning as pl
 import seaborn as sns
 
 # PyTorch
@@ -40,15 +41,14 @@ import torch.utils.data as data
 
 # Torchvision
 import torchvision
-from IPython.display import set_matplotlib_formats
-from pytorch_lightning.callbacks import ModelCheckpoint
+from lightning.pytorch.callbacks import ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR100
 from tqdm.notebook import tqdm
 
 plt.set_cmap("cividis")
 # %matplotlib inline
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
@@ -58,10 +58,10 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/Transformers/")
 
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -87,7 +87,7 @@ for file_name in pretrained_files:
         os.makedirs(file_path.rsplit("/", 1)[0], exist_ok=True)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -203,7 +203,7 @@ for file_name in pretrained_files:
 #
 # One aspect we haven't discussed yet is the scaling factor of $1/\sqrt{d_k}$.
 # This scaling factor is crucial to maintain an appropriate variance of attention values after initialization.
-# Remember that we intialize our layers with the intention of having equal variance throughout the model, and hence,
+# Remember that we initialize our layers with the intention of having equal variance throughout the model, and hence,
 # $Q$ and $K$ might also have a variance close to $1$.
 # However, performing a dot product over two vectors with a variance $\sigma$ results
 # in a scalar having $d_k$-times higher variance:
@@ -246,7 +246,7 @@ def scaled_dot_product(q, k, v, mask=None):
 
 # %%
 seq_len, d_k = 3, 2
-pl.seed_everything(42)
+L.seed_everything(42)
 q = torch.randn(seq_len, d_k)
 k = torch.randn(seq_len, d_k)
 v = torch.randn(seq_len, d_k)
@@ -463,12 +463,14 @@ class MultiheadAttention(nn.Module):
 # %%
 class EncoderBlock(nn.Module):
     def __init__(self, input_dim, num_heads, dim_feedforward, dropout=0.0):
-        """
+        """EncoderBlock.
+
         Args:
             input_dim: Dimensionality of the input
             num_heads: Number of heads to use in the attention block
             dim_feedforward: Dimensionality of the hidden layer in the MLP
             dropout: Dropout probability to use in the dropout layers
+
         """
         super().__init__()
 
@@ -572,10 +574,12 @@ class TransformerEncoder(nn.Module):
 # %%
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=5000):
-        """
-        Args
+        """Positional Encoding.
+
+        Args:
             d_model: Hidden dimensionality of the input.
             max_len: Maximum length of a sequence to expect.
+
         """
         super().__init__()
 
@@ -656,7 +660,7 @@ plt.show()
 # In fact, training a deep Transformer without learning rate warm-up can make the model diverge
 # and achieve a much worse performance on training and testing.
 # Take for instance the following plot by [Liu et al.
-# (2019)](https://arxiv.org/pdf/1908.03265.pdf) comparing Adam-vanilla (i.e. Adam without warm-up)
+# (2019)](https://arxiv.org/abs/1908.03265) comparing Adam-vanilla (i.e. Adam without warm-up)
 # vs Adam with a warm-up:
 #
 # <center width="100%"><img src="warmup_loss_plot.svg" width="350px"></center>
@@ -744,7 +748,7 @@ sns.reset_orig()
 
 
 # %%
-class TransformerPredictor(pl.LightningModule):
+class TransformerPredictor(L.LightningModule):
     def __init__(
         self,
         input_dim,
@@ -758,7 +762,8 @@ class TransformerPredictor(pl.LightningModule):
         dropout=0.0,
         input_dropout=0.0,
     ):
-        """
+        """TransformerPredictor.
+
         Args:
             input_dim: Hidden dimensionality of the input
             model_dim: Hidden dimensionality to use inside the Transformer
@@ -770,6 +775,7 @@ class TransformerPredictor(pl.LightningModule):
             max_iters: Number of maximum iterations the model is trained for. This is needed for the CosineWarmup scheduler
             dropout: Dropout to apply inside the model
             input_dropout: Dropout to apply on the input features
+
         """
         super().__init__()
         self.save_hyperparameters()
@@ -790,7 +796,7 @@ class TransformerPredictor(pl.LightningModule):
             num_heads=self.hparams.num_heads,
             dropout=self.hparams.dropout,
         )
-        # Output classifier per sequence lement
+        # Output classifier per sequence element
         self.output_net = nn.Sequential(
             nn.Linear(self.hparams.model_dim, self.hparams.model_dim),
             nn.LayerNorm(self.hparams.model_dim),
@@ -819,6 +825,7 @@ class TransformerPredictor(pl.LightningModule):
         """Function for extracting the attention matrices of the whole Transformer for a single batch.
 
         Input arguments same as the forward pass.
+
         """
         x = self.input_net(x)
         if add_positional_encoding:
@@ -941,8 +948,8 @@ class ReversePredictor(TransformerPredictor):
         acc = (preds.argmax(dim=-1) == labels).float().mean()
 
         # Logging
-        self.log("%s_loss" % mode, loss)
-        self.log("%s_acc" % mode, acc)
+        self.log(f"{mode}_loss", loss)
+        self.log(f"{mode}_acc", acc)
         return loss, acc
 
     def training_step(self, batch, batch_idx):
@@ -958,7 +965,7 @@ class ReversePredictor(TransformerPredictor):
 
 # %% [markdown]
 # Finally, we can create a training function similar to the one we have seen in Tutorial 5 for PyTorch Lightning.
-# We create a `pl.Trainer` object, running for $N$ epochs, logging in TensorBoard, and saving our best model based on the validation.
+# We create a `L.Trainer` object, running for $N$ epochs, logging in TensorBoard, and saving our best model based on the validation.
 # Afterward, we test our models on the test set.
 # An additional parameter we pass to the trainer here is `gradient_clip_val`.
 # This clips the norm of the gradients for all parameters before taking an optimizer step and prevents the model
@@ -976,13 +983,13 @@ def train_reverse(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     root_dir = os.path.join(CHECKPOINT_PATH, "ReverseTask")
     os.makedirs(root_dir, exist_ok=True)
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-        gpus=1 if str(device).startswith("cuda") else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=10,
         gradient_clip_val=5,
-        progress_bar_refresh_rate=1,
     )
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
@@ -996,8 +1003,8 @@ def train_reverse(**kwargs):
         trainer.fit(model, train_loader, val_loader)
 
     # Test best model on validation and test set
-    val_result = trainer.test(model, test_dataloaders=val_loader, verbose=False)
-    test_result = trainer.test(model, test_dataloaders=test_loader, verbose=False)
+    val_result = trainer.test(model, dataloaders=val_loader, verbose=False)
+    test_result = trainer.test(model, dataloaders=test_loader, verbose=False)
     result = {"test_acc": test_result[0]["test_acc"], "val_acc": val_result[0]["test_acc"]}
 
     model = model.to(device)
@@ -1311,6 +1318,7 @@ class SetAnomalyDataset(data.Dataset):
         """Samples a new set of images, given the label of the anomaly.
 
         The sampled images come from a different class than anomaly_label
+
         """
         # Sample class from 0,...,num_classes-1 while skipping anomaly_label as class
         set_label = np.random.randint(self.num_labels - 1)
@@ -1411,8 +1419,8 @@ class AnomalyPredictor(TransformerPredictor):
         preds = preds.squeeze(dim=-1)  # Shape: [Batch_size, set_size]
         loss = F.cross_entropy(preds, labels)  # Softmax/CE over set dimension
         acc = (preds.argmax(dim=-1) == labels).float().mean()
-        self.log("%s_loss" % mode, loss)
-        self.log("%s_acc" % mode, acc, on_step=False, on_epoch=True)
+        self.log(f"{mode}_loss", loss)
+        self.log(f"{mode}_acc", acc, on_step=False, on_epoch=True)
         return loss, acc
 
     def training_step(self, batch, batch_idx):
@@ -1436,13 +1444,13 @@ def train_anomaly(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     root_dir = os.path.join(CHECKPOINT_PATH, "SetAnomalyTask")
     os.makedirs(root_dir, exist_ok=True)
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
-        gpus=1 if str(device).startswith("cuda") else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=100,
         gradient_clip_val=2,
-        progress_bar_refresh_rate=1,
     )
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
@@ -1457,9 +1465,9 @@ def train_anomaly(**kwargs):
         model = AnomalyPredictor.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
 
     # Test best model on validation and test set
-    train_result = trainer.test(model, test_dataloaders=train_anom_loader, verbose=False)
-    val_result = trainer.test(model, test_dataloaders=val_anom_loader, verbose=False)
-    test_result = trainer.test(model, test_dataloaders=test_anom_loader, verbose=False)
+    train_result = trainer.test(model, dataloaders=train_anom_loader, verbose=False)
+    val_result = trainer.test(model, dataloaders=val_anom_loader, verbose=False)
+    test_result = trainer.test(model, dataloaders=test_anom_loader, verbose=False)
     result = {
         "test_acc": test_result[0]["test_acc"],
         "val_acc": val_result[0]["test_acc"],

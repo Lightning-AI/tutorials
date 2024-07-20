@@ -8,10 +8,11 @@ import urllib.request
 from types import SimpleNamespace
 from urllib.error import HTTPError
 
+import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib_inline.backend_inline
 import numpy as np
-import pytorch_lightning as pl
 import seaborn as sns
 import tabulate
 import torch
@@ -21,13 +22,13 @@ import torch.utils.data as data
 import torchvision
 
 # %matplotlib inline
-from IPython.display import HTML, display, set_matplotlib_formats
+from IPython.display import HTML, display
+from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from PIL import Image
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
 
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
@@ -46,10 +47,10 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/ConvNets")
 
 
 # Function for setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -136,9 +137,9 @@ train_transform = transforms.Compose(
 # We need to do a little trick because the validation set should not use the augmentation.
 train_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=train_transform, download=True)
 val_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=test_transform, download=True)
-pl.seed_everything(42)
+L.seed_everything(42)
 train_set, _ = torch.utils.data.random_split(train_dataset, [45000, 5000])
-pl.seed_everything(42)
+L.seed_everything(42)
 _, val_set = torch.utils.data.random_split(val_dataset, [45000, 5000])
 
 # Loading the test set
@@ -180,7 +181,7 @@ plt.close()
 # %% [markdown]
 # ## PyTorch Lightning
 #
-# In this notebook and in many following ones, we will make use of the library [PyTorch Lightning](https://www.pytorchlightning.ai/).
+# In this notebook and in many following ones, we will make use of the library [PyTorch Lightning](https://www.lightning.ai/docs/pytorch/stable).
 # PyTorch Lightning is a framework that simplifies your code needed to train, evaluate, and test a model in PyTorch.
 # It also handles logging into [TensorBoard](https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html), a visualization toolkit for ML experiments, and saving model checkpoints automatically with minimal code overhead from our side.
 # This is extremely helpful for us as we want to focus on implementing different model architectures and spend little time on other code overhead.
@@ -192,12 +193,12 @@ plt.close()
 
 # %%
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # %% [markdown]
 # Thus, in the future, we don't have to define our own `set_seed` function anymore.
 #
-# In PyTorch Lightning, we define `pl.LightningModule`'s (inheriting from `torch.nn.Module`) that organize our code into 5 main sections:
+# In PyTorch Lightning, we define `L.LightningModule`'s (inheriting from `Module`) that organize our code into 5 main sections:
 #
 # 1. Initialization (`__init__`), where we create all necessary parameters/models
 # 2. Optimizers (`configure_optimizers`) where we create the optimizers, learning rate scheduler, etc.
@@ -208,20 +209,22 @@ pl.seed_everything(42)
 # 5. Test loop (`test_step`) which is the same as validation, only on a test set.
 #
 # Therefore, we don't abstract the PyTorch code, but rather organize it and define some default operations that are commonly used.
-# If you need to change something else in your training/validation/test loop, there are many possible functions you can overwrite (see the [docs](https://pytorch-lightning.readthedocs.io/en/stable/common/lightning_module.html) for details).
+# If you need to change something else in your training/validation/test loop, there are many possible functions you can overwrite (see the [docs](https://lightning.ai/docs/pytorch/stable/common/lightning_module.html) for details).
 #
 # Now we can look at an example of how a Lightning Module for training a CNN looks like:
 
 
 # %%
-class CIFARModule(pl.LightningModule):
+class CIFARModule(L.LightningModule):
     def __init__(self, model_name, model_hparams, optimizer_name, optimizer_hparams):
-        """
-        Inputs:
-            model_name - Name of the model/CNN to run. Used for creating the model (see function below)
-            model_hparams - Hyperparameters for the model, as dictionary.
-            optimizer_name - Name of the optimizer to use. Currently supported: Adam, SGD
-            optimizer_hparams - Hyperparameters for the optimizer, as dictionary. This includes learning rate, weight decay, etc.
+        """CIFARModule.
+
+        Args:
+            model_name: Name of the model/CNN to run. Used for creating the model (see function below)
+            model_hparams: Hyperparameters for the model, as dictionary.
+            optimizer_name: Name of the optimizer to use. Currently supported: Adam, SGD
+            optimizer_hparams: Hyperparameters for the optimizer, as dictionary. This includes learning rate, weight decay, etc.
+
         """
         super().__init__()
         # Exports the hyperparameters to a YAML file, and create "self.hparams" namespace
@@ -241,7 +244,7 @@ class CIFARModule(pl.LightningModule):
         # We will support Adam or SGD as optimizers.
         if self.hparams.optimizer_name == "Adam":
             # AdamW is Adam with a correct implementation of weight decay (see here
-            # for details: https://arxiv.org/pdf/1711.05101.pdf)
+            # for details: https://arxiv.org/abs/1711.05101)
             optimizer = optim.AdamW(self.parameters(), **self.hparams.optimizer_hparams)
         elif self.hparams.optimizer_name == "SGD":
             optimizer = optim.SGD(self.parameters(), **self.hparams.optimizer_hparams)
@@ -322,7 +325,7 @@ act_fn_by_name = {"tanh": nn.Tanh, "relu": nn.ReLU, "leakyrelu": nn.LeakyReLU, "
 # Besides the Lightning module, the second most important module in PyTorch Lightning is the `Trainer`.
 # The trainer is responsible to execute the training steps defined in the Lightning module and completes the framework.
 # Similar to the Lightning module, you can override any key part that you don't want to be automated, but the default settings are often the best practice to do.
-# For a full overview, see the [documentation](https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html).
+# For a full overview, see the [documentation](https://lightning.ai/docs/pytorch/stable/common/trainer.html).
 # The most important functions we use below are:
 #
 # * `trainer.fit`: Takes as input a lightning module, a training dataset, and an (optional) validation dataset.
@@ -336,19 +339,22 @@ act_fn_by_name = {"tanh": nn.Tanh, "relu": nn.ReLU, "leakyrelu": nn.LeakyReLU, "
 
 # %%
 def train_model(model_name, save_name=None, **kwargs):
-    """
-    Inputs:
-        model_name - Name of the model you want to run. Is used to look up the class in "model_dict"
-        save_name (optional) - If specified, this name will be used for creating the checkpoint and logging directory.
+    """Train model.
+
+    Args:
+        model_name: Name of the model you want to run. Is used to look up the class in "model_dict"
+        save_name (optional): If specified, this name will be used for creating the checkpoint and logging directory.
+
     """
     if save_name is None:
         save_name = model_name
 
     # Create a PyTorch Lightning trainer with the generation callback
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),  # Where to save models
         # We run on a single GPU (if possible)
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="auto",
+        devices=1,
         # How many epochs to train for if no patience is set
         max_epochs=180,
         callbacks=[
@@ -357,7 +363,6 @@ def train_model(model_name, save_name=None, **kwargs):
             ),  # Save the best checkpoint based on the maximum val_acc recorded. Saves only weights and not optimizer
             LearningRateMonitor("epoch"),
         ],  # Log learning rate every epoch
-        progress_bar_refresh_rate=1,
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
     trainer.logger._log_graph = True  # If True, we plot the computation graph in tensorboard
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
@@ -369,7 +374,7 @@ def train_model(model_name, save_name=None, **kwargs):
         # Automatically loads the model with the saved hyperparameters
         model = CIFARModule.load_from_checkpoint(pretrained_filename)
     else:
-        pl.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducible
         model = CIFARModule(model_name=model_name, **kwargs)
         trainer.fit(model, train_loader, val_loader)
         model = CIFARModule.load_from_checkpoint(
@@ -377,8 +382,8 @@ def train_model(model_name, save_name=None, **kwargs):
         )  # Load best checkpoint after training
 
     # Test best model on validation and test set
-    val_result = trainer.test(model, test_dataloaders=val_loader, verbose=False)
-    test_result = trainer.test(model, test_dataloaders=test_loader, verbose=False)
+    val_result = trainer.test(model, dataloaders=val_loader, verbose=False)
+    test_result = trainer.test(model, dataloaders=test_loader, verbose=False)
     result = {"test": test_result[0]["test_acc"], "val": val_result[0]["test_acc"]}
 
     return model, result
@@ -416,12 +421,14 @@ def train_model(model_name, save_name=None, **kwargs):
 # %%
 class InceptionBlock(nn.Module):
     def __init__(self, c_in, c_red: dict, c_out: dict, act_fn):
-        """
-        Inputs:
-            c_in - Number of input feature maps from the previous layers
-            c_red - Dictionary with keys "3x3" and "5x5" specifying the output of the dimensionality reducing 1x1 convolutions
-            c_out - Dictionary with keys "1x1", "3x3", "5x5", and "max"
-            act_fn - Activation class constructor (e.g. nn.ReLU)
+        """InceptionBlock.
+
+        Args:
+            c_in: Number of input feature maps from the previous layers
+            c_red: Dictionary with keys "3x3" and "5x5" specifying the output of the dimensionality reducing 1x1 convolutions
+            c_out: Dictionary with keys "1x1", "3x3", "5x5", and "max"
+            act_fn: Activation class constructor (e.g. nn.ReLU)
+
         """
         super().__init__()
 
@@ -665,12 +672,14 @@ print("GoogleNet Results", googlenet_results)
 
 class ResNetBlock(nn.Module):
     def __init__(self, c_in, act_fn, subsample=False, c_out=-1):
-        """
-        Inputs:
-            c_in - Number of input features
-            act_fn - Activation class constructor (e.g. nn.ReLU)
+        """ResNetBlock.
+
+        Args:
+            c_in: Number of input features
+            act_fn: Activation class constructor (e.g. nn.ReLU)
             subsample - If True, we want to apply a stride inside the block and reduce the output shape by 2 in height and width
             c_out - Number of output features. Note that this is only relevant if subsample is True, as otherwise, c_out = c_in
+
         """
         super().__init__()
         if not subsample:
@@ -710,12 +719,14 @@ class ResNetBlock(nn.Module):
 # %%
 class PreActResNetBlock(nn.Module):
     def __init__(self, c_in, act_fn, subsample=False, c_out=-1):
-        """
-        Inputs:
+        """PreAct ResNet Block.
+
+        Args:
             c_in - Number of input features
             act_fn - Activation class constructor (e.g. nn.ReLU)
             subsample - If True, we want to apply a stride inside the block and reduce the output shape by 2 in height and width
             c_out - Number of output features. Note that this is only relevant if subsample is True, as otherwise, c_out = c_in
+
         """
         super().__init__()
         if not subsample:
@@ -779,13 +790,15 @@ class ResNet(nn.Module):
         block_name="ResNetBlock",
         **kwargs,
     ):
-        """
-        Inputs:
+        """ResNet.
+
+        Args:
             num_classes - Number of classification outputs (10 for CIFAR10)
             num_blocks - List with the number of ResNet blocks to use. The first block of each group uses downsampling, except the first.
             c_hidden - List with the hidden dimensionalities in the different blocks. Usually multiplied by 2 the deeper we go.
             act_fn_name - Name of the activation function to use, looked up in "act_fn_by_name"
             block_name - Name of the ResNet block, looked up in "resnet_blocks_by_name"
+
         """
         super().__init__()
         assert block_name in resnet_blocks_by_name
@@ -862,8 +875,8 @@ model_dict["ResNet"] = ResNet
 # One difference to the GoogleNet training is that we explicitly use SGD with Momentum as optimizer instead of Adam.
 # Adam often leads to a slightly worse accuracy on plain, shallow ResNets.
 # It is not 100% clear why Adam performs worse in this context, but one possible explanation is related to ResNet's loss surface.
-# ResNet has been shown to produce smoother loss surfaces than networks without skip connection (see [Li et al., 2018](https://arxiv.org/pdf/1712.09913.pdf) for details).
-# A possible visualization of the loss surface with/out skip connections is below (figure credit - [Li et al. ](https://arxiv.org/pdf/1712.09913.pdf)):
+# ResNet has been shown to produce smoother loss surfaces than networks without skip connection (see [Li et al., 2018](https://arxiv.org/abs/1712.09913) for details).
+# A possible visualization of the loss surface with/out skip connections is below (figure credit - [Li et al. ](https://arxiv.org/abs/1712.09913)):
 #
 # <center width="100%"><img src="resnet_loss_surface.png" style="display: block; margin-left: auto; margin-right: auto;" width="600px"/></center>
 #
@@ -948,12 +961,14 @@ resnetpreact_model, resnetpreact_results = train_model(
 # %%
 class DenseLayer(nn.Module):
     def __init__(self, c_in, bn_size, growth_rate, act_fn):
-        """
-        Inputs:
+        """DenseLayer.
+
+        Args:
             c_in - Number of input channels
             bn_size - Bottleneck size (factor of growth rate) for the output of the 1x1 convolution. Typically between 2 and 4.
             growth_rate - Number of output channels of the 3x3 convolution
             act_fn - Activation class constructor (e.g. nn.ReLU)
+
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -979,13 +994,15 @@ class DenseLayer(nn.Module):
 # %%
 class DenseBlock(nn.Module):
     def __init__(self, c_in, num_layers, bn_size, growth_rate, act_fn):
-        """
-        Inputs:
+        """Dense Block.
+
+        Args:
             c_in - Number of input channels
             num_layers - Number of dense layers to apply in the block
             bn_size - Bottleneck size to use in the dense layers
             growth_rate - Growth rate to use in the dense layers
             act_fn - Activation function to use in the dense layers
+
         """
         super().__init__()
         layers = []

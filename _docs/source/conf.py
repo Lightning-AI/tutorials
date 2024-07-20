@@ -42,7 +42,10 @@ github_repo = project
 
 # -- Project documents -------------------------------------------------------
 
-AssistantCLI.copy_notebooks(_PATH_ROOT, _PATH_HERE)
+AssistantCLI.copy_notebooks(
+    path_root=_PATH_ROOT,
+    docs_root=_PATH_HERE,
+)
 
 # with open(os.path.join(_PATH_HERE, 'ipynb_content.rst'), 'w') as fp:
 #     fp.write(os.linesep.join(ipynb_content))
@@ -51,7 +54,7 @@ AssistantCLI.copy_notebooks(_PATH_ROOT, _PATH_HERE)
 
 # If your documentation needs a minimal Sphinx version, state it here.
 
-needs_sphinx = "4.0"
+needs_sphinx = "5.3"
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -60,12 +63,12 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
     "sphinx.ext.napoleon",
-    "sphinx.ext.imgmath",
     "sphinx.ext.githubpages",
     "nbsphinx",
     "myst_parser",
     "sphinx_paramlinks",
-    "pt_lightning_sphinx_theme.extensions.lightning_tutorials",
+    "pt_lightning_sphinx_theme.extensions.lightning",
+    "sphinx.ext.mathjax",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -99,7 +102,7 @@ master_doc = "index"
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -181,6 +184,11 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [(master_doc, project, project + " Documentation", [author], 1)]
 
+# -- Options for linkcheck builder ----------------------------------------------
+# regex pattern 0: allow linking to a specific selection state in
+#  tensorboard.dev links while continuing to validate the base experiment link
+linkcheck_anchors_ignore = ["scalars.*&runSelectionState.*"]
+
 # -- Options for Texinfo output ----------------------------------------------
 
 # Grouping the document tree into Texinfo files. List of tuples
@@ -196,6 +204,11 @@ texinfo_documents = [
         "" "Miscellaneous",  # about.__docs__,
     ),
 ]
+
+# MathJax configuration
+mathjax3_config = {
+    "tex": {"packages": {"[+]": ["ams", "newcommand", "configMacros"]}},
+}
 
 # -- Options for Epub output -------------------------------------------------
 
@@ -219,8 +232,20 @@ epub_exclude_files = ["search.html"]
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-# intersphinx_mapping = {
-#     "python": ("https://docs.python.org/3", None),
-#     "torch": ("https://pytorch.org/docs/stable/", None),
-#     "numpy": ("https://docs.scipy.org/doc/numpy/", None),
-# }
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "torch": ("https://pytorch.org/docs/stable/", None),
+    "numpy": ("https://docs.scipy.org/doc/numpy/", None),
+}
+
+# skip false positive linkcheck errors from anchors
+linkcheck_anchors = False
+
+# ignore all links in any CHANGELOG file
+linkcheck_exclude_documents = []
+
+# ignore the following relative links (false positive errors during linkcheck)
+linkcheck_ignore = [
+    # Implicit generation and generalization methods for energy-based models
+    "https://openai.com/index/energy-based-models/",
+]

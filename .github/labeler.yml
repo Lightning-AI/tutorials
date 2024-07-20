@@ -1,7 +1,0 @@
-documentation:
-  - docs/**/*
-
-CI/CD:
-  - .actions/**/*
-  - .azure-*/**/*
-  - .github/**/*

@@ -25,7 +25,6 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -55,21 +54,11 @@ coverage.xml
 *.mo
 *.pot
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
 # Scrapy stuff:
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+_docs/_build/
 
 # PyBuilder
 target/
@@ -84,13 +73,8 @@ ipython_config.py
 # pyenv
 .python-version
 
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
+# PyCharm
+.idea/
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow
 __pypackages__/
 
@@ -128,4 +112,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-.idea/
+# data artifacts
+logs/
+lightning_logs/
+cifar-10-batches-py
+*.tar.gz
+
+.ruff_cache/

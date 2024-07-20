@@ -1,6 +1,6 @@
 # %% [markdown]
 # <div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/035rkmT8FfE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
-# Meta-Learning offers solutions to these situations, and we will discuss three popular algorithms: __Prototypical Networks__ ([Snell et al., 2017](https://arxiv.org/pdf/1703.05175.pdf)), __Model-Agnostic Meta-Learning / MAML__ ([Finn et al., 2017](http://proceedings.mlr.press/v70/finn17a.html)), and __Proto-MAML__ ([Triantafillou et al., 2020](https://openreview.net/pdf?id=rkgAGAVKPr)).
+# Meta-Learning offers solutions to these situations, and we will discuss three popular algorithms: __Prototypical Networks__ ([Snell et al., 2017](https://arxiv.org/abs/1703.05175)), __Model-Agnostic Meta-Learning / MAML__ ([Finn et al., 2017](http://proceedings.mlr.press/v70/finn17a.html)), and __Proto-MAML__ ([Triantafillou et al., 2020](https://openreview.net/pdf?id=rkgAGAVKPr)).
 # We will focus on the task of few-shot classification where the training and test set have distinct sets of classes.
 # For instance, we would train the model on the binary classifications of cats-birds and flowers-bikes, but during test time, the model would need to learn from 4 examples each the difference between dogs and otters, two classes we have not seen during training (Figure credit - [Lilian Weng](https://lilianweng.github.io/lil-log/2018/11/30/meta-learning.html)).
 #
@@ -25,26 +25,26 @@ from copy import deepcopy
 from statistics import mean, stdev
 from urllib.error import HTTPError
 
+import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib_inline.backend_inline
 import numpy as np
-import pytorch_lightning as pl
 import seaborn as sns
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from IPython.display import set_matplotlib_formats
+from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from PIL import Image
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR100, SVHN
 from tqdm.auto import tqdm
 
 plt.set_cmap("cividis")
 # %matplotlib inline
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
@@ -57,10 +57,10 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/MetaLearning/")
 
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -92,7 +92,7 @@ for file_name in pretrained_files:
         os.makedirs(file_path.rsplit("/", 1)[0], exist_ok=True)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -153,10 +153,10 @@ cifar_all_targets = torch.LongTensor(cifar_train_set.targets + cifar_test_set.ta
 class ImageDataset(data.Dataset):
     def __init__(self, imgs, targets, img_transform=None):
         """
-        Inputs:
-            imgs - Numpy array of shape [N,32,32,3] containing all images.
-            targets - PyTorch array of shape [N] containing all labels.
-            img_transform - A torchvision transformation that should be applied
+        Args:
+            imgs: Numpy array of shape [N,32,32,3] containing all images.
+            targets: PyTorch array of shape [N] containing all labels.
+            img_transform: A torchvision transformation that should be applied
                             to the images before returning. If none, no transformation
                             is applied.
         """
@@ -183,7 +183,7 @@ class ImageDataset(data.Dataset):
 # We will assign the classes randomly to training, validation and test, and use a 80%-10%-10% split.
 
 # %%
-pl.seed_everything(0)  # Set seed for reproducibility
+L.seed_everything(0)  # Set seed for reproducibility
 classes = torch.randperm(100)  # Returns random permutation of numbers 0 to 99
 train_classes, val_classes, test_classes = classes[:80], classes[80:90], classes[90:]
 
@@ -248,7 +248,7 @@ test_set = dataset_from_labels(cifar_all_images, cifar_all_targets, test_classes
 #
 # This subsection summarizes the code that is needed to create such training batches.
 # In PyTorch, we can specify the data sampling procedure by so-called `Sampler` ([documentation](https://pytorch.org/docs/stable/data.html#data-loading-order-and-sampler)).
-# Samplers are iteratable objects that return indices in the order in which the data elements should be sampled.
+# Samplers are iterable objects that return indices in the order in which the data elements should be sampled.
 # In our previous notebooks, we usually used the option `shuffle=True` in the `data.DataLoader` objects which creates a sampler returning the data indices in a random order.
 # Here, we focus on samplers that return batches of indices that correspond to support and query set batches.
 # Below, we implement such a sampler.
@@ -257,20 +257,22 @@ test_set = dataset_from_labels(cifar_all_images, cifar_all_targets, test_classes
 # %%
 class FewShotBatchSampler:
     def __init__(self, dataset_targets, N_way, K_shot, include_query=False, shuffle=True, shuffle_once=False):
-        """
-        Inputs:
-            dataset_targets - PyTorch tensor of the labels of the data elements.
-            N_way - Number of classes to sample per batch.
-            K_shot - Number of examples to sample per class in the batch.
-            include_query - If True, returns batch of size N_way*K_shot*2, which
+        """FewShot Batch Sampler.
+
+        Args:
+            dataset_targets: PyTorch tensor of the labels of the data elements.
+            N_way: Number of classes to sample per batch.
+            K_shot: Number of examples to sample per class in the batch.
+            include_query: If True, returns batch of size N_way*K_shot*2, which
                             can be split into support and query set. Simplifies
                             the implementation of sampling the same classes but
                             distinct examples for support and query set.
-            shuffle - If True, examples and classes are newly shuffled in each
+            shuffle: If True, examples and classes are newly shuffled in each
                       iteration (for training)
-            shuffle_once - If True, examples and classes are shuffled once in
+            shuffle_once: If True, examples and classes are shuffled once in
                            the beginning, but kept constant across iterations
                            (for validation)
+
         """
         super().__init__()
         self.dataset_targets = dataset_targets
@@ -416,7 +418,7 @@ plt.close(fig)
 # $$\mathbf{v}_c=\frac{1}{|S_c|}\sum_{(\mathbf{x}_i,y_i)\in S_c}f_{\theta}(\mathbf{x}_i)$$
 #
 # where $S_c$ is the part of the support set $S$ for which $y_i=c$, and $\mathbf{v}_c$ represents the _prototype_ of class $c$.
-# The prototype calculation is visualized below for a 2-dimensional feature space and 3 classes (Figure credit - [Snell et al.](https://arxiv.org/pdf/1703.05175.pdf)).
+# The prototype calculation is visualized below for a 2-dimensional feature space and 3 classes (Figure credit - [Snell et al.](https://arxiv.org/abs/1703.05175)).
 # The colored dots represent encoded support elements with color-corresponding class label, and the black dots next to the class label are the averaged prototypes.
 #
 # <center width="100%"><img src="protonet_classification.svg" width="300px"></center>
@@ -475,12 +477,14 @@ def get_convnet(output_size):
 
 
 # %%
-class ProtoNet(pl.LightningModule):
+class ProtoNet(L.LightningModule):
     def __init__(self, proto_dim, lr):
-        """Inputs.
+        """ProtoNet.
 
-        proto_dim - Dimensionality of prototype feature space
-        lr - Learning rate of Adam optimizer
+        Args:
+            proto_dim: Dimensionality of prototype feature space
+            lr: Learning rate of Adam optimizer
+
         """
         super().__init__()
         self.save_hyperparameters()
@@ -521,8 +525,8 @@ class ProtoNet(pl.LightningModule):
         preds, labels, acc = self.classify_feats(prototypes, classes, query_feats, query_targets)
         loss = F.cross_entropy(preds, labels)
 
-        self.log("%s_loss" % mode, loss)
-        self.log("%s_acc" % mode, acc)
+        self.log(f"{mode}_loss", loss)
+        self.log(f"{mode}_acc", acc)
         return loss
 
     def training_step(self, batch, batch_idx):
@@ -553,26 +557,27 @@ class ProtoNet(pl.LightningModule):
 
 # %%
 def train_model(model_class, train_loader, val_loader, **kwargs):
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, model_class.__name__),
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=200,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=0,
+        enable_progress_bar=False,
     )
     trainer.logger._default_hp_metric = None
 
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, model_class.__name__ + ".ckpt")
     if os.path.isfile(pretrained_filename):
-        print("Found pretrained model at %s, loading..." % pretrained_filename)
+        print(f"Found pretrained model at {pretrained_filename}, loading...")
         # Automatically loads the model with the saved hyperparameters
         model = model_class.load_from_checkpoint(pretrained_filename)
     else:
-        pl.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducible
         model = model_class(**kwargs)
         trainer.fit(model, train_loader, val_loader)
         model = model_class.load_from_checkpoint(
@@ -627,15 +632,17 @@ protonet_model = train_model(
 # %%
 @torch.no_grad()
 def test_proto_net(model, dataset, data_feats=None, k_shot=4):
-    """Inputs.
+    """Test proto net.
 
-    model - Pretrained ProtoNet model
-    dataset - The dataset on which the test should be performed.
-              Should be instance of ImageDataset
-    data_feats - The encoded features of all images in the dataset.
-                 If None, they will be newly calculated, and returned
-                 for later usage.
-    k_shot - Number of examples per class in the support set.
+    Args:
+        model: Pretrained ProtoNet model
+        dataset: The dataset on which the test should be performed.
+                  Should be instance of ImageDataset
+        data_feats: The encoded features of all images in the dataset.
+                     If None, they will be newly calculated, and returned
+                     for later usage.
+        k_shot: Number of examples per class in the support set.
+
     """
     model = model.to(device)
     model.eval()
@@ -773,7 +780,7 @@ plt.close()
 
 # %% [markdown]
 # To obtain gradients for the initial parameters $\theta$ from the optimized model $f_{\theta_i'}$, we actually need second-order gradients, i.e. gradients of gradients, as the support set gradients depend on $\theta$ as well.
-# This makes MAML computationally expensive, especially when using mulitple inner loop steps.
+# This makes MAML computationally expensive, especially when using multiple inner loop steps.
 # A simpler, yet almost equally well performing alternative is First-Order MAML (FOMAML) which only uses first-order gradients.
 # This means that the second-order gradients are ignored, and we can calculate the outer loop gradients (line 10 in algorithm 2) simply by calculating the gradients with respect to $\theta_i'$, and use those as update to $\theta$.
 # Hence, the new update rule becomes:
@@ -844,15 +851,17 @@ plt.close()
 
 
 # %%
-class ProtoMAML(pl.LightningModule):
+class ProtoMAML(L.LightningModule):
     def __init__(self, proto_dim, lr, lr_inner, lr_output, num_inner_steps):
-        """Inputs.
+        """ProtoMAML.
 
-        proto_dim - Dimensionality of prototype feature space
-        lr - Learning rate of the outer loop Adam optimizer
-        lr_inner - Learning rate of the inner loop SGD optimizer
-        lr_output - Learning rate for the output layer in the inner loop
-        num_inner_steps - Number of inner loop updates to perform
+        Args:
+            proto_dim: Dimensionality of prototype feature space
+            lr: Learning rate of the outer loop Adam optimizer
+            lr_inner: Learning rate of the inner loop SGD optimizer
+            lr_output: Learning rate for the output layer in the inner loop
+            num_inner_steps: Number of inner loop updates to perform
+
         """
         super().__init__()
         self.save_hyperparameters()
@@ -883,7 +892,7 @@ class ProtoMAML(pl.LightningModule):
         local_optim.zero_grad()
         # Create output layer weights with prototype-based initialization
         init_weight = 2 * prototypes
-        init_bias = -torch.norm(prototypes, dim=1) ** 2
+        init_bias = -(torch.norm(prototypes, dim=1) ** 2)
         output_weight = init_weight.detach().requires_grad_()
         output_bias = init_bias.detach().requires_grad_()
 
@@ -938,8 +947,8 @@ class ProtoMAML(pl.LightningModule):
             opt.step()
             opt.zero_grad()
 
-        self.log("%s_loss" % mode, sum(losses) / len(losses))
-        self.log("%s_acc" % mode, sum(accuracies) / len(accuracies))
+        self.log(f"{mode}_loss", sum(losses) / len(losses))
+        self.log(f"{mode}_acc", sum(accuracies) / len(accuracies))
 
     def training_step(self, batch, batch_idx):
         self.outer_loop(batch, mode="train")
@@ -966,18 +975,20 @@ class ProtoMAML(pl.LightningModule):
 # %%
 class TaskBatchSampler:
     def __init__(self, dataset_targets, batch_size, N_way, K_shot, include_query=False, shuffle=True):
-        """
-        Inputs:
-            dataset_targets - PyTorch tensor of the labels of the data elements.
-            batch_size - Number of tasks to aggregate in a batch
-            N_way - Number of classes to sample per batch.
-            K_shot - Number of examples to sample per class in the batch.
-            include_query - If True, returns batch of size N_way*K_shot*2, which
+        """Task Batch Sampler.
+
+        Args:
+            dataset_targets: PyTorch tensor of the labels of the data elements.
+            batch_size: Number of tasks to aggregate in a batch
+            N_way: Number of classes to sample per batch.
+            K_shot: Number of examples to sample per class in the batch.
+            include_query: If True, returns batch of size N_way*K_shot*2, which
                             can be split into support and query set. Simplifies
                             the implementation of sampling the same classes but
                             distinct examples for support and query set.
-            shuffle - If True, examples and classes are newly shuffled in each
+            shuffle: If True, examples and classes are newly shuffled in each
                       iteration (for training)
+
         """
         super().__init__()
         self.batch_sampler = FewShotBatchSampler(dataset_targets, N_way, K_shot, include_query, shuffle)
@@ -1043,7 +1054,7 @@ val_protomaml_loader = data.DataLoader(
 # We use the same feature space size as for ProtoNet, but can use a higher learning rate since the outer loop gradients are accumulated over 16 batches.
 # The inner loop learning rate is set to 0.1, which is much higher than the outer loop lr because we use SGD in the inner loop instead of Adam.
 # Commonly, the learning rate for the output layer is higher than the base model is the base model is very deep or pre-trained.
-# However, for our setup, we observed no noticable impact of using a different learning rate than the base model.
+# However, for our setup, we observed no noticeable impact of using a different learning rate than the base model.
 # The number of inner loop updates is another crucial hyperparmaeter, and depends on the similarity of our training tasks.
 # Since all tasks are on images from the same dataset, we notice that a single inner loop update achieves similar performance as 3 or 5 while training considerably faster.
 # However, especially in RL and NLP, larger number of inner loop steps are often needed.
@@ -1091,7 +1102,7 @@ protomaml_model = train_model(
 
 # %%
 def test_protomaml(model, dataset, k_shot=4):
-    pl.seed_everything(42)
+    L.seed_everything(42)
     model = model.to(device)
     num_classes = dataset.targets.unique().shape[0]
 
@@ -1318,7 +1329,7 @@ plt.close()
 # [1] Snell, Jake, Kevin Swersky, and Richard S. Zemel.
 # "Prototypical networks for few-shot learning."
 # NeurIPS 2017.
-# ([link](https://arxiv.org/pdf/1703.05175.pdf))
+# ([link](https://arxiv.org/abs/1703.05175))
 #
 # [2] Chelsea Finn, Pieter Abbeel, Sergey Levine.
 # "Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks."

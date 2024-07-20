@@ -1,9 +1,9 @@
 title: "Tutorial 7: Deep Energy-Based Generative Models"
 author: Phillip Lippe
 created: 2021-07-12
-updated: 2021-07-12
+updated: 2023-03-14
 license: CC BY-SA
-build: 0
+build: 1
 tags:
   - Image
 description: |
@@ -22,6 +22,7 @@ requirements:
   - torchvision
   - matplotlib
   - tensorboard
+  - pytorch-lightning>=2.0.0
 accelerator:
   - CPU
   - GPU

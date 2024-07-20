@@ -12,6 +12,9 @@ from urllib.error import HTTPError
 # Plotting
 import matplotlib
 import matplotlib.pyplot as plt
+
+# %matplotlib inline
+import matplotlib_inline.backend_inline
 import numpy as np
 
 # PyTorch Lightning
@@ -25,14 +28,11 @@ import torch.utils.data as data
 
 # Torchvision
 import torchvision
-
-# %matplotlib inline
-from IPython.display import set_matplotlib_formats
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from pytorch_lightning.callbacks import Callback, LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import MNIST
 
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 matplotlib.rcParams["lines.linewidth"] = 2.0
 
 # Path to the folder where the datasets are/should be downloaded (e.g. CIFAR10)
@@ -44,7 +44,7 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial8")
 pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -68,7 +68,7 @@ for file_name in pretrained_files:
         os.makedirs(file_path.rsplit("/", 1)[0], exist_ok=True)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -172,8 +172,7 @@ for file_name in pretrained_files:
 # The trick is that we approximate $Z_{\theta}$ by a single Monte-Carlo sample.
 # This gives us the exact same objective as written above.
 #
-# Visually, we can look at the objective as follows (figure credit
-# - [Stefano Ermon and Aditya Grover](https://deepgenerativemodels.github.io/assets/slides/cs236_lecture11.pdf)):
+# Visually, we can look at the objective as follows (figure credit - Stefano Ermon and Aditya Grover: lecture cs236/11):
 #
 # <center width="100%"><img src="contrastive_divergence.svg" width="700px"></center>
 #
@@ -206,8 +205,7 @@ for file_name in pretrained_files:
 # Modeling the probability distribution for sampling new data is not the only application of energy-based models.
 # Any application which requires us to compare two elements is much simpler to learn
 # because we just need to go for the higher energy.
-# A couple of examples are shown below (figure credit
-# - [Stefano Ermon and Aditya Grover](https://deepgenerativemodels.github.io/assets/slides/cs236_lecture11.pdf)).
+# A couple of examples are shown below (figure credit - Stefano Ermon and Aditya Grover: lecture cs236/11).
 # A classification setup like object recognition or sequence labeling can be considered as an energy-based
 # task as we just need to find the $Y$ input that minimizes the output $E(X, Y)$ (hence maximizes probability).
 # Similarly, a popular application of energy-based models is denoising of images.
@@ -229,7 +227,7 @@ for file_name in pretrained_files:
 # if the hyperparameters are not well tuned.
 # We will rely on training tricks proposed in the paper
 # [Implicit Generation and Generalization in Energy-Based Models](https://arxiv.org/abs/1903.08689)
-# by Yilun Du and Igor Mordatch ([blog](https://openai.com/blog/energy-based-models/)).
+# by Yilun Du and Igor Mordatch ([blog](https://openai.com/index/energy-based-models/)).
 # The important part of this notebook is however to see how the theory above can actually be used in a model.
 #
 # ### Dataset
@@ -315,7 +313,7 @@ class CNNModel(nn.Module):
 # inside the MCMC sampling to obtain reasonable samples.
 # However, there is a training trick that significantly reduces the sampling cost: using a sampling buffer.
 # The idea is that we store the samples of the last couple of batches in a buffer,
-# and re-use those as the starting point of the MCMC algorithm for the next batches.
+# and reuse those as the starting point of the MCMC algorithm for the next batches.
 # This reduces the sampling cost because the model requires a significantly
 # lower number of steps to converge to reasonable samples.
 # However, to not solely rely on previous samples and allow novel samples as well,
@@ -335,12 +333,14 @@ class CNNModel(nn.Module):
 # %%
 class Sampler:
     def __init__(self, model, img_shape, sample_size, max_len=8192):
-        """
+        """Sampler.
+
         Args:
             model: Neural network to use for modeling E_theta
             img_shape: Shape of the images to model
             sample_size: Batch size of the samples
             max_len: Maximum number of data points to keep in the buffer
+
         """
         super().__init__()
         self.model = model
@@ -355,6 +355,7 @@ class Sampler:
         Args:
             steps: Number of iterations in the MCMC algorithm
             step_size: Learning rate nu in the algorithm above
+
         """
         # Choose 95% of the batch from the buffer, 5% generate from scratch
         n_new = np.random.binomial(self.sample_size, 0.05)
@@ -380,6 +381,7 @@ class Sampler:
             steps: Number of iterations in the MCMC algorithm.
             step_size: Learning rate nu in the algorithm above
             return_img_per_step: If True, we return the sample at every iteration of the MCMC
+
         """
         # Before MCMC: set model parameters to "required_grad=False"
         # because we are only interested in the gradients of the input.
@@ -497,7 +499,7 @@ class DeepEnergyModel(pl.LightningModule):
         real_out, fake_out = self.cnn(inp_imgs).chunk(2, dim=0)
 
         # Calculate losses
-        reg_loss = self.hparams.alpha * (real_out ** 2 + fake_out ** 2).mean()
+        reg_loss = self.hparams.alpha * (real_out**2 + fake_out**2).mean()
         cdiv_loss = fake_out.mean() - real_out.mean()
         loss = reg_loss + cdiv_loss
 
@@ -547,7 +549,7 @@ class DeepEnergyModel(pl.LightningModule):
 
 
 # %%
-class GenerateCallback(pl.Callback):
+class GenerateCallback(Callback):
     def __init__(self, batch_size=8, vis_steps=8, num_steps=256, every_n_epochs=5):
         super().__init__()
         self.batch_size = batch_size  # Number of images to generate
@@ -588,7 +590,7 @@ class GenerateCallback(pl.Callback):
 
 
 # %%
-class SamplerCallback(pl.Callback):
+class SamplerCallback(Callback):
     def __init__(self, num_imgs=32, every_n_epochs=5):
         super().__init__()
         self.num_imgs = num_imgs  # Number of images to plot
@@ -610,7 +612,7 @@ class SamplerCallback(pl.Callback):
 
 
 # %%
-class OutlierCallback(pl.Callback):
+class OutlierCallback(Callback):
     def __init__(self, batch_size=1024):
         super().__init__()
         self.batch_size = batch_size
@@ -640,7 +642,8 @@ def train_model(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "MNIST"),
-        gpus=1 if str(device).startswith("cuda") else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=60,
         gradient_clip_val=0.1,
         callbacks=[
@@ -650,7 +653,6 @@ def train_model(**kwargs):
             OutlierCallback(),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=1,
     )
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, "MNIST.ckpt")
@@ -702,7 +704,7 @@ model = train_model(img_shape=(1, 28, 28), batch_size=train_loader.batch_size, l
 # ### Image Generation
 #
 # Another way of evaluating generative models is by sampling a few generated images.
-# Generative models need to be good at generating realistic images as this truely shows that they have modeled the true data distribution.
+# Generative models need to be good at generating realistic images as this truly shows that they have modeled the true data distribution.
 # Thus, let's sample a few images of the model below:
 
 # %%
@@ -768,7 +770,7 @@ with torch.no_grad():
     rand_imgs = torch.rand((128,) + model.hparams.img_shape).to(model.device)
     rand_imgs = rand_imgs * 2 - 1.0
     rand_out = model.cnn(rand_imgs).mean()
-    print("Average score for random images: %4.2f" % (rand_out.item()))
+    print(f"Average score for random images: {rand_out.item()}")
 
 # %% [markdown]
 # As we hoped, the model assigns very low probability to those noisy images.
@@ -779,7 +781,7 @@ with torch.no_grad():
     train_imgs, _ = next(iter(train_loader))
     train_imgs = train_imgs.to(model.device)
     train_out = model.cnn(train_imgs).mean()
-    print("Average score for training images: %4.2f" % (train_out.item()))
+    print(f"Average score for training images: {train_out.item():4.2f}")
 
 # %% [markdown]
 # The scores are close to 0 because of the regularization objective that was added to the training.
@@ -801,8 +803,8 @@ def compare_images(img1, img2):
     plt.xticks([(img1.shape[2] + 2) * (0.5 + j) for j in range(2)], labels=["Original image", "Transformed image"])
     plt.yticks([])
     plt.show()
-    print("Score original image: %4.2f" % score1)
-    print("Score transformed image: %4.2f" % score2)
+    print(f"Score original image: {score1}")
+    print(f"Score transformed image: {score2}")
 
 
 # %% [markdown]

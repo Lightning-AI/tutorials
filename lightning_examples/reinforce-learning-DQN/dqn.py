@@ -5,28 +5,30 @@ from typing import Iterator, List, Tuple
 
 import gym
 import numpy as np
+import pandas as pd
+import seaborn as sn
 import torch
+from IPython.core.display import display
 from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.utilities import DistributedType
+from pytorch_lightning.loggers import CSVLogger
 from torch import Tensor, nn
 from torch.optim import Adam, Optimizer
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import IterableDataset
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
-AVAIL_GPUS = min(1, torch.cuda.device_count())
 
 
 # %%
 class DQN(nn.Module):
-    """Simple MLP network."""
-
     def __init__(self, obs_size: int, n_actions: int, hidden_size: int = 128):
-        """
+        """Simple MLP network.
+
         Args:
             obs_size: observation/state size of the environment
             n_actions: number of discrete actions available in the environment
             hidden_size: size of hidden layers
+
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -57,6 +59,7 @@ class ReplayBuffer:
 
     Args:
         capacity: size of the buffer
+
     """
 
     def __init__(self, capacity: int) -> None:
@@ -70,6 +73,7 @@ class ReplayBuffer:
 
         Args:
             experience: tuple (state, action, reward, done, new_state)
+
         """
         self.buffer.append(experience)
 
@@ -81,7 +85,7 @@ class ReplayBuffer:
             np.array(states),
             np.array(actions),
             np.array(rewards, dtype=np.float32),
-            np.array(dones, dtype=np.bool),
+            np.array(dones, dtype=bool),
             np.array(next_states),
         )
 
@@ -93,6 +97,7 @@ class RLDataset(IterableDataset):
     Args:
         buffer: replay buffer
         sample_size: number of experiences to sample at a time
+
     """
 
     def __init__(self, buffer: ReplayBuffer, sample_size: int = 200) -> None:
@@ -111,13 +116,13 @@ class RLDataset(IterableDataset):
 
 # %%
 class Agent:
-    """Base Agent class handeling the interaction with the environment."""
-
     def __init__(self, env: gym.Env, replay_buffer: ReplayBuffer) -> None:
-        """
+        """Base Agent class handling the interaction with the environment.
+
         Args:
             env: training environment
             replay_buffer: replay buffer storing experiences
+
         """
         self.env = env
         self.replay_buffer = replay_buffer
@@ -138,6 +143,7 @@ class Agent:
 
         Returns:
             action
+
         """
         if np.random.random() < epsilon:
             action = self.env.action_space.sample()
@@ -169,11 +175,15 @@ class Agent:
 
         Returns:
             reward, done
-        """
 
+        """
         action = self.get_action(net, epsilon, device)
 
         # do step in the environment
+        # So, in the deprecated version of gym, the env.step() has 4 values unpacked which is
+        #     obs, reward, done, info = env.step(action)
+        # In the latest version of gym, the step() function returns back an additional variable which is truncated.
+        #     obs, reward, terminated, truncated, info = env.step(action)
         new_state, reward, done, _ = self.env.step(action)
 
         exp = Experience(self.state, action, reward, done, new_state)
@@ -192,8 +202,6 @@ class Agent:
 
 # %%
 class DQNLightning(LightningModule):
-    """Basic DQN Model."""
-
     def __init__(
         self,
         batch_size: int = 16,
@@ -209,7 +217,8 @@ class DQNLightning(LightningModule):
         episode_length: int = 200,
         warm_start_steps: int = 1000,
     ) -> None:
-        """
+        """Basic DQN Model.
+
         Args:
             batch_size: size of the batches")
             lr: learning rate
@@ -223,6 +232,7 @@ class DQNLightning(LightningModule):
             eps_end: final value of epsilon
             episode_length: max length of an episode
             warm_start_steps: max episode reward in the environment
+
         """
         super().__init__()
         self.save_hyperparameters()
@@ -246,6 +256,7 @@ class DQNLightning(LightningModule):
 
         Args:
             steps: number of random steps to populate the buffer with
+
         """
         for _ in range(steps):
             self.agent.play_step(self.net, epsilon=1.0)
@@ -258,6 +269,7 @@ class DQNLightning(LightningModule):
 
         Returns:
             q values
+
         """
         output = self.net(x)
         return output
@@ -270,6 +282,7 @@ class DQNLightning(LightningModule):
 
         Returns:
             loss
+
         """
         states, actions, rewards, dones, next_states = batch
 
@@ -290,8 +303,8 @@ class DQNLightning(LightningModule):
         return start - (self.global_step / frames) * (start - end)
 
     def training_step(self, batch: Tuple[Tensor, Tensor], nb_batch) -> OrderedDict:
-        """Carries out a single step through the environment to update the replay buffer. Then calculates loss
-        based on the minibatch recieved.
+        """Carries out a single step through the environment to update the replay buffer. Then calculates loss based on
+        the minibatch received.
 
         Args:
             batch: current mini batch of replay data
@@ -299,6 +312,7 @@ class DQNLightning(LightningModule):
 
         Returns:
             Training loss and log metrics
+
         """
         device = self.get_device(batch)
         epsilon = self.get_epsilon(self.hparams.eps_start, self.hparams.eps_end, self.hparams.eps_last_frame)
@@ -312,9 +326,6 @@ class DQNLightning(LightningModule):
         # calculates training loss
         loss = self.dqn_mse_loss(batch)
 
-        if self.trainer._distrib_type in {DistributedType.DP, DistributedType.DDP2}:
-            loss = loss.unsqueeze(0)
-
         if done:
             self.total_reward = self.episode_reward
             self.episode_reward = 0
@@ -323,22 +334,21 @@ class DQNLightning(LightningModule):
         if self.global_step % self.hparams.sync_rate == 0:
             self.target_net.load_state_dict(self.net.state_dict())
 
-        log = {
-            "total_reward": torch.tensor(self.total_reward).to(device),
-            "reward": torch.tensor(reward).to(device),
-            "train_loss": loss,
-        }
-        status = {
-            "steps": torch.tensor(self.global_step).to(device),
-            "total_reward": torch.tensor(self.total_reward).to(device),
-        }
+        self.log_dict(
+            {
+                "reward": reward,
+                "train_loss": loss,
+            }
+        )
+        self.log("total_reward", self.total_reward, prog_bar=True)
+        self.log("steps", self.global_step, logger=False, prog_bar=True)
 
-        return OrderedDict({"loss": loss, "log": log, "progress_bar": status})
+        return loss
 
     def configure_optimizers(self) -> List[Optimizer]:
         """Initialize Adam optimizer."""
         optimizer = Adam(self.net.parameters(), lr=self.hparams.lr)
-        return [optimizer]
+        return optimizer
 
     def __dataloader(self) -> DataLoader:
         """Initialize the Replay Buffer dataset used for retrieving experiences."""
@@ -366,14 +376,19 @@ class DQNLightning(LightningModule):
 model = DQNLightning()
 
 trainer = Trainer(
-    gpus=AVAIL_GPUS,
-    max_epochs=200,
-    val_check_interval=100,
+    accelerator="auto",
+    devices=1 if torch.cuda.is_available() else None,  # limiting got iPython runs
+    max_epochs=150,
+    val_check_interval=50,
+    logger=CSVLogger(save_dir="logs/"),
 )
 
 trainer.fit(model)
 
 # %%
-# Start tensorboard.
-# %load_ext tensorboard
-# %tensorboard --logdir lightning_logs/
+
+metrics = pd.read_csv(f"{trainer.logger.log_dir}/metrics.csv")
+del metrics["step"]
+metrics.set_index("epoch", inplace=True)
+display(metrics.dropna(axis=1, how="all").head())
+sn.relplot(data=metrics, kind="line")

@@ -1,12 +1,12 @@
-# Before submitting
+## Before submitting
 
-- [ ] Was this discussed/approved via a Github issue? (no need for typos and docs improvements)
-- [ ] Did you make sure to update the docs?
-- [ ] Did you write any new necessary tests?
+- [ ] Was this **discussed/approved** via a Github issue? (no need for typos and docs improvements)
+- [ ] Did you make sure to **update the docs**?
+- [ ] Did you write any new **necessary tests**?
 
 ## What does this PR do?
 
-Fixes # (issue).
+Fixes # (issue)
 
 ## PR review
 

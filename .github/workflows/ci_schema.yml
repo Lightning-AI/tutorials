@@ -1,24 +1,15 @@
-name: CI action schema
-on: # Trigger the workflow on push or pull request, but only for the master branch
-  push: {}
+name: Check Schema
+
+on:
+  push:
+    branches: [main]
   pull_request:
-    branches: [master, "release/*"]
+    branches: [main]
 
 jobs:
-  validate-schema:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Install pkg
-        run: |
-          pip install "check-jsonschema>=0.10"
-
-      - name: GH Workflows
-        run: |
-          check-jsonschema .github/workflows/*.yml --builtin-schema "github-workflows"
-
-#      - name: Azure Pipelines
-#        run: |
-#          check-jsonschema .azure/*.yml --schemafile "https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/v1.188.1/service-schema.json"
+  check:
+    uses: Lightning-AI/utilities/.github/workflows/check-schema.yml@main
+    with:
+      # skip azure due to the wrong schema file by MSFT
+      # https://github.com/Lightning-AI/lightning-flash/pull/1455#issuecomment-1244793607
+      azure-dir: ".azure"
