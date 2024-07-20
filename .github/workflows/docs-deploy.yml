@@ -55,8 +55,6 @@ jobs:
           mkdir -p ${PATH_DATASETS}
           sudo apt-get update --fix-missing
           sudo apt-get install -y cmake pandoc
-          # install Texlive, see https://linuxconfig.org/how-to-install-latex-on-ubuntu-20-04-focal-fossa-linux
-          sudo apt-get install -y texlive-latex-extra dvipng texlive-pictures
           pip install -q -r _requirements/docs.txt -f ${TORCH_URL}
           pip list
         shell: bash

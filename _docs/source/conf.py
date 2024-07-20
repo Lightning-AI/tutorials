@@ -245,4 +245,7 @@ linkcheck_anchors = False
 linkcheck_exclude_documents = []
 
 # ignore the following relative links (false positive errors during linkcheck)
-linkcheck_ignore = []
+linkcheck_ignore = [
+    # Implicit generation and generalization methods for energy-based models
+    "https://openai.com/index/energy-based-models/",
+]
