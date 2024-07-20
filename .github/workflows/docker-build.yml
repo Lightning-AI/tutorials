@@ -34,7 +34,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build (and Push) image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           #build-args: |
           #  UBUNTU_VERSION=${{ matrix.ubuntu }}
@@ -44,5 +44,5 @@ jobs:
           file: _dockers/ubuntu-cuda/Dockerfile
           push: ${{ env.PUSH_DOCKERHUB }}
           # todo: publish also tag YYYY.MM
-          tags: "pytorchlightning/tutorials"
+          tags: "pytorchlightning/tutorials:cuda"
         timeout-minutes: 55
