@@ -6,19 +6,14 @@ from pathlib import Path
 import flash
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-import scipy as sp
 
 datadir = Path("/kaggle/input")
 
 
 from flash.core.utilities.imports import _ICEVISION_AVAILABLE
-from flash.image.data import IMG_EXTENSIONS, NP_EXTENSIONS, image_loader
 
 if _ICEVISION_AVAILABLE:
     from icevision.core.record import BaseRecord
-    from icevision.core.record_components import ClassMapRecordComponent, FilepathRecordComponent, tasks
-    from icevision.data.data_splitter import SingleSplitSplitter
     from icevision.parsers.parser import Parser
 else:
     assert 0, "with ice please"
@@ -129,7 +124,6 @@ class CustomParser(Parser):
 
 
 def parser(data_dir: Path):
-
     images = sorted(Path(data_dir).glob("??/frame_*_rgb.png"))[:100]  # TODO remove truncation
 
     imgID_annotations = {}
