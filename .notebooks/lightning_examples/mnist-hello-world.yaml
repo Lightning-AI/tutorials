@@ -5,28 +5,29 @@ updated: 2023-05-15
 license: CC BY-SA
 build: 0
 tags:
-  - Image
+- Image
 description: In this notebook, we'll go over the basics of lightning by preparing
   models to train on the [MNIST Handwritten Digits dataset](https://en.wikipedia.org/wiki/MNIST_database).
 requirements:
-  - torchvision
-  - torchmetrics >=0.11.0
-  - pandas
-  - seaborn
-  - lightning>=2.0.0
+- torchvision
+- torchmetrics >=0.11.0
+- pandas
+- seaborn
+- lightning>=2.0.0
 accelerator:
-  - CPU
-  - GPU
+- CPU
+- GPU
 environment:
-  - pytorch-lightning==2.0.9.post0
-  - urllib3==2.0.6
-  - setuptools==68.2.2
-  - torch==2.0.1
-  - seaborn==0.13.0
-  - ipython==8.16.1
-  - lightning==2.0.9.post0
-  - torchvision==0.15.2
-  - matplotlib==3.8.0
-  - torchmetrics==1.2.0
-  - pandas==2.1.1
-published: "2023-10-11T19:20:11.891552"
+- pytorch-lightning==1.5.3
+- torchvision==0.15.2
+- torch==2.0.1
+- numpy==1.26.4
+- torchmetrics==1.2.1
+- setuptools==69.0.3
+- urllib3==2.2.2
+- pandas==2.2.2
+- ipython==8.16.1
+- matplotlib==3.8.4
+- lightning==2.3.3
+- seaborn==0.13.2
+published: '2024-07-20T00:10:28.589696'

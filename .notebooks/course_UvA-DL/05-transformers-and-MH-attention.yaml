@@ -1,12 +1,12 @@
-title: "Tutorial 5: Transformers and Multi-Head Attention"
+title: 'Tutorial 5: Transformers and Multi-Head Attention'
 author: Phillip Lippe
 created: 2021-06-30
 updated: 2023-03-14
 license: CC BY-SA
 build: 0
 tags:
-  - Text
-description: "In this tutorial, we will discuss one of the most impactful architectures
+- Text
+description: 'In this tutorial, we will discuss one of the most impactful architectures
   of the last 2 years: the Transformer model.
 
   Since the paper Attention Is All You Need by Vaswani et al. had been published in
@@ -29,23 +29,24 @@ description: "In this tutorial, we will discuss one of the most impactful archit
 
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 
-  "
+  '
 requirements:
-  - torchvision
-  - matplotlib
-  - seaborn
-  - lightning>=2.0.0
+- torchvision
+- matplotlib
+- seaborn
+- lightning>=2.0.0
 accelerator:
-  - GPU
+- GPU
 environment:
-  - lightning==2.0.9.post0
-  - torchmetrics==1.2.0
-  - seaborn==0.13.0
-  - torch==2.0.1
-  - urllib3==2.0.6
-  - matplotlib==3.8.0
-  - pytorch-lightning==2.0.9.post0
-  - torchvision==0.15.2
-  - ipython==8.16.1
-  - setuptools==68.2.2
-published: "2023-10-11T16:01:53.227908"
+- pytorch-lightning==2.0.9.post0
+- lightning==2.3.3
+- setuptools==69.0.3
+- ipython==8.16.1
+- numpy==1.26.4
+- torchvision==0.15.2
+- seaborn==0.13.2
+- torchmetrics==1.2.1
+- matplotlib==3.8.4
+- torch==2.0.1
+- urllib3==2.2.2
+published: '2024-07-19T19:40:50.645247'

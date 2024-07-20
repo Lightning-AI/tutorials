@@ -1,12 +1,12 @@
-title: "Tutorial 7: Deep Energy-Based Generative Models"
+title: 'Tutorial 7: Deep Energy-Based Generative Models'
 author: Phillip Lippe
 created: 2021-07-12
 updated: 2023-03-14
 license: CC BY-SA
-build: 0
+build: 1
 tags:
-  - Image
-description: "In this tutorial, we will look at energy-based deep learning models,
+- Image
+description: 'In this tutorial, we will look at energy-based deep learning models,
   and focus on their application as generative models.
 
   Energy models have been a popular tool before the huge deep learning hype around
@@ -36,24 +36,24 @@ description: "In this tutorial, we will look at energy-based deep learning model
 
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 
-  "
+  '
 requirements:
-  - torchvision
-  - matplotlib
-  - tensorboard
-  - lightning>=2.0.0
+- torchvision
+- matplotlib
+- tensorboard
+- pytorch-lightning>=2.0.0
 accelerator:
-  - CPU
-  - GPU
+- CPU
+- GPU
 environment:
-  - torch==2.0.1
-  - ipython==8.16.1
-  - torchmetrics==1.2.0
-  - torchvision==0.15.2
-  - setuptools==68.2.2
-  - pytorch-lightning==2.0.9.post0
-  - urllib3==2.0.6
-  - tensorboard==2.14.1
-  - lightning==2.0.9.post0
-  - matplotlib==3.8.0
-published: "2023-10-11T16:08:23.717634"
+- urllib3==2.2.2
+- torchvision==0.15.2
+- pytorch-lightning==2.0.9.post0
+- tensorboard==2.17.0
+- ipython==8.16.1
+- setuptools==69.0.3
+- torchmetrics==1.2.1
+- numpy==1.26.4
+- torch==2.0.1
+- matplotlib==3.8.4
+published: '2024-07-20T00:33:30.041519'

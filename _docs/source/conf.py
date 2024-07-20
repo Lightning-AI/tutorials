@@ -43,10 +43,8 @@ github_repo = project
 # -- Project documents -------------------------------------------------------
 
 AssistantCLI.copy_notebooks(
-    _PATH_ROOT,
-    _PATH_HERE,
-    # ToDo: fix coping this specific notebooks, some JSON encode issue
-    ignore=["course_UvA-DL/13-contrastive-learning"],
+    path_root=_PATH_ROOT,
+    docs_root=_PATH_HERE,
 )
 
 # with open(os.path.join(_PATH_HERE, 'ipynb_content.rst'), 'w') as fp:

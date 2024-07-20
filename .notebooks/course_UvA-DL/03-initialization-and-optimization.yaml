@@ -1,13 +1,13 @@
-title: "Tutorial 3: Initialization and Optimization"
+title: 'Tutorial 3: Initialization and Optimization'
 author: Phillip Lippe
 created: 2021-08-27
 updated: 2023-03-14
 license: CC BY-SA
 tags:
-  - Image
-  - Initialization
-  - Optimizers
-description: "In this tutorial, we will review techniques for optimization and initialization
+- Image
+- Initialization
+- Optimizers
+description: 'In this tutorial, we will review techniques for optimization and initialization
   of neural networks.
 
   When increasing the depth of neural networks, there are various challenges we face.
@@ -23,24 +23,25 @@ description: "In this tutorial, we will review techniques for optimization and i
 
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 
-  "
+  '
 requirements:
-  - torchvision
-  - matplotlib
-  - seaborn
-  - lightning>=2.0.0
+- torchvision
+- matplotlib
+- seaborn
+- lightning>=2.0.0
 accelerator:
-  - CPU
-  - GPU
+- CPU
+- GPU
 environment:
-  - torchvision==0.15.2
-  - setuptools==68.2.2
-  - seaborn==0.13.0
-  - ipython==8.16.1
-  - matplotlib==3.8.0
-  - pytorch-lightning==2.0.9.post0
-  - urllib3==2.0.6
-  - lightning==2.0.9.post0
-  - torchmetrics==1.2.0
-  - torch==2.0.1
-published: "2023-10-11T15:49:26.708230"
+- ipython==8.16.1
+- urllib3==2.2.2
+- seaborn==0.13.2
+- numpy==1.26.4
+- torchmetrics==1.2.1
+- torch==2.0.1
+- pytorch-lightning==2.0.9.post0
+- lightning==2.3.3
+- matplotlib==3.8.4
+- setuptools==69.0.3
+- torchvision==0.15.2
+published: '2024-07-19T19:29:56.143678'
