@@ -662,11 +662,13 @@ class AssistantCLI:
             strict: raise exception if copy fails
 
         """
-        all_ipynb = []
-        for pattern in patterns:
-            all_ipynb += glob.glob(os.path.join(path_root, DIR_NOTEBOOKS, pattern, "*.ipynb"))
-        print(f"Copy following notebooks to docs folder: {all_ipynb}")
         os.makedirs(os.path.join(docs_root, path_docs_ipynb), exist_ok=True)
+        all_ipynb = [
+            os.path.realpath(ipynb)
+            for pattern in patterns
+            for ipynb in glob.glob(os.path.join(path_root, DIR_NOTEBOOKS, pattern, "*.ipynb"))
+        ]
+        print(f"Copy following notebooks to docs folder: {all_ipynb}")
         if ignore and not isinstance(ignore, (list, set, tuple)):
             ignore = [ignore]
         elif not ignore:

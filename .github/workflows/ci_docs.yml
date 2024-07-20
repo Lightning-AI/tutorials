@@ -1,10 +1,10 @@
-name: validate Docs
+name: Docs validation
 
 on: # Trigger the workflow on push or pull request
   #  push:
   #    branches: [main]
   pull_request: {}
-  #workflow_dispatch: {}
+  workflow_dispatch: {}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
@@ -20,10 +20,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        check: ["html", "linkcheck"]
+        target: ["html", "linkcheck"]
     env:
       PUB_BRANCH: publication
       PATH_DATASETS: ${{ github.workspace }}/.datasets
+      TORCH_URL: "https://download.pytorch.org/whl/cpu/torch_stable.html"
     timeout-minutes: 20
     steps:
       - name: Checkout 🛎️
@@ -33,24 +34,17 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.8
-
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('_requirements/docs.txt') }}
-          restore-keys: pip-
+          cache: pip
 
       - name: Install Texlive & tree
         run: |
           sudo apt-get update --fix-missing
-          # install Texlive, see https://linuxconfig.org/how-to-install-latex-on-ubuntu-20-04-focal-fossa-linux
-          sudo apt-get install -y cmake tree pandoc texlive-latex-extra dvipng texlive-pictures
+          sudo apt-get install -y cmake tree pandoc
 
       - name: Install dependencies
         run: |
-          pip --version
-          pip install -q -r requirements.txt -r _requirements/docs.txt
+          set -ex
+          pip install -q -r requirements.txt -r _requirements/docs.txt -f ${TORCH_URL}
           pip list
 
       - name: Process folders
@@ -59,7 +53,7 @@ jobs:
           head=$(git rev-parse origin/"${{ github.base_ref }}")
           git diff --name-only $head --output=master-diff.txt
           python .actions/assistant.py group-folders master-diff.txt
-          printf "Changed folders:\n"
+          printf "Changed folders:\n----------------\n"
           cat changed-folders.txt
 
       - name: Count changed notebooks
@@ -97,23 +91,17 @@ jobs:
           tree changed-notebooks
 
       - uses: actions/upload-artifact@v3
-        if: ${{ matrix.check == 'html' && env.NB_DIRS != 0 }}
+        if: ${{ matrix.target == 'html' && env.NB_DIRS != 0 }}
         with:
           name: notebooks-${{ github.sha }}
           path: changed-notebooks/
 
-      - name: Link check
+      - name: Make ${{ matrix.target }}
         working-directory: ./_docs
-        if: ${{ matrix.check == 'linkcheck' }}
-        run: make linkcheck --jobs $(nproc) --debug SPHINXOPTS="--keep-going"
-
-      - name: Make Documentation
-        working-directory: ./_docs
-        if: ${{ matrix.check == 'html' }}
-        run: make html --jobs $(nproc) --debug SPHINXOPTS="-W --keep-going"
+        run: make ${{ matrix.target }} --jobs $(nproc) --debug SPHINXOPTS="-W --keep-going"
 
       - name: Upload built docs
-        if: ${{ matrix.check == 'html' }}
+        if: ${{ matrix.target == 'html' }}
         uses: actions/upload-artifact@v3
         with:
           name: docs-html-${{ github.sha }}
