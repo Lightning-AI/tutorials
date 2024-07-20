@@ -21,14 +21,14 @@ PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 
 # %%
 class DQN(nn.Module):
-    """Simple MLP network."""
-
     def __init__(self, obs_size: int, n_actions: int, hidden_size: int = 128):
-        """
+        """Simple MLP network.
+
         Args:
             obs_size: observation/state size of the environment
             n_actions: number of discrete actions available in the environment
             hidden_size: size of hidden layers
+
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -59,6 +59,7 @@ class ReplayBuffer:
 
     Args:
         capacity: size of the buffer
+
     """
 
     def __init__(self, capacity: int) -> None:
@@ -72,6 +73,7 @@ class ReplayBuffer:
 
         Args:
             experience: tuple (state, action, reward, done, new_state)
+
         """
         self.buffer.append(experience)
 
@@ -95,6 +97,7 @@ class RLDataset(IterableDataset):
     Args:
         buffer: replay buffer
         sample_size: number of experiences to sample at a time
+
     """
 
     def __init__(self, buffer: ReplayBuffer, sample_size: int = 200) -> None:
@@ -113,13 +116,13 @@ class RLDataset(IterableDataset):
 
 # %%
 class Agent:
-    """Base Agent class handeling the interaction with the environment."""
-
     def __init__(self, env: gym.Env, replay_buffer: ReplayBuffer) -> None:
-        """
+        """Base Agent class handling the interaction with the environment.
+
         Args:
             env: training environment
             replay_buffer: replay buffer storing experiences
+
         """
         self.env = env
         self.replay_buffer = replay_buffer
@@ -140,6 +143,7 @@ class Agent:
 
         Returns:
             action
+
         """
         if np.random.random() < epsilon:
             action = self.env.action_space.sample()
@@ -171,11 +175,15 @@ class Agent:
 
         Returns:
             reward, done
-        """
 
+        """
         action = self.get_action(net, epsilon, device)
 
         # do step in the environment
+        # So, in the deprecated version of gym, the env.step() has 4 values unpacked which is
+        #     obs, reward, done, info = env.step(action)
+        # In the latest version of gym, the step() function returns back an additional variable which is truncated.
+        #     obs, reward, terminated, truncated, info = env.step(action)
         new_state, reward, done, _ = self.env.step(action)
 
         exp = Experience(self.state, action, reward, done, new_state)
@@ -194,8 +202,6 @@ class Agent:
 
 # %%
 class DQNLightning(LightningModule):
-    """Basic DQN Model."""
-
     def __init__(
         self,
         batch_size: int = 16,
@@ -211,7 +217,8 @@ class DQNLightning(LightningModule):
         episode_length: int = 200,
         warm_start_steps: int = 1000,
     ) -> None:
-        """
+        """Basic DQN Model.
+
         Args:
             batch_size: size of the batches")
             lr: learning rate
@@ -225,6 +232,7 @@ class DQNLightning(LightningModule):
             eps_end: final value of epsilon
             episode_length: max length of an episode
             warm_start_steps: max episode reward in the environment
+
         """
         super().__init__()
         self.save_hyperparameters()
@@ -248,6 +256,7 @@ class DQNLightning(LightningModule):
 
         Args:
             steps: number of random steps to populate the buffer with
+
         """
         for _ in range(steps):
             self.agent.play_step(self.net, epsilon=1.0)
@@ -260,6 +269,7 @@ class DQNLightning(LightningModule):
 
         Returns:
             q values
+
         """
         output = self.net(x)
         return output
@@ -272,6 +282,7 @@ class DQNLightning(LightningModule):
 
         Returns:
             loss
+
         """
         states, actions, rewards, dones, next_states = batch
 
@@ -292,8 +303,8 @@ class DQNLightning(LightningModule):
         return start - (self.global_step / frames) * (start - end)
 
     def training_step(self, batch: Tuple[Tensor, Tensor], nb_batch) -> OrderedDict:
-        """Carries out a single step through the environment to update the replay buffer. Then calculates loss
-        based on the minibatch recieved.
+        """Carries out a single step through the environment to update the replay buffer. Then calculates loss based on
+        the minibatch received.
 
         Args:
             batch: current mini batch of replay data
@@ -301,6 +312,7 @@ class DQNLightning(LightningModule):
 
         Returns:
             Training loss and log metrics
+
         """
         device = self.get_device(batch)
         epsilon = self.get_epsilon(self.hparams.eps_start, self.hparams.eps_end, self.hparams.eps_last_frame)

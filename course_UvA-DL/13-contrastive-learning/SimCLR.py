@@ -33,9 +33,10 @@ import urllib.request
 from copy import deepcopy
 from urllib.error import HTTPError
 
+import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
-import pytorch_lightning as pl
+import matplotlib_inline.backend_inline
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -43,15 +44,14 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from IPython.display import set_matplotlib_formats
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import STL10
 from tqdm.notebook import tqdm
 
 plt.set_cmap("cividis")
 # %matplotlib inline
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.set()
 
@@ -67,10 +67,10 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/ContrastiveLea
 NUM_WORKERS = os.cpu_count()
 
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -108,7 +108,8 @@ for file_name in pretrained_files:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
             print(
-                "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
+                "Something went wrong. Please try to download the file from the GDrive folder,"
+                " or contact the author with the full output including the following error:\n",
                 e,
             )
 
@@ -215,7 +216,7 @@ train_data_contrast = STL10(
 
 # %%
 # Visualize some examples
-pl.seed_everything(42)
+L.seed_everything(42)
 NUM_IMAGES = 6
 imgs = torch.stack([img for idx in range(NUM_IMAGES) for img in unlabeled_data[idx][0]], dim=0)
 img_grid = torchvision.utils.make_grid(imgs, nrow=6, normalize=True, pad_value=0.9)
@@ -275,7 +276,7 @@ plt.close()
 
 
 # %%
-class SimCLR(pl.LightningModule):
+class SimCLR(L.LightningModule):
     def __init__(self, hidden_dim, lr, temperature, weight_decay, max_epochs=500):
         super().__init__()
         self.save_hyperparameters()
@@ -355,15 +356,15 @@ class SimCLR(pl.LightningModule):
 
 # %%
 def train_simclr(batch_size, max_epochs=500, **kwargs):
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "SimCLR"),
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=max_epochs,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc_top5"),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=1,
     )
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
@@ -390,7 +391,7 @@ def train_simclr(batch_size, max_epochs=500, **kwargs):
             pin_memory=True,
             num_workers=NUM_WORKERS,
         )
-        pl.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducible
         model = SimCLR(max_epochs=max_epochs, **kwargs)
         trainer.fit(model, train_loader, val_loader)
         # Load best checkpoint after training
@@ -442,7 +443,7 @@ simclr_model = train_simclr(
 
 
 # %%
-class LogisticRegression(pl.LightningModule):
+class LogisticRegression(L.LightningModule):
     def __init__(self, feature_dim, num_classes, lr, weight_decay, max_epochs=100):
         super().__init__()
         self.save_hyperparameters()
@@ -538,15 +539,16 @@ test_feats_simclr = prepare_data_features(simclr_model, test_img_data)
 
 # %%
 def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, max_epochs=100, **kwargs):
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "LogisticRegression"),
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=max_epochs,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=0,
+        enable_progress_bar=False,
         check_val_every_n_epoch=10,
     )
     trainer.logger._default_hp_metric = None
@@ -565,7 +567,7 @@ def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, ma
         print(f"Found pretrained model at {pretrained_filename}, loading...")
         model = LogisticRegression.load_from_checkpoint(pretrained_filename)
     else:
-        pl.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducible
         model = LogisticRegression(**kwargs)
         trainer.fit(model, train_loader, test_loader)
         model = LogisticRegression.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
@@ -581,7 +583,7 @@ def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, ma
 # %% [markdown]
 # Despite the training dataset of STL10 already only having 500 labeled images per class, we will perform experiments with even smaller datasets.
 # Specifically, we train a Logistic Regression model for datasets with only 10, 20, 50, 100, 200, and all 500 examples per class.
-# This gives us an intuition on how well the representations learned by contrastive learning can be transfered to a image recognition task like this classification.
+# This gives us an intuition on how well the representations learned by contrastive learning can be transferred to a image recognition task like this classification.
 # First, let's define a function to create the intended sub-datasets from the full training set:
 
 
@@ -663,7 +665,7 @@ for k, score in zip(dataset_sizes, test_scores):
 
 
 # %%
-class ResNet(pl.LightningModule):
+class ResNet(L.LightningModule):
     def __init__(self, num_classes, lr, weight_decay, max_epochs=100):
         super().__init__()
         self.save_hyperparameters()
@@ -729,15 +731,15 @@ train_img_aug_data = STL10(root=DATASET_PATH, split="train", download=True, tran
 
 # %%
 def train_resnet(batch_size, max_epochs=100, **kwargs):
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "ResNet"),
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=max_epochs,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=1,
         check_val_every_n_epoch=2,
     )
     trainer.logger._default_hp_metric = None
@@ -758,10 +760,10 @@ def train_resnet(batch_size, max_epochs=100, **kwargs):
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, "ResNet.ckpt")
     if os.path.isfile(pretrained_filename):
-        print("Found pretrained model at %s, loading..." % pretrained_filename)
+        print(f"Found pretrained model at {pretrained_filename}, loading...")
         model = ResNet.load_from_checkpoint(pretrained_filename)
     else:
-        pl.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducible
         model = ResNet(**kwargs)
         trainer.fit(model, train_loader, test_loader)
         model = ResNet.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)

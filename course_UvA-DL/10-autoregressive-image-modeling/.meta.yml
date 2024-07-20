@@ -1,7 +1,7 @@
 title: "Tutorial 10: Autoregressive Image Modeling"
 author: Phillip Lippe
 created: 2021-07-12
-updated: 2021-07-12
+updated: 2023-03-14
 license: CC BY-SA
 build: 0
 tags:
@@ -18,5 +18,6 @@ requirements:
   - torchvision
   - matplotlib
   - seaborn
+  - lightning>=2.0.0
 accelerator:
   - GPU

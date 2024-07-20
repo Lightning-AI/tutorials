@@ -7,9 +7,10 @@ import os
 import urllib.request
 from urllib.error import HTTPError
 
+import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
-import pytorch_lightning as pl
+import matplotlib_inline.backend_inline
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -17,14 +18,13 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from IPython.display import set_matplotlib_formats
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
 
 plt.set_cmap("cividis")
 # %matplotlib inline
-set_matplotlib_formats("svg", "pdf")  # For export
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 matplotlib.rcParams["lines.linewidth"] = 2.0
 sns.reset_orig()
 
@@ -36,10 +36,10 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/VisionTransformers/")
 
 # Setting the seed
-pl.seed_everything(42)
+L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -69,7 +69,7 @@ for file_name in pretrained_files:
         os.makedirs(file_path.rsplit("/", 1)[0], exist_ok=True)
     if not os.path.isfile(file_path):
         file_url = base_url + file_name
-        print("Downloading %s..." % file_url)
+        print(f"Downloading {file_url}...")
         try:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
@@ -105,9 +105,9 @@ train_transform = transforms.Compose(
 # We need to do a little trick because the validation set should not use the augmentation.
 train_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=train_transform, download=True)
 val_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=test_transform, download=True)
-pl.seed_everything(42)
+L.seed_everything(42)
 train_set, _ = torch.utils.data.random_split(train_dataset, [45000, 5000])
-pl.seed_everything(42)
+L.seed_everything(42)
 _, val_set = torch.utils.data.random_split(val_dataset, [45000, 5000])
 
 # Loading the test set
@@ -154,10 +154,10 @@ plt.close()
 # %%
 def img_to_patch(x, patch_size, flatten_channels=True):
     """
-    Inputs:
-        x - Tensor representing the image of shape [B, C, H, W]
-        patch_size - Number of pixels per dimension of the patches (integer)
-        flatten_channels - If True, the patches will be returned in a flattened format
+    Args:
+        x: Tensor representing the image of shape [B, C, H, W]
+        patch_size: Number of pixels per dimension of the patches (integer)
+        flatten_channels: If True, the patches will be returned in a flattened format
                            as a feature vector instead of a image grid.
     """
     B, C, H, W = x.shape
@@ -209,13 +209,15 @@ plt.close()
 # %%
 class AttentionBlock(nn.Module):
     def __init__(self, embed_dim, hidden_dim, num_heads, dropout=0.0):
-        """
-        Inputs:
-            embed_dim - Dimensionality of input and attention feature vectors
-            hidden_dim - Dimensionality of hidden layer in feed-forward network
+        """Attention Block.
+
+        Args:
+            embed_dim: Dimensionality of input and attention feature vectors
+            hidden_dim: Dimensionality of hidden layer in feed-forward network
                          (usually 2-4x larger than embed_dim)
-            num_heads - Number of heads to use in the Multi-Head Attention block
-            dropout - Amount of dropout to apply in the feed-forward network
+            num_heads: Number of heads to use in the Multi-Head Attention block
+            dropout: Amount of dropout to apply in the feed-forward network
+
         """
         super().__init__()
 
@@ -268,19 +270,21 @@ class VisionTransformer(nn.Module):
         num_patches,
         dropout=0.0,
     ):
-        """
-        Inputs:
-            embed_dim - Dimensionality of the input feature vectors to the Transformer
-            hidden_dim - Dimensionality of the hidden layer in the feed-forward networks
+        """Vision Transformer.
+
+        Args:
+            embed_dim: Dimensionality of the input feature vectors to the Transformer
+            hidden_dim: Dimensionality of the hidden layer in the feed-forward networks
                          within the Transformer
-            num_channels - Number of channels of the input (3 for RGB)
-            num_heads - Number of heads to use in the Multi-Head Attention block
-            num_layers - Number of layers to use in the Transformer
-            num_classes - Number of classes to predict
-            patch_size - Number of pixels that the patches have per dimension
-            num_patches - Maximum number of patches an image can have
-            dropout - Amount of dropout to apply in the feed-forward network and
+            num_channels: Number of channels of the input (3 for RGB)
+            num_heads: Number of heads to use in the Multi-Head Attention block
+            num_layers: Number of layers to use in the Transformer
+            num_classes: Number of classes to predict
+            patch_size: Number of pixels that the patches have per dimension
+            num_patches: Maximum number of patches an image can have
+            dropout: Amount of dropout to apply in the feed-forward network and
                       on the input encoding
+
         """
         super().__init__()
 
@@ -328,7 +332,7 @@ class VisionTransformer(nn.Module):
 
 
 # %%
-class ViT(pl.LightningModule):
+class ViT(L.LightningModule):
     def __init__(self, model_kwargs, lr):
         super().__init__()
         self.save_hyperparameters()
@@ -349,8 +353,8 @@ class ViT(pl.LightningModule):
         loss = F.cross_entropy(preds, labels)
         acc = (preds.argmax(dim=-1) == labels).float().mean()
 
-        self.log("%s_loss" % mode, loss)
-        self.log("%s_acc" % mode, acc)
+        self.log(f"{mode}_loss", loss)
+        self.log(f"{mode}_acc", acc)
         return loss
 
     def training_step(self, batch, batch_idx):
@@ -376,15 +380,15 @@ class ViT(pl.LightningModule):
 
 # %%
 def train_model(**kwargs):
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "ViT"),
-        gpus=1 if str(device) == "cuda:0" else 0,
+        accelerator="auto",
+        devices=1,
         max_epochs=180,
         callbacks=[
             ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc"),
             LearningRateMonitor("epoch"),
         ],
-        progress_bar_refresh_rate=1,
     )
     trainer.logger._log_graph = True  # If True, we plot the computation graph in tensorboard
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
@@ -392,11 +396,11 @@ def train_model(**kwargs):
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, "ViT.ckpt")
     if os.path.isfile(pretrained_filename):
-        print("Found pretrained model at %s, loading..." % pretrained_filename)
+        print(f"Found pretrained model at {pretrained_filename}, loading...")
         # Automatically loads the model with the saved hyperparameters
         model = ViT.load_from_checkpoint(pretrained_filename)
     else:
-        pl.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducible
         model = ViT(**kwargs)
         trainer.fit(model, train_loader, val_loader)
         # Load best checkpoint after training
@@ -501,7 +505,7 @@ print("ViT results", results)
 # In this tutorial, we have implemented our own Vision Transformer from scratch and applied it on the task of image classification.
 # Vision Transformers work by splitting an image into a sequence of smaller patches, use those as input to a standard Transformer encoder.
 # While Vision Transformers achieved outstanding results on large-scale image recognition benchmarks such as ImageNet, they considerably underperform when being trained from scratch on small-scale datasets like CIFAR10.
-# The reason is that in contrast to CNNs, Transformers do not have the inductive biases of translation invariance and the feature hierachy (i.e. larger patterns consist of many smaller patterns).
+# The reason is that in contrast to CNNs, Transformers do not have the inductive biases of translation invariance and the feature hierarchy (i.e. larger patterns consist of many smaller patterns).
 # However, these aspects can be learned when enough data is provided, or the model has been pre-trained on other large-scale tasks.
 # Considering that Vision Transformers have just been proposed end of 2020, there is likely a lot more to come on Transformers for Computer Vision.
 #
@@ -511,7 +515,7 @@ print("ViT results", results)
 # Dosovitskiy, Alexey, et al.
 # "An image is worth 16x16 words: Transformers for image recognition at scale."
 # International Conference on Representation Learning (2021).
-# [link](https://arxiv.org/pdf/2010.11929.pdf)
+# [link](https://arxiv.org/abs/2010.11929)
 #
 # Chen, Xiangning, et al.
 # "When Vision Transformers Outperform ResNets without Pretraining or Strong Data Augmentations."

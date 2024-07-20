@@ -25,18 +25,18 @@
 import time
 
 import matplotlib.pyplot as plt
+
+# %matplotlib inline
+import matplotlib_inline.backend_inline
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.utils.data as data
-
-# %matplotlib inline
-from IPython.display import set_matplotlib_formats
 from matplotlib.colors import to_rgba
 from torch import Tensor
 from tqdm.notebook import tqdm  # Progress bar
 
-set_matplotlib_formats("svg", "pdf")
+matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For export
 
 # %% [markdown]
 # ## The Basics of PyTorch
@@ -185,7 +185,7 @@ print("X1 (after)", x1)
 print("X2 (after)", x2)
 
 # %% [markdown]
-# In-place operations are usually marked with a underscore postfix (e.g. "add_" instead of "add").
+# In-place operations are usually marked with a underscore postfix (for example `torch.add_` instead of `torch.add`).
 #
 # Another common operation aims at changing the shape of a tensor.
 # A tensor of size (2,3) can be re-organized to any other shape with the same number of elements (e.g. a tensor of size (6), or (3,2), ...).
@@ -373,7 +373,7 @@ print(x.grad)
 # <center style="width: 100%"><img src="comparison_CPU_GPU.png" width="700px"></center>
 #
 # CPUs and GPUs have both different advantages and disadvantages, which is why many computers contain both components and use them for different tasks.
-# In case you are not familiar with GPUs, you can read up more details in this [NVIDIA blog post](https://blogs.nvidia.com/blog/2009/12/16/whats-the-difference-between-a-cpu-and-a-gpu/) or [here](https://www.intel.com/content/www/us/en/products/docs/processors/what-is-a-gpu.html).
+# In case you are not familiar with GPUs, you can read up more details in this [NVIDIA blog post](https://blogs.nvidia.com/blog/2009/12/16/whats-the-difference-between-a-cpu-and-a-gpu/) or [here](https://blogs.nvidia.com/blog/whats-the-difference-between-a-cpu-and-a-gpu/).
 #
 # GPUs can accelerate the training of your network up to a factor of $100$ which is essential for large neural networks.
 # PyTorch implements a lot of functionality for supporting GPUs (mostly those of NVIDIA due to the libraries [CUDA](https://developer.nvidia.com/cuda-zone) and [cuDNN](https://developer.nvidia.com/cudnn)).
@@ -455,7 +455,7 @@ if torch.cuda.is_available():
 
 # Additionally, some operations on a GPU are implemented stochastic for efficiency
 # We want to ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 # %% [markdown]
@@ -601,10 +601,12 @@ for name, param in model.named_parameters():
 
 class XORDataset(data.Dataset):
     def __init__(self, size, std=0.1):
-        """
-        Inputs:
-            size - Number of data points we want to generate
-            std - Standard deviation of the noise (see generate_continuous_xor function)
+        """XORDataset.
+
+        Args:
+            size: Number of data points we want to generate
+            std: Standard deviation of the noise (see generate_continuous_xor function)
+
         """
         super().__init__()
         self.size = size
@@ -734,7 +736,7 @@ print("Data labels", data_labels.shape, "\n", data_labels)
 # For instance, for BCE, PyTorch has two modules: `nn.BCELoss()`, `nn.BCEWithLogitsLoss()`.
 # While `nn.BCELoss` expects the inputs $x$ to be in the range $[0,1]$, i.e. the output of a sigmoid, `nn.BCEWithLogitsLoss` combines a sigmoid layer and the BCE loss in a single class.
 # This version is numerically more stable than using a plain Sigmoid followed by a BCE loss because of the logarithms applied in the loss function.
-# Hence, it is adviced to use loss functions applied on "logits" where possible (remember to not apply a sigmoid on the output of the model in this case!).
+# Hence, it is advised to use loss functions applied on "logits" where possible (remember to not apply a sigmoid on the output of the model in this case!).
 # For our model defined above, we therefore use the module `nn.BCEWithLogitsLoss`.
 
 # %%
@@ -800,7 +802,6 @@ def train_model(model, optimizer, data_loader, loss_module, num_epochs=100):
     # Training loop
     for epoch in tqdm(range(num_epochs)):
         for data_inputs, data_labels in data_loader:
-
             # Step 1: Move input data to device (only strictly necessary if we use GPU)
             data_inputs = data_inputs.to(device)
             data_labels = data_labels.to(device)
@@ -897,7 +898,6 @@ def eval_model(model, data_loader):
 
     with torch.no_grad():  # Deactivate gradients for the following code
         for data_inputs, data_labels in data_loader:
-
             # Determine prediction of model on dev set
             data_inputs, data_labels = data_inputs.to(device), data_labels.to(device)
             preds = model(data_inputs)
@@ -983,7 +983,7 @@ plt.show()
 # Finally, you are all set to start with your own PyTorch project!
 # In summary, we have looked at how we can build neural networks in PyTorch, and train and test them on data.
 # However, there is still much more to PyTorch we haven't discussed yet.
-# In the comming series of Jupyter notebooks, we will discover more and more functionalities of PyTorch, so that you also get familiar to PyTorch concepts beyond the basics.
+# In the coming series of Jupyter notebooks, we will discover more and more functionalities of PyTorch, so that you also get familiar to PyTorch concepts beyond the basics.
 # If you are already interested in learning more of PyTorch, we recommend the official [tutorial website](https://pytorch.org/tutorials/) that contains many tutorials on various topics.
 # Especially logging with Tensorboard ([tutorial
 # here](https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html))
