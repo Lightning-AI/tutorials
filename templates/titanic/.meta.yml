@@ -1,14 +1,16 @@
 title: Solving Titanic dataset with Lightning Flash
 author: PL team
 created: 2021-10-15
-updated: 2021-12-10
+updated: 2022-04-10
 license: CC
 build: 0
 description: |
   This is a template to show how to contribute a tutorial.
 requirements:
-  - https://github.com/PyTorchLightning/lightning-flash/archive/refs/tags/0.5.2.zip#egg=lightning-flash[tabular]
-  - matplotlib
+  - lightning-flash[tabular]>=0.7
+  - torchmetrics<0.8  # collision with `pytorch-tabular` which require PL 1.3.6
+  - pandas>=1.0
+  - matplotlib>=3.0
   - seaborn
 accelerator:
   - CPU
