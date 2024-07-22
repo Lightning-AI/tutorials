@@ -1,9 +1,7 @@
 title: Barlow Twins Tutorial
 author: Ananya Harsh Jha
 created: 2021-09-19
-updated: 2023-03-15
 license: CC BY-SA
-build: 0
 tags:
 - Image
 - Self-Supervised
@@ -20,22 +18,11 @@ description: 'This notebook describes the self-supervised learning method Barlow
   case study.
 
   '
-requirements:
-- torchvision
-- matplotlib
-- lightning>=2.0.0
 accelerator:
 - GPU
 - CPU
 environment:
-- ipython==8.16.1
-- pytorch-lightning==2.0.9.post0
-- setuptools==69.0.3
-- torchmetrics==1.2.1
-- torch==2.0.1
-- numpy==1.26.4
-- urllib3==2.2.2
 - lightning==2.3.3
+- torchvision==0.18.1+cu118
 - matplotlib==3.8.4
-- torchvision==0.15.2
-published: '2024-07-19T20:50:59.827715'
+published: '2024-07-22T22:29:07.292568'
