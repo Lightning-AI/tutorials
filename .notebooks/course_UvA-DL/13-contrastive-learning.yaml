@@ -1,7 +1,6 @@
 title: 'Tutorial 13: Self-Supervised Contrastive Learning with SimCLR'
 author: Phillip Lippe
 created: 2021-08-30
-updated: 2023-03-14
 license: CC BY-SA
 tags:
 - Image
@@ -30,26 +29,17 @@ description: 'In this tutorial, we will take a closer look at self-supervised co
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 
   '
-requirements:
-- torchvision
-- matplotlib
-- seaborn
-- lightning>=2.0.0
-- tensorboard
 accelerator:
 - CPU
 - GPU
 environment:
+- torch==2.0.1+cu118
 - pytorch-lightning==2.0.9.post0
-- ipython==8.16.1
-- urllib3==2.2.2
-- seaborn==0.13.2
-- torch==2.0.1
-- tensorboard==2.17.0
-- matplotlib==3.8.4
-- torchvision==0.15.2
-- lightning==2.3.3
 - numpy==1.26.4
+- torchvision==0.15.2+cu118
+- seaborn==0.13.2
+- lightning==2.3.3
 - torchmetrics==1.2.1
-- setuptools==69.0.3
-published: '2024-07-19T20:31:47.750096'
+- matplotlib==3.8.4
+- tensorboard==2.17.0
+published: '2024-07-22T22:16:42.047737'
