@@ -1,7 +1,6 @@
 title: 'Tutorial 12: Meta-Learning - Learning to Learn'
 author: Phillip Lippe
 created: 2021-08-21
-updated: 2023-03-14
 license: CC BY-SA
 tags:
 - Few-shot-learning
@@ -38,28 +37,18 @@ description: 'In this tutorial, we will discuss algorithms that learn models whi
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 
   '
-requirements:
-- torchvision
-- matplotlib
-- seaborn
-- lightning>=2.0.0
-- tensorboard
-- scipy
 accelerator:
 - CPU
 - GPU
 environment:
-- torchmetrics==1.2.1
-- setuptools==69.0.3
-- pytorch-lightning==1.5.3
-- lightning==2.3.3
+- seaborn==0.13.2
+- matplotlib==3.8.4
 - numpy==1.26.4
 - tensorboard==2.17.0
+- torchmetrics==1.2.1
+- torch==2.0.1+cu118
 - scipy==1.14.0
-- torch==2.0.1
-- torchvision==0.15.2
-- seaborn==0.13.2
-- ipython==8.16.1
-- urllib3==2.2.2
-- matplotlib==3.8.4
-published: '2024-07-20T11:39:07.700966'
+- lightning==2.3.3
+- pytorch-lightning==2.0.9.post0
+- torchvision==0.15.2+cu118
+published: '2024-07-22T22:09:37.795479'
