@@ -6,8 +6,6 @@ license: CC
 build: 11
 description: |
   This is a template to show how to contribute a tutorial.
-requirements:
-  - matplotlib
 accelerator:
   - CPU
   - GPU

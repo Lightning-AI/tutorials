@@ -1,0 +1,4 @@
+numpy <2.0 # needed for older Torch
+torch>=1.8.1, <2.1.0
+pytorch-lightning>=2.0, <2.1.0
+torchmetrics>=0.7, <1.3
