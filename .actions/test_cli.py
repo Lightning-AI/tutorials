@@ -14,7 +14,7 @@ def _path_in_dir(fname: str, folder: str = _PATH_ROOT) -> str:
 
 
 @pytest.mark.parametrize(
-    "cmd,args",
+    "cmd,kwargs",
     [
         ("list_dirs", {}),
         ("list_dirs", dict(folder=".", include_file_ext=".ipynb")),
@@ -34,5 +34,5 @@ def _path_in_dir(fname: str, folder: str = _PATH_ROOT) -> str:
         ("update_env_details", dict(folder=_PATH_DIR_SIMPLE)),
     ],
 )
-def test_assistant_commands(cmd: str, args: list):
-    AssistantCLI().__getattribute__(cmd)(*args)
+def test_assistant_commands(cmd: str, kwargs: dict):
+    AssistantCLI().__getattribute__(cmd)(**kwargs)
