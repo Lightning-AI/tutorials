@@ -1,4 +1,4 @@
-transformers
+transformers<4.30 # todo: some compatibility issue, cannot import name 'AdamW' from partially initialized module
 datasets<2.18.0 # todo: some compatibility issue, please pass the argument `trust_remote_code=True`
 scipy
 scikit-learn
