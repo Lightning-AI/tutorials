@@ -184,7 +184,7 @@ class AssistantCLI:
     _EXT_ARCHIVE_TAR = (".tar", ".gz")
     _EXT_ARCHIVE = _EXT_ARCHIVE_ZIP + _EXT_ARCHIVE_TAR
     _AZURE_POOL = "lit-rtx-3090"
-    _AZURE_DOCKER = "pytorchlightning/tutorials:latest"
+    _AZURE_DOCKER = "pytorchlightning/tutorials:cuda"
 
     @staticmethod
     def _find_meta(folder: str) -> str:
@@ -283,7 +283,7 @@ class AssistantCLI:
             for k, v in meta.items()
             if k.startswith(AssistantCLI._META_PIP_KEY)
         }
-        pip_args = ['--find-links="https://download.pytorch.org/whl/"' + _RUNTIME_VERSIONS.get("DEVICE")]
+        pip_args = ['--extra-index-url="https://download.pytorch.org/whl/"' + _RUNTIME_VERSIONS.get("DEVICE")]
         for pip_key in meta_pip_args:
             if not isinstance(meta_pip_args[pip_key], (list, tuple, set)):
                 meta_pip_args[pip_key] = [meta_pip_args[pip_key]]
