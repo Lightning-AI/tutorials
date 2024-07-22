@@ -1,9 +1,7 @@
 title: "Tutorial 10: Autoregressive Image Modeling"
 author: Phillip Lippe
 created: 2021-07-12
-updated: 2023-03-14
 license: CC BY-SA
-build: 0
 tags:
   - Image
 description: |
@@ -14,10 +12,5 @@ description: |
   We will focus on the PixelCNN architecture in this tutorial, and apply it to MNIST modeling.
   This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
-requirements:
-  - torchvision
-  - matplotlib
-  - seaborn
-  - lightning>=2.0.0
 accelerator:
   - GPU

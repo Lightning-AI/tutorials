@@ -1,9 +1,7 @@
 title: "Tutorial 9: Normalizing Flows for Image Modeling"
 author: Phillip Lippe
 created: 2021-06-07
-updated: 2023-03-14
 license: CC BY-SA
-build: 0
 tags:
   - Image
 description: |
@@ -20,12 +18,6 @@ description: |
   but keep in mind that a simple way to improve the scores of the flows we study here is to make them deeper.
   This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
-requirements:
-  - torchvision
-  - matplotlib
-  - seaborn
-  - tabulate
-  - lightning>=2.0.0
 accelerator:
   - CPU
   - GPU

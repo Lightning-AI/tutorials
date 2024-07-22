@@ -1,0 +1,4 @@
+torchvision
+pandas
+seaborn
+lightning>=2.0.0

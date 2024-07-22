@@ -36,7 +36,7 @@ jobs:
         run: |
           pip install -q -r .actions/requires.txt -r _requirements/test.txt
           # this is needed to be able to run package version parsing test
-          pip install -q -r _requirements/default.txt --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
+          pip install -q -r _requirements/devel.txt --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
           pip list
 
       - name: Prepare dummy inputs

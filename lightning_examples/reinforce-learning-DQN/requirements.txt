@@ -1,0 +1,5 @@
+gym <0.24
+pygame
+pandas
+seaborn
+lightning>=2.0.0
