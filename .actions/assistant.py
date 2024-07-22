@@ -124,6 +124,31 @@ def get_running_torch_version() -> str:
         return ""
 
 
+def _parse_package_name(pkg: str, keys: str = " !<=>[]@", egg_name: str = "#egg=") -> str:
+    """Parsing just the package name.
+
+    Args:
+        pkg: full package info including version coming from `pip freeze
+        keys: char separators for parsing package name and version or other info
+        egg_name: eventual passing egg names once isnralled from URL
+
+    Examples:
+        >>> _parse_package_name("torch==2.0.1+cu118")
+        'torch'
+        >>> _parse_package_name("torch-cluster==1.6.3+pt20cu118")
+        'torch-cluster'
+        >>> _parse_package_name("torch_geometric==2.4.0")
+        'torch_geometric'
+
+    """
+    if egg_name in pkg:
+        pkg = pkg[pkg.index(egg_name) + len(egg_name) :]
+    if any(c in pkg for c in keys):
+        ix = min(pkg.index(c) for c in keys if c in pkg)
+        pkg = pkg[:ix]
+    return pkg
+
+
 _TORCH_VERSION = get_running_torch_version()
 _CUDA_VERSION = get_running_cuda_version()
 _RUNTIME_VERSIONS = dict(
@@ -750,18 +775,17 @@ class AssistantCLI:
         req += meta.get("requirements", [])
         req = [r.strip() for r in req]
 
-        def _parse_package_name(pkg: str, keys: str = " !<=>[]@", egg_name: str = "#egg=") -> str:
-            """Parsing just the package name."""
-            if egg_name in pkg:
-                pkg = pkg[pkg.index(egg_name) + len(egg_name) :]
-            if any(c in pkg for c in keys):
-                ix = min(pkg.index(c) for c in keys if c in pkg)
-                pkg = pkg[:ix]
-            return pkg
-
         require = {_parse_package_name(r) for r in req if r}
-        env = {_parse_package_name(p): p for p in freeze.freeze()}
-        meta["environment"] = [env[r] for r in require]
+        # duplicate package name/key for cases with -/_ separator
+        env = {
+            **{_parse_package_name(p).replace("-", "_"): p for p in freeze.freeze()},
+            **{_parse_package_name(p).replace("_", "-"): p for p in freeze.freeze()},
+        }
+        # for debugging reasons print the env and requested packages
+        try:
+            meta["environment"] = [env[r] for r in require]
+        except KeyError:
+            raise KeyError(f"Missing matching requirements: {require}\n within environment: {env}")
         meta["published"] = datetime.now().isoformat()
 
         fmeta = os.path.join(base_path, folder) + ".yaml"
