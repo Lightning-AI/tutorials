@@ -173,7 +173,7 @@ class LitResnet(L.LightningModule):
 model = LitResnet(lr=0.05)
 
 trainer = L.Trainer(
-    max_epochs=30,
+    max_epochs=5,
     accelerator="auto",
     devices=1,
     logger=CSVLogger(save_dir="logs/"),
@@ -237,7 +237,7 @@ class SWAResnet(LitResnet):
 swa_model = SWAResnet(model.model, lr=0.01)
 
 swa_trainer = L.Trainer(
-    max_epochs=20,
+    max_epochs=5,
     accelerator="auto",
     devices=1,
     logger=CSVLogger(save_dir="logs/"),
