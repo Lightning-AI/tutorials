@@ -92,7 +92,7 @@ TEMPLATE_CARD_ITEM = """
 """
 
 
-def load_requirements(folder: str, fname: str = "requirements.txt") -> list:
+def load_requirements(folder: str, fname: str = "requirements.txt") -> List[str]:
     """Load the requirements from a file.
 
     Args:
@@ -101,6 +101,9 @@ def load_requirements(folder: str, fname: str = "requirements.txt") -> list:
 
     """
     path_req = os.path.join(folder, fname)
+    if not os.path.isfile(path_req):
+        warnings.warn(f"Missing expected requirement file '{path_req}'")
+        return []
     with open(path_req) as fopen:
         req = fopen.readlines()
     req = [r[: r.index("#")] if "#" in r else r for r in req]
