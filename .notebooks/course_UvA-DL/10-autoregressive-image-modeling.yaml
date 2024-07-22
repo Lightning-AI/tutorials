@@ -1,9 +1,7 @@
 title: 'Tutorial 10: Autoregressive Image Modeling'
 author: Phillip Lippe
 created: 2021-07-12
-updated: 2023-03-14
 license: CC BY-SA
-build: 0
 tags:
 - Image
 description: 'In this tutorial, we implement an autoregressive likelihood model for
@@ -25,23 +23,15 @@ description: 'In this tutorial, we implement an autoregressive likelihood model 
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 
   '
-requirements:
-- torchvision
-- matplotlib
-- seaborn
-- lightning>=2.0.0
 accelerator:
 - GPU
 environment:
-- torchvision==0.15.2
-- pytorch-lightning==1.5.3
-- setuptools==69.0.3
-- torchmetrics==1.2.1
-- urllib3==2.2.2
-- matplotlib==3.8.4
-- numpy==1.26.4
-- seaborn==0.13.2
-- ipython==8.16.1
-- torch==2.0.1
 - lightning==2.3.3
-published: '2024-07-20T11:28:05.148794'
+- numpy==1.26.4
+- torch==2.0.1+cu118
+- torchmetrics==1.2.1
+- seaborn==0.13.2
+- pytorch-lightning==2.0.9.post0
+- matplotlib==3.8.4
+- torchvision==0.15.2+cu118
+published: '2024-07-22T22:05:17.566112'
