@@ -571,18 +571,19 @@ class AssistantCLI:
         # not empty paths
         dirs = [ln for ln in dirs if ln]
 
-        if root_path:
-            dirs = [os.path.join(root_path, d) for d in dirs]
         # drop folder  that start with . or _ as they are meant to be internal use only
         dirs = [pdir for pdir in dirs if not any(ndir[0] in (".", "_") for ndir in pdir.split(os.path.sep))]
+        # append a path to root in case you call this from other path then root
+        if root_path:
+            dirs = [os.path.join(root_path, d) for d in dirs]
         # append all subfolders in case of parent requirements has been changed all related notebooks shall be updated
+        dirs_expanded = []
         for dir in dirs:
-            sub_dirs = [
-                os.path.join(root_path, dir, it) if root_path else os.path.join(dir, it) for it in os.listdir(dir)
-            ]
-            dirs += [it for it in sub_dirs if os.path.isdir(it)]
-        # unique folders
-        dirs = set(dirs)
+            sub_dirs = [os.path.join(dir, it) for it in os.listdir(dir) if it[0] not in (".", "_")]
+            sub_dirs = [it for it in sub_dirs if os.path.isdir(it)]
+            dirs_expanded += sub_dirs if sub_dirs else [dir]
+        # unique folders only, drop duplicates
+        dirs = set(dirs_expanded)
         # valid folder has meta
         dirs_exist = [d for d in dirs if os.path.isdir(d)]
         dirs_invalid = [d for d in dirs_exist if not AssistantCLI._find_meta(d)]
