@@ -19,7 +19,7 @@ from wcmatch import glob
 _PATH_HERE = os.path.dirname(__file__)
 _PATH_ROOT = os.path.dirname(_PATH_HERE)
 PATH_SCRIPT_RENDER = os.path.join(_PATH_HERE, "_ipynb-render.sh")
-PATH_SCRIPT_TEST = os.path.join(_PATH_HERE, "_ipynb-test.sh")
+PATH_SCRIPT_TEST = os.path.join(_PATH_HERE, "_ipynb-validate.sh")
 # https://askubuntu.com/questions/909918/how-to-show-unzip-progress
 UNZIP_PROGRESS_BAR = ' | awk \'BEGIN {ORS=" "} {if(NR%10==0)print "."}\''
 REPO_NAME = "lightning-tutorials"
@@ -393,7 +393,7 @@ class AssistantCLI:
             fopen.write(os.linesep.join(cmd))
 
     @staticmethod
-    def bash_test(folder: str, output_file: str = PATH_SCRIPT_TEST, virtualenv: bool = False) -> Optional[str]:
+    def bash_validate(folder: str, output_file: str = PATH_SCRIPT_TEST, virtualenv: bool = False) -> Optional[str]:
         """Prepare bash script for running tests of a particular notebook.
 
         Args:
@@ -551,7 +551,7 @@ class AssistantCLI:
             fpath_drop_folders: output file with deleted folders
             fpath_actual_dirs: files with listed all folder in particular stat
             strict: raise error if some folder outside skipped does not have valid meta file
-            root_path: path to the root tobe added for all local folder paths in files
+            root_path: path to the root to be added for all local folder paths in files
 
         Example:
             $ python assistant.py group-folders ../target-diff.txt \
@@ -577,7 +577,9 @@ class AssistantCLI:
         dirs = [pdir for pdir in dirs if not any(ndir[0] in (".", "_") for ndir in pdir.split(os.path.sep))]
         # append all subfolders in case of parent requirements has been changed all related notebooks shall be updated
         for dir in dirs:
-            sub_dirs = [os.path.join(dir, it) for it in os.listdir(dir)]
+            sub_dirs = [
+                os.path.join(root_path, dir, it) if root_path else os.path.join(dir, it) for it in os.listdir(dir)
+            ]
             dirs += [it for it in sub_dirs if os.path.isdir(it)]
         # unique folders
         dirs = set(dirs)
