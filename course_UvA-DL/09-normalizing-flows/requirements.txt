@@ -1,0 +1,5 @@
+torchvision
+matplotlib
+seaborn
+tabulate
+lightning>=2.0.0

@@ -18,7 +18,6 @@ from wcmatch import glob
 
 _PATH_HERE = os.path.dirname(__file__)
 _PATH_ROOT = os.path.dirname(_PATH_HERE)
-PATH_REQ_DEFAULT = os.path.join(_PATH_ROOT, "_requirements", "default.txt")
 PATH_SCRIPT_RENDER = os.path.join(_PATH_HERE, "_ipynb-render.sh")
 PATH_SCRIPT_TEST = os.path.join(_PATH_HERE, "_ipynb-test.sh")
 # https://askubuntu.com/questions/909918/how-to-show-unzip-progress
@@ -93,8 +92,18 @@ TEMPLATE_CARD_ITEM = """
 """
 
 
-def load_requirements(path_req: str = PATH_REQ_DEFAULT) -> list:
-    """Load the requirements from a file."""
+def load_requirements(folder: str, fname: str = "requirements.txt") -> List[str]:
+    """Load the requirements from a file.
+
+    Args:
+        folder: path to the folder with requirements
+        fname: filename
+
+    """
+    path_req = os.path.join(folder, fname)
+    if not os.path.isfile(path_req):
+        warnings.warn(f"Missing expected requirement file '{path_req}'")
+        return []
     with open(path_req) as fopen:
         req = fopen.readlines()
     req = [r[: r.index("#")] if "#" in r else r for r in req]
@@ -184,7 +193,7 @@ class AssistantCLI:
     _EXT_ARCHIVE_TAR = (".tar", ".gz")
     _EXT_ARCHIVE = _EXT_ARCHIVE_ZIP + _EXT_ARCHIVE_TAR
     _AZURE_POOL = "lit-rtx-3090"
-    _AZURE_DOCKER = "pytorchlightning/tutorials:latest"
+    _AZURE_DOCKER = "pytorchlightning/tutorials:cuda"
 
     @staticmethod
     def _find_meta(folder: str) -> str:
@@ -276,14 +285,14 @@ class AssistantCLI:
 
         """
         meta = AssistantCLI._load_meta(folder)
-        reqs = meta.get("requirements", [])
+        requires = set(load_requirements(folder) + load_requirements(os.path.dirname(folder)))
 
         meta_pip_args = {
             k.replace(AssistantCLI._META_PIP_KEY, ""): v
             for k, v in meta.items()
             if k.startswith(AssistantCLI._META_PIP_KEY)
         }
-        pip_args = ['--find-links="https://download.pytorch.org/whl/"' + _RUNTIME_VERSIONS.get("DEVICE")]
+        pip_args = ['--extra-index-url="https://download.pytorch.org/whl/"' + _RUNTIME_VERSIONS.get("DEVICE")]
         for pip_key in meta_pip_args:
             if not isinstance(meta_pip_args[pip_key], (list, tuple, set)):
                 meta_pip_args[pip_key] = [meta_pip_args[pip_key]]
@@ -291,7 +300,7 @@ class AssistantCLI:
                 arg = arg % _RUNTIME_VERSIONS
                 pip_args.append(f"--{pip_key} {arg}")
 
-        return " ".join([f'"{req}"' for req in reqs]), " ".join(pip_args)
+        return " ".join([f'"{req}"' for req in requires]), " ".join(pip_args)
 
     @staticmethod
     def _bash_download_data(folder: str) -> List[str]:
@@ -465,7 +474,8 @@ class AssistantCLI:
         meta["description"] = meta["description"].replace(os.linesep, f"{os.linesep}# ")
 
         header = TEMPLATE_HEADER % meta
-        requires = set(load_requirements() + meta["requirements"])
+        # load local and parent requirements
+        requires = set(load_requirements(folder) + load_requirements(os.path.dirname(folder)))
         setup = TEMPLATE_SETUP % dict(requirements=" ".join([f'"{req}"' for req in requires]))
         py_script = [header + setup] + py_script + [TEMPLATE_FOOTER]
 
@@ -769,13 +779,10 @@ class AssistantCLI:
 
         """
         meta = AssistantCLI._load_meta(folder)
-        # default is COU runtime
-        with open(PATH_REQ_DEFAULT) as fopen:
-            req = fopen.readlines()
-        req += meta.get("requirements", [])
-        req = [r.strip() for r in req]
+        # load local and parent requirements
+        requires = set(load_requirements(folder) + load_requirements(os.path.dirname(folder)))
 
-        require = {_parse_package_name(r) for r in req if r}
+        requires = {_parse_package_name(r) for r in requires if r}
         # duplicate package name/key for cases with -/_ separator
         env = {
             **{_parse_package_name(p).replace("-", "_"): p for p in freeze.freeze()},
@@ -783,9 +790,9 @@ class AssistantCLI:
         }
         # for debugging reasons print the env and requested packages
         try:
-            meta["environment"] = [env[r] for r in require]
+            meta["environment"] = [env[r] for r in requires]
         except KeyError:
-            raise KeyError(f"Missing matching requirements: {require}\n within environment: {env}")
+            raise KeyError(f"Missing matching requirements: {requires}\n within environment: {env}")
         meta["published"] = datetime.now().isoformat()
 
         fmeta = os.path.join(base_path, folder) + ".yaml"

@@ -18,14 +18,5 @@ description:
   code - https://github.com/salesforce/warp-drive
   documentation - http://opensource.salesforce.com/warp-drive/, and
   white paper - https://arxiv.org/abs/2108.13976.
-
-requirements:
-  - rl-warp-drive==2.1
-  - ffmpeg-python
-  # todo: after merging #155 we will relax this just to `torch<=1.10` and drop TV, TT, etc.
-  - torch==1.10.*
-  - torchvision==0.11.*
-  - torchtext==0.11.*
-  - lightning>=2.0.0
 accelerator:
   - GPU

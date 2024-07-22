@@ -1,7 +1,6 @@
 title: "Tutorial 12: Meta-Learning - Learning to Learn"
 author: Phillip Lippe
 created: 2021-08-21
-updated: 2023-03-14
 license: CC BY-SA
 tags:
   - Few-shot-learning
@@ -19,13 +18,6 @@ description: |
   We will discuss and implement three common Meta-Learning algorithms for such situations.
   This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
-requirements:
-  - torchvision
-  - matplotlib
-  - seaborn
-  - lightning>=2.0.0
-  - tensorboard
-  - scipy
 accelerator:
   - CPU
   - GPU
