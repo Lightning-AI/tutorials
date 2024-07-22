@@ -1,5 +1,5 @@
-transformers==4.42.* # todo: some compatibility issue, cannot import name 'AdamW' from partially initialized module
-datasets<2.19.0 # todo: some compatibility issue, please pass the argument `trust_remote_code=True`
+transformers
+datasets
 scipy
 scikit-learn
 torchtext>=0.9
