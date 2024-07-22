@@ -1,9 +1,7 @@
 title: 'Tutorial 9: Normalizing Flows for Image Modeling'
 author: Phillip Lippe
 created: 2021-06-07
-updated: 2023-03-14
 license: CC BY-SA
-build: 0
 tags:
 - Image
 description: 'In this tutorial, we will take a closer look at complex, deep normalizing
@@ -40,26 +38,17 @@ description: 'In this tutorial, we will take a closer look at complex, deep norm
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 
   '
-requirements:
-- torchvision
-- matplotlib
-- seaborn
-- tabulate
-- lightning>=2.0.0
 accelerator:
 - CPU
 - GPU
 environment:
+- pytorch-lightning==2.0.9.post0
 - torchmetrics==1.2.1
-- torchvision==0.15.2
+- torch==2.0.1+cu118
+- torchvision==0.15.2+cu118
 - tabulate==0.9.0
 - numpy==1.26.4
-- seaborn==0.13.2
-- ipython==8.16.1
-- torch==2.0.1
 - matplotlib==3.8.4
-- urllib3==2.2.2
-- setuptools==69.0.3
-- pytorch-lightning==1.5.3
+- seaborn==0.13.2
 - lightning==2.3.3
-published: '2024-07-20T11:14:10.059891'
+published: '2024-07-22T21:54:50.791064'
