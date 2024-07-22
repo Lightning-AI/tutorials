@@ -180,8 +180,8 @@ trainer = L.Trainer(
     callbacks=[LearningRateMonitor(logging_interval="step")],
 )
 
-trainer.fit(model, train_dataloader, val_dataloaders=val_dataloader)
-trainer.test(model, test_dataloader)
+trainer.fit(model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader)
+trainer.test(model, dataloaders=test_dataloader)
 
 # %%
 
@@ -243,8 +243,8 @@ swa_trainer = L.Trainer(
     logger=CSVLogger(save_dir="logs/"),
 )
 
-swa_trainer.fit(swa_model, train_dataloader, val_dataloaders=val_dataloader)
-swa_trainer.test(swa_model, test_dataloader)
+swa_trainer.fit(swa_model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader)
+swa_trainer.test(swa_model, dataloaders=test_dataloader)
 
 # %%
 
