@@ -1,7 +1,6 @@
 title: 'Tutorial 11: Vision Transformers'
 author: Phillip Lippe
 created: 2021-08-21
-updated: 2023-03-14
 license: CC BY-SA
 description: 'In this tutorial, we will take a closer look at a recent new trend:
   Transformers for Computer Vision.
@@ -28,26 +27,17 @@ description: 'In this tutorial, we will take a closer look at a recent new trend
   '
 tags:
 - Image
-requirements:
-- torchvision
-- matplotlib
-- seaborn
-- lightning>=2.0.0
-- tensorboard
 accelerator:
 - CPU
 - GPU
 environment:
-- urllib3==2.2.2
-- lightning==2.3.3
-- tensorboard==2.17.0
-- seaborn==0.13.2
-- pytorch-lightning==1.5.3
-- setuptools==69.0.3
-- numpy==1.26.4
-- torch==2.0.1
-- torchvision==0.15.2
+- pytorch-lightning==2.0.9.post0
 - matplotlib==3.8.4
+- numpy==1.26.4
+- torchvision==0.15.2+cu118
+- lightning==2.3.3
 - torchmetrics==1.2.1
-- ipython==8.16.1
-published: '2024-07-20T11:32:59.203683'
+- tensorboard==2.17.0
+- torch==2.0.1+cu118
+- seaborn==0.13.2
+published: '2024-07-22T22:06:59.310154'
