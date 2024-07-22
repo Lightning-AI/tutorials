@@ -579,8 +579,15 @@ class AssistantCLI:
         # append all subfolders in case of parent requirements has been changed all related notebooks shall be updated
         dirs_expanded = []
         for dir in dirs:
+            # in case that the diff item comes from removed folder
+            if not os.path.isdir(dir):
+                dirs_expanded += [dir]
+                continue
+            # list folder and skip all internal files, starting with . or _
             sub_dirs = [os.path.join(dir, it) for it in os.listdir(dir) if it[0] not in (".", "_")]
+            # filter only folders
             sub_dirs = [it for it in sub_dirs if os.path.isdir(it)]
+            # if the dir has sub-folder append then otherwise append the dir itself
             dirs_expanded += sub_dirs if sub_dirs else [dir]
         # unique folders only, drop duplicates
         dirs = set(dirs_expanded)
