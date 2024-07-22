@@ -1,4 +1,4 @@
-rl-warp-drive==2.2
+rl-warp-drive==2.5
 ffmpeg-python
 # todo: after merging #155 we will relax this just to `torch<=1.10` and drop TV, TT, etc.
 torch
