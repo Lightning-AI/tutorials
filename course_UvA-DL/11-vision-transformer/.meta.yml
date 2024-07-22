@@ -1,7 +1,6 @@
 title: "Tutorial 11: Vision Transformers"
 author: Phillip Lippe
 created: 2021-08-21
-updated: 2023-03-14
 license: CC BY-SA
 description: |
   In this tutorial, we will take a closer look at a recent new trend: Transformers for Computer Vision.
@@ -13,12 +12,6 @@ description: |
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
 tags:
   - Image
-requirements:
-  - torchvision
-  - matplotlib
-  - seaborn
-  - lightning>=2.0.0
-  - tensorboard
 accelerator:
   - CPU
   - GPU
