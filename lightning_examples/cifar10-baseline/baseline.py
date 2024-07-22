@@ -16,7 +16,7 @@ from IPython.display import display
 from lightning.pytorch.callbacks import LearningRateMonitor
 from lightning.pytorch.loggers import CSVLogger
 from torch.optim.lr_scheduler import OneCycleLR
-from torch.optim.swa_utils import AveragedModel, update_bn
+from torch.optim.swa_utils import AveragedModel
 from torch.utils.data import DataLoader, random_split
 from torchmetrics.functional import accuracy
 from torchvision.datasets import CIFAR10
