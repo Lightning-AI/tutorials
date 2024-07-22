@@ -42,7 +42,7 @@ jobs:
       - name: Prepare dummy inputs
         run: |
           jupytext --set-formats ipynb,py:percent templates/simple/template.py
-          jupytext --set-formats ipynb,py:percent templates/titanic/tutorial.py
+          # jupytext --set-formats ipynb,py:percent templates/titanic/tutorial.py  # ToDo: pull it back when Kaggle datasets are back
           # mv templates/simple/template.ipynb templates/simple.ipynb
           git diff --name-only HEAD~3 > master-diff.txt
           python .actions/assistant.py list_dirs ""  > dirs-b1.txt
