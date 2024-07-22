@@ -229,8 +229,8 @@ class SWAResnet(LitResnet):
         optimizer = torch.optim.SGD(self.model.parameters(), lr=self.hparams.lr, momentum=0.9, weight_decay=5e-4)
         return optimizer
 
-    def on_train_end(self):
-        update_bn(self.trainer.datamodule.train_dataloader(), self.swa_model, device=self.device)
+    # def on_train_end(self):
+    #     update_bn(self.trainer.datamodule.train_dataloader(), self.swa_model, device=self.device)
 
 
 # %%
