@@ -22,8 +22,8 @@ requirements:
   - torch-sparse
   - torch-cluster
   - torch-spline-conv
-  - torch-geometric>=2.0.0,<2.5.0
-  - lightning>=2.0.0
+  - "torch-geometric>=2.0.0,<2.5.0"
+  - "lightning>=2.0.0"
 pip__find-link:
   # - https://pytorch-geometric.com/whl/torch-1.8.0+cu101.html
   - https://pytorch-geometric.com/whl/torch-%(TORCH_MAJOR_DOT_MINOR)s.0+%(DEVICE)s.html
