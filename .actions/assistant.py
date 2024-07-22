@@ -761,7 +761,10 @@ class AssistantCLI:
 
         require = {_parse_package_name(r) for r in req if r}
         env = {_parse_package_name(p): p for p in freeze.freeze()}
-        meta["environment"] = [env[r] for r in require]
+        try:
+            meta["environment"] = [env[r] for r in require]
+        except KeyError:
+            raise KeyError(f"Missing matching requirements ({require}) for {env}")
         meta["published"] = datetime.now().isoformat()
 
         fmeta = os.path.join(base_path, folder) + ".yaml"
