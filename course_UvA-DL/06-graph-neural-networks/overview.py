@@ -25,7 +25,7 @@ import torch_geometric.data as geom_data
 import torch_geometric.nn as geom_nn
 
 # PL callbacks
-from lightning.pytorch.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint
 from torch import Tensor
 
 AVAIL_GPUS = min(1, torch.cuda.device_count())

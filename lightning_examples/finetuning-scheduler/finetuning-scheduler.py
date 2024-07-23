@@ -176,9 +176,9 @@ import pytorch_lightning as pl
 import sentencepiece as sp  # noqa: F401 # isort: split
 import torch
 from datasets import logging as datasets_logging
-from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
-from lightning.pytorch.loggers.tensorboard import TensorBoardLogger
-from lightning.pytorch.utilities import rank_zero_warn
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from pytorch_lightning.loggers.tensorboard import TensorBoardLogger
+from pytorch_lightning.utilities import rank_zero_warn
 from torch.optim.adamw import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
 from torch.utils.data import DataLoader

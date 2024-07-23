@@ -41,7 +41,7 @@ import torch.utils.data as data
 
 # Torchvision
 import torchvision
-from lightning.pytorch.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR100
 from tqdm.notebook import tqdm

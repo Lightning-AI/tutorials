@@ -15,7 +15,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 import torchvision.transforms.functional as VisionF
-from lightning.pytorch.callbacks import Callback, ModelCheckpoint
+from pytorch_lightning.callbacks import Callback, ModelCheckpoint
 from torch import Tensor
 from torch.utils.data import DataLoader
 from torchmetrics.functional import accuracy

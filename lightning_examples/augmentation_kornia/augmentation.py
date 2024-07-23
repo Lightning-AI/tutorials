@@ -13,7 +13,7 @@ import torchvision
 from IPython.display import display
 from kornia import image_to_tensor, tensor_to_image
 from kornia.augmentation import ColorJitter, RandomChannelShuffle, RandomHorizontalFlip, RandomThinPlateSpline
-from lightning.pytorch.loggers import CSVLogger
+from pytorch_lightning.loggers import CSVLogger
 from torch import Tensor
 from torch.nn import functional as F
 from torch.utils.data import DataLoader

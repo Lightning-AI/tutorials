@@ -13,8 +13,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 from IPython.display import display
-from lightning.pytorch.callbacks import LearningRateMonitor
-from lightning.pytorch.loggers import CSVLogger
+from pytorch_lightning.callbacks import LearningRateMonitor
+from pytorch_lightning.loggers import CSVLogger
 from torch.optim.lr_scheduler import OneCycleLR
 from torch.optim.swa_utils import AveragedModel
 from torch.utils.data import DataLoader, random_split
