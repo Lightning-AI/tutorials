@@ -26,11 +26,11 @@ description: 'In this tutorial, we implement an autoregressive likelihood model 
 accelerator:
 - GPU
 environment:
-- pytorch-lightning==2.0.9.post0
 - torchmetrics==1.2.1
+- pytorch-lightning==2.0.9.post0
 - seaborn==0.13.2
+- matplotlib==3.9.1
+- torchvision==0.15.2+cu118
 - torch==2.0.1+cu118
 - numpy==1.26.4
-- torchvision==0.15.2+cu118
-- matplotlib==3.9.1
-published: '2024-07-23T17:45:51.433727'
+published: '2024-07-23T21:47:27.600709'
