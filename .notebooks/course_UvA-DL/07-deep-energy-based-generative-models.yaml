@@ -39,11 +39,11 @@ accelerator:
 - CPU
 - GPU
 environment:
-- matplotlib==3.9.1
-- numpy==1.26.4
+- torch==2.0.1+cu118
 - tensorboard==2.17.0
 - torchmetrics==1.2.1
-- pytorch-lightning==2.0.9.post0
 - torchvision==0.15.2+cu118
-- torch==2.0.1+cu118
-published: '2024-07-23T12:45:29.941447'
+- matplotlib==3.9.1
+- pytorch-lightning==2.0.9.post0
+- numpy==1.26.4
+published: '2024-07-23T17:26:47.467329'
