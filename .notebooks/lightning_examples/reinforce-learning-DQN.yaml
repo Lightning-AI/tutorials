@@ -20,9 +20,9 @@ accelerator:
 - CPU
 - GPU
 environment:
-- pandas==2.2.2
-- lightning==2.3.3
-- gym==0.23.1
 - pygame==2.6.0
+- lightning==2.3.3
+- pandas==2.2.2
 - seaborn==0.13.2
-published: '2024-07-23T01:48:50.515592'
+- gym==0.23.1
+published: '2024-07-23T04:41:05.692212'
