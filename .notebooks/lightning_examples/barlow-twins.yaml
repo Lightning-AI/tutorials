@@ -22,7 +22,10 @@ accelerator:
 - GPU
 - CPU
 environment:
-- lightning==2.3.3
-- torchvision==0.18.1+cu118
-- matplotlib==3.8.4
-published: '2024-07-22T22:29:07.292568'
+- pytorch-lightning==2.0.9.post0
+- torchmetrics==1.2.1
+- matplotlib==3.9.1
+- torchvision==0.15.2+cu118
+- torch==2.0.1+cu118
+- numpy==1.26.4
+published: '2024-07-23T14:38:22.361049'
