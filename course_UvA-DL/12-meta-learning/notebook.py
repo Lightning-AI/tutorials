@@ -36,8 +36,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from PIL import Image
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR100, SVHN
 from tqdm.auto import tqdm

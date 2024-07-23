@@ -48,8 +48,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from matplotlib.colors import to_rgb
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torch import Tensor
 from torchvision import transforms
 from torchvision.datasets import MNIST
