@@ -12,4 +12,4 @@ accelerator:
 environment:
 - lightning==2.3.3
 - torchvision==0.18.1+cu118
-published: '2024-07-23T04:39:50.670053'
+published: '2024-07-23T11:35:50.557041'
