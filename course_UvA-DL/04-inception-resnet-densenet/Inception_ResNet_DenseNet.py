@@ -295,7 +295,7 @@ class CIFARModule(L.LightningModule):
 
 # %%
 # Callbacks
-from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint  # noqa: E402
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint  # noqa: E402
 
 # %% [markdown]
 # To allow running multiple different models with the same Lightning module, we define a function below that maps a model name to the model class.
