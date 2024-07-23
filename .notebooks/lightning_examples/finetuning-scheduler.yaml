@@ -1,0 +1,31 @@
+title: Fine-Tuning Scheduler
+author: '[Dan Dale](https://github.com/speediedan)'
+created: 2021-11-29
+license: CC BY-SA
+tags:
+- Fine-Tuning
+description: 'This notebook introduces the [Fine-Tuning Scheduler](https://finetuning-scheduler.readthedocs.io/en/stable/index.html)
+  extension
+
+  and demonstrates the use of it to fine-tune a small foundation model on the
+
+  [RTE](https://huggingface.co/datasets/viewer/?dataset=super_glue&config=rte) task
+  of
+
+  [SuperGLUE](https://super.gluebenchmark.com/) with iterative early-stopping defined
+  according to a user-specified
+
+  schedule. It uses Hugging Face''s ``datasets`` and ``transformers`` libraries to
+  retrieve the relevant benchmark data
+
+  and foundation model weights. The required dependencies are installed via the finetuning-scheduler
+  ``[examples]`` extra.
+
+  '
+accelerator:
+- GPU
+environment:
+- datasets==2.17.1
+- finetuning-scheduler==2.3.3
+- torch==2.3.1+cu118
+published: '2024-07-23T01:44:26.217457'
