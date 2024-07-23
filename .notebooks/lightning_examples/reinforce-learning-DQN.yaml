@@ -20,9 +20,13 @@ accelerator:
 - CPU
 - GPU
 environment:
+- matplotlib==3.9.1
+- pytorch-lightning==2.0.9.post0
 - gym==0.23.1
-- seaborn==0.13.2
-- pandas==2.2.2
+- torch==2.0.1+cu118
 - pygame==2.6.0
-- lightning==2.3.3
-published: '2024-07-23T11:37:21.979006'
+- torchmetrics==1.2.1
+- seaborn==0.13.2
+- numpy==1.26.4
+- pandas==2.2.2
+published: '2024-07-23T16:30:58.276514'
