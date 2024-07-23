@@ -560,37 +560,44 @@ class AssistantCLI:
         """
         with open(fpath_gitdiff) as fopen:
             changed = [ln.strip() for ln in fopen.readlines()]
-        dirs = [os.path.dirname(ln) for ln in changed]
-
-        if fpath_actual_dirs:
-            assert isinstance(fpath_actual_dirs, list)
-            assert all(os.path.isfile(p) for p in fpath_actual_dirs)
-            dir_sets = [{ln.strip() for ln in open(fp).readlines()} for fp in fpath_actual_dirs]
-            # get only different
-            dirs += list(set.union(*dir_sets) - set.intersection(*dir_sets))
-        # not empty paths
-        dirs = [ln for ln in dirs if ln]
-
-        # drop folder  that start with . or _ as they are meant to be internal use only
-        dirs = [pdir for pdir in dirs if not any(ndir[0] in (".", "_") for ndir in pdir.split(os.path.sep))]
+        dirs_changed = [os.path.dirname(ln) for ln in changed]
         # append a path to root in case you call this from other path then root
         if root_path:
-            dirs = [os.path.join(root_path, d) for d in dirs]
+            dirs_changed = [os.path.join(root_path, d) for d in dirs_changed]
         # append all subfolders in case of parent requirements has been changed all related notebooks shall be updated
-        dirs_expanded = []
-        for dir in dirs:
+        dirs = []
+        for dir in dirs_changed:
             # in case that the diff item comes from removed folder
             if not os.path.isdir(dir):
-                dirs_expanded += [dir]
+                dirs += [dir]
                 continue
             # list folder and skip all internal files, starting with . or _
             sub_dirs = [os.path.join(dir, it) for it in os.listdir(dir) if it[0] not in (".", "_")]
             # filter only folders
             sub_dirs = [it for it in sub_dirs if os.path.isdir(it)]
             # if the dir has sub-folder append then otherwise append the dir itself
-            dirs_expanded += sub_dirs if sub_dirs else [dir]
+            dirs += sub_dirs if sub_dirs else [dir]
+
+        if fpath_actual_dirs:
+            assert isinstance(fpath_actual_dirs, list)
+            assert all(os.path.isfile(p) for p in fpath_actual_dirs)
+            dir_sets = [{ln.strip() for ln in open(fp).readlines()} for fp in fpath_actual_dirs]
+            # get only different
+            dirs_diff = list(set.union(*dir_sets) - set.intersection(*dir_sets))
+            # append a path to root in case you call this from other path then root
+            if root_path:
+                dirs_diff = [os.path.join(root_path, d) for d in dirs_diff]
+            dirs += dirs_diff
+
+        # not empty paths
+        dirs = [ln for ln in dirs if ln]
+        # drop folder  that start with . or _ as they are meant to be internal use only
+        # when walk the folder skip empty names which is artifact of absolute path starting with /
+        dirs = [
+            pdir for pdir in dirs if not any(folder[0] in (".", "_") for folder in pdir.split(os.path.sep) if folder)
+        ]
         # unique folders only, drop duplicates
-        dirs = set(dirs_expanded)
+        dirs = set(dirs)
         # valid folder has meta
         dirs_exist = [d for d in dirs if os.path.isdir(d)]
         dirs_invalid = [d for d in dirs_exist if not AssistantCLI._find_meta(d)]
@@ -602,13 +609,13 @@ class AssistantCLI:
             if dirs_invalid:
                 raise FileNotFoundError(f"{msg} nor sub-folder: \n {os.linesep.join(dirs_invalid)}")
 
-        dirs_change = [d for d in dirs_exist if AssistantCLI._find_meta(d)]
+        dirs_with_change = [d for d in dirs_exist if AssistantCLI._find_meta(d)]
         with open(fpath_change_folders, "w") as fopen:
-            fopen.write(os.linesep.join(sorted(dirs_change)))
+            fopen.write(os.linesep.join(sorted(dirs_with_change)))
 
-        dirs_drop = [d for d in dirs if not os.path.isdir(d)]
+        dirs_were_dropped = [d for d in dirs if not os.path.isdir(d)]
         with open(fpath_drop_folders, "w") as fopen:
-            fopen.write(os.linesep.join(sorted(dirs_drop)))
+            fopen.write(os.linesep.join(sorted(dirs_were_dropped)))
 
     @staticmethod
     def generate_matrix(fpath_change_folders: str, json_indent: Optional[int] = None) -> str:
