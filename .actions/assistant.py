@@ -1,5 +1,4 @@
 import base64
-import json
 import os
 import re
 import warnings
@@ -11,6 +10,7 @@ from warnings import warn
 
 import fire
 import requests
+import simplejson as json
 import tqdm
 import yaml
 from pip._internal.operations import freeze
@@ -770,12 +770,9 @@ class AssistantCLI:
             path_thumb = os.path.join(path_docs_images, path_thumb)
 
         print(f"{path_ipynb} -> {new_ipynb}")
-
         with open(path_ipynb) as fopen:
             ipynb = json.load(fopen)
-
         ipynb["cells"].append(AssistantCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb))
-
         with open(new_ipynb, "w") as fopen:
             json.dump(ipynb, fopen, indent=json_indent)
         return path_ipynb_in_dir
