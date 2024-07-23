@@ -8,7 +8,7 @@ You can build it on your own, note it takes lots of time, be prepared.
 git clone https://github.com/Lightning-AI/torchmetrics.git
 
 # build with the default arguments
-docker image build -t tutorials:latest -f dockers/ubuntu-cuda/Dockerfile .
+docker image build -t tutorials:cuda -f dockers/ubuntu-cuda/Dockerfile .
 
 # build with specific arguments
 docker image build -t tutorials:ubuntu-cuda11.7.1-py3.9-torch1.13 \
@@ -23,14 +23,14 @@ To run your docker use
 
 ```bash
 docker image list
-docker run --rm -it tutorials:latest bash
+docker run --rm -it tutorials:cuda bash
 ```
 
 and if you do not need it anymore, just clean it:
 
 ```bash
 docker image list
-docker image rm tutorials:latest
+docker image rm tutorials:cuda
 ```
 
 ## Run docker image with GPUs

@@ -23,7 +23,6 @@ import torchvision
 
 # %matplotlib inline
 from IPython.display import HTML, display
-from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from PIL import Image
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
@@ -296,6 +295,7 @@ class CIFARModule(L.LightningModule):
 
 # %%
 # Callbacks
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint  # noqa: E402
 
 # %% [markdown]
 # To allow running multiple different models with the same Lightning module, we define a function below that maps a model name to the model class.

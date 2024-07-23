@@ -4,6 +4,7 @@ shadow folder for generated notebooks, no uploading here
 
 ```bash
 git checkout -b publication main
+export MAKEFLAGS="-j$(nproc)"
 make ipynb
 git commit -m "regenerate all notebooks"
 git push
