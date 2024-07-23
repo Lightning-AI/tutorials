@@ -41,14 +41,14 @@ accelerator:
 - CPU
 - GPU
 environment:
-- seaborn==0.13.2
-- matplotlib==3.8.4
-- numpy==1.26.4
-- tensorboard==2.17.0
+- matplotlib==3.9.1
 - torchmetrics==1.2.1
-- torch==2.0.1+cu118
-- scipy==1.14.0
-- lightning==2.3.3
 - pytorch-lightning==2.0.9.post0
+- lightning==2.3.3
+- tensorboard==2.17.0
+- seaborn==0.13.2
+- scipy==1.14.0
+- torch==2.0.1+cu118
+- numpy==1.26.4
 - torchvision==0.15.2+cu118
-published: '2024-07-22T22:09:37.795479'
+published: '2024-07-23T03:16:03.573022'
