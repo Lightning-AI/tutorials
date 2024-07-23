@@ -70,7 +70,7 @@ NUM_WORKERS = os.cpu_count()
 L.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
-torch.backends.cudnn.determinstic = True
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -108,7 +108,8 @@ for file_name in pretrained_files:
             urllib.request.urlretrieve(file_url, file_path)
         except HTTPError as e:
             print(
-                "Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:\n",
+                "Something went wrong. Please try to download the file from the GDrive folder,"
+                " or contact the author with the full output including the following error:\n",
                 e,
             )
 
@@ -390,7 +391,7 @@ def train_simclr(batch_size, max_epochs=500, **kwargs):
             pin_memory=True,
             num_workers=NUM_WORKERS,
         )
-        L.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducible
         model = SimCLR(max_epochs=max_epochs, **kwargs)
         trainer.fit(model, train_loader, val_loader)
         # Load best checkpoint after training
@@ -566,7 +567,7 @@ def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, ma
         print(f"Found pretrained model at {pretrained_filename}, loading...")
         model = LogisticRegression.load_from_checkpoint(pretrained_filename)
     else:
-        L.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducible
         model = LogisticRegression(**kwargs)
         trainer.fit(model, train_loader, test_loader)
         model = LogisticRegression.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
@@ -582,7 +583,7 @@ def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, ma
 # %% [markdown]
 # Despite the training dataset of STL10 already only having 500 labeled images per class, we will perform experiments with even smaller datasets.
 # Specifically, we train a Logistic Regression model for datasets with only 10, 20, 50, 100, 200, and all 500 examples per class.
-# This gives us an intuition on how well the representations learned by contrastive learning can be transfered to a image recognition task like this classification.
+# This gives us an intuition on how well the representations learned by contrastive learning can be transferred to a image recognition task like this classification.
 # First, let's define a function to create the intended sub-datasets from the full training set:
 
 
@@ -759,10 +760,10 @@ def train_resnet(batch_size, max_epochs=100, **kwargs):
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, "ResNet.ckpt")
     if os.path.isfile(pretrained_filename):
-        print("Found pretrained model at %s, loading..." % pretrained_filename)
+        print(f"Found pretrained model at {pretrained_filename}, loading...")
         model = ResNet.load_from_checkpoint(pretrained_filename)
     else:
-        L.seed_everything(42)  # To be reproducable
+        L.seed_everything(42)  # To be reproducible
         model = ResNet(**kwargs)
         trainer.fit(model, train_loader, test_loader)
         model = ResNet.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)

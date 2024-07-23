@@ -16,7 +16,7 @@ from IPython.display import display
 from lightning.pytorch.callbacks import LearningRateMonitor
 from lightning.pytorch.loggers import CSVLogger
 from torch.optim.lr_scheduler import OneCycleLR
-from torch.optim.swa_utils import AveragedModel, update_bn
+from torch.optim.swa_utils import AveragedModel
 from torch.utils.data import DataLoader, random_split
 from torchmetrics.functional import accuracy
 from torchvision.datasets import CIFAR10
@@ -173,15 +173,15 @@ class LitResnet(L.LightningModule):
 model = LitResnet(lr=0.05)
 
 trainer = L.Trainer(
-    max_epochs=30,
+    max_epochs=5,
     accelerator="auto",
     devices=1,
     logger=CSVLogger(save_dir="logs/"),
     callbacks=[LearningRateMonitor(logging_interval="step")],
 )
 
-trainer.fit(model, train_dataloader, val_dataloaders=val_dataloader)
-trainer.test(model, test_dataloader)
+trainer.fit(model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader)
+trainer.test(model, dataloaders=test_dataloader)
 
 # %%
 
@@ -229,22 +229,22 @@ class SWAResnet(LitResnet):
         optimizer = torch.optim.SGD(self.model.parameters(), lr=self.hparams.lr, momentum=0.9, weight_decay=5e-4)
         return optimizer
 
-    def on_train_end(self):
-        update_bn(self.trainer.datamodule.train_dataloader(), self.swa_model, device=self.device)
+    # def on_train_end(self):  # todo: failing as trainer has only dataloaders, not datamodules
+    #     update_bn(self.trainer.datamodule.train_dataloader(), self.swa_model, device=self.device)
 
 
 # %%
 swa_model = SWAResnet(model.model, lr=0.01)
 
 swa_trainer = L.Trainer(
-    max_epochs=20,
+    max_epochs=5,
     accelerator="auto",
     devices=1,
     logger=CSVLogger(save_dir="logs/"),
 )
 
-swa_trainer.fit(swa_model, train_dataloader, val_dataloader=val_dataloader)
-swa_trainer.test(swa_model, test_dataloader)
+swa_trainer.fit(swa_model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader)
+swa_trainer.test(swa_model, dataloaders=test_dataloader)
 
 # %%
 

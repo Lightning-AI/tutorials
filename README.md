@@ -1,6 +1,6 @@
 # PytorchLightning Tutorials
 
-[![CI internal](https://github.com/Lightning-AI/tutorials/actions/workflows/ci_test-acts.yml/badge.svg?event=push)](https://github.com/Lightning-AI/tutorials/actions/workflows/ci_test-acts.yml)
+[![CI internal](https://github.com/Lightning-AI/tutorials/actions/workflows/ci_internal.yml/badge.svg?event=push)](https://github.com/Lightning-AI/tutorials/actions/workflows/ci_internal.yml)
 [![Build Status](https://dev.azure.com/Lightning-AI/Tutorials/_apis/build/status/Lightning-AI.tutorials%20%5Bpublish%5D?branchName=main)](https://dev.azure.com/Lightning-AI/Tutorials/_build/latest?definitionId=29&branchName=main)
 [![codecov](https://codecov.io/gh/Lightning-AI/tutorials/branch/main/graph/badge.svg?token=C6T3XOOR56)](https://codecov.io/gh/Lightning-AI/tutorials)
 [![Deploy Docs](https://github.com/Lightning-AI/tutorials/actions/workflows/docs-deploy.yml/badge.svg)](https://github.com/Lightning-AI/tutorials/actions/workflows/docs-deploy.yml)
@@ -91,9 +91,25 @@ On the back side of publishing workflow you can find in principle these three st
 # 1) convert script to notebooks
 jupytext --set-formats ipynb,py:percent notebook.py
 
-# 2) testing the created notebook
+# 2) [OPTIONAL] testing the created notebook
 pytest -v notebook.ipynb  --nbval
 
 # 3) generating notebooks outputs
 papermill in-notebook.ipynb out-notebook.ipynb
+```
+
+## Development tips
+
+### Local Docs build
+
+You may want to build the documentation local without need to excrete all notebooks.
+In such case you can convert all scripts to ipython notebooks as dry run...
+
+```bash
+# set skip notebooks execution, just conversion
+export DRY_RUN=1
+# generate notebooks from scripts
+make ipynb
+# build the documentation
+make docs
 ```
