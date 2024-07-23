@@ -2,4 +2,3 @@ torchvision
 torchmetrics >=0.11.0
 pandas
 seaborn
-lightning>=2.0.0

@@ -36,12 +36,11 @@ import os
 import urllib.request
 from urllib.error import HTTPError
 
-import lightning as L
-
 # Imports for plotting
 import matplotlib.pyplot as plt
 import matplotlib_inline.backend_inline
 import numpy as np
+import pytorch_lightning as pl
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -49,8 +48,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from matplotlib.colors import to_rgb
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torch import Tensor
 from torchvision import transforms
 from torchvision.datasets import MNIST
@@ -66,7 +65,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial12")
 
 # Setting the seed
-L.seed_everything(42)
+pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.deterministic = True
@@ -118,7 +117,7 @@ transform = transforms.Compose([transforms.ToTensor(), discretize])
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_dataset = MNIST(root=DATASET_PATH, train=True, transform=transform, download=True)
-L.seed_everything(42)
+pl.seed_everything(42)
 train_set, val_set = torch.utils.data.random_split(train_dataset, [50000, 10000])
 
 # Loading the test set
@@ -532,7 +531,7 @@ class GatedMaskedConv(nn.Module):
 
 
 # %%
-class PixelCNN(L.LightningModule):
+class PixelCNN(pl.LightningModule):
     def __init__(self, c_in, c_hidden):
         super().__init__()
         self.save_hyperparameters()
@@ -680,7 +679,7 @@ del inp, out, test_model
 # %%
 def train_model(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "PixelCNN"),
         accelerator="auto",
         devices=1,
@@ -755,7 +754,7 @@ print(f"Number of parameters: {num_params:,}")
 # Let's therefore use our sampling function to generate a few digits:
 
 # %%
-L.seed_everything(1)
+pl.seed_everything(1)
 samples = model.sample(img_shape=(16, 1, 28, 28))
 show_imgs(samples.cpu())
 
@@ -778,7 +777,7 @@ show_imgs(samples.cpu())
 # $64\times64$ instead of $28\times28$:
 
 # %%
-L.seed_everything(1)
+pl.seed_everything(1)
 samples = model.sample(img_shape=(8, 1, 64, 64))
 show_imgs(samples.cpu())
 
@@ -816,7 +815,7 @@ def autocomplete_image(img):
     show_imgs([img, img_init])
     # Generate 12 example completions
     img_init = img_init.unsqueeze(dim=0).expand(12, -1, -1, -1).to(device)
-    L.seed_everything(1)
+    pl.seed_everything(1)
     img_generated = model.sample(img_init.shape, img_init)
     print("Autocompletion samples:")
     show_imgs(img_generated)

@@ -5,12 +5,12 @@ import os
 from dataclasses import dataclass
 from typing import Tuple
 
-import lightning as L
 import pandas as pd
+import pytorch_lightning as pl
 import seaborn as sn
 import torch
 from IPython.display import display
-from lightning.pytorch.loggers import CSVLogger
+from pytorch_lightning.loggers import CSVLogger
 from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, random_split
@@ -74,7 +74,7 @@ config = Config()
 # %%
 
 
-class MNISTModel(L.LightningModule):
+class MNISTModel(pl.LightningModule):
     """A PyTorch Lightning module for classifying images in the MNIST dataset.
 
     Attributes:
@@ -182,7 +182,7 @@ train_ds = MNIST(config.data_dir, train=True, download=True, transform=transform
 train_loader = DataLoader(train_ds, batch_size=config.batch_size)
 
 # Initialize a trainer
-trainer = L.Trainer(
+trainer = pl.Trainer(
     accelerator=config.accelerator,
     devices=config.devices,
     max_epochs=config.max_epochs,
@@ -222,7 +222,7 @@ trainer.fit(mnist_model, train_loader)
 # %%
 
 
-class LitMNIST(L.LightningModule):
+class LitMNIST(pl.LightningModule):
     """PyTorch Lightning module for training a multi-layer perceptron (MLP) on the MNIST dataset.
 
     Attributes:
@@ -447,7 +447,7 @@ class LitMNIST(L.LightningModule):
 model = LitMNIST()
 
 # Instantiate a PyTorch Lightning trainer with the specified configuration
-trainer = L.Trainer(
+trainer = pl.Trainer(
     accelerator=config.accelerator,
     devices=config.devices,
     max_epochs=config.max_epochs,
