@@ -18,9 +18,8 @@ from wcmatch import glob
 
 _PATH_HERE = os.path.dirname(__file__)
 _PATH_ROOT = os.path.dirname(_PATH_HERE)
-PATH_REQ_DEFAULT = os.path.join(_PATH_ROOT, "_requirements", "default.txt")
 PATH_SCRIPT_RENDER = os.path.join(_PATH_HERE, "_ipynb-render.sh")
-PATH_SCRIPT_TEST = os.path.join(_PATH_HERE, "_ipynb-test.sh")
+PATH_SCRIPT_TEST = os.path.join(_PATH_HERE, "_ipynb-validate.sh")
 # https://askubuntu.com/questions/909918/how-to-show-unzip-progress
 UNZIP_PROGRESS_BAR = ' | awk \'BEGIN {ORS=" "} {if(NR%10==0)print "."}\''
 REPO_NAME = "lightning-tutorials"
@@ -93,8 +92,18 @@ TEMPLATE_CARD_ITEM = """
 """
 
 
-def load_requirements(path_req: str = PATH_REQ_DEFAULT) -> list:
-    """Load the requirements from a file."""
+def load_requirements(folder: str, fname: str = "requirements.txt") -> List[str]:
+    """Load the requirements from a file.
+
+    Args:
+        folder: path to the folder with requirements
+        fname: filename
+
+    """
+    path_req = os.path.join(folder, fname)
+    if not os.path.isfile(path_req):
+        warnings.warn(f"Missing expected requirement file '{path_req}'")
+        return []
     with open(path_req) as fopen:
         req = fopen.readlines()
     req = [r[: r.index("#")] if "#" in r else r for r in req]
@@ -122,6 +131,31 @@ def get_running_torch_version() -> str:
         return ver[: ver.index("+")] if "+" in ver else ver
     except ImportError:
         return ""
+
+
+def _parse_package_name(pkg: str, keys: str = " !<=>[]@", egg_name: str = "#egg=") -> str:
+    """Parsing just the package name.
+
+    Args:
+        pkg: full package info including version coming from `pip freeze
+        keys: char separators for parsing package name and version or other info
+        egg_name: eventual passing egg names once isnralled from URL
+
+    Examples:
+        >>> _parse_package_name("torch==2.0.1+cu118")
+        'torch'
+        >>> _parse_package_name("torch-cluster==1.6.3+pt20cu118")
+        'torch-cluster'
+        >>> _parse_package_name("torch_geometric==2.4.0")
+        'torch_geometric'
+
+    """
+    if egg_name in pkg:
+        pkg = pkg[pkg.index(egg_name) + len(egg_name) :]
+    if any(c in pkg for c in keys):
+        ix = min(pkg.index(c) for c in keys if c in pkg)
+        pkg = pkg[:ix]
+    return pkg
 
 
 _TORCH_VERSION = get_running_torch_version()
@@ -159,7 +193,7 @@ class AssistantCLI:
     _EXT_ARCHIVE_TAR = (".tar", ".gz")
     _EXT_ARCHIVE = _EXT_ARCHIVE_ZIP + _EXT_ARCHIVE_TAR
     _AZURE_POOL = "lit-rtx-3090"
-    _AZURE_DOCKER = "pytorchlightning/tutorials:latest"
+    _AZURE_DOCKER = "pytorchlightning/tutorials:cuda"
 
     @staticmethod
     def _find_meta(folder: str) -> str:
@@ -251,14 +285,14 @@ class AssistantCLI:
 
         """
         meta = AssistantCLI._load_meta(folder)
-        reqs = meta.get("requirements", [])
+        requires = set(load_requirements(folder) + load_requirements(os.path.dirname(folder)))
 
         meta_pip_args = {
             k.replace(AssistantCLI._META_PIP_KEY, ""): v
             for k, v in meta.items()
             if k.startswith(AssistantCLI._META_PIP_KEY)
         }
-        pip_args = ['--find-links="https://download.pytorch.org/whl/"' + _RUNTIME_VERSIONS.get("DEVICE")]
+        pip_args = ['--extra-index-url="https://download.pytorch.org/whl/"' + _RUNTIME_VERSIONS.get("DEVICE")]
         for pip_key in meta_pip_args:
             if not isinstance(meta_pip_args[pip_key], (list, tuple, set)):
                 meta_pip_args[pip_key] = [meta_pip_args[pip_key]]
@@ -266,7 +300,7 @@ class AssistantCLI:
                 arg = arg % _RUNTIME_VERSIONS
                 pip_args.append(f"--{pip_key} {arg}")
 
-        return " ".join([f'"{req}"' for req in reqs]), " ".join(pip_args)
+        return " ".join([f'"{req}"' for req in requires]), " ".join(pip_args)
 
     @staticmethod
     def _bash_download_data(folder: str) -> List[str]:
@@ -359,7 +393,7 @@ class AssistantCLI:
             fopen.write(os.linesep.join(cmd))
 
     @staticmethod
-    def bash_test(folder: str, output_file: str = PATH_SCRIPT_TEST, virtualenv: bool = False) -> Optional[str]:
+    def bash_validate(folder: str, output_file: str = PATH_SCRIPT_TEST, virtualenv: bool = False) -> Optional[str]:
         """Prepare bash script for running tests of a particular notebook.
 
         Args:
@@ -440,7 +474,8 @@ class AssistantCLI:
         meta["description"] = meta["description"].replace(os.linesep, f"{os.linesep}# ")
 
         header = TEMPLATE_HEADER % meta
-        requires = set(load_requirements() + meta["requirements"])
+        # load local and parent requirements
+        requires = set(load_requirements(folder) + load_requirements(os.path.dirname(folder)))
         setup = TEMPLATE_SETUP % dict(requirements=" ".join([f'"{req}"' for req in requires]))
         py_script = [header + setup] + py_script + [TEMPLATE_FOOTER]
 
@@ -516,7 +551,7 @@ class AssistantCLI:
             fpath_drop_folders: output file with deleted folders
             fpath_actual_dirs: files with listed all folder in particular stat
             strict: raise error if some folder outside skipped does not have valid meta file
-            root_path: path to the root tobe added for all local folder paths in files
+            root_path: path to the root to be added for all local folder paths in files
 
         Example:
             $ python assistant.py group-folders ../target-diff.txt \
@@ -536,12 +571,26 @@ class AssistantCLI:
         # not empty paths
         dirs = [ln for ln in dirs if ln]
 
-        if root_path:
-            dirs = [os.path.join(root_path, d) for d in dirs]
-        # unique folders
-        dirs = set(dirs)
         # drop folder  that start with . or _ as they are meant to be internal use only
         dirs = [pdir for pdir in dirs if not any(ndir[0] in (".", "_") for ndir in pdir.split(os.path.sep))]
+        # append a path to root in case you call this from other path then root
+        if root_path:
+            dirs = [os.path.join(root_path, d) for d in dirs]
+        # append all subfolders in case of parent requirements has been changed all related notebooks shall be updated
+        dirs_expanded = []
+        for dir in dirs:
+            # in case that the diff item comes from removed folder
+            if not os.path.isdir(dir):
+                dirs_expanded += [dir]
+                continue
+            # list folder and skip all internal files, starting with . or _
+            sub_dirs = [os.path.join(dir, it) for it in os.listdir(dir) if it[0] not in (".", "_")]
+            # filter only folders
+            sub_dirs = [it for it in sub_dirs if os.path.isdir(it)]
+            # if the dir has sub-folder append then otherwise append the dir itself
+            dirs_expanded += sub_dirs if sub_dirs else [dir]
+        # unique folders only, drop duplicates
+        dirs = set(dirs_expanded)
         # valid folder has meta
         dirs_exist = [d for d in dirs if os.path.isdir(d)]
         dirs_invalid = [d for d in dirs_exist if not AssistantCLI._find_meta(d)]
@@ -744,24 +793,20 @@ class AssistantCLI:
 
         """
         meta = AssistantCLI._load_meta(folder)
-        # default is COU runtime
-        with open(PATH_REQ_DEFAULT) as fopen:
-            req = fopen.readlines()
-        req += meta.get("requirements", [])
-        req = [r.strip() for r in req]
+        # load local and parent requirements
+        requires = set(load_requirements(folder) + load_requirements(os.path.dirname(folder)))
 
-        def _parse_package_name(pkg: str, keys: str = " !<=>[]@", egg_name: str = "#egg=") -> str:
-            """Parsing just the package name."""
-            if egg_name in pkg:
-                pkg = pkg[pkg.index(egg_name) + len(egg_name) :]
-            if any(c in pkg for c in keys):
-                ix = min(pkg.index(c) for c in keys if c in pkg)
-                pkg = pkg[:ix]
-            return pkg
-
-        require = {_parse_package_name(r) for r in req if r}
-        env = {_parse_package_name(p): p for p in freeze.freeze()}
-        meta["environment"] = [env[r] for r in require]
+        requires = {_parse_package_name(r) for r in requires if r}
+        # duplicate package name/key for cases with -/_ separator
+        env = {
+            **{_parse_package_name(p).replace("-", "_"): p for p in freeze.freeze()},
+            **{_parse_package_name(p).replace("_", "-"): p for p in freeze.freeze()},
+        }
+        # for debugging reasons print the env and requested packages
+        try:
+            meta["environment"] = [env[r] for r in requires]
+        except KeyError:
+            raise KeyError(f"Missing matching requirements: {requires}\n within environment: {env}")
         meta["published"] = datetime.now().isoformat()
 
         fmeta = os.path.join(base_path, folder) + ".yaml"

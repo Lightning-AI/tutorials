@@ -1,9 +1,7 @@
 title: "Tutorial 5: Transformers and Multi-Head Attention"
 author: Phillip Lippe
 created: 2021-06-30
-updated: 2023-03-14
 license: CC BY-SA
-build: 0
 tags:
   - Text
 description: |
@@ -15,10 +13,5 @@ description: |
   it is important to understand how it works, and have implemented it yourself, which we will do in this notebook.
   This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
-requirements:
-  - torchvision
-  - matplotlib
-  - seaborn
-  - lightning>=2.0.0
 accelerator:
   - GPU

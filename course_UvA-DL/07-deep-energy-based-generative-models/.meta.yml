@@ -1,9 +1,7 @@
 title: "Tutorial 7: Deep Energy-Based Generative Models"
 author: Phillip Lippe
 created: 2021-07-12
-updated: 2023-03-14
 license: CC BY-SA
-build: 1
 tags:
   - Image
 description: |
@@ -18,11 +16,6 @@ description: |
   we will show the idea of energy-based models with a lot of examples.
   This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
-requirements:
-  - torchvision
-  - matplotlib
-  - tensorboard
-  - pytorch-lightning>=2.0.0
 accelerator:
   - CPU
   - GPU
