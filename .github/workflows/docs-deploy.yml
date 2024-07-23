@@ -67,7 +67,7 @@ jobs:
         run: echo "PUB_SHA=$(git rev-parse publication)" >> $GITHUB_ENV
       - name: get publication SHA
         if: ${{ github.event_name == 'pull_request' }}
-        run: echo "PUB_SHA=${{ env.PUB_SHA }}+pr:${{ github.sha }}" >> $GITHUB_ENV
+        run: echo "PUB_SHA=${{ env.PUB_SHA }}+pr-${{ github.sha }}" >> $GITHUB_ENV
       - name: Upload built docs
         uses: actions/upload-artifact@v4
         with:
