@@ -1,0 +1,26 @@
+title: Finetune Transformers Models with PyTorch Lightning
+author: Lightning.ai
+created: 2021-01-31
+license: CC BY-SA
+tags:
+- Text
+description: 'This notebook will use HuggingFace''s `datasets` library to get data,
+  which will be wrapped in a `LightningDataModule`.
+
+  Then, we write a class to perform text classification on any dataset from the [GLUE
+  Benchmark](https://gluebenchmark.com/).
+
+  (We just show CoLA and MRPC due to constraint on compute/disk)
+
+  '
+accelerator:
+- GPU
+environment:
+- torchmetrics==1.1.2
+- datasets==2.20.0
+- lightning==2.0.9.post0
+- scikit-learn==1.5.1
+- scipy==1.14.0
+- torchtext==0.18.0
+- transformers==4.42.4
+published: '2024-07-23T01:54:19.916563'
