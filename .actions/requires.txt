@@ -1,6 +1,5 @@
 Fire
 tqdm
-simplejson
 PyYAML
 wcmatch
 requests
