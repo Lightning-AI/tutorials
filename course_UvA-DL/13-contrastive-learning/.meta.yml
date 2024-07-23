@@ -1,7 +1,6 @@
 title: "Tutorial 13: Self-Supervised Contrastive Learning with SimCLR"
 author: Phillip Lippe
 created: 2021-08-30
-updated: 2023-03-14
 license: CC BY-SA
 tags:
   - Image
@@ -16,12 +15,6 @@ description: |
   To get an insight into these questions, we will implement a popular, simple contrastive learning method, SimCLR, and apply it to the STL10 dataset.
   This notebook is part of a lecture series on Deep Learning at the University of Amsterdam.
   The full list of tutorials can be found at https://uvadlc-notebooks.rtfd.io.
-requirements:
-  - torchvision
-  - matplotlib
-  - seaborn
-  - lightning>=2.0.0
-  - tensorboard
 accelerator:
   - CPU
   - GPU

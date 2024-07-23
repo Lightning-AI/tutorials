@@ -167,7 +167,10 @@ class GLUETransformer(L.LightningModule):
         self.config = AutoConfig.from_pretrained(model_name_or_path, num_labels=num_labels)
         self.model = AutoModelForSequenceClassification.from_pretrained(model_name_or_path, config=self.config)
         self.metric = datasets.load_metric(
-            "glue", self.hparams.task_name, experiment_id=datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
+            "glue",
+            self.hparams.task_name,
+            experiment_id=datetime.now().strftime("%d-%m-%Y_%H-%M-%S"),
+            trust_remote_code=True,
         )
         self.outputs = defaultdict(list)
 
