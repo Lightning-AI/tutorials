@@ -63,11 +63,6 @@ jobs:
         working-directory: ./_docs
         run: make html --jobs $(nproc)
 
-      - name: Copied notebooks [debugging]
-        if: failure()
-        working-directory: ./_docs/source/
-        run: py-tree notebooks/
-
       - name: Deploy 🚀
         if: ${{ github.event_name != 'pull_request' }}
         uses: JamesIves/github-pages-deploy-action@v4.5.0
