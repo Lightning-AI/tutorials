@@ -7,18 +7,9 @@ build: 11
 description: 'This is a template to show how to contribute a tutorial.
 
   '
-requirements:
-- matplotlib
 accelerator:
 - CPU
 - GPU
 environment:
-- torchmetrics==1.2.1
-- torch==2.0.1+cu118
-- urllib3==2.2.2
-- setuptools==69.0.3
-- pytorch-lightning==1.5.3
-- ipython==8.16.1
-- matplotlib==3.8.4
-- numpy==1.26.4
-published: '2024-07-20T00:24:37.695175'
+- matplotlib==3.9.1
+published: '2024-07-23T01:57:22.774869'
