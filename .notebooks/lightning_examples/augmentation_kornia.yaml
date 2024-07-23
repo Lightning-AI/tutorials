@@ -17,11 +17,11 @@ accelerator:
 - CPU
 - GPU
 environment:
-- matplotlib==3.9.1
-- torchmetrics==1.4.0.post0
-- torchvision==0.18.1+cu118
-- pandas==2.2.2
 - lightning==2.3.3
 - seaborn==0.13.2
 - kornia==0.7.3
-published: '2024-07-23T03:31:51.731219'
+- torchvision==0.18.1+cu118
+- torchmetrics==1.4.0.post0
+- matplotlib==3.9.1
+- pandas==2.2.2
+published: '2024-07-23T10:17:49.043095'
