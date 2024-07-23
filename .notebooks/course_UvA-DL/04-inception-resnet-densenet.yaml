@@ -29,14 +29,14 @@ description: 'In this tutorial, we will implement and discuss variants of modern
 accelerator:
 - GPU
 environment:
-- tensorboard==2.17.0
-- numpy==1.26.4
 - matplotlib==3.9.1
 - tabulate==0.9.0
-- torchmetrics==1.2.1
-- seaborn==0.13.2
-- pytorch-lightning==2.0.9.post0
-- torchvision==0.15.2+cu118
+- tensorboard==2.17.0
 - lightning==2.3.3
 - torch==2.0.1+cu118
-published: '2024-07-23T02:14:29.908354'
+- seaborn==0.13.2
+- torchmetrics==1.2.1
+- pytorch-lightning==2.0.9.post0
+- torchvision==0.15.2+cu118
+- numpy==1.26.4
+published: '2024-07-23T08:39:12.486848'
