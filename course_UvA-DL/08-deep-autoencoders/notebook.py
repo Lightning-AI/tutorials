@@ -6,10 +6,10 @@ import os
 import urllib.request
 from urllib.error import HTTPError
 
-import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib_inline.backend_inline
+import pytorch_lightning as pl
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -38,7 +38,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial9")
 
 # Setting the seed
-L.seed_everything(42)
+pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.deterministic = True
@@ -94,7 +94,7 @@ transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=transform, download=True)
-L.seed_everything(42)
+pl.seed_everything(42)
 train_set, val_set = torch.utils.data.random_split(train_dataset, [45000, 5000])
 
 # Loading the test set
@@ -240,7 +240,7 @@ class Decoder(nn.Module):
 
 
 # %%
-class Autoencoder(L.LightningModule):
+class Autoencoder(pl.LightningModule):
     def __init__(
         self,
         base_channel_size: int,
@@ -387,7 +387,7 @@ class GenerateCallback(Callback):
 # %%
 def train_cifar(latent_dim):
     # Create a PyTorch Lightning trainer with the generation callback
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "cifar10_%i" % latent_dim),
         accelerator="auto",
         devices=1,

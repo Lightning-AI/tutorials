@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Optional
 
 import datasets
-import lightning as L
+import pytorch_lightning as pl
 import torch
 from torch.utils.data import DataLoader
 from transformers import (
@@ -23,7 +23,7 @@ from transformers import (
 
 
 # %%
-class GLUEDataModule(L.LightningDataModule):
+class GLUEDataModule(pl.LightningDataModule):
     task_text_field_map = {
         "cola": ["sentence"],
         "sst2": ["sentence"],
@@ -145,7 +145,7 @@ next(iter(dm.train_dataloader()))
 
 
 # %%
-class GLUETransformer(L.LightningModule):
+class GLUETransformer(pl.LightningModule):
     def __init__(
         self,
         model_name_or_path: str,
@@ -256,7 +256,7 @@ class GLUETransformer(L.LightningModule):
 # CoLA dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=cola)
 
 # %%
-L.seed_everything(42)
+pl.seed_everything(42)
 
 dm = GLUEDataModule(model_name_or_path="albert-base-v2", task_name="cola")
 dm.setup("fit")
@@ -267,7 +267,7 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = L.Trainer(
+trainer = pl.Trainer(
     max_epochs=1,
     accelerator="auto",
     devices=1,
@@ -281,7 +281,7 @@ trainer.fit(model, datamodule=dm)
 # MRPC dataset in [NLP Viewer](https://huggingface.co/nlp/viewer/?dataset=glue&config=mrpc)
 
 # %%
-L.seed_everything(42)
+pl.seed_everything(42)
 
 dm = GLUEDataModule(
     model_name_or_path="distilbert-base-cased",
@@ -295,7 +295,7 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = L.Trainer(
+trainer = pl.Trainer(
     max_epochs=3,
     accelerator="auto",
     devices=1,
@@ -324,7 +324,7 @@ model = GLUETransformer(
     task_name=dm.task_name,
 )
 
-trainer = L.Trainer(
+trainer = pl.Trainer(
     max_epochs=3,
     accelerator="auto",
     devices=1,

@@ -1,10 +1,10 @@
 # %%
 import os
 
-import lightning as L
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pytorch_lightning as pl
 import seaborn as sn
 import torch
 import torch.nn as nn
@@ -98,7 +98,7 @@ class Preprocess(nn.Module):
 
 
 # %%
-class CoolSystem(L.LightningModule):
+class CoolSystem(pl.LightningModule):
     def __init__(self):
         super().__init__()
         # not the best model: expereiment yourself
@@ -185,7 +185,7 @@ model.show_batch(win_size=(14, 14))
 
 # %%
 # Initialize a trainer
-trainer = L.Trainer(
+trainer = pl.Trainer(
     accelerator="auto",
     devices=1,
     max_epochs=10,

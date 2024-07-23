@@ -5,8 +5,8 @@
 # %%
 import os
 
-import lightning as L
 import pandas as pd
+import pytorch_lightning as pl
 import seaborn as sn
 import torch
 import torch.nn as nn
@@ -21,7 +21,7 @@ from torch.utils.data import DataLoader, random_split
 from torchmetrics.functional import accuracy
 from torchvision.datasets import CIFAR10
 
-L.seed_everything(7)
+pl.seed_everything(7)
 
 PATH_DATASETS = os.environ.get("PATH_DATASETS", ".")
 BATCH_SIZE = 256 if torch.cuda.is_available() else 64
@@ -114,7 +114,7 @@ def create_model():
 
 
 # %%
-class LitResnet(L.LightningModule):
+class LitResnet(pl.LightningModule):
     def __init__(self, lr=0.05):
         super().__init__()
 
@@ -172,7 +172,7 @@ class LitResnet(L.LightningModule):
 # %%
 model = LitResnet(lr=0.05)
 
-trainer = L.Trainer(
+trainer = pl.Trainer(
     max_epochs=5,
     accelerator="auto",
     devices=1,
@@ -236,7 +236,7 @@ class SWAResnet(LitResnet):
 # %%
 swa_model = SWAResnet(model.model, lr=0.01)
 
-swa_trainer = L.Trainer(
+swa_trainer = pl.Trainer(
     max_epochs=5,
     accelerator="auto",
     devices=1,

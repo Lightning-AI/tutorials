@@ -33,10 +33,10 @@ import urllib.request
 from copy import deepcopy
 from urllib.error import HTTPError
 
-import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib_inline.backend_inline
+import pytorch_lightning as pl
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -67,7 +67,7 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/ContrastiveLea
 NUM_WORKERS = os.cpu_count()
 
 # Setting the seed
-L.seed_everything(42)
+pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.deterministic = True
@@ -216,7 +216,7 @@ train_data_contrast = STL10(
 
 # %%
 # Visualize some examples
-L.seed_everything(42)
+pl.seed_everything(42)
 NUM_IMAGES = 6
 imgs = torch.stack([img for idx in range(NUM_IMAGES) for img in unlabeled_data[idx][0]], dim=0)
 img_grid = torchvision.utils.make_grid(imgs, nrow=6, normalize=True, pad_value=0.9)
@@ -276,7 +276,7 @@ plt.close()
 
 
 # %%
-class SimCLR(L.LightningModule):
+class SimCLR(pl.LightningModule):
     def __init__(self, hidden_dim, lr, temperature, weight_decay, max_epochs=500):
         super().__init__()
         self.save_hyperparameters()
@@ -356,7 +356,7 @@ class SimCLR(L.LightningModule):
 
 # %%
 def train_simclr(batch_size, max_epochs=500, **kwargs):
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "SimCLR"),
         accelerator="auto",
         devices=1,
@@ -391,7 +391,7 @@ def train_simclr(batch_size, max_epochs=500, **kwargs):
             pin_memory=True,
             num_workers=NUM_WORKERS,
         )
-        L.seed_everything(42)  # To be reproducible
+        pl.seed_everything(42)  # To be reproducible
         model = SimCLR(max_epochs=max_epochs, **kwargs)
         trainer.fit(model, train_loader, val_loader)
         # Load best checkpoint after training
@@ -443,7 +443,7 @@ simclr_model = train_simclr(
 
 
 # %%
-class LogisticRegression(L.LightningModule):
+class LogisticRegression(pl.LightningModule):
     def __init__(self, feature_dim, num_classes, lr, weight_decay, max_epochs=100):
         super().__init__()
         self.save_hyperparameters()
@@ -539,7 +539,7 @@ test_feats_simclr = prepare_data_features(simclr_model, test_img_data)
 
 # %%
 def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, max_epochs=100, **kwargs):
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "LogisticRegression"),
         accelerator="auto",
         devices=1,
@@ -567,7 +567,7 @@ def train_logreg(batch_size, train_feats_data, test_feats_data, model_suffix, ma
         print(f"Found pretrained model at {pretrained_filename}, loading...")
         model = LogisticRegression.load_from_checkpoint(pretrained_filename)
     else:
-        L.seed_everything(42)  # To be reproducible
+        pl.seed_everything(42)  # To be reproducible
         model = LogisticRegression(**kwargs)
         trainer.fit(model, train_loader, test_loader)
         model = LogisticRegression.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)
@@ -665,7 +665,7 @@ for k, score in zip(dataset_sizes, test_scores):
 
 
 # %%
-class ResNet(L.LightningModule):
+class ResNet(pl.LightningModule):
     def __init__(self, num_classes, lr, weight_decay, max_epochs=100):
         super().__init__()
         self.save_hyperparameters()
@@ -731,7 +731,7 @@ train_img_aug_data = STL10(root=DATASET_PATH, split="train", download=True, tran
 
 # %%
 def train_resnet(batch_size, max_epochs=100, **kwargs):
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "ResNet"),
         accelerator="auto",
         devices=1,
@@ -763,7 +763,7 @@ def train_resnet(batch_size, max_epochs=100, **kwargs):
         print(f"Found pretrained model at {pretrained_filename}, loading...")
         model = ResNet.load_from_checkpoint(pretrained_filename)
     else:
-        L.seed_everything(42)  # To be reproducible
+        pl.seed_everything(42)  # To be reproducible
         model = ResNet(**kwargs)
         trainer.fit(model, train_loader, test_loader)
         model = ResNet.load_from_checkpoint(trainer.checkpoint_callback.best_model_path)

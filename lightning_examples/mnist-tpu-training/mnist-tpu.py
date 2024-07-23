@@ -4,7 +4,7 @@
 # %%
 # ! pip install cloud-tpu-client==0.10 https://storage.googleapis.com/tpu-pytorch/wheels/torch_xla-1.8-cp37-cp37m-linux_x86_64.whl
 
-import lightning as L
+import pytorch_lightning as pl
 
 # %%
 import torch
@@ -27,7 +27,7 @@ BATCH_SIZE = 1024
 
 
 # %%
-class MNISTDataModule(L.LightningDataModule):
+class MNISTDataModule(pl.LightningDataModule):
     def __init__(self, data_dir: str = "./"):
         super().__init__()
         self.data_dir = data_dir
@@ -68,7 +68,7 @@ class MNISTDataModule(L.LightningDataModule):
 
 
 # %%
-class LitModel(L.LightningModule):
+class LitModel(pl.LightningModule):
     def __init__(self, channels, width, height, num_classes, hidden_size=64, learning_rate=2e-4):
         super().__init__()
 
@@ -130,7 +130,7 @@ dm = MNISTDataModule()
 # Init model from datamodule's attributes
 model = LitModel(*dm.size(), dm.num_classes)
 # Init trainer
-trainer = L.Trainer(
+trainer = pl.Trainer(
     max_epochs=3,
     accelerator="tpu",
     devices=[5],
@@ -147,7 +147,7 @@ dm = MNISTDataModule()
 # Init model from datamodule's attributes
 model = LitModel(*dm.dims, dm.num_classes)
 # Init trainer
-trainer = L.Trainer(
+trainer = pl.Trainer(
     max_epochs=3,
     accelerator="tpu",
     devices=1,
@@ -165,7 +165,7 @@ dm = MNISTDataModule()
 # Init model from datamodule's attributes
 model = LitModel(*dm.dims, dm.num_classes)
 # Init trainer
-trainer = L.Trainer(
+trainer = pl.Trainer(
     max_epochs=3,
     accelerator="tpu",
     devices=8,

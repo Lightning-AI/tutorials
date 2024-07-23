@@ -3,4 +3,3 @@ torch-sparse
 torch-cluster
 torch-spline-conv
 torch-geometric>=2.0.0,<2.5.0
-lightning>=2.0.0

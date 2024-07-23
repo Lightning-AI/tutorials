@@ -25,11 +25,11 @@ from copy import deepcopy
 from statistics import mean, stdev
 from urllib.error import HTTPError
 
-import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib_inline.backend_inline
 import numpy as np
+import pytorch_lightning as pl
 import seaborn as sns
 import torch
 import torch.nn.functional as F
@@ -57,7 +57,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/MetaLearning/")
 
 # Setting the seed
-L.seed_everything(42)
+pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.deterministic = True
@@ -183,7 +183,7 @@ class ImageDataset(data.Dataset):
 # We will assign the classes randomly to training, validation and test, and use a 80%-10%-10% split.
 
 # %%
-L.seed_everything(0)  # Set seed for reproducibility
+pl.seed_everything(0)  # Set seed for reproducibility
 classes = torch.randperm(100)  # Returns random permutation of numbers 0 to 99
 train_classes, val_classes, test_classes = classes[:80], classes[80:90], classes[90:]
 
@@ -477,7 +477,7 @@ def get_convnet(output_size):
 
 
 # %%
-class ProtoNet(L.LightningModule):
+class ProtoNet(pl.LightningModule):
     def __init__(self, proto_dim, lr):
         """ProtoNet.
 
@@ -557,7 +557,7 @@ class ProtoNet(L.LightningModule):
 
 # %%
 def train_model(model_class, train_loader, val_loader, **kwargs):
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, model_class.__name__),
         accelerator="auto",
         devices=1,
@@ -577,7 +577,7 @@ def train_model(model_class, train_loader, val_loader, **kwargs):
         # Automatically loads the model with the saved hyperparameters
         model = model_class.load_from_checkpoint(pretrained_filename)
     else:
-        L.seed_everything(42)  # To be reproducible
+        pl.seed_everything(42)  # To be reproducible
         model = model_class(**kwargs)
         trainer.fit(model, train_loader, val_loader)
         model = model_class.load_from_checkpoint(
@@ -851,7 +851,7 @@ plt.close()
 
 
 # %%
-class ProtoMAML(L.LightningModule):
+class ProtoMAML(pl.LightningModule):
     def __init__(self, proto_dim, lr, lr_inner, lr_output, num_inner_steps):
         """ProtoMAML.
 
@@ -1102,7 +1102,7 @@ protomaml_model = train_model(
 
 # %%
 def test_protomaml(model, dataset, k_shot=4):
-    L.seed_everything(42)
+    pl.seed_everything(42)
     model = model.to(device)
     num_classes = dataset.targets.unique().shape[0]
 

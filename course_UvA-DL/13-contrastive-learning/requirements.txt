@@ -1,5 +1,3 @@
 torchvision
-matplotlib
 seaborn
 tensorboard
-lightning>=2.0.0

@@ -11,7 +11,7 @@ import urllib.request
 from urllib.error import HTTPError
 
 # PyTorch Lightning
-import lightning as L
+import pytorch_lightning as pl
 
 # PyTorch
 import torch
@@ -36,7 +36,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/GNNs/")
 
 # Setting the seed
-L.seed_everything(42)
+pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.deterministic = True
@@ -592,7 +592,7 @@ class MLPModel(nn.Module):
 
 
 # %%
-class NodeLevelGNN(L.LightningModule):
+class NodeLevelGNN(pl.LightningModule):
     def __init__(self, model_name, **model_kwargs):
         super().__init__()
         # Saving hyperparameters
@@ -654,13 +654,13 @@ class NodeLevelGNN(L.LightningModule):
 
 # %%
 def train_node_classifier(model_name, dataset, **model_kwargs):
-    L.seed_everything(42)
+    pl.seed_everything(42)
     node_data_loader = geom_data.DataLoader(dataset, batch_size=1)
 
     # Create a PyTorch Lightning trainer
     root_dir = os.path.join(CHECKPOINT_PATH, "NodeLevel" + model_name)
     os.makedirs(root_dir, exist_ok=True)
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
         accelerator="auto",
@@ -676,7 +676,7 @@ def train_node_classifier(model_name, dataset, **model_kwargs):
         print("Found pretrained model, loading...")
         model = NodeLevelGNN.load_from_checkpoint(pretrained_filename)
     else:
-        L.seed_everything()
+        pl.seed_everything()
         model = NodeLevelGNN(
             model_name=model_name, c_in=dataset.num_node_features, c_out=dataset.num_classes, **model_kwargs
         )
@@ -892,7 +892,7 @@ class GraphGNNModel(nn.Module):
 
 
 # %%
-class GraphLevelGNN(L.LightningModule):
+class GraphLevelGNN(pl.LightningModule):
     def __init__(self, **model_kwargs):
         super().__init__()
         # Saving hyperparameters
@@ -941,12 +941,12 @@ class GraphLevelGNN(L.LightningModule):
 
 # %%
 def train_graph_classifier(model_name, **model_kwargs):
-    L.seed_everything(42)
+    pl.seed_everything(42)
 
     # Create a PyTorch Lightning trainer with the generation callback
     root_dir = os.path.join(CHECKPOINT_PATH, "GraphLevel" + model_name)
     os.makedirs(root_dir, exist_ok=True)
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
         accelerator="cuda",
@@ -962,7 +962,7 @@ def train_graph_classifier(model_name, **model_kwargs):
         print("Found pretrained model, loading...")
         model = GraphLevelGNN.load_from_checkpoint(pretrained_filename)
     else:
-        L.seed_everything(42)
+        pl.seed_everything(42)
         model = GraphLevelGNN(
             c_in=tu_dataset.num_node_features,
             c_out=1 if tu_dataset.num_classes == 2 else tu_dataset.num_classes,
