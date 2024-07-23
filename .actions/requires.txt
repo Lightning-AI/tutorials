@@ -1,5 +1,6 @@
 Fire
 tqdm
+simplejson
 PyYAML <5.4  # todo: racing issue with cython compile
 wcmatch
 requests

@@ -1,5 +1,4 @@
 import base64
-import json
 import os
 import re
 import warnings
@@ -11,6 +10,7 @@ from warnings import warn
 
 import fire
 import requests
+import simplejson as json
 import tqdm
 import yaml
 from pip._internal.operations import freeze
@@ -42,8 +42,8 @@ TEMPLATE_HEADER = f"""# %%%% [markdown]
 # Open in [![Open In Colab](https://colab.research.google.com/assets/colab-badge.png){{height="20px" width="117px"}}]({COLAB_REPO_LINK}/{REPO_NAME}/blob/{BRANCH_PUBLISHED}/{DIR_NOTEBOOKS}/%(local_ipynb)s)
 #
 # Give us a ⭐ [on Github](https://www.github.com/Lightning-AI/lightning/)
-# | Check out [the documentation](https://pytorch-lightning.readthedocs.io/en/stable/)
-# | Join us [on Slack](https://www.pytorchlightning.ai/community)
+# | Check out [the documentation](https://lightning.ai/docs/)
+# | Join us [on Discord](https://discord.com/invite/tfXFetEZxv)
 
 """
 TEMPLATE_SETUP = """# %%%% [markdown]
@@ -65,7 +65,7 @@ TEMPLATE_FOOTER = """
 # The easiest way to help our community is just by starring the GitHub repos! This helps raise awareness of the cool
 # tools we're building.
 #
-# ### Join our [Slack](https://www.pytorchlightning.ai/community)!
+# ### Join our [Discord](https://discord.com/invite/tfXFetEZxv)!
 # The best way to keep up to date on the latest advancements is to join our community! Make sure to introduce yourself
 # and share your interests in `#general` channel
 #
@@ -770,12 +770,9 @@ class AssistantCLI:
             path_thumb = os.path.join(path_docs_images, path_thumb)
 
         print(f"{path_ipynb} -> {new_ipynb}")
-
         with open(path_ipynb) as fopen:
             ipynb = json.load(fopen)
-
         ipynb["cells"].append(AssistantCLI._get_card_item_cell(path_ipynb, path_meta, path_thumb))
-
         with open(new_ipynb, "w") as fopen:
             json.dump(ipynb, fopen, indent=json_indent)
         return path_ipynb_in_dir

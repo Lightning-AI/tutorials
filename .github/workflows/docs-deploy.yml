@@ -63,10 +63,16 @@ jobs:
         working-directory: ./_docs
         run: make html --jobs $(nproc)
 
-      - name: Copied notebooks [debugging]
-        if: failure()
-        working-directory: ./_docs/source/
-        run: py-tree notebooks/
+      - name: get publication SHA
+        run: echo "PUB_SHA=$(git rev-parse publication)" >> $GITHUB_ENV
+      - name: get publication SHA
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "PUB_SHA=${{ env.PUB_SHA }}+pr-${{ github.sha }}" >> $GITHUB_ENV
+      - name: Upload built docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-html-${{ env.PUB_SHA }}
+          path: _docs/build/html/
 
       - name: Deploy 🚀
         if: ${{ github.event_name != 'pull_request' }}
