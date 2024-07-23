@@ -10,6 +10,6 @@ accelerator:
 - CPU
 - GPU
 environment:
-- lightning==2.3.3
 - torchvision==0.18.1+cu118
-published: '2024-07-23T04:31:55.093358'
+- lightning==2.3.3
+published: '2024-07-23T11:26:01.723953'
