@@ -10,9 +10,9 @@ accelerator:
 - CPU
 - GPU
 environment:
+- torchvision==0.18.1+cu118
 - seaborn==0.13.2
-- torchmetrics==1.4.0.post0
 - lightning==2.3.3
 - pandas==2.2.2
-- torchvision==0.18.1+cu118
-published: '2024-07-23T01:46:25.359284'
+- torchmetrics==1.4.0.post0
+published: '2024-07-23T04:38:59.410879'
