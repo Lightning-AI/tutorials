@@ -1,9 +1,7 @@
 title: Barlow Twins Tutorial
-author: Ananya Harsh Jha (ananya@pytorchlightning.ai)
+author: Ananya Harsh Jha
 created: 2021-09-19
-updated: 2021-09-20
 license: CC BY-SA
-build: 1
 tags:
   - Image
   - Self-Supervised
@@ -14,9 +12,6 @@ description: |
   distillation or clustering. The simplicity of the loss function and its effectiveness
   in comparison to the current state of the art makes Barlow Twins an interesting
   case study.
-requirements:
-  - torchvision
-  - matplotlib
 accelerator:
   - GPU
   - CPU

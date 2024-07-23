@@ -1,6 +1,0 @@
-Fire
-tqdm
-PyYAML
-wcmatch
-requests
-pip

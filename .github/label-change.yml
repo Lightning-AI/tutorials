@@ -1,0 +1,12 @@
+"topic: documentation":
+  - changed-files:
+      - any-glob-to-any-file:
+          - _docs/**/*
+
+"topic: CI/CD":
+  - changed-files:
+      - any-glob-to-any-file:
+          - .actions/**/*
+          - .azure-*/**/*
+          - .github/**/*
+          - _dockers/**/*

@@ -41,4 +41,5 @@ ax.set(xlabel="time (s)", ylabel="voltage (mV)", title="About as simple as it ge
 ax.grid()
 
 fig.savefig("test.png")
+# render image to the notebooks
 plt.show()

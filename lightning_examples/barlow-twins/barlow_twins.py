@@ -7,16 +7,16 @@
 from functools import partial
 from typing import Sequence, Tuple, Union
 
+import lightning as L
 import matplotlib.pyplot as plt
 import numpy as np
-import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 import torchvision.transforms.functional as VisionF
-from pytorch_lightning import Callback, LightningModule, Trainer
-from pytorch_lightning.callbacks import ModelCheckpoint
+from lightning.pytorch.callbacks import Callback, ModelCheckpoint
+from torch import Tensor
 from torch.utils.data import DataLoader
 from torchmetrics.functional import accuracy
 from torchvision.datasets import CIFAR10
@@ -38,10 +38,10 @@ z_dim = 128
 #
 # Within this transform, we add a third view for our online finetuner, which we explain later on. But, to explain things quickly here, we add a another transform to perform perform test our encoder on a downstream classification task.
 
+
 # %%
 class BarlowTwinsTransform:
     def __init__(self, train=True, input_height=224, gaussian_blur=True, jitter_strength=1.0, normalize=None):
-
         self.input_height = input_height
         self.gaussian_blur = gaussian_blur
         self.jitter_strength = jitter_strength
@@ -101,6 +101,7 @@ class BarlowTwinsTransform:
 #
 # We select CIFAR10 as the dataset to demonstrate the pre-training process for Barlow Twins. CIFAR10 images are 32x32 in size and we do not apply a Gaussian blur transformation on them. In this step, we create the training and validation dataloaders for CIFAR10.
 
+
 # %%
 def cifar10_normalization():
     normalize = transforms.Normalize(
@@ -156,6 +157,7 @@ show(img_grid)
 #
 # Then it splits this cross-correlation matrix into two parts. The first part, the diagonal of this matrix is brought closer to 1, which pushes up the cosine similarity between the latent vectors of two views of each image, thus making the backbone invariant to the transformations applied to the views. The second part of the loss pushes the non-diagonal elements of the cross-corrlelation matrix closes to 0. This reduces the redundancy between the different dimensions of the latent vector.
 
+
 # %%
 class BarlowTwinsLoss(nn.Module):
     def __init__(self, batch_size, lambda_coeff=5e-3, z_dim=128):
@@ -204,7 +206,8 @@ encoder.fc = nn.Identity()
 # %% [markdown]
 # ### Projection head
 #
-# Unlike SimCLR and BYOL, the downstream performance of Barlow Twins greatly benefits from having a larger projection head after the backbone network. The paper utilizes a 3 layer MLP with 8192 hidden dimensions and 8192 as the output dimenion of the projection head. For the purposes of the tutorial, we use a smaller projection head. But, it is imperative to mention here that in practice, Barlow Twins needs to be trained using a bigger projection head as it is highly sensitive to its architecture and output dimensionality.
+# Unlike SimCLR and BYOL, the downstream performance of Barlow Twins greatly benefits from having a larger projection head after the backbone network. The paper utilizes a 3 layer MLP with 8192 hidden dimensions and 8192 as the output dimension of the projection head. For the purposes of the tutorial, we use a smaller projection head. But, it is imperative to mention here that in practice, Barlow Twins needs to be trained using a bigger projection head as it is highly sensitive to its architecture and output dimensionality.
+
 
 # %%
 class ProjectionHead(nn.Module):
@@ -227,6 +230,7 @@ class ProjectionHead(nn.Module):
 #
 # For the purposes of this tutorial, we keep things simple and use a linear warmup schedule with Adam optimizer. In our previous experiments we have found that linear warmup part is much more important for the final performance of a model than the cosine decay component of the schedule.
 
+
 # %%
 def fn(warmup_steps, step):
     if step < warmup_steps:
@@ -244,8 +248,9 @@ def linear_warmup_decay(warmup_steps):
 #
 # We keep the LightningModule for Barlow Twins neat and simple. It takes in an backbone encoder and initializes the projection head and the loss function. We configure the optimizer and the learning rate scheduler in the ``configure_optimizers`` method.
 
+
 # %%
-class BarlowTwins(LightningModule):
+class BarlowTwins(L.LightningModule):
     def __init__(
         self,
         encoder,
@@ -283,15 +288,12 @@ class BarlowTwins(LightningModule):
 
     def training_step(self, batch, batch_idx):
         loss = self.shared_step(batch)
-
-        self.log("train_loss", loss.item(), on_step=True, on_epoch=False)
+        self.log("train_loss", loss, on_step=True, on_epoch=False)
         return loss
 
     def validation_step(self, batch, batch_idx):
         loss = self.shared_step(batch)
-
         self.log("val_loss", loss, on_step=False, on_epoch=True)
-        return loss
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
@@ -313,7 +315,8 @@ class BarlowTwins(LightningModule):
 # %% [markdown]
 # ### Evaluation
 #
-# We define a callback which appends a linear layer on top of the encoder and trains the classification evaluation head in an online manner. We make sure not to backpropagate the gradients back to the encoder while tuning the linear layer. This technique was used in SimCLR as well and they showed that the final downstream classification peformance is pretty much similar to the results on online finetuning as the training progresses.
+# We define a callback which appends a linear layer on top of the encoder and trains the classification evaluation head in an online manner. We make sure not to backpropagate the gradients back to the encoder while tuning the linear layer. This technique was used in SimCLR as well and they showed that the final downstream classification performance is pretty much similar to the results on online finetuning as the training progresses.
+
 
 # %%
 class OnlineFineTuner(Callback):
@@ -329,15 +332,14 @@ class OnlineFineTuner(Callback):
         self.encoder_output_dim = encoder_output_dim
         self.num_classes = num_classes
 
-    def on_pretrain_routine_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
-
+    def on_fit_start(self, trainer: L.Trainer, pl_module: L.LightningModule) -> None:
         # add linear_eval layer and optimizer
         pl_module.online_finetuner = nn.Linear(self.encoder_output_dim, self.num_classes).to(pl_module.device)
         self.optimizer = torch.optim.Adam(pl_module.online_finetuner.parameters(), lr=1e-4)
 
     def extract_online_finetuning_view(
         self, batch: Sequence, device: Union[str, torch.device]
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[Tensor, Tensor]:
         (_, _, finetune_view), y = batch
         finetune_view = finetune_view.to(device)
         y = y.to(device)
@@ -346,12 +348,11 @@ class OnlineFineTuner(Callback):
 
     def on_train_batch_end(
         self,
-        trainer: pl.Trainer,
-        pl_module: pl.LightningModule,
+        trainer: L.Trainer,
+        pl_module: L.LightningModule,
         outputs: Sequence,
         batch: Sequence,
         batch_idx: int,
-        dataloader_idx: int,
     ) -> None:
         x, y = self.extract_online_finetuning_view(batch, pl_module.device)
 
@@ -366,18 +367,17 @@ class OnlineFineTuner(Callback):
         self.optimizer.step()
         self.optimizer.zero_grad()
 
-        acc = accuracy(F.softmax(preds, dim=1), y)
+        acc = accuracy(F.softmax(preds, dim=1), y, task="multiclass", num_classes=10)
         pl_module.log("online_train_acc", acc, on_step=True, on_epoch=False)
         pl_module.log("online_train_loss", loss, on_step=True, on_epoch=False)
 
     def on_validation_batch_end(
         self,
-        trainer: pl.Trainer,
-        pl_module: pl.LightningModule,
+        trainer: L.Trainer,
+        pl_module: L.LightningModule,
         outputs: Sequence,
         batch: Sequence,
         batch_idx: int,
-        dataloader_idx: int,
     ) -> None:
         x, y = self.extract_online_finetuning_view(batch, pl_module.device)
 
@@ -388,7 +388,7 @@ class OnlineFineTuner(Callback):
         preds = pl_module.online_finetuner(feats)
         loss = F.cross_entropy(preds, y)
 
-        acc = accuracy(F.softmax(preds, dim=1), y)
+        acc = accuracy(F.softmax(preds, dim=1), y, task="multiclass", num_classes=10)
         pl_module.log("online_val_acc", acc, on_step=False, on_epoch=True, sync_dist=True)
         pl_module.log("online_val_loss", loss, on_step=False, on_epoch=True, sync_dist=True)
 
@@ -408,12 +408,12 @@ model = BarlowTwins(
 )
 
 online_finetuner = OnlineFineTuner(encoder_output_dim=encoder_out_dim, num_classes=10)
-checkpoint_callback = ModelCheckpoint(every_n_val_epochs=100, save_top_k=-1, save_last=True)
+checkpoint_callback = ModelCheckpoint(every_n_epochs=100, save_top_k=-1, save_last=True)
 
-trainer = Trainer(
+trainer = L.Trainer(
     max_epochs=max_epochs,
-    gpus=torch.cuda.device_count(),
-    precision=16 if torch.cuda.device_count() > 0 else 32,
+    accelerator="auto",
+    devices=1,
     callbacks=[online_finetuner, checkpoint_callback],
 )
 

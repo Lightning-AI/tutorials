@@ -1,12 +1,101 @@
-[tool.black]
-# https://github.com/psf/black
+[metadata]
+license_file = "LICENSE"
+description-file = "README.md"
+
+
+[tool.check-manifest]
+ignore = [
+    "*.yml",
+    ".github",
+    ".github/*"
+]
+
+
+[tool.pytest.ini_options]
+norecursedirs = [
+    ".git",
+    ".github",
+    "dist",
+    "build",
+    "docs",
+]
+addopts = [
+  "--strict-markers",
+  "--doctest-modules",
+  "--color=yes",
+  "--disable-pytest-warnings",
+]
+filterwarnings = [
+    "error::FutureWarning",
+]
+xfail_strict = true
+junit_duration_report = "call"
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "pass",
+]
+
+
+[tool.docformatter]
+recursive = true
+# this need to be shorter as some docstings are r"""...
+wrap-summaries = 119
+wrap-descriptions = 120
+blank = true
+
+
+[tool.codespell]
+skip = '*.svg'
+quiet-level = 3
+# comma separated list of words; waiting for:
+#  https://github.com/codespell-project/codespell/issues/2839#issuecomment-1731601603
+# also adding links until they ignored by its: nature
+#  https://github.com/codespell-project/codespell/issues/2243#issuecomment-1732019960
+ignore-words-list = "nd"
+
+
+[tool.ruff]
 line-length = 120
-exclude = "(.eggs|.git|.hg|.venv|_build|buck-out|build)"
+target-version = "py38"
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    "docs"
+]
 
-[tool.isort]
-skip_glob = []
-profile = "black"
-line_length = 120
+[tool.ruff.lint]
+select = [
+    "E", "W",  # see: https://pypi.org/project/pycodestyle
+    "F",  # see: https://pypi.org/project/pyflakes
+    "I",  # isort
+    "RUF018",  # see: https://docs.astral.sh/ruff/rules/assignment-in-assert
+    "UP", # see: https://docs.astral.sh/ruff/rules/#pyupgrade-up
+#    "D",  # see: https://pypi.org/project/pydocstyle
+#    "N",  # see: https://pypi.org/project/pep8-naming
+]
+#extend-select = [
+#    "C4",  # see: https://pypi.org/project/flake8-comprehensions
+#    "PT",  # see: https://pypi.org/project/flake8-pytest-style
+#    "RET",  # see: https://pypi.org/project/flake8-return
+#    "SIM",  # see: https://pypi.org/project/flake8-simplify
+#]
+ignore = [
+    "E731",  # Do not assign a lambda expression, use a def
+    # TODO: we shall format all long comments as it comes from text cells
+    "E501",  # Line too long
+]
 
-[tool.autopep8]
-ignore = ["E731"]
+[tool.ruff.lint.per-file-ignores]
+"setup.py" = ["D100", "SIM115"]
+"__about__.py" = ["D100"]
+"__init__.py" = ["D100"]
+
+[tool.ruff.lint.pydocstyle]
+# Use Google-style docstrings.
+convention = "google"
+
+
+[tool.ruff.lint.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10

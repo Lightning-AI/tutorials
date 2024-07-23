@@ -16,23 +16,24 @@ ipynb: init ${IPYNB}
 %.ipynb: %/.meta.y*ml
 	@echo $<
 	python .actions/assistant.py convert-ipynb $(shell dirname $<)
-	python .actions/assistant.py bash-render $(shell dirname $<) > .actions/_ipynb-render.sh
+	python .actions/assistant.py bash-render $(shell dirname $<)
 	bash .actions/_ipynb-render.sh
 
 docs: clean
-	pip install --quiet -r docs/requirements.txt
-	python -m sphinx -b linkcheck -W docs/source docs/build
-	python -m sphinx -b html -W docs/source docs/build
+	pip install --quiet -r _requirements/docs.txt
+	python -m sphinx -b html -W --keep-going _docs/source _docs/build
 
 clean:
 	rm -rf ./.datasets
 	# clean all temp runs
-	rm -rf ./docs/build
-	rm -rf ./docs/source/notebooks
-	rm -rf ./docs/source/api
+	rm -rf ./_docs/build
+	rm -rf ./_docs/source/notebooks
+	rm -rf ./_docs/source/api
 	rm -f ./dirs-*.txt
 	rm -f ./*-folders.txt
 	rm -f ./*/**/*.ipynb
 	rm -rf ./*/**/.ipynb_checkpoints
+	rm -rf ./*/**/venv
+	rm -rf ./*/**/logs
 	rm -rf ./*/**/lightning_logs
 	rm -f ./*/**/requirements.txt
