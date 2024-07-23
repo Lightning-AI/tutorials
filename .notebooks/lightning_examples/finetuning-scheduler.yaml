@@ -25,7 +25,7 @@ description: 'This notebook introduces the [Fine-Tuning Scheduler](https://finet
 accelerator:
 - GPU
 environment:
-- finetuning-scheduler==2.3.3
 - torch==2.3.1+cu118
+- finetuning-scheduler==2.3.3
 - datasets==2.17.1
-published: '2024-07-23T04:37:02.046300'
+published: '2024-07-23T11:32:13.637140'
