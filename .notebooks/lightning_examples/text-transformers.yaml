@@ -16,11 +16,15 @@ description: 'This notebook will use HuggingFace''s `datasets` library to get da
 accelerator:
 - GPU
 environment:
-- torchmetrics==1.1.2
-- scikit-learn==1.5.1
-- scipy==1.14.0
-- transformers==4.42.4
-- lightning==2.0.9.post0
-- torchtext==0.18.0
+- matplotlib==3.9.1
+- numpy==1.26.4
+- pytorch-lightning==2.0.9.post0
+- torchtext==0.15.2+cpu
 - datasets==2.20.0
-published: '2024-07-23T11:43:11.637722'
+- torch==2.0.1+cu118
+- lightning==2.0.9.post0
+- scipy==1.14.0
+- torchmetrics==1.1.2
+- transformers==4.43.1
+- scikit-learn==1.5.1
+published: '2024-07-23T16:44:00.545844'
