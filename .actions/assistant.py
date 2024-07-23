@@ -1,4 +1,5 @@
 import base64
+import json
 import os
 import re
 import warnings
@@ -10,7 +11,6 @@ from warnings import warn
 
 import fire
 import requests
-import simplejson as json
 import tqdm
 import yaml
 from pip._internal.operations import freeze
