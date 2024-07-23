@@ -90,7 +90,7 @@ jobs:
           done <<< $(cat changed-folders.txt)
           tree changed-notebooks
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ matrix.target == 'html' && env.NB_DIRS != 0 }}
         with:
           name: notebooks-${{ github.sha }}
@@ -102,7 +102,7 @@ jobs:
 
       - name: Upload built docs
         if: ${{ matrix.target == 'html' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: docs-html-${{ github.sha }}
           path: _docs/build/html/
