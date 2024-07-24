@@ -49,7 +49,9 @@ jobs:
           cp -r _notebooks/* .notebooks/
 
       - name: List notebooks
-        run: py-tree .notebooks/
+        run: |
+          py-tree .notebooks/
+          ls -lhR .notebooks/
 
       - name: Install dependencies
         run: |
