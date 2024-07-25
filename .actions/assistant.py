@@ -567,9 +567,12 @@ class AssistantCLI:
         # loading the generated changes with git diff
         with open(fpath_gitdiff) as fopen:
             changed = [ln.strip() for ln in fopen.readlines()]
+        # in case of ay key component changed, later rebuild all notebooks
+        rebuild_all = any(
+            p_key in p_changed for p_key in (PATH_DEV_SCRIPT, PATH_DEV_REQUIREMENTS) for p_changed in changed
+        )
         dirs_changed = [os.path.dirname(ln) for ln in changed]
-        # in case of ay key component changed, rebuild all notebooks
-        if any(p_key in p_changed for p_key in (PATH_DEV_SCRIPT, PATH_DEV_REQUIREMENTS) for p_changed in dirs_changed):
+        if rebuild_all:
             dirs_changed += [p for p in os.listdir(_PATH_ROOT) if os.path.isdir(p) and p[0] not in (".", "_")]
         # append a path to root in case you call this from other path then root
         if root_path:
