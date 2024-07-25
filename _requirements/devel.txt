@@ -11,7 +11,6 @@ papermill>=2.3.4, <2.5.0  # rendering
 matplotlib
 # all is based on PyTorch
 torch
-torchaudio
 torchtext
 torchvision
 
