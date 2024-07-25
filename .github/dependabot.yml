@@ -9,7 +9,7 @@ updates:
     schedule:
       interval: "monthly"
     # Labels on pull requests for version updates only
-    labels: ["ci/cd"]
+    labels: ["enhancement"]
     pull-request-branch-name:
       # Separate sections of the branch name with a hyphen
       separator: "-"
