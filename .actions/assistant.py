@@ -16,7 +16,7 @@ import yaml
 from pip._internal.operations import freeze
 from wcmatch import glob
 
-_PATH_HERE = os.path.realpath(os.path.dirname(__file__))
+_PATH_HERE = os.path.dirname(os.path.realpath(__file__))
 _PATH_ROOT = os.path.dirname(_PATH_HERE)
 PATH_SCRIPT_RENDER = os.path.join(_PATH_HERE, "_ipynb-render.sh")
 PATH_SCRIPT_TEST = os.path.join(_PATH_HERE, "_ipynb-validate.sh")
