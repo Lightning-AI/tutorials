@@ -13,7 +13,7 @@
 # limitations under the License.
 
 ARG UBUNTU_VERSION=22.04
-ARG CUDA_VERSION=11.8.0
+ARG CUDA_VERSION=12.1.1
 
 
 FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu${UBUNTU_VERSION}
@@ -82,7 +82,7 @@ RUN \
     CUDA_VERSION_MM=${CUDA_VERSION%.*} && \
     CU_VERSION_MM=${CUDA_VERSION_MM//'.'/''} && \
     pip install --no-cache-dir -r requirements.txt \
-      --find-links "https://download.pytorch.org/whl/cu${CU_VERSION_MM}/torch_stable.html" && \
+      --extra-index-url="https://download.pytorch.org/whl/cu${CU_VERSION_MM}" && \
     rm -rf requirements.txt .actions/ _requirements/
 
 RUN \
