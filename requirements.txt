@@ -1,2 +1,3 @@
+-r _requirements/base.txt
 -r _requirements/devel.txt
 -r .actions/requires.txt

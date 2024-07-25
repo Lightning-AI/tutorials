@@ -1,0 +1,7 @@
+matplotlib
+# all is based on PyTorch
+torch
+torchvision
+
+pycuda
+numba

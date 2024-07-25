@@ -1,4 +1,4 @@
-torch <2.1
+torch ==2.1.*
 torch-scatter ==2.1.*
 torch-sparse ==0.6.*
 torch-cluster ==1.6.*

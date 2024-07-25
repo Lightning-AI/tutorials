@@ -4,6 +4,6 @@ torchmetrics >=1.0, <1.2
 torchtext
 transformers
 datasets
-# todo: pin version intill reinstall with PT-eco alignement
+# todo: pin version intill reinstall with PT-eco alignment
 torch ==2.1.*
 torchvision ==0.16.*
