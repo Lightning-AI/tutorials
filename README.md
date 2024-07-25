@@ -24,12 +24,12 @@ On the other hand we highly recommend creating a notebooks and convert it script
 jupytext --set-formats ipynb,py:percent my-notebook.ipynb
 ```
 
-### Contribution structure
+## Contribution structure
 
-The addition has to formed as new folder
+The addition has to formed as new folder:
 
-- the folder name is used for the future notebooks
-- single python scripts with converted notebooks (name does not matter)
+- the folder name is used for the future notebook
+- single python scripts or converted notebook to `.py` file (name does not matter)
 - metadata named `.meta.yaml` including following info:
   ```yaml
   title: Sample notebooks
@@ -40,25 +40,24 @@ The addition has to formed as new folder
   # multi-line
   description: |
     This notebook will walk you through ...
-  requirements:
-    - package  # with version if needed
   # define supported - CPU|GPU|TPU
   accelerator:
     - CPU
   ```
+- requirements listed in `requirements.txt` in the particular folder (in case you need some other packaged then listed the parent folder)
 
-### Using datasets
+## Using datasets
 
 It is quite common to use some public or competition's dataset for your example.
 We facilitate this via defining the data sources in the metafile.
-There are two basic options, download a file from web or pul Kaggle dataset:
+There are two basic options, download a file from web or pul Kaggle dataset _\[Experimental\]_:
 
 ```yaml
 datasets:
   web:
     - https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
   kaggle:
-    - titanic
+    - titanic  # this need to be public dataset
 ```
 
 In both cases, the downloaded archive (Kaggle dataset is originally downloaded as zip file) is extracted to the default dataset folder under sub-folder with the same name as the downloaded file.
@@ -68,22 +67,21 @@ To get path to this dataset folder, please use environment variable `PATH_DATASE
 import os
 
 data_path = os.environ.get("PATH_DATASETS", "_datasets")
-path_titanic = os.path.join(data_path, "titatnic")
+path_titanic = os.path.join(data_path, "titanic")
 ```
 
 **Warning:** some Kaggle datasets can be quite large and the process is - downloading and extracting, which means that particular runner needs to have double free space. For this reason, the CPU runner is limited to 3GB datasets.
 
-### Suggestions
+## Suggestions & limitations
 
 - For inserting images into text cells use MarkDown formatting, so we can insert inline images to the notebooks directly and drop eventual dependency on internet connection -> generated notebooks could be better shared offline
 - If your images need special sizes, use `![Cation](my-image.png){height="60px" width="240px"}`
 - If your notebook is computational or any other resource (CPU/RAM) demanding use only GPU accelerator option in meta config
+- Kaggle datasets outage due to credentials issue...
 
-### Known limitations
+## Development tips
 
-- Nothing major at this moment
-
-## Meantime notes
+### Handy notes
 
 On the back side of publishing workflow you can find in principle these three steps
 
@@ -97,8 +95,6 @@ pytest -v notebook.ipynb  --nbval
 # 3) generating notebooks outputs
 papermill in-notebook.ipynb out-notebook.ipynb
 ```
-
-## Development tips
 
 ### Local Docs build
 

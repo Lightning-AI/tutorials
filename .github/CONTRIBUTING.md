@@ -38,8 +38,8 @@ A lot of good work has already been done in project mechanics (setup.py, pep8, b
 ### Bug Fixes:
 
 1. If you find a bug please submit a GitHub issue. Make sure the title explains the issue.
-1. Try to fix it or recommend a solution.
-1. Submit a PR!
+2. Try to fix it or recommend a solution.
+3. Submit a PR!
 
 _**Note**, even if you do not find the solution, sending a PR with a test covering the issue is a valid contribution, and we can help you or finish it with you :\]_
 
@@ -48,9 +48,9 @@ _**Note**, even if you do not find the solution, sending a PR with a test coveri
 PyTorch Lightning Tutorials shows several research models for ready usage. Following are general guidelines for adding new models.
 
 1. Workflows which are standard baselines
-1. Whose results are reproduced properly either by us or by authors.
-1. Do not reinvent the wheel, natively support torchvision, torchtext, torchaudio models.
-1. Use open source licensed models.
+2. Whose results are reproduced properly either by us or by authors.
+3. Do not reinvent the wheel, natively support torchvision, torchtext, torchaudio models.
+4. Use open source licensed models.
 
 Please raise an issue before adding a new tutorial. There are tons of models that keep coming. It is very difficult to support every peace.
 
@@ -72,10 +72,10 @@ In case you adding new dependencies, make sure that they are compatible with the
 
    All help is extremely welcome - reporting bugs, fixing documentation, etc. To solve some issues you can start with label [good first issue](https://github.com/Lightning-AI/lightning-bolts/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or chose something close to your domain with label. Before you start to implement anything check that the issue description that it is clear and self-assign the task to you (if it is not possible, just comment that you take it, and we assign it to you...).
 
-1. **Is there a recommendation for branch names?**
+2. **Is there a recommendation for branch names?**
 
    We do not rely on the name convention so far you are working with your own fork. Anyway it would be nice to follow this convention `<type>/<issue-id>_<short-name>` where the types are: `bugfix`, `ipynb`, `docs`, ...
 
-1. **I have a model in other framework than PyTorch, how do I add it here?**
+3. **I have a model in other framework than PyTorch, how do I add it here?**
 
    Since PL Tutorials are aiming at Pytorch Lightning implementations we encourage staying with it.
