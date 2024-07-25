@@ -16,7 +16,7 @@ ARG UBUNTU_VERSION=22.04
 ARG CUDA_VERSION=11.8.0
 
 
-FROM nvidia/cuda:${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION}
+FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu${UBUNTU_VERSION}
 
 ARG PYTHON_VERSION=3.10
 ARG PYTORCH_VERSION=2.4
@@ -27,10 +27,11 @@ ENV \
     DEBIAN_FRONTEND="noninteractive" \
     TZ="Etc/UTC" \
     PATH="$PATH:/root/.local/bin" \
+    CUDA_HOME="/usr/local/cuda" \
     CUDA_TOOLKIT_ROOT_DIR="/usr/local/cuda" \
     MKL_THREADING_LAYER="GNU" \
     # MAKEFLAGS="-j$(nproc)"
-    MAKEFLAGS="-j2"
+    MAKEFLAGS="-j4"
 
 RUN \
     apt-get -y update --fix-missing && \

@@ -1,4 +1,4 @@
+lightning  # todo: the tuner depends on L so later using with PL crash
 finetuning-scheduler[examples] ==2.3.*
 datasets ==2.17.*
 torch >=2.0.0
-lightning>=2.0, <2.1.0  # todo: the tuner depends on L so later using with PL crash
