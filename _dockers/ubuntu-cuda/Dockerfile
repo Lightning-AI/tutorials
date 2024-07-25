@@ -83,7 +83,7 @@ RUN \
     pip install --no-cache-dir -r requirements.txt && \
     python .actions/assistant.py aggregate-requirements "./*/requirements.txt" "./_requirements/base.txt" && \
     cat _requirements/base.txt && \
-    pip install --no-cache-dir pycuda numba-r _requirements/base.txt \
+    pip install pycuda numba --no-cache-dir -r _requirements/base.txt \
       --extra-index-url="https://download.pytorch.org/whl/cu${CU_VERSION_MM}" && \
     cd .. && \
     rm -rf repo
