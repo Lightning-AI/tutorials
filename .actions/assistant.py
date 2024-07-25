@@ -560,6 +560,8 @@ class AssistantCLI:
                 --fpath_actual_dirs "['../dirs-main.txt', '../dirs-publication.txt']"
 
         """
+        if root_path == ".":
+            root_path = os.getcwd()
         with open(fpath_gitdiff) as fopen:
             changed = [ln.strip() for ln in fopen.readlines()]
         dirs_changed = [os.path.dirname(ln) for ln in changed]
