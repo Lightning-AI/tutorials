@@ -39,6 +39,7 @@ RUN \
         build-essential \
         ca-certificates \
         software-properties-common \
+        nvidia-cuda-toolkit \
         pkg-config \
         libopenmpi-dev \
         openmpi-bin \
@@ -88,5 +89,6 @@ RUN \
     # Show what we have
     pip --version && \
     pip list && \
+    nvcc --version && \
     python -c "import sys; ver = sys.version_info ; assert f'{ver.major}.{ver.minor}' == '$PYTHON_VERSION', ver" && \
     python -c "import torch; assert torch.__version__.startswith('$PYTORCH_VERSION'), torch.__version__"
