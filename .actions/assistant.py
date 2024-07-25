@@ -1,4 +1,5 @@
 import base64
+import itertools
 import json
 import os
 import platform
@@ -95,19 +96,21 @@ TEMPLATE_CARD_ITEM = """
 """
 
 
-def load_requirements(folder: str, fname: str = "requirements.txt") -> List[str]:
+def load_requirements(folder: str = ".", fname: str = "requirements.txt", full_path: str = "") -> List[str]:
     """Load the requirements from a file.
 
     Args:
         folder: path to the folder with requirements
-        fname: filename
+        fname: filename in the given folder
+        full_path: alternative and overwrite the composition of folder + fname
 
     """
-    path_req = os.path.join(folder, fname)
-    if not os.path.isfile(path_req):
-        warnings.warn(f"Missing expected requirement file '{path_req}'")
+    if not full_path:
+        full_path = os.path.join(folder, fname)
+    if not os.path.isfile(full_path):
+        warnings.warn(f"Missing expected requirement file '{full_path}'")
         return []
-    with open(path_req) as fopen:
+    with open(full_path) as fopen:
         req = fopen.readlines()
     req = [r[: r.index("#")] if "#" in r else r for r in req]
     req = [r.strip() for r in req]
@@ -848,6 +851,25 @@ class AssistantCLI:
         else:
             dirs = [p for p in dirs if os.path.isdir(p)]
         return os.linesep.join(sorted(dirs))
+
+    @staticmethod
+    def aggregate_requirements(req_pattern: str, result_file: str) -> None:
+        """Load all requirements from given path pattern and dump them to a single file.
+
+        Args:
+            req_pattern: search pattern such as '*/requirements.txt'
+            result_file: path to save aggregated requirements
+
+        """
+        ls_requirements = glob.glob(req_pattern)
+        assert len(ls_requirements) > 0, "no requirements found"
+        # load and append all particular requirements
+        reqs = [load_requirements(full_path=fp) for fp in ls_requirements]
+        # try to filer only unique
+        reqs = set([r.replace(" ", "") for r in itertools.chain(*reqs)])
+        # dump result to a file
+        with open(result_file, "w") as fopen:
+            fopen.writelines(os.linesep.join(reqs))
 
 
 if __name__ == "__main__":

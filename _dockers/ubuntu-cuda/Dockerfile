@@ -74,16 +74,18 @@ RUN \
 
 ENV PYTHONPATH="/usr/lib/python${PYTHON_VERSION}/site-packages"
 
-COPY .actions/ .actions/
-COPY requirements.txt .
-COPY _requirements/ _requirements/
+COPY ./ repo/
 
 RUN \
     CUDA_VERSION_MM=${CUDA_VERSION%.*} && \
     CU_VERSION_MM=${CUDA_VERSION_MM//'.'/''} && \
-    pip install --no-cache-dir -r requirements.txt \
+    cd repo && \
+    python .actions/assistant.py aggregate-requirements "./*/requirements.txt" "./_requirements/base.txt" && \
+    cat _requirements/base.txt && \
+    pip install --no-cache-dir pycuda numba -r requirements.txt -r _requirements/base.txt \
       --extra-index-url="https://download.pytorch.org/whl/cu${CU_VERSION_MM}" && \
-    rm -rf requirements.txt .actions/ _requirements/
+    cd .. && \
+    rm -rf repo
 
 RUN \
     # Show what we have
