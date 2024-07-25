@@ -20,6 +20,8 @@ _PATH_HERE = os.path.dirname(__file__)
 _PATH_ROOT = os.path.dirname(_PATH_HERE)
 PATH_SCRIPT_RENDER = os.path.join(_PATH_HERE, "_ipynb-render.sh")
 PATH_SCRIPT_TEST = os.path.join(_PATH_HERE, "_ipynb-validate.sh")
+PATH_DEV_SCRIPT = os.path.join(".actions", "assistant.py")
+PATH_DEV_REQUIREMENTS = os.path.join("_requirements", "devel.txt")
 # https://askubuntu.com/questions/909918/how-to-show-unzip-progress
 UNZIP_PROGRESS_BAR = ' | awk \'BEGIN {ORS=" "} {if(NR%10==0)print "."}\''
 REPO_NAME = "lightning-tutorials"
@@ -536,7 +538,7 @@ class AssistantCLI:
         fpath_drop_folders: str = "dropped-folders.txt",
         fpath_actual_dirs: Sequence[str] = tuple(),
         strict: bool = True,
-        root_path: str = "",
+        root_path: str = ".",
     ) -> None:
         """Parsing the raw git diff and group changes by folders.
 
