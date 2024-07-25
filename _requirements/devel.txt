@@ -6,7 +6,7 @@ virtualenv>=20.10
 ipython[notebook]>=8.0.0, <8.24.0
 urllib3  # for ipython
 jupytext>=1.10, <1.15  # converting
-papermill>=2.3.4, <2.7.0  # rendering
+papermill ==2.6.*  # rendering
 
 matplotlib
 # all is based on PyTorch
