@@ -47,9 +47,9 @@
 # using default [FTSEarlyStopping](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSEarlyStopping) and [FTSCheckpoint](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts_supporters.html#finetuning_scheduler.fts_supporters.FTSCheckpoint) callbacks with ``monitor=val_loss``.
 #
 # ```python
-# import pytorch_lightning as pl
+# import lightning as L
 # from finetuning_scheduler import FinetuningScheduler
-# trainer = pl.Trainer(callbacks=[FinetuningScheduler()])
+# trainer = L.Trainer(callbacks=[FinetuningScheduler()])
 # ```
 
 # %% [markdown]
@@ -67,11 +67,11 @@
 # 1. First, generate the default schedule to ``Trainer.log_dir``. It will be named after your
 #    ``LightningModule`` subclass with the suffix ``_ft_schedule.yaml``.
 #
-# ```python
-#     import pytorch_lightning as pl
+#     ```python
+#     import lightning as L
 #     from finetuning_scheduler import FinetuningScheduler
-#     trainer = pl.Trainer(callbacks=[FinetuningScheduler(gen_ft_sched_only=True)])
-# ```
+#     trainer = L.Trainer(callbacks=[FinetuningScheduler(gen_ft_sched_only=True)])
+#     ```
 #
 # 2. Alter the schedule as desired.
 #
@@ -80,12 +80,12 @@
 # 3. Once the fine-tuning schedule has been altered as desired, pass it to
 #    [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) to commence scheduled training:
 #
-# ```python
-# import pytorch_lightning as pl
-# from finetuning_scheduler import FinetuningScheduler
+#    ```python
+#    import lightning as L
+#    from finetuning_scheduler import FinetuningScheduler
 #
-# trainer = pl.Trainer(callbacks=[FinetuningScheduler(ft_schedule="/path/to/my/schedule/my_schedule.yaml")])
-# ```
+#    trainer = L.Trainer(callbacks=[FinetuningScheduler(ft_schedule="/path/to/my/schedule/my_schedule.yaml")])
+#    ```
 
 # %% [markdown]
 # ## Early-Stopping and Epoch-Driven Phase Transition Criteria
@@ -119,9 +119,9 @@
 #
 #
 # ```python
-# import pytorch_lightning as pl
+# import lightning as L
 # from finetuning_scheduler import FinetuningScheduler
-# trainer = pl.Trainer(callbacks=[FinetuningScheduler()])
+# trainer = L.Trainer(callbacks=[FinetuningScheduler()])
 # trainer.ckpt_path="some/path/to/my_checkpoint.ckpt"
 # trainer.fit(...)
 # ```
@@ -131,7 +131,7 @@
 # By default ([FinetuningScheduler.restore_best](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html?highlight=restore_best#finetuning_scheduler.fts.FinetuningScheduler.params.restore_best) is ``True``), [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) will attempt to restore the best available checkpoint before fine-tuning depth transitions.
 #
 # ```python
-# trainer = pl.Trainer(callbacks=[FinetuningScheduler()])
+# trainer = L.Trainer(callbacks=[FinetuningScheduler()])
 # trainer.ckpt_path="some/path/to/my_kth_best_checkpoint.ckpt"
 # trainer.fit(...)
 # ```
@@ -172,13 +172,13 @@ import evaluate
 # Import the `FinetuningScheduler` PyTorch Lightning extension module we want to use. This will import all necessary callbacks.
 import finetuning_scheduler as fts  # isort: split
 
-import pytorch_lightning as pl
+import lightning as L
 import sentencepiece as sp  # noqa: F401 # isort: split
 import torch
 from datasets import logging as datasets_logging
-from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-from pytorch_lightning.loggers.tensorboard import TensorBoardLogger
-from pytorch_lightning.utilities import rank_zero_warn
+from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
+from lightning.pytorch.loggers.tensorboard import TensorBoardLogger
+from lightning.pytorch.utilities import rank_zero_warn
 from torch.optim.adamw import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
 from torch.utils.data import DataLoader
@@ -205,7 +205,7 @@ for warnf in [
 
 
 # %%
-class RteBoolqDataModule(pl.LightningDataModule):
+class RteBoolqDataModule(L.LightningDataModule):
     """A ``LightningDataModule`` designed for both the RTE or BoolQ SuperGLUE Hugging Face datasets."""
 
     TASK_TEXT_FIELD_MAP = {"rte": ("premise", "hypothesis"), "boolq": ("question", "passage")}
@@ -308,7 +308,7 @@ class RteBoolqDataModule(pl.LightningDataModule):
 
 
 # %%
-class RteBoolqModule(pl.LightningModule):
+class RteBoolqModule(L.LightningModule):
     """A ``LightningModule`` that can be used to fine-tune a foundation model on either the RTE or BoolQ SuperGLUE
     tasks using Hugging Face implementations of a given model and the `SuperGLUE Hugging Face dataset."""
 
@@ -444,7 +444,7 @@ with open(ft_schedule_name, "w") as f:
 
 # %%
 datasets.logging.disable_progress_bar()
-pl.seed_everything(42)
+L.seed_everything(42)
 dm = RteBoolqDataModule(model_name_or_path="microsoft/deberta-v3-base", tokenizers_parallelism=True)
 
 # %% [markdown]
@@ -522,7 +522,7 @@ enable_progress_bar = False
 
 
 def train() -> None:
-    trainer = pl.Trainer(
+    trainer = L.Trainer(
         enable_progress_bar=enable_progress_bar,
         max_epochs=100,
         precision="16-mixed",

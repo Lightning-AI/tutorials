@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import platform
 import re
 import warnings
 from datetime import datetime
@@ -809,6 +810,12 @@ class AssistantCLI:
 
         """
         meta = AssistantCLI._load_meta(folder)
+        meta.update(
+            {
+                "OS": platform.system(),
+                "python": platform.python_version(),
+            }
+        )
         # load local and parent requirements
         requires = set(load_requirements(folder) + load_requirements(os.path.dirname(folder)))
 

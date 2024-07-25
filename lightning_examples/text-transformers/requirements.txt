@@ -1,7 +1,7 @@
-transformers
-datasets
 scipy
 scikit-learn
-torchtext>=0.9
-lightning>=2.0.0,<2.1.0
-torchmetrics<1.2
+torch ==2.0.*
+torchmetrics >=1.0, <1.2
+torchtext ==0.15.*
+transformers ==4.43.*
+datasets ==2.20.*
