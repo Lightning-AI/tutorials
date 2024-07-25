@@ -44,7 +44,7 @@ The addition has to formed as new folder:
   accelerator:
     - CPU
   ```
-- requirements listed in `requirements.txt` in the particular folder (in case you need some other packaged then listed the parent folder)
+- _[optional]_ requirements listed in `requirements.txt` in the particular folder (in case you need some other packaged then listed the parent folder)
 
 ## Using datasets
 
