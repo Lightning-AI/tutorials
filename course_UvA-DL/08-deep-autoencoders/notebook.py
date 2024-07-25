@@ -321,7 +321,7 @@ def compare_imgs(img1, img2, title_prefix=""):
     # Calculate MSE loss between both images
     loss = F.mse_loss(img1, img2, reduction="sum")
     # Plot images for visual comparison
-    grid = torchvision.utils.make_grid(torch.stack([img1, img2], dim=0), nrow=2, normalize=True, range=(-1, 1))
+    grid = torchvision.utils.make_grid(torch.stack([img1, img2], dim=0), nrow=2, normalize=True, value_range=(-1, 1))
     grid = grid.permute(1, 2, 0)
     plt.figure(figsize=(4, 2))
     plt.title(f"{title_prefix} Loss: {loss.item():4.2f}")
@@ -373,7 +373,7 @@ class GenerateCallback(Callback):
                 pl_module.train()
             # Plot and add to tensorboard
             imgs = torch.stack([input_imgs, reconst_imgs], dim=1).flatten(0, 1)
-            grid = torchvision.utils.make_grid(imgs, nrow=2, normalize=True, range=(-1, 1))
+            grid = torchvision.utils.make_grid(imgs, nrow=2, normalize=True, value_range=(-1, 1))
             trainer.logger.experiment.add_image("Reconstructions", grid, global_step=trainer.global_step)
 
 
@@ -472,7 +472,7 @@ def visualize_reconstructions(model, input_imgs):
 
     # Plotting
     imgs = torch.stack([input_imgs, reconst_imgs], dim=1).flatten(0, 1)
-    grid = torchvision.utils.make_grid(imgs, nrow=4, normalize=True, range=(-1, 1))
+    grid = torchvision.utils.make_grid(imgs, nrow=4, normalize=True, value_range=(-1, 1))
     grid = grid.permute(1, 2, 0)
     plt.figure(figsize=(7, 4.5))
     plt.title("Reconstructed from %i latents" % (model.hparams.latent_dim))
@@ -557,7 +557,7 @@ with torch.no_grad():
     imgs = model.decoder(latent_vectors)
     imgs = imgs.cpu()
 
-grid = torchvision.utils.make_grid(imgs, nrow=4, normalize=True, range=(-1, 1), pad_value=0.5)
+grid = torchvision.utils.make_grid(imgs, nrow=4, normalize=True, value_range=(-1, 1), pad_value=0.5)
 grid = grid.permute(1, 2, 0)
 plt.figure(figsize=(8, 5))
 plt.imshow(grid)
@@ -617,7 +617,7 @@ def find_similar_images(query_img, query_z, key_embeds, K=8):
     dist, indices = torch.sort(dist)
     # Plot K closest images
     imgs_to_display = torch.cat([query_img[None], key_embeds[0][indices[:K]]], dim=0)
-    grid = torchvision.utils.make_grid(imgs_to_display, nrow=K + 1, normalize=True, range=(-1, 1))
+    grid = torchvision.utils.make_grid(imgs_to_display, nrow=K + 1, normalize=True, value_range=(-1, 1))
     grid = grid.permute(1, 2, 0)
     plt.figure(figsize=(12, 3))
     plt.imshow(grid)
