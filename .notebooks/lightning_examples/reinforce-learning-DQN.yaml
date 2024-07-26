@@ -22,14 +22,14 @@ accelerator:
 OS: Linux
 python: 3.10.12
 environment:
-- pandas==2.2.2
-- numpy==1.26.4
-- gym==0.23.1
-- seaborn==0.13.2
-- torchmetrics==1.4.0.post0
+- pytorch-lightning==2.3.3
 - matplotlib==3.9.1
-- torchvision==0.16.2+cu121
 - torch==2.1.2+cu121
+- pandas==2.2.2
+- torchmetrics==1.4.0.post0
+- gym==0.23.1
+- torchvision==0.16.2+cu121
+- seaborn==0.13.2
+- numpy==1.26.4
 - pygame==2.6.0
-- pytorch-lightning==2.1.4
-published: '2024-07-26T11:03:19.041833'
+published: '2024-07-26T13:11:07.521562'
