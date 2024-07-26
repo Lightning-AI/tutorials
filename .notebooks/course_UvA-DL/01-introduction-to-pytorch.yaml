@@ -17,11 +17,11 @@ accelerator:
 OS: Linux
 python: 3.10.12
 environment:
-- torchvision==0.19.0+cu121
-- torch==2.4.0+cu121
-- numpy==1.26.4
 - torchmetrics==1.4.0.post0
+- numpy==1.26.4
 - seaborn==0.13.2
-- pytorch-lightning==2.0.9.post0
+- pytorch-lightning==2.3.3
+- torch==2.4.0+cu121
 - matplotlib==3.9.1
-published: '2024-07-26T09:08:24.662570'
+- torchvision==0.19.0+cu121
+published: '2024-07-26T11:13:24.903617'
