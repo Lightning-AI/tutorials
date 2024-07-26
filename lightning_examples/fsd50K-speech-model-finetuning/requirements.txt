@@ -1,0 +1,7 @@
+gdown
+numpy
+pandas
+scikit-learn
+torchaudio
+transformers
+https://github.com/FlorentMeyer/fsd50k_speech_model_finetuning/archive/refs/heads/main.zip

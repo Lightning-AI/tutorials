@@ -9,13 +9,5 @@ description: |
   using the following repository: [https://github.com/FlorentMeyer/fsd50k_speech_model_finetuning].
   The FSD50K dataset is licensed under CC BY 4.0,
   and its subset used here only includes CC0 1.0 audio samples.
-requirements:
-  - git+https://github.com/FlorentMeyer/fsd50k_speech_model_finetuning
-  - gdown
-  - numpy
-  - pandas
-  - scikit-learn
-  - torchaudio
-  - transformers
 accelerator:
   - GPU
