@@ -1,8 +1,8 @@
 # %%
 import os
 
-import lightning as L
 import numpy as np
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -23,7 +23,7 @@ NUM_WORKERS = int(os.cpu_count() / 2)
 
 
 # %%
-class MNISTDataModule(L.LightningDataModule):
+class MNISTDataModule(pl.LightningDataModule):
     def __init__(
         self,
         data_dir: str = PATH_DATASETS,
@@ -144,7 +144,7 @@ class Discriminator(nn.Module):
 
 
 # %%
-class GAN(L.LightningModule):
+class GAN(pl.LightningModule):
     def __init__(
         self,
         channels,
@@ -253,7 +253,7 @@ class GAN(L.LightningModule):
 # %%
 dm = MNISTDataModule()
 model = GAN(*dm.dims)
-trainer = L.Trainer(
+trainer = pl.Trainer(
     accelerator="auto",
     devices=1,
     max_epochs=5,

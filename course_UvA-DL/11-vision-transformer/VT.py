@@ -7,10 +7,10 @@ import os
 import urllib.request
 from urllib.error import HTTPError
 
-import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib_inline.backend_inline
+import pytorch_lightning as pl
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -18,7 +18,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data as data
 import torchvision
-from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
 
@@ -36,7 +36,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/VisionTransformers/")
 
 # Setting the seed
-L.seed_everything(42)
+pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.deterministic = True
@@ -105,9 +105,9 @@ train_transform = transforms.Compose(
 # We need to do a little trick because the validation set should not use the augmentation.
 train_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=train_transform, download=True)
 val_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=test_transform, download=True)
-L.seed_everything(42)
+pl.seed_everything(42)
 train_set, _ = torch.utils.data.random_split(train_dataset, [45000, 5000])
-L.seed_everything(42)
+pl.seed_everything(42)
 _, val_set = torch.utils.data.random_split(val_dataset, [45000, 5000])
 
 # Loading the test set
@@ -332,7 +332,7 @@ class VisionTransformer(nn.Module):
 
 
 # %%
-class ViT(L.LightningModule):
+class ViT(pl.LightningModule):
     def __init__(self, model_kwargs, lr):
         super().__init__()
         self.save_hyperparameters()
@@ -380,7 +380,7 @@ class ViT(L.LightningModule):
 
 # %%
 def train_model(**kwargs):
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, "ViT"),
         accelerator="auto",
         devices=1,
@@ -400,7 +400,7 @@ def train_model(**kwargs):
         # Automatically loads the model with the saved hyperparameters
         model = ViT.load_from_checkpoint(pretrained_filename)
     else:
-        L.seed_everything(42)  # To be reproducible
+        pl.seed_everything(42)  # To be reproducible
         model = ViT(**kwargs)
         trainer.fit(model, train_loader, val_loader)
         # Load best checkpoint after training
