@@ -1,4 +1,5 @@
-torch ==2.1.*
+# when this is updated you also shall update `pip__find-link` in metadata
+torch ==2.1.2  # pined to be able to load binaries, see: https://github.com/rusty1s/pytorch_sparse#binaries
 torch-scatter ==2.1.*
 torch-sparse ==0.6.*
 torch-cluster ==1.6.*
