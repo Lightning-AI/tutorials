@@ -9,5 +9,6 @@ jupytext>=1.10, <1.15  # converting
 papermill>=2.3.4, <2.5.0  # rendering
 
 matplotlib
-# all is based on PyTorch
-torch
+
+# fixed version to be able to call it as `python -m kaggle`
+https://github.com/Borda/kaggle-api/archive/refs/heads/setup/python-m.zip
