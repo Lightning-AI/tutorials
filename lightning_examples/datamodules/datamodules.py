@@ -6,7 +6,7 @@
 # %%
 import os
 
-import lightning as L
+import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -33,7 +33,7 @@ BATCH_SIZE = 256 if torch.cuda.is_available() else 64
 
 
 # %%
-class LitMNIST(L.LightningModule):
+class LitMNIST(pl.LightningModule):
     def __init__(self, data_dir=PATH_DATASETS, hidden_size=64, learning_rate=2e-4):
         super().__init__()
 
@@ -121,7 +121,7 @@ class LitMNIST(L.LightningModule):
 
 # %%
 model = LitMNIST()
-trainer = L.Trainer(
+trainer = pl.Trainer(
     max_epochs=2,
     accelerator="auto",
     devices=1,
@@ -161,7 +161,7 @@ trainer.fit(model)
 
 
 # %%
-class MNISTDataModule(L.LightningDataModule):
+class MNISTDataModule(pl.LightningDataModule):
     def __init__(self, data_dir: str = PATH_DATASETS):
         super().__init__()
         self.data_dir = data_dir
@@ -209,7 +209,7 @@ class MNISTDataModule(L.LightningDataModule):
 
 
 # %%
-class LitModel(L.LightningModule):
+class LitModel(pl.LightningModule):
     def __init__(self, channels, width, height, num_classes, hidden_size=64, learning_rate=2e-4):
         super().__init__()
 
@@ -267,7 +267,7 @@ dm = MNISTDataModule()
 # Init model from datamodule's attributes
 model = LitModel(*dm.dims, dm.num_classes)
 # Init trainer
-trainer = L.Trainer(
+trainer = pl.Trainer(
     max_epochs=3,
     accelerator="auto",
     devices=1,
@@ -282,7 +282,7 @@ trainer.fit(model, dm)
 
 
 # %%
-class CIFAR10DataModule(L.LightningDataModule):
+class CIFAR10DataModule(pl.LightningDataModule):
     def __init__(self, data_dir: str = "./"):
         super().__init__()
         self.data_dir = data_dir
@@ -331,7 +331,7 @@ class CIFAR10DataModule(L.LightningDataModule):
 # %%
 dm = CIFAR10DataModule()
 model = LitModel(*dm.dims, dm.num_classes, hidden_size=256)
-trainer = L.Trainer(
+trainer = pl.Trainer(
     max_epochs=5,
     accelerator="auto",
     devices=1,

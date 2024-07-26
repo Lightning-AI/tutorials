@@ -13,13 +13,12 @@
 # limitations under the License.
 
 ARG UBUNTU_VERSION=22.04
-ARG CUDA_VERSION=11.8.0
+ARG CUDA_VERSION=12.1.1
 
 
-FROM nvidia/cuda:${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION}
+FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu${UBUNTU_VERSION}
 
 ARG PYTHON_VERSION=3.10
-ARG PYTORCH_VERSION=2.3
 
 SHELL ["/bin/bash", "-c"]
 # https://techoverflow.net/2019/05/18/how-to-fix-configuring-tzdata-interactive-input-when-building-docker-images/
@@ -27,10 +26,11 @@ ENV \
     DEBIAN_FRONTEND="noninteractive" \
     TZ="Etc/UTC" \
     PATH="$PATH:/root/.local/bin" \
+    CUDA_HOME="/usr/local/cuda" \
     CUDA_TOOLKIT_ROOT_DIR="/usr/local/cuda" \
     MKL_THREADING_LAYER="GNU" \
     # MAKEFLAGS="-j$(nproc)"
-    MAKEFLAGS="-j2"
+    MAKEFLAGS="-j4"
 
 RUN \
     apt-get -y update --fix-missing && \
@@ -38,6 +38,7 @@ RUN \
         build-essential \
         ca-certificates \
         software-properties-common \
+        nvidia-cuda-toolkit \
         pkg-config \
         libopenmpi-dev \
         openmpi-bin \
@@ -72,20 +73,24 @@ RUN \
 
 ENV PYTHONPATH="/usr/lib/python${PYTHON_VERSION}/site-packages"
 
-COPY .actions/ .actions/
-COPY requirements.txt .
-COPY _requirements/ _requirements/
+COPY ./ repo/
 
 RUN \
     CUDA_VERSION_MM=${CUDA_VERSION%.*} && \
     CU_VERSION_MM=${CUDA_VERSION_MM//'.'/''} && \
-    pip install --no-cache-dir -r requirements.txt \
-      --find-links "https://download.pytorch.org/whl/cu${CU_VERSION_MM}/torch_stable.html" && \
-    rm -rf requirements.txt .actions/ _requirements/
+    cd repo && \
+    pip install --no-cache-dir -r requirements.txt && \
+    python .actions/assistant.py aggregate-requirements "./*/requirements.txt" "./_requirements/base.txt" && \
+    cat _requirements/base.txt && \
+    pip install pycuda numba --no-cache-dir -r _requirements/base.txt \
+      --extra-index-url="https://download.pytorch.org/whl/cu${CU_VERSION_MM}" && \
+    cd .. && \
+    rm -rf repo
 
 RUN \
     # Show what we have
     pip --version && \
     pip list && \
+    nvcc --version && \
     python -c "import sys; ver = sys.version_info ; assert f'{ver.major}.{ver.minor}' == '$PYTHON_VERSION', ver" && \
-    python -c "import torch; assert torch.__version__.startswith('$PYTORCH_VERSION'), torch.__version__"
+    python -c "import torch; assert torch.__version__.startswith('2.'), torch.__version__"

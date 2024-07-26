@@ -22,14 +22,14 @@ import urllib.request
 from functools import partial
 from urllib.error import HTTPError
 
-# PyTorch Lightning
-import lightning as L
-
 # Plotting
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib_inline.backend_inline
 import numpy as np
+
+# PyTorch Lightning
+import pytorch_lightning as pl
 import seaborn as sns
 
 # PyTorch
@@ -41,7 +41,7 @@ import torch.utils.data as data
 
 # Torchvision
 import torchvision
-from lightning.pytorch.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint
 from torchvision import transforms
 from torchvision.datasets import CIFAR100
 from tqdm.notebook import tqdm
@@ -58,7 +58,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/Transformers/")
 
 # Setting the seed
-L.seed_everything(42)
+pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.deterministic = True
@@ -246,7 +246,7 @@ def scaled_dot_product(q, k, v, mask=None):
 
 # %%
 seq_len, d_k = 3, 2
-L.seed_everything(42)
+pl.seed_everything(42)
 q = torch.randn(seq_len, d_k)
 k = torch.randn(seq_len, d_k)
 v = torch.randn(seq_len, d_k)
@@ -748,7 +748,7 @@ sns.reset_orig()
 
 
 # %%
-class TransformerPredictor(L.LightningModule):
+class TransformerPredictor(pl.LightningModule):
     def __init__(
         self,
         input_dim,
@@ -965,7 +965,7 @@ class ReversePredictor(TransformerPredictor):
 
 # %% [markdown]
 # Finally, we can create a training function similar to the one we have seen in Tutorial 5 for PyTorch Lightning.
-# We create a `L.Trainer` object, running for $N$ epochs, logging in TensorBoard, and saving our best model based on the validation.
+# We create a `pl.Trainer` object, running for $N$ epochs, logging in TensorBoard, and saving our best model based on the validation.
 # Afterward, we test our models on the test set.
 # An additional parameter we pass to the trainer here is `gradient_clip_val`.
 # This clips the norm of the gradients for all parameters before taking an optimizer step and prevents the model
@@ -983,7 +983,7 @@ def train_reverse(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     root_dir = os.path.join(CHECKPOINT_PATH, "ReverseTask")
     os.makedirs(root_dir, exist_ok=True)
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
         accelerator="auto",
@@ -1444,7 +1444,7 @@ def train_anomaly(**kwargs):
     # Create a PyTorch Lightning trainer with the generation callback
     root_dir = os.path.join(CHECKPOINT_PATH, "SetAnomalyTask")
     os.makedirs(root_dir, exist_ok=True)
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=root_dir,
         callbacks=[ModelCheckpoint(save_weights_only=True, mode="max", monitor="val_acc")],
         accelerator="auto",

@@ -67,11 +67,11 @@
 # 1. First, generate the default schedule to ``Trainer.log_dir``. It will be named after your
 #    ``LightningModule`` subclass with the suffix ``_ft_schedule.yaml``.
 #
-# ```python
+#     ```python
 #     import lightning as L
 #     from finetuning_scheduler import FinetuningScheduler
 #     trainer = L.Trainer(callbacks=[FinetuningScheduler(gen_ft_sched_only=True)])
-# ```
+#     ```
 #
 # 2. Alter the schedule as desired.
 #
@@ -80,12 +80,12 @@
 # 3. Once the fine-tuning schedule has been altered as desired, pass it to
 #    [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) to commence scheduled training:
 #
-# ```python
-# import lightning as L
-# from finetuning_scheduler import FinetuningScheduler
+#    ```python
+#    import lightning as L
+#    from finetuning_scheduler import FinetuningScheduler
 #
-# trainer = L.Trainer(callbacks=[FinetuningScheduler(ft_schedule="/path/to/my/schedule/my_schedule.yaml")])
-# ```
+#    trainer = L.Trainer(callbacks=[FinetuningScheduler(ft_schedule="/path/to/my/schedule/my_schedule.yaml")])
+#    ```
 
 # %% [markdown]
 # ## Early-Stopping and Epoch-Driven Phase Transition Criteria
@@ -350,7 +350,9 @@ class RteBoolqModule(L.LightningModule):
             "experiment_id": f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{experiment_tag}",
         }
         self.save_hyperparameters(self.init_hparams)
-        self.metric = evaluate.load("super_glue", self.hparams.task_name, experiment_id=self.hparams.experiment_id)
+        self.metric = evaluate.load(
+            "super_glue", self.hparams.task_name, experiment_id=self.hparams.experiment_id, trust_remote_code=True
+        )
         self.no_decay = ["bias", "LayerNorm.weight"]
 
     @property
@@ -552,9 +554,7 @@ train()
 # the implicit schedule will limit fine-tuning to just the last 4 parameters of the model, which is only a small fraction
 # of the parameters you'd want to tune for maximum performance. Since the implicit schedule is quite computationally
 # intensive and most useful for exploring model behavior, leaving [max_depth](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html?highlight=max_depth#finetuning_scheduler.fts.FinetuningScheduler.params.max_depth) 1 allows us to demo implicit mode
-# behavior while keeping the computational cost and runtime of this notebook reasonable. To review how a full implicit
-# mode run compares to the ``nofts_baseline`` and ``fts_explicit`` scenarios, please see the the following
-# [tensorboard experiment summary](https://tensorboard.dev/experiment/n7U8XhrzRbmvVzC4SQSpWw/).
+# behavior while keeping the computational cost and runtime of this notebook reasonable.
 
 
 # %%
@@ -577,16 +577,15 @@ for scenario_name, scenario_callbacks in scenario_callbacks.items():
 # %% [markdown]
 # ### Reviewing the Training Results
 #
-# See the [tensorboard experiment summaries](https://tensorboard.dev/experiment/n7U8XhrzRbmvVzC4SQSpWw/) to get a sense
-# of the relative computational and performance tradeoffs associated with these [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) configurations.
-# The summary compares a full ``fts_implicit`` execution to ``fts_explicit`` and ``nofts_baseline`` scenarios using DDP
+# It's worth considering the relative computational and performance tradeoffs associated with different [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) configurations.
+# The example below compares ``fts_implicit`` execution to ``fts_explicit`` and ``nofts_baseline`` scenarios using DDP
 # training with 2 GPUs. The full logs/schedules for all three scenarios are available
 # [here](https://drive.google.com/file/d/1LrUcisRLHeJgh_BDOOD_GUBPp5iHAkoR/view?usp=sharing) and the checkpoints
 # produced in the scenarios [here](https://drive.google.com/file/d/1t7myBgcqcZ9ax_IT9QVk-vFH_l_o5UXB/view?usp=sharing)
 # (caution, ~3.5GB).
 #
-# [![fts_explicit_accuracy](fts_explicit_accuracy.png){height="315px" width="492px"}](https://tensorboard.dev/experiment/n7U8XhrzRbmvVzC4SQSpWw/#scalars&_smoothingWeight=0&runSelectionState=eyJmdHNfZXhwbGljaXQiOnRydWUsIm5vZnRzX2Jhc2VsaW5lIjpmYWxzZSwiZnRzX2ltcGxpY2l0IjpmYWxzZX0%3D)
-# [![nofts_baseline](nofts_baseline_accuracy.png){height="316px" width="505px"}](https://tensorboard.dev/experiment/n7U8XhrzRbmvVzC4SQSpWw/#scalars&_smoothingWeight=0&runSelectionState=eyJmdHNfZXhwbGljaXQiOmZhbHNlLCJub2Z0c19iYXNlbGluZSI6dHJ1ZSwiZnRzX2ltcGxpY2l0IjpmYWxzZX0%3D)
+# ![fts_explicit_accuracy](fts_explicit_accuracy.png){height="315px" width="492px"}
+# ![nofts_baseline](nofts_baseline_accuracy.png){height="316px" width="505px"}
 #
 # Note that given execution context differences, there could be a modest variation in performance from the tensorboard summaries generated by this notebook.
 #
@@ -595,7 +594,7 @@ for scenario_name, scenario_callbacks in scenario_callbacks.items():
 # greater fine-tuning flexibility for model exploration in research. For example, glancing at DeBERTa-v3's implicit training
 # run, a critical tuning transition point is immediately apparent:
 #
-# [![implicit_training_transition](implicit_training_transition.png){height="272px" width="494px"}](https://tensorboard.dev/experiment/n7U8XhrzRbmvVzC4SQSpWw/#scalars&_smoothingWeight=0&runSelectionState=eyJmdHNfZXhwbGljaXQiOmZhbHNlLCJub2Z0c19iYXNlbGluZSI6ZmFsc2UsImZ0c19pbXBsaWNpdCI6dHJ1ZX0%3D)
+# ![implicit_training_transition](implicit_training_transition.png){height="272px" width="494px"}
 #
 # Our `val_loss` begins a precipitous decline at step 3119 which corresponds to phase 17 in the schedule. Referring to our
 # schedule, in phase 17 we're beginning tuning the attention parameters of our 10th encoder layer (of 11). Interesting!

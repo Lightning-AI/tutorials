@@ -1,8 +1,4 @@
 kornia
-lightning
-torchmetrics
 torchvision
-matplotlib
 pandas
 seaborn
-lightning>=2.0.0

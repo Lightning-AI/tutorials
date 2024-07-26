@@ -10,11 +10,11 @@ import time
 import urllib.request
 from urllib.error import HTTPError
 
-import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib_inline.backend_inline
 import numpy as np
+import pytorch_lightning as pl
 import seaborn as sns
 import tabulate
 import torch
@@ -24,8 +24,8 @@ import torch.optim as optim
 import torch.utils.data as data
 import torchvision
 from IPython.display import HTML, display
-from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from matplotlib.colors import to_rgb
+from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from torch import Tensor
 from torchvision import transforms
 from torchvision.datasets import MNIST
@@ -42,7 +42,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/tutorial11")
 
 # Setting the seed
-L.seed_everything(42)
+pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.deterministic = True
@@ -98,7 +98,7 @@ transform = transforms.Compose([transforms.ToTensor(), discretize])
 
 # Loading the training dataset. We need to split it into a training and validation part
 train_dataset = MNIST(root=DATASET_PATH, train=True, transform=transform, download=True)
-L.seed_everything(42)
+pl.seed_everything(42)
 train_set, val_set = torch.utils.data.random_split(train_dataset, [50000, 10000])
 
 # Loading the test set
@@ -259,7 +259,7 @@ show_imgs([train_set[i][0] for i in range(8)])
 
 
 # %%
-class ImageFlow(L.LightningModule):
+class ImageFlow(pl.LightningModule):
     def __init__(self, flows, import_samples=8):
         """ImageFlow.
 
@@ -455,7 +455,7 @@ class Dequantization(nn.Module):
 
 # %%
 # Testing invertibility of dequantization layer
-L.seed_everything(42)
+pl.seed_everything(42)
 orig_img = train_set[0][0].unsqueeze(dim=0)
 ldj = torch.zeros(
     1,
@@ -935,7 +935,7 @@ def create_simple_flow(use_vardeq=True):
 # %%
 def train_flow(flow, model_name="MNISTFlow"):
     # Create a PyTorch Lightning trainer
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, model_name),
         accelerator="auto",
         devices=1,
@@ -1236,12 +1236,12 @@ display(
 # The seeds are set to obtain reproducible generations and are not cherry picked.
 
 # %%
-L.seed_everything(44)
+pl.seed_everything(44)
 samples = flow_dict["vardeq"]["model"].sample(img_shape=[16, 1, 28, 28])
 show_imgs(samples.cpu())
 
 # %%
-L.seed_everything(44)
+pl.seed_everything(44)
 samples = flow_dict["multiscale"]["model"].sample(img_shape=[16, 8, 7, 7])
 show_imgs(samples.cpu())
 
@@ -1284,12 +1284,12 @@ def interpolate(model, img1, img2, num_steps=8):
 exmp_imgs, _ = next(iter(train_loader))
 
 # %%
-L.seed_everything(42)
+pl.seed_everything(42)
 for i in range(2):
     interpolate(flow_dict["vardeq"]["model"], exmp_imgs[2 * i], exmp_imgs[2 * i + 1])
 
 # %%
-L.seed_everything(42)
+pl.seed_everything(42)
 for i in range(2):
     interpolate(flow_dict["multiscale"]["model"], exmp_imgs[2 * i], exmp_imgs[2 * i + 1])
 
@@ -1312,7 +1312,7 @@ for i in range(2):
 # Below we visualize three examples of this:
 
 # %%
-L.seed_everything(44)
+pl.seed_everything(44)
 for _ in range(3):
     z_init = flow_dict["multiscale"]["model"].prior.sample(sample_shape=[1, 8, 7, 7])
     z_init = z_init.expand(8, -1, -1, -1)

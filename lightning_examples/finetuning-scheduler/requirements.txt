@@ -1,3 +1,6 @@
-finetuning-scheduler[examples]>=2.0.0
-datasets<2.18.0 # todo: some compatibility issue, please pass the argument `trust_remote_code=True`
-torch>=1.12.1 # to avoid https://github.com/pytorch/pytorch/issues/80809 with torch 1.12.0
+lightning  # todo: the tuner depends on L so later using with PL crash
+finetuning-scheduler[examples] ==2.3.*
+datasets ==2.17.*
+# todo: pin version intill reinstall with PT-eco alignment
+torch ==2.1.*
+torchvision ==0.16.*
