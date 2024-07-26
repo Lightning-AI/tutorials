@@ -19,13 +19,13 @@ accelerator:
 OS: Linux
 python: 3.10.12
 environment:
-- torchvision==0.19.0+cu121
 - matplotlib==3.9.1
+- seaborn==0.13.2
 - kornia==0.7.3
-- numpy==1.26.4
 - pandas==2.2.2
+- pytorch-lightning==2.3.3
+- torchvision==0.19.0+cu121
 - torchmetrics==1.4.0.post0
 - torch==2.4.0+cu121
-- pytorch-lightning==2.1.4
-- seaborn==0.13.2
-published: '2024-07-26T09:51:20.106207'
+- numpy==1.26.4
+published: '2024-07-26T11:58:43.370793'
