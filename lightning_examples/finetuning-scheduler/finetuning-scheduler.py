@@ -172,13 +172,22 @@ import evaluate
 # Import the `FinetuningScheduler` PyTorch Lightning extension module we want to use. This will import all necessary callbacks.
 import finetuning_scheduler as fts  # isort: split
 
-import lightning as L
+from lightning_utilities.core.imports import module_available  # noqa: I001
+
+if module_available("lightning"):
+    import lightning as L
+    from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
+    from lightning.pytorch.loggers.tensorboard import TensorBoardLogger
+    from lightning.pytorch.utilities import rank_zero_warn
+elif module_available("pytorch_lightning"):
+    import pytorch_lightning as L
+    from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+    from pytorch_lightning.loggers.tensorboard import TensorBoardLogger
+    from pytorch_lightning.utilities import rank_zero_warn
+
 import sentencepiece as sp  # noqa: F401 # isort: split
 import torch
 from datasets import logging as datasets_logging
-from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
-from lightning.pytorch.loggers.tensorboard import TensorBoardLogger
-from lightning.pytorch.utilities import rank_zero_warn
 from torch.optim.adamw import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
 from torch.utils.data import DataLoader
