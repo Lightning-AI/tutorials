@@ -1,5 +1,7 @@
-torch-scatter
-torch-sparse
-torch-cluster
-torch-spline-conv
-torch-geometric>=2.0.0,<2.5.0
+# when this is updated you also shall update `pip__find-link` in metadata
+torch ==2.1.2  # pined to be able to load binaries, see: https://github.com/rusty1s/pytorch_sparse#binaries
+torch-scatter ==2.1.*
+torch-sparse ==0.6.*
+torch-cluster ==1.6.*
+torch-spline-conv ==1.2.*
+torch-geometric ==2.1.*

@@ -1,4 +1,2 @@
-torchvision
-seaborn
 tabulate
 tensorboard
