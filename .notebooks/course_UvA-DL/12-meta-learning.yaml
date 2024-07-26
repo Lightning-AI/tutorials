@@ -40,14 +40,16 @@ description: 'In this tutorial, we will discuss algorithms that learn models whi
 accelerator:
 - CPU
 - GPU
+OS: Linux
+python: 3.10.12
 environment:
-- seaborn==0.13.2
-- tensorboard==2.17.0
-- numpy==1.26.4
-- torchmetrics==1.2.1
-- torch==2.0.1+cu118
-- scipy==1.14.0
-- torchvision==0.15.2+cu118
 - matplotlib==3.9.1
+- scipy==1.14.0
+- numpy==1.26.4
+- seaborn==0.13.2
 - pytorch-lightning==2.0.9.post0
-published: '2024-07-23T21:54:54.314097'
+- torch==2.1.2+cu121
+- torchvision==0.16.2+cu121
+- tensorboard==2.17.0
+- torchmetrics==1.2.1
+published: '2024-07-26T07:10:27.557620'
