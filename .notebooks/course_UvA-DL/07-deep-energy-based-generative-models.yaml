@@ -38,12 +38,15 @@ description: 'In this tutorial, we will look at energy-based deep learning model
 accelerator:
 - CPU
 - GPU
+OS: Linux
+python: 3.10.12
 environment:
-- matplotlib==3.9.1
-- tensorboard==2.17.0
-- pytorch-lightning==2.0.9.post0
-- torchvision==0.15.2+cu118
 - numpy==1.26.4
-- torch==2.0.1+cu118
+- seaborn==0.13.2
 - torchmetrics==1.2.1
-published: '2024-07-23T21:28:38.791844'
+- matplotlib==3.9.1
+- pytorch-lightning==2.0.9.post0
+- tensorboard==2.17.0
+- torch==2.1.2+cu121
+- torchvision==0.16.2+cu121
+published: '2024-07-26T06:49:48.754048'
