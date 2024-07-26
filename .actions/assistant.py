@@ -8,7 +8,7 @@ import warnings
 from datetime import datetime
 from shutil import copyfile
 from textwrap import wrap
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 from warnings import warn
 
 import fire
@@ -283,11 +283,12 @@ class AssistantCLI:
         return any(ac in meta_accels for ac in device_accels)
 
     @staticmethod
-    def _parse_requirements(folder: str) -> Tuple[str, str]:
+    def _parse_requirements(folder: str, formatted: bool = True) -> Union[Tuple[str, str], Tuple[list, list]]:
         """Parse standard requirements from meta file.
 
         Args:
             folder: path to the folder with python script, meta and artefacts
+            formatted: format it into two strings
 
         """
         meta = AssistantCLI._load_meta(folder)
@@ -298,15 +299,27 @@ class AssistantCLI:
             for k, v in meta.items()
             if k.startswith(AssistantCLI._META_PIP_KEY)
         }
-        pip_args = ['--extra-index-url="https://download.pytorch.org/whl/"' + _RUNTIME_VERSIONS.get("DEVICE")]
+        pip_args = [f'--extra-index-url="https://download.pytorch.org/whl/{_RUNTIME_VERSIONS.get("DEVICE")}"']
         for pip_key in meta_pip_args:
             if not isinstance(meta_pip_args[pip_key], (list, tuple, set)):
                 meta_pip_args[pip_key] = [meta_pip_args[pip_key]]
             for arg in meta_pip_args[pip_key]:
                 arg = arg % _RUNTIME_VERSIONS
                 pip_args.append(f"--{pip_key} {arg}")
+        if formatted:
+            return " ".join([f'"{req}"' for req in requires]), " ".join(pip_args)
+        return list(requires), pip_args
 
-        return " ".join([f'"{req}"' for req in requires]), " ".join(pip_args)
+    @staticmethod
+    def pip_install(folder: str) -> str:
+        """Print all notebook requirements to be pre-installed in format of requirements file.
+
+        Args:
+            folder: path to the folder with python script, meta and artefacts
+
+        """
+        req, args = AssistantCLI._parse_requirements(folder, formatted=False)
+        return os.linesep.join(req) + os.linesep + os.linesep.join(args)
 
     @staticmethod
     def _bash_download_data(folder: str) -> List[str]:
