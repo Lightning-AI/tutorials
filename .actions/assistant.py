@@ -309,6 +309,11 @@ class AssistantCLI:
         return " ".join([f'"{req}"' for req in requires]), " ".join(pip_args)
 
     @staticmethod
+    def pip_install(folder: str) -> str:
+        """Parse all notebook requirements to be pre-installed."""
+        return " ".join(AssistantCLI._parse_requirements(folder))
+
+    @staticmethod
     def _bash_download_data(folder: str) -> List[str]:
         """Generate sequence of commands for optional downloading dataset specified in the meta file.
 
