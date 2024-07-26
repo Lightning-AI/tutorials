@@ -16,14 +16,16 @@ description: 'In this tutorial we will show how to combine both Kornia and PyTor
 accelerator:
 - CPU
 - GPU
+OS: Linux
+python: 3.10.12
 environment:
+- pytorch-lightning==2.0.9.post0
+- pandas==2.2.2
+- torchvision==0.16.2+cu121
+- torch==2.1.2+cu121
 - torchmetrics==1.2.1
 - kornia==0.7.3
-- pytorch-lightning==2.0.9.post0
-- torchvision==0.15.2+cu118
-- numpy==1.26.4
-- pandas==2.2.2
-- torch==2.0.1+cu118
-- matplotlib==3.9.1
 - seaborn==0.13.2
-published: '2024-07-23T18:10:05.865383'
+- matplotlib==3.9.1
+- numpy==1.26.4
+published: '2024-07-26T07:28:27.701039'
