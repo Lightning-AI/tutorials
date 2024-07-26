@@ -14,10 +14,14 @@ description: 'This tutorial will give a short introduction to PyTorch basics, an
 accelerator:
 - CPU
 - GPU
+OS: Linux
+python: 3.10.12
 environment:
+- torch==2.1.2+cu121
 - numpy==1.26.4
-- matplotlib==3.9.1
+- torchvision==0.16.2+cu121
 - pytorch-lightning==2.0.9.post0
+- matplotlib==3.9.1
+- seaborn==0.13.2
 - torchmetrics==1.2.1
-- torch==2.0.1+cu118
-published: '2024-07-23T21:01:37.293005'
+published: '2024-07-26T06:24:22.787106'
