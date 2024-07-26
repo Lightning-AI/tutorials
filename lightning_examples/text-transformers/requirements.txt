@@ -1,7 +1,9 @@
-transformers
-datasets
 scipy
 scikit-learn
-torchtext>=0.9
-lightning>=2.0.0,<2.1.0
-torchmetrics<1.2
+torchmetrics >=1.0, <1.2
+torchtext
+transformers
+datasets
+# todo: pin version intill reinstall with PT-eco alignment
+torch ==2.1.*
+torchvision ==0.16.*

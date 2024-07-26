@@ -1,5 +1,1 @@
-torchvision
-matplotlib
-seaborn
-lightning>=2.0.0
 tensorboard
