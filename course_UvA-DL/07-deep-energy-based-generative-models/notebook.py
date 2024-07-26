@@ -568,7 +568,7 @@ class GenerateCallback(Callback):
                 step_size = self.num_steps // self.vis_steps
                 imgs_to_plot = imgs_per_step[step_size - 1 :: step_size, i]
                 grid = torchvision.utils.make_grid(
-                    imgs_to_plot, nrow=imgs_to_plot.shape[0], normalize=True, range=(-1, 1)
+                    imgs_to_plot, nrow=imgs_to_plot.shape[0], normalize=True, value_range=(-1, 1)
                 )
                 trainer.logger.experiment.add_image("generation_%i" % i, grid, global_step=trainer.current_epoch)
 
@@ -600,7 +600,7 @@ class SamplerCallback(Callback):
     def on_epoch_end(self, trainer, pl_module):
         if trainer.current_epoch % self.every_n_epochs == 0:
             exmp_imgs = torch.cat(random.choices(pl_module.sampler.examples, k=self.num_imgs), dim=0)
-            grid = torchvision.utils.make_grid(exmp_imgs, nrow=4, normalize=True, range=(-1, 1))
+            grid = torchvision.utils.make_grid(exmp_imgs, nrow=4, normalize=True, value_range=(-1, 1))
             trainer.logger.experiment.add_image("sampler", grid, global_step=trainer.current_epoch)
 
 
@@ -724,7 +724,7 @@ for i in range(imgs_per_step.shape[1]):
     imgs_to_plot = imgs_per_step[step_size - 1 :: step_size, i]
     imgs_to_plot = torch.cat([imgs_per_step[0:1, i], imgs_to_plot], dim=0)
     grid = torchvision.utils.make_grid(
-        imgs_to_plot, nrow=imgs_to_plot.shape[0], normalize=True, range=(-1, 1), pad_value=0.5, padding=2
+        imgs_to_plot, nrow=imgs_to_plot.shape[0], normalize=True, value_range=(-1, 1), pad_value=0.5, padding=2
     )
     grid = grid.permute(1, 2, 0)
     plt.figure(figsize=(8, 8))
@@ -795,7 +795,7 @@ def compare_images(img1, img2):
     imgs = torch.stack([img1, img2], dim=0).to(model.device)
     score1, score2 = model.cnn(imgs).cpu().chunk(2, dim=0)
     grid = torchvision.utils.make_grid(
-        [img1.cpu(), img2.cpu()], nrow=2, normalize=True, range=(-1, 1), pad_value=0.5, padding=2
+        [img1.cpu(), img2.cpu()], nrow=2, normalize=True, value_range=(-1, 1), pad_value=0.5, padding=2
     )
     grid = grid.permute(1, 2, 0)
     plt.figure(figsize=(4, 4))

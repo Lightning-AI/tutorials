@@ -13,12 +13,12 @@ import os
 import urllib.request
 from urllib.error import HTTPError
 
-import lightning as L
 import matplotlib.pyplot as plt
 
 # %matplotlib inline
 import matplotlib_inline.backend_inline
 import numpy as np
+import pytorch_lightning as pl
 import seaborn as sns
 import torch
 import torch.nn as nn
@@ -33,7 +33,7 @@ matplotlib_inline.backend_inline.set_matplotlib_formats("svg", "pdf")  # For exp
 sns.set()
 
 # %% [markdown]
-# Instead of the `set_seed` function as in Tutorial 3, we can use Lightning's built-in function `L.seed_everything`.
+# Instead of the `set_seed` function as in Tutorial 3, we can use Lightning's built-in function `pl.seed_everything`.
 # We will reuse the path variables `DATASET_PATH` and `CHECKPOINT_PATH` as in Tutorial 3.
 # Adjust the paths if necessary.
 
@@ -44,7 +44,7 @@ DATASET_PATH = os.environ.get("PATH_DATASETS", "data/")
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/InitOptim/")
 
 # Seed everything
-L.seed_everything(42)
+pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.deterministic = True

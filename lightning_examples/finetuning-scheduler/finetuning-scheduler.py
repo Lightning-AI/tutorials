@@ -67,11 +67,11 @@
 # 1. First, generate the default schedule to ``Trainer.log_dir``. It will be named after your
 #    ``LightningModule`` subclass with the suffix ``_ft_schedule.yaml``.
 #
-# ```python
+#     ```python
 #     import lightning as L
 #     from finetuning_scheduler import FinetuningScheduler
 #     trainer = L.Trainer(callbacks=[FinetuningScheduler(gen_ft_sched_only=True)])
-# ```
+#     ```
 #
 # 2. Alter the schedule as desired.
 #
@@ -80,12 +80,12 @@
 # 3. Once the fine-tuning schedule has been altered as desired, pass it to
 #    [FinetuningScheduler](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html#finetuning_scheduler.fts.FinetuningScheduler) to commence scheduled training:
 #
-# ```python
-# import lightning as L
-# from finetuning_scheduler import FinetuningScheduler
+#    ```python
+#    import lightning as L
+#    from finetuning_scheduler import FinetuningScheduler
 #
-# trainer = L.Trainer(callbacks=[FinetuningScheduler(ft_schedule="/path/to/my/schedule/my_schedule.yaml")])
-# ```
+#    trainer = L.Trainer(callbacks=[FinetuningScheduler(ft_schedule="/path/to/my/schedule/my_schedule.yaml")])
+#    ```
 
 # %% [markdown]
 # ## Early-Stopping and Epoch-Driven Phase Transition Criteria
@@ -350,7 +350,9 @@ class RteBoolqModule(L.LightningModule):
             "experiment_id": f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{experiment_tag}",
         }
         self.save_hyperparameters(self.init_hparams)
-        self.metric = evaluate.load("super_glue", self.hparams.task_name, experiment_id=self.hparams.experiment_id)
+        self.metric = evaluate.load(
+            "super_glue", self.hparams.task_name, experiment_id=self.hparams.experiment_id, trust_remote_code=True
+        )
         self.no_decay = ["bias", "LayerNorm.weight"]
 
     @property

@@ -8,11 +8,11 @@ import urllib.request
 from types import SimpleNamespace
 from urllib.error import HTTPError
 
-import lightning as L
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib_inline.backend_inline
 import numpy as np
+import pytorch_lightning as pl
 import seaborn as sns
 import tabulate
 import torch
@@ -46,7 +46,7 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/ConvNets")
 
 
 # Function for setting the seed
-L.seed_everything(42)
+pl.seed_everything(42)
 
 # Ensure that all operations are deterministic on GPU (if used) for reproducibility
 torch.backends.cudnn.deterministic = True
@@ -136,9 +136,9 @@ train_transform = transforms.Compose(
 # We need to do a little trick because the validation set should not use the augmentation.
 train_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=train_transform, download=True)
 val_dataset = CIFAR10(root=DATASET_PATH, train=True, transform=test_transform, download=True)
-L.seed_everything(42)
+pl.seed_everything(42)
 train_set, _ = torch.utils.data.random_split(train_dataset, [45000, 5000])
-L.seed_everything(42)
+pl.seed_everything(42)
 _, val_set = torch.utils.data.random_split(val_dataset, [45000, 5000])
 
 # Loading the test set
@@ -192,12 +192,12 @@ plt.close()
 
 # %%
 # Setting the seed
-L.seed_everything(42)
+pl.seed_everything(42)
 
 # %% [markdown]
 # Thus, in the future, we don't have to define our own `set_seed` function anymore.
 #
-# In PyTorch Lightning, we define `L.LightningModule`'s (inheriting from `Module`) that organize our code into 5 main sections:
+# In PyTorch Lightning, we define `pl.LightningModule`'s (inheriting from `Module`) that organize our code into 5 main sections:
 #
 # 1. Initialization (`__init__`), where we create all necessary parameters/models
 # 2. Optimizers (`configure_optimizers`) where we create the optimizers, learning rate scheduler, etc.
@@ -214,7 +214,7 @@ L.seed_everything(42)
 
 
 # %%
-class CIFARModule(L.LightningModule):
+class CIFARModule(pl.LightningModule):
     def __init__(self, model_name, model_hparams, optimizer_name, optimizer_hparams):
         """CIFARModule.
 
@@ -350,7 +350,7 @@ def train_model(model_name, save_name=None, **kwargs):
         save_name = model_name
 
     # Create a PyTorch Lightning trainer with the generation callback
-    trainer = L.Trainer(
+    trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),  # Where to save models
         # We run on a single GPU (if possible)
         accelerator="auto",
@@ -374,7 +374,7 @@ def train_model(model_name, save_name=None, **kwargs):
         # Automatically loads the model with the saved hyperparameters
         model = CIFARModule.load_from_checkpoint(pretrained_filename)
     else:
-        L.seed_everything(42)  # To be reproducible
+        pl.seed_everything(42)  # To be reproducible
         model = CIFARModule(model_name=model_name, **kwargs)
         trainer.fit(model, train_loader, val_loader)
         model = CIFARModule.load_from_checkpoint(
