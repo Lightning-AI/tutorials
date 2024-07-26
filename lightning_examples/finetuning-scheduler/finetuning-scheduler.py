@@ -255,6 +255,8 @@ class RteBoolqDataModule(L.LightningDataModule):
             "num_workers": dataloader_kwargs.get("num_workers", 0),
             "pin_memory": dataloader_kwargs.get("pin_memory", False),
         }
+        # starting with HF Datasets v3.x, trust_remote_code must be `True` https://bit.ly/hf_datasets_trust_remote_req
+        self.trust_remote_code = True
         self.save_hyperparameters()
         os.environ["TOKENIZERS_PARALLELISM"] = "true" if self.hparams.tokenizers_parallelism else "false"
         self.tokenizer = AutoTokenizer.from_pretrained(
@@ -265,11 +267,13 @@ class RteBoolqDataModule(L.LightningDataModule):
         """Load the SuperGLUE dataset."""
         # N.B. PL calls prepare_data from a single process (rank 0) so do not use it to assign
         # state (e.g. self.x=y)
-        datasets.load_dataset("super_glue", self.hparams.task_name)
+        datasets.load_dataset("super_glue", self.hparams.task_name, trust_remote_code=self.trust_remote_code)
 
     def setup(self, stage):
         """Setup our dataset splits for training/validation."""
-        self.dataset = datasets.load_dataset("super_glue", self.hparams.task_name)
+        self.dataset = datasets.load_dataset(
+            "super_glue", self.hparams.task_name, trust_remote_code=self.trust_remote_code
+        )
         for split in self.dataset.keys():
             self.dataset[split] = self.dataset[split].map(
                 self._convert_to_features, batched=True, remove_columns=["label"]
@@ -385,7 +389,7 @@ class RteBoolqModule(L.LightningModule):
         self.log_dict(metric_dict, prog_bar=True)
 
     def configure_optimizers(self):
-        # With FTS >= 2.0, ``FinetuningScheduler`` simplifies initial optimizer configuration by ensuring the optimizer
+        # ``FinetuningScheduler`` simplifies initial optimizer configuration by ensuring the optimizer
         # configured here will optimize the parameters (and only those parameters) scheduled to be optimized in phase 0
         # of the current fine-tuning schedule. This auto-configuration can be disabled if desired by setting
         # ``enforce_phase0_params`` to ``False``.
