@@ -32,18 +32,22 @@ description: 'In this tutorial, we will discuss the application of neural networ
 
   '
 pip__find-link:
-- https://pytorch-geometric.com/whl/torch-%(TORCH_MAJOR_DOT_MINOR)s.0+%(DEVICE)s.html
+- https://pytorch-geometric.com/whl/torch-2.1.2+%(DEVICE)s.html
 accelerator:
 - GPU
+OS: Linux
+python: 3.10.12
 environment:
-- lightning==2.3.3
-- torch==2.0.1+cu118
-- pytorch-lightning==2.0.9.post0
-- torch_geometric==2.4.0
-- torch-spline-conv==1.2.2+pt20cu118
+- torch_geometric==2.1.0.post1
+- torchvision==0.16.2+cu121
+- seaborn==0.13.2
 - numpy==1.26.4
-- torch-scatter==2.1.2+pt20cu118
+- pytorch-lightning==2.0.9.post0
+- torch-sparse==0.6.18+pt21cu121
+- torch-scatter==2.1.2+pt21cu121
+- matplotlib==3.9.1
+- torch==2.1.2+cu121
+- torch-spline-conv==1.2.2+pt21cu121
 - torchmetrics==1.2.1
-- torch-sparse==0.6.18+pt20cu118
-- torch-cluster==1.6.3+pt20cu118
-published: '2024-07-22T21:50:38.146633'
+- torch-cluster==1.6.3+pt21cu121
+published: '2024-07-26T06:48:36.713151'
