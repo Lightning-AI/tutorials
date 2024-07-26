@@ -12,12 +12,12 @@ accelerator:
 OS: Linux
 python: 3.10.12
 environment:
-- torchmetrics==1.2.1
+- torchvision==0.19.0+cu121
+- torch==2.4.0+cu121
 - matplotlib==3.9.1
-- pytorch-lightning==2.0.9.post0
 - pandas==2.2.2
 - numpy==1.26.4
+- torchmetrics==1.4.0.post0
 - seaborn==0.13.2
-- torchvision==0.16.2+cu121
-- torch==2.1.2+cu121
-published: '2024-07-26T08:38:18.579712'
+- pytorch-lightning==2.1.4
+published: '2024-07-26T10:48:53.105523'
