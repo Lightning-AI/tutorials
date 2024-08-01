@@ -88,7 +88,7 @@ class Generator(nn.Module):
             layers = [nn.Linear(in_feat, out_feat)]
             if normalize:
                 layers.append(nn.BatchNorm1d(out_feat, 0.8))
-            layers.append(nn.LeakyReLU(0.2, inplace=True))
+            layers.append(nn.LeakyReLU(0.01, inplace=True))
             return layers
 
         self.model = nn.Sequential(
@@ -193,7 +193,7 @@ class GAN(pl.LightningModule):
         # log sampled images
         sample_imgs = self.generated_imgs[:6]
         grid = torchvision.utils.make_grid(sample_imgs)
-        self.logger.experiment.add_image("generated_images", grid, 0)
+        self.logger.experiment.add_image("train/generated_images", grid, self.current_epoch)
 
         # ground truth result (ie: all fake)
         # put on GPU because we created this tensor inside training_loop
@@ -201,7 +201,7 @@ class GAN(pl.LightningModule):
         valid = valid.type_as(imgs)
 
         # adversarial loss is binary cross-entropy
-        g_loss = self.adversarial_loss(self.discriminator(self(z)), valid)
+        g_loss = self.adversarial_loss(self.discriminator(self.generated_imgs), valid)
         self.log("g_loss", g_loss, prog_bar=True)
         self.manual_backward(g_loss)
         optimizer_g.step()
@@ -222,7 +222,7 @@ class GAN(pl.LightningModule):
         fake = torch.zeros(imgs.size(0), 1)
         fake = fake.type_as(imgs)
 
-        fake_loss = self.adversarial_loss(self.discriminator(self(z).detach()), fake)
+        fake_loss = self.adversarial_loss(self.discriminator(self.generated_imgs.detach()), fake)
 
         # discriminator loss is the average of these
         d_loss = (real_loss + fake_loss) / 2
@@ -231,6 +231,9 @@ class GAN(pl.LightningModule):
         optimizer_d.step()
         optimizer_d.zero_grad()
         self.untoggle_optimizer(optimizer_d)
+
+    def validation_step(self, batch, batch_idx):
+        pass
 
     def configure_optimizers(self):
         lr = self.hparams.lr
@@ -247,7 +250,7 @@ class GAN(pl.LightningModule):
         # log sampled images
         sample_imgs = self(z)
         grid = torchvision.utils.make_grid(sample_imgs)
-        self.logger.experiment.add_image("generated_images", grid, self.current_epoch)
+        self.logger.experiment.add_image("validation/generated_images", grid, self.current_epoch)
 
 
 # %%
@@ -263,4 +266,4 @@ trainer.fit(model, dm)
 # %%
 # Start tensorboard.
 # %load_ext tensorboard
-# %tensorboard --logdir lightning_logs/
+# %tensorboard --logdir lightning_logs/ --samples_per_plugin=images=60
