@@ -4,7 +4,7 @@ nbsphinx >=0.8.5, <0.10
 pandoc >=1.0, <2.4
 #docutils >=0.16
 sphinx-paramlinks >=0.5.1, <=0.6.0
-ipython[notebook] >=8.0.0, <8.2.0
+ipython[notebook] >=8.0.0, <9.0
 
 pt-lightning-sphinx-theme @ https://github.com/Lightning-AI/lightning_sphinx_theme/archive/master.zip
 
