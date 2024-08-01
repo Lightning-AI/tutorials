@@ -199,7 +199,7 @@ class AssistantCLI:
     _EXT_ARCHIVE_TAR = (".tar", ".gz")
     _EXT_ARCHIVE = _EXT_ARCHIVE_ZIP + _EXT_ARCHIVE_TAR
     _AZURE_POOL = "lit-rtx-3090"
-    _AZURE_DOCKER = "pytorchlightning/tutorials:cuda"
+    _AZURE_DOCKER = "pytorchlightning/tutorials:ubuntu22.04-cuda12.1.1-py3.10"
 
     @staticmethod
     def _find_meta(folder: str) -> str:
