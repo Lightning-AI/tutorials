@@ -201,7 +201,7 @@ class GAN(pl.LightningModule):
         valid = valid.type_as(imgs)
 
         # adversarial loss is binary cross-entropy
-        g_loss = self.adversarial_loss(self.discriminator(self(z)), valid)
+        g_loss = self.adversarial_loss(self.discriminator(self.generated_imgs), valid)
         self.log("g_loss", g_loss, prog_bar=True)
         self.manual_backward(g_loss)
         optimizer_g.step()
@@ -222,7 +222,7 @@ class GAN(pl.LightningModule):
         fake = torch.zeros(imgs.size(0), 1)
         fake = fake.type_as(imgs)
 
-        fake_loss = self.adversarial_loss(self.discriminator(self(z).detach()), fake)
+        fake_loss = self.adversarial_loss(self.discriminator(self.generated_imgs.detach()), fake)
 
         # discriminator loss is the average of these
         d_loss = (real_loss + fake_loss) / 2
@@ -259,7 +259,7 @@ model = GAN(*dm.dims)
 trainer = pl.Trainer(
     accelerator="auto",
     devices=1,
-    max_epochs=5,
+    max_epochs=15,
 )
 trainer.fit(model, dm)
 
