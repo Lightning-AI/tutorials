@@ -193,7 +193,7 @@ class GAN(pl.LightningModule):
         # log sampled images
         sample_imgs = self.generated_imgs[:6]
         grid = torchvision.utils.make_grid(sample_imgs)
-        self.logger.experiment.add_image("generated_images", grid, 0)
+        self.logger.experiment.add_image("train/generated_images", grid, self.current_epoch)
 
         # ground truth result (ie: all fake)
         # put on GPU because we created this tensor inside training_loop
@@ -232,6 +232,9 @@ class GAN(pl.LightningModule):
         optimizer_d.zero_grad()
         self.untoggle_optimizer(optimizer_d)
 
+    def validation_step(self, batch, batch_idx):
+        pass
+
     def configure_optimizers(self):
         lr = self.hparams.lr
         b1 = self.hparams.b1
@@ -247,7 +250,7 @@ class GAN(pl.LightningModule):
         # log sampled images
         sample_imgs = self(z)
         grid = torchvision.utils.make_grid(sample_imgs)
-        self.logger.experiment.add_image("generated_images", grid, self.current_epoch)
+        self.logger.experiment.add_image("validation/generated_images", grid, self.current_epoch)
 
 
 # %%
