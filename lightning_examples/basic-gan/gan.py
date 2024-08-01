@@ -266,4 +266,4 @@ trainer.fit(model, dm)
 # %%
 # Start tensorboard.
 # %load_ext tensorboard
-# %tensorboard --logdir lightning_logs/
+# %tensorboard --logdir lightning_logs/ --samples_per_plugin=images=60
