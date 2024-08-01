@@ -88,7 +88,7 @@ class Generator(nn.Module):
             layers = [nn.Linear(in_feat, out_feat)]
             if normalize:
                 layers.append(nn.BatchNorm1d(out_feat, 0.8))
-            layers.append(nn.LeakyReLU(0.2, inplace=True))
+            layers.append(nn.LeakyReLU(0.01, inplace=True))
             return layers
 
         self.model = nn.Sequential(
@@ -259,7 +259,7 @@ model = GAN(*dm.dims)
 trainer = pl.Trainer(
     accelerator="auto",
     devices=1,
-    max_epochs=15,
+    max_epochs=5,
 )
 trainer.fit(model, dm)
 
