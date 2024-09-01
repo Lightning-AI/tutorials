@@ -29,11 +29,11 @@ accelerator:
 OS: Linux
 python: 3.10.12
 environment:
-- matplotlib==3.9.1
-- torchvision==0.19.0+cu121
 - pytorch-lightning==2.3.3
+- matplotlib==3.9.2
 - torch==2.4.0+cu121
-- torchmetrics==1.4.0.post0
+- torchvision==0.19.0+cu121
+- numpy==2.0.2
 - seaborn==0.13.2
-- numpy==1.26.4
-published: '2024-07-26T11:19:32.325182'
+- torchmetrics==1.4.1
+published: '2024-09-01T12:00:57.262118'
