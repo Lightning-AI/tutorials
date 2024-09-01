@@ -27,11 +27,11 @@ accelerator:
 OS: Linux
 python: 3.10.12
 environment:
-- torchmetrics==1.4.0.post0
-- finetuning-scheduler==2.3.3
-- matplotlib==3.9.1
-- datasets==2.20.0
-- numpy==1.26.4
-- torch==2.4.0+cu121
+- finetuning-scheduler==2.4.0
 - pytorch-lightning==2.3.3
-published: '2024-07-26T22:27:33.829385'
+- matplotlib==3.9.2
+- numpy==2.0.2
+- torch==2.4.0+cu121
+- torchmetrics==1.4.1
+- datasets==2.21.0
+published: '2024-09-01T13:45:12.295371'
