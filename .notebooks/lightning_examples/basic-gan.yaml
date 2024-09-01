@@ -20,11 +20,11 @@ accelerator:
 OS: Linux
 python: 3.10.12
 environment:
+- tensorboard==2.17.1
 - torch==2.4.0+cu121
-- tensorboard==2.17.0
-- matplotlib==3.9.1
-- pytorch-lightning==2.3.3
-- torchmetrics==1.4.0.post0
-- numpy==1.26.4
+- numpy==2.0.2
 - torchvision==0.19.0+cu121
-published: '2024-08-01T15:03:17.321205'
+- torchmetrics==1.4.1
+- matplotlib==3.9.2
+- pytorch-lightning==2.3.3
+published: '2024-09-01T12:43:08.556439'
