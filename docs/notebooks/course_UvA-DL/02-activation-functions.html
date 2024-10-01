@@ -1,0 +1,1748 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-PQBQ3CV');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="google-site-verification" content="okUst94cAlWSsUsGZTB4xSS4UKTtRV8Nu5XZ9pdd3Aw" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Tutorial 2: Activation Functions &mdash; lightning-tutorials  documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://www.pytorchlightning.ai/notebooks/course_UvA-DL/02-activation-functions.html"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Tutorial 3: Initialization and Optimization" href="03-initialization-and-optimization.html" />
+    <link rel="prev" title="Tutorial 1: Introduction to PyTorch" href="01-introduction-to-pytorch.html" />
+  <!-- Google Analytics -->
+  
+  <!-- End Google Analytics -->
+  
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/UCity/UCity-Light.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/UCity/UCity-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/UCity/UCity-Semibold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/Inconsolata/Inconsolata.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <script defer src="https://use.fontawesome.com/releases/v6.1.1/js/all.js" integrity="sha384-xBXmu0dk1bEoiwd71wOonQLyH+VpgR1XcDH3rtxrLww5ajNTuMvBdL5SOiFZnNdp" crossorigin="anonymous"></script>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="../../_static/js/react/react.jsx" type="text/babel"></script>
+</head>
+
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pt-lightning-sandbox.rtfd.io/en/latest/" aria-label="PyTorch Lightning">
+      <!--  <img class="call-to-action-img" src="../../_static/images/logo-lightning-icon.png"/> -->
+      </a>
+
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pt-lightning-sandbox.readthedocs.io/en/latest/introduction_guide.html">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://www.pytorchlightning.ai/blog">Blog</a>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-orange-arrow">
+                Docs
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://lightning.ai/docs/pytorch/stable/">
+                  <span class="dropdown-title">PyTorch Lightning</span>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://lightning.ai/docs/fabric/stable/">
+                  <span class="dropdown-title">Lightning Fabric</span>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://torchmetrics.readthedocs.io/en/stable/">
+                  <span class="dropdown-title">TorchMetrics</span>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://lightning-flash.readthedocs.io/en/stable/">
+                  <span class="dropdown-title">Lightning Flash</span>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://lightning-bolts.readthedocs.io/en/stable/">
+                  <span class="dropdown-title">Lightning Bolts</span>
+                </a>
+            </div>
+          </li>
+
+          <!--<li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                Resources
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="">
+                  <span class="dropdown-title">Community</span>
+                  <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pt-lightning-sandbox.readthedocs.io/en/latest/#community-examples">
+                  <span class="dropdown-title">Developer Resources</span>
+                  <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="" target="_blank">
+                  <span class="dropdown-title">Forums</span>
+                  <p>A place to discuss PyTorch code, issues, install, research</p>
+                </a>
+                <a class="nav-dropdown-item" href="">
+                  <span class="dropdown-title">Models (Beta)</span>
+                  <p>Discover, publish, and reuse pre-trained models</p>
+                </a>
+              </div>
+            </div>
+          </li>-->
+
+          
+
+          <li>
+            <a href="https://github.com/Lightning-AI/lightning-sandbox">GitHub</a>
+          </li>
+
+          <li>
+            <a href="https://www.lightning.ai/">Lightning AI</a>
+          </li>
+
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+<body class="pytorch-body">
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+
+            
+              
+              
+            
+
+            
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+            
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Start here</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="01-introduction-to-pytorch.html">Tutorial 1: Introduction to PyTorch</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial 2: Activation Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03-initialization-and-optimization.html">Tutorial 3: Initialization and Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04-inception-resnet-densenet.html">Tutorial 4: Inception, ResNet and DenseNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05-transformers-and-MH-attention.html">Tutorial 5: Transformers and Multi-Head Attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06-graph-neural-networks.html">Tutorial 6: Basics of Graph Neural Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07-deep-energy-based-generative-models.html">Tutorial 7: Deep Energy-Based Generative Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08-deep-autoencoders.html">Tutorial 8: Deep Autoencoders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09-normalizing-flows.html">Tutorial 9: Normalizing Flows for Image Modeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10-autoregressive-image-modeling.html">Tutorial 10: Autoregressive Image Modeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11-vision-transformer.html">Tutorial 11: Vision Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12-meta-learning.html">Tutorial 12: Meta-Learning - Learning to Learn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13-contrastive-learning.html">Tutorial 13: Self-Supervised Contrastive Learning with SimCLR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/augmentation_kornia.html">GPU and batched data augmentation with Kornia and PyTorch-Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/barlow-twins.html">Barlow Twins Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/basic-gan.html">PyTorch Lightning Basic GAN Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/cifar10-baseline.html">PyTorch Lightning CIFAR10 ~94% Baseline Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/datamodules.html">PyTorch Lightning DataModules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/finetuning-scheduler.html">Fine-Tuning Scheduler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/mnist-hello-world.html">Introduction to PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/mnist-tpu-training.html">TPU training with PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/reinforce-learning-DQN.html">How to train a Deep Q Network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/text-transformers.html">Finetune Transformers Models with PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../templates/simple.html">How to write a PyTorch Lightning tutorial</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+      <li>Tutorial 2: Activation Functions</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/notebooks/course_UvA-DL/02-activation-functions.ipynb.txt" rel="nofollow"><img src="../../_static/images/view-page-source-icon.svg"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="Tutorial-2:-Activation-Functions">
+<h1>Tutorial 2: Activation Functions<a class="headerlink" href="#Tutorial-2:-Activation-Functions" title="Permalink to this heading">¶</a></h1>
+<ul class="simple">
+<li><p><strong>Author:</strong> Phillip Lippe</p></li>
+<li><p><strong>License:</strong> CC BY-SA</p></li>
+<li><p><strong>Generated:</strong> 2024-09-01T11:55:51.589497</p></li>
+</ul>
+<p>In this tutorial, we will take a closer look at (popular) activation functions and investigate their effect on optimization properties in neural networks. Activation functions are a crucial part of deep learning models as they add the non-linearity to neural networks. There is a great variety of activation functions in the literature, and some are more beneficial than others. The goal of this tutorial is to show the importance of choosing a good activation function (and how to do so), and what
+problems might occur if we don’t. This notebook is part of a lecture series on Deep Learning at the University of Amsterdam. The full list of tutorials can be found at <a class="reference external" href="https://uvadlc-notebooks.rtfd.io">https://uvadlc-notebooks.rtfd.io</a>.</p>
+<hr class="docutils" />
+<p>Open in <a class="reference external" href="https://colab.research.google.com/github/PytorchLightning/lightning-tutorials/blob/publication/.notebooks/course_UvA-DL/02-activation-functions.ipynb"><img alt="Open In Colab" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHUAAAAUCAYAAACzrHJDAAAIuUlEQVRoQ+1ZaVRURxb+qhdolmbTUVSURpZgmLhHbQVFZIlGQBEXcMvJhKiTEzfigjQg7oNEJ9GMGidnjnNMBs2czIzajksEFRE1xklCTKJiQLRFsUGkoUWw+82pamn79etGYoKek1B/4NW99/tu3e/dquJBAGD27NkHALxKf39WY39gyrOi+i3xqGtUoePJrFmznrmgtModorbTu8YRNZk5cybXTvCtwh7o6NR2KzuZMWNGh6jtVt7nA0ymT5/eJlF9POrh7PAQl6s8bGYa3PUum//htmebVtLRqW0q01M5keTk5FZFzU0oRle3+zxwg5Hgtb+PZiL/ZVohxCI+hL5JgjmfjPxZ26+33BG3dA+ealHPM4gQAo5rU59gsI8bRvl54t3Ca62mvHyUAhtOlLd5WSQpKcluBjumnoCLs1EARkVd9E8l3p9y2i7RbQ1B6pFwu/YDgW8KbHJHMTQrwnjz2oZm9M4pavOCfo5jWrgCaaMVcMs6/pNhDr0+AMN93XlxV7R6DNpyzi7W/OE+yIrsjU6rTrbKV5cd/pNyItOmTbMp6sbBB+EqaYJY4cWE3VUciNt1TpgfcRFv71Fi54xT5kSoyLvOBEJMOMxWXkFlBeBSX4u6Zkcs+3KszYRtiapbNRqF31UgetVuc8z9vBXIv1qD+F1f83B6uDlCUyfsZGepGPpmg01OB7EITQbhS9ribKy+DmP1DUiClLz4bnIHVOqa7BY+Z1wg5g3zgUvyehiNpnJKxSLc/ts76LKm0BzX3c0RNy1yXjDcB5lWoro4iNHQxM+f1kWeWQARAWQS++trISJTp061Kep25X/MycwtjuctSC5rxo7ppi7VNUox5+PhPHtrsS2O1qJ6yx1QujQUzm9sh6hbkBlvvGcN8hYnwjUjH6kjfZEd5c/jitz5Jc5U3ENnFynKl4eB7nyEgP2UZ+Yz3/rVEbyYr27qELrtC4FIC0J7sc7xWnmccdHfRRTs0VB+cA4lt+oFcRR/wUeH8FG5w2Mbx8FQ8TXEvv1xYf4wBP3O2WyL3/UVjpXWgIqaFeUPr+wTmDvUB7njH6/bOv+HRg4SqioAg5GDe1aB3ZeMTJkyRSBqkLsWqSEm0fZVBEN94zEZnYvrdx1JL5cxe+a+AbhSJecRRHW/ikTFRTa38dtQlNZ5CRKwFvUtZU/kvBoEF9Uxni/XqIM+dwKbTw3rhcxIf7gmr2M+H6SMwx8iBzJbw5oxeG3Lv5FX9B3AGaHPS8e8z77H7v9VMpvPG5ug1enh7eGK8h0LBTwUb+GInqzInlRUK65DmTPQu4c3+uQKjwKK77zwUxBX4Tq7yR1RuiwUsqlrABCM6esHdXoy47fk4+prYKy8ZF574x4V5BnHQBuf4g9Z9ld8U36L2aktZNNplNfw7zotwWTy5MkCUft4aLEopJj5/OPHl1BQqeAVOnHgNSQOqmBzq9V9cfEm/yx5ubMGKS9cYPZ3vx2OS/c6PVHUuUO7Y1Pci3BO/1zgq18byebfGemLtNF+6JRtOvMk926ibussZqM+1mNz4TWkH7rCbM5phwGRGDAaoF8fY5OHFnlldAA8sgoEXKnDukA1NgSeNjqkJT9brbN4pC9WRweYXyLugR73c+MYvyWfu0yC6+mjzN1Isfw3FKJS98CU/zI1IHFkFPR52cHL2FJk0sB6kMTERIGo9GzcPkLNfA0cwdwi/hfEYO86ZMd9w+y1egfM2T2Eh/vesMNwljSzuZRT420SW3eqy8N6aHMmwmnFUZ7/PGVPbIoNZvNU1BURdHs0bT2+HjL8sDSM2e6vi4Lj5NW8WOLVA6RTT2azxLV+bglaFNqLieqemS/gWkw7NyoAHo+2dEsiivengjKsPFoqWOvbSh/kxPaxyW/JRzH2Fl3EzD9/xjAefJqB3usKUFn/0Gb+S/d/jy3FN2yLOmnSJJtn6oehByEiHPSeXnDxFGPRnoFoaBJjcdQlbDwcjL1zTNuQpoxD7R0OG0uUTMi0fkVwdzBdYIwcwZunxrVJVLplNm54BZp7jfDfYLoNyqQi1K6KxIdHzmN+QQ2WjFIwUT2zTGdlRXo4NFXVUO4sgX5dFC7f0aP/ZlNeUjFBuL8Xjl6uRuP6aMjSjpjzsH62FDU7JhBuGccEXIvDfJFFBc/gHw80dklfCVYnRaDfpiJcutPA4F7qJsfJeUPQI+1fqMlNhFx1FM0GDqkjFVg7NojlQ0Vt4aM5ReSqcbpaCg8nCW5lRsBvbT4T1TLfFptsfh7gItzuKTdJSEiwKSrt1vcmnEXXrsLbYnWDA1bu+z2WKy9Arq+1KRqdfKsoBo0GcdtEpS/B1bO4v0cFiUhkjskvKcMrWwtAPHuwQq8Z+4LZ1vTQANfXt4J0DwZX9gWa9qh4XDM/voC9JXfwYEMMHJcfNtusn82ihvliVUwg5KrPGVf6GH94ZJpEZBen6EC4qYTHA1dXhW0JIex8txzv//c8lhzXIi/BFxOH9jGbQhZsRalTIBZZ8KkGyZAxeRQvXkFF1TWz/Hm46jNYUnjPbt3JxIkT7f6dSj8qfJJyVvBxgaIlblOyjtysNHWN9fjjqWi7glJfW3/S0Hlj2XnA8PhKT9w6g3Qx3XiXhvuxQsuT1proxBKI/AaZqY1Xz5muvY8G8XkRRCaHsfQsRAFDH/tZPbcYuHotOG0FRIqB4HR3wNVoIPLtz8ycTguu+jpEigE218vd1YCr5m+HpHMvEI9u4LTXwNWaLjl0iPwGAmIpeHx1VeCqTJdPs1/vweweQPO3HC24NhOhnTphwoQnfv6QSY2ICbkNmdSA4h87oaLaiYfn5diIEd4att2erOwJXbPUHp953p6orQVSUVWRAXBT8c/dJ5L9xhzaJGp71GR/wFP8P5V2z10NSC9T93QM2xUg8fHxT+zU9ijeU4naHon8CjFJXFzc8/kn+dN06q9QgF98SYSo2Xen2NjYZy5sR6f+4nLSK5Iam2PH/x87a1YN/t5sBgAAAABJRU5ErkJggg==" style="width: 117px; height: 20px;" /></a></p>
+<p>Give us a ⭐ <a class="reference external" href="https://www.github.com/Lightning-AI/lightning/">on Github</a> | Check out <a class="reference external" href="https://lightning.ai/docs/">the documentation</a> | Join us <a class="reference external" href="https://discord.com/invite/tfXFetEZxv">on Discord</a></p>
+<section id="Setup">
+<h2>Setup<a class="headerlink" href="#Setup" title="Permalink to this heading">¶</a></h2>
+<p>This notebook requires some packages besides pytorch-lightning.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--quiet<span class="w"> </span><span class="s2">&quot;matplotlib&quot;</span><span class="w"> </span><span class="s2">&quot;torchvision&quot;</span><span class="w"> </span><span class="s2">&quot;numpy &lt;3.0&quot;</span><span class="w"> </span><span class="s2">&quot;torchmetrics &gt;=1.0,&lt;1.5&quot;</span><span class="w"> </span><span class="s2">&quot;torch &gt;=1.8.1,&lt;2.5&quot;</span><span class="w"> </span><span class="s2">&quot;seaborn&quot;</span><span class="w"> </span><span class="s2">&quot;pytorch-lightning &gt;=2.0,&lt;2.5&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-yellow-fg">WARNING: Running pip as the &#39;root&#39; user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable.It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.</span><span class="ansi-yellow-fg">
+</span>
+</pre></div></div>
+</div>
+<div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/3C_m71NDkPs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div><p>Before we start, we import our standard libraries and set up basic functions:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">urllib.error</span> <span class="kn">import</span> <span class="n">HTTPError</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">matplotlib_inline.backend_inline</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+<span class="kn">import</span> <span class="nn">torch.utils.data</span> <span class="k">as</span> <span class="nn">data</span>
+<span class="kn">import</span> <span class="nn">torchvision</span>
+<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
+<span class="kn">from</span> <span class="nn">torchvision.datasets</span> <span class="kn">import</span> <span class="n">FashionMNIST</span>
+<span class="kn">from</span> <span class="nn">tqdm.notebook</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="n">matplotlib_inline</span><span class="o">.</span><span class="n">backend_inline</span><span class="o">.</span><span class="n">set_matplotlib_formats</span><span class="p">(</span><span class="s2">&quot;svg&quot;</span><span class="p">,</span> <span class="s2">&quot;pdf&quot;</span><span class="p">)</span>  <span class="c1"># For export</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>We will define a function to set a seed on all libraries we might interact with in this tutorial (here numpy and torch). This allows us to make our training reproducible. However, note that in contrast to the CPU, the same seed on different GPU architectures can give different results. All models here have been trained on an NVIDIA GTX1080Ti.</p>
+<p>Additionally, the following cell defines two paths: <code class="docutils literal notranslate"><span class="pre">DATASET_PATH</span></code> and <code class="docutils literal notranslate"><span class="pre">CHECKPOINT_PATH</span></code>. The dataset path is the directory where we will download datasets used in the notebooks. It is recommended to store all datasets from PyTorch in one joined directory to prevent duplicate downloads. The checkpoint path is the directory where we will store trained model weights and additional files. The needed files will be automatically downloaded. In case you are on Google Colab, it is recommended to
+change the directories to start from the current directory (i.e. remove <code class="docutils literal notranslate"><span class="pre">../</span></code> for both dataset and checkpoint path).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Path to the folder where the datasets are/should be downloaded (e.g. MNIST)</span>
+<span class="n">DATASET_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH_DATASETS&quot;</span><span class="p">,</span> <span class="s2">&quot;data/&quot;</span><span class="p">)</span>
+<span class="c1"># Path to the folder where the pretrained models are saved</span>
+<span class="n">CHECKPOINT_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH_CHECKPOINT&quot;</span><span class="p">,</span> <span class="s2">&quot;saved_models/Activation_Functions/&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># Function for setting the seed</span>
+<span class="k">def</span> <span class="nf">set_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">):</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>  <span class="c1"># GPU operation have separate seed</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed_all</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+
+<span class="n">set_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Additionally, some operations on a GPU are implemented stochastic for efficiency</span>
+<span class="c1"># We want to ensure that all operations are deterministic on GPU (if used) for reproducibility</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">deterministic</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">benchmark</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1"># Fetching the device that will be used throughout this notebook</span>
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda:0&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using device&quot;</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using device cuda:0
+</pre></div></div>
+</div>
+<p>The following cell downloads all pretrained models we will use in this notebook. The files are stored on a separate <a class="reference external" href="https://github.com/phlippe/saved_models">repository</a> to reduce the size of the notebook repository, especially for building the documentation on ReadTheDocs. In case the download below fails, you can download the models from a <a class="reference external" href="https://drive.google.com/drive/folders/1sFpZUpDJVjiYEvIqISqfkFizfsTnPf4s?usp=sharing">Google Drive folder</a>. Please let me (Phillip) know if an error
+occurs so it can be fixed for all students.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Github URL where saved models are stored for this tutorial</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial3/&quot;</span>
+<span class="c1"># Files to download</span>
+<span class="n">pretrained_files</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;FashionMNIST_elu.config&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FashionMNIST_elu.tar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FashionMNIST_leakyrelu.config&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FashionMNIST_leakyrelu.tar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FashionMNIST_relu.config&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FashionMNIST_relu.tar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FashionMNIST_sigmoid.config&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FashionMNIST_sigmoid.tar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FashionMNIST_swish.config&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FashionMNIST_swish.tar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FashionMNIST_tanh.config&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FashionMNIST_tanh.tar&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="c1"># Create checkpoint path if it doesn&#39;t exist yet</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">CHECKPOINT_PATH</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># For each file, check whether it already exists. If not, try downloading it.</span>
+<span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">pretrained_files</span><span class="p">:</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CHECKPOINT_PATH</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="n">file_url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="n">file_name</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading </span><span class="si">{</span><span class="n">file_url</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">file_url</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Something went wrong. Please try to download the file from the GDrive folder, or contact the author with the full output including the following error:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">e</span><span class="p">,</span>
+            <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Downloading https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial3/FashionMNIST_elu.config...
+Downloading https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial3/FashionMNIST_elu.tar...
+Downloading https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial3/FashionMNIST_leakyrelu.config...
+Downloading https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial3/FashionMNIST_leakyrelu.tar...
+Downloading https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial3/FashionMNIST_relu.config...
+Downloading https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial3/FashionMNIST_relu.tar...
+Downloading https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial3/FashionMNIST_sigmoid.config...
+Downloading https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial3/FashionMNIST_sigmoid.tar...
+Downloading https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial3/FashionMNIST_swish.config...
+Downloading https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial3/FashionMNIST_swish.tar...
+Downloading https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial3/FashionMNIST_tanh.config...
+Downloading https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial3/FashionMNIST_tanh.tar...
+</pre></div></div>
+</div>
+</section>
+<section id="Common-activation-functions">
+<h2>Common activation functions<a class="headerlink" href="#Common-activation-functions" title="Permalink to this heading">¶</a></h2>
+<p>As a first step, we will implement some common activation functions by ourselves. Of course, most of them can also be found in the <code class="docutils literal notranslate"><span class="pre">torch.nn</span></code> package (see the <a class="reference external" href="https://pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity">documentation</a> for an overview). However, we’ll write our own functions here for a better understanding and insights.</p>
+<p>For an easier time of comparing various activation functions, we start with defining a base class from which all our future modules will inherit:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ActivationFunction</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Every activation function will be an <code class="docutils literal notranslate"><span class="pre">nn.Module</span></code> so that we can integrate them nicely in a network. We will use the <code class="docutils literal notranslate"><span class="pre">config</span></code> dictionary to store adjustable parameters for some activation functions.</p>
+<p>Next, we implement two of the “oldest” activation functions that are still commonly used for various tasks: sigmoid and tanh. Both the sigmoid and tanh activation can be also found as PyTorch functions (<code class="docutils literal notranslate"><span class="pre">torch.sigmoid</span></code>, <code class="docutils literal notranslate"><span class="pre">torch.tanh</span></code>) or as modules (<code class="docutils literal notranslate"><span class="pre">nn.Sigmoid</span></code>, <code class="docutils literal notranslate"><span class="pre">nn.Tanh</span></code>). Here, we implement them by hand:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Sigmoid</span><span class="p">(</span><span class="n">ActivationFunction</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">Tanh</span><span class="p">(</span><span class="n">ActivationFunction</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x_exp</span><span class="p">,</span> <span class="n">neg_x_exp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">x_exp</span> <span class="o">-</span> <span class="n">neg_x_exp</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">x_exp</span> <span class="o">+</span> <span class="n">neg_x_exp</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Another popular activation function that has allowed the training of deeper networks, is the Rectified Linear Unit (ReLU). Despite its simplicity of being a piecewise linear function, ReLU has one major benefit compared to sigmoid and tanh: a strong, stable gradient for a large range of values. Based on this idea, a lot of variations of ReLU have been proposed, of which we will implement the following three: LeakyReLU, ELU, and Swish. LeakyReLU replaces the zero settings in the negative part
+with a smaller slope to allow gradients to flow also in this part of the input. Similarly, ELU replaces the negative part with an exponential decay. The third, most recently proposed activation function is Swish, which is actually the result of a large experiment with the purpose of finding the “optimal” activation function. Compared to the other activation functions, Swish is both smooth and non-monotonic (i.e. contains a change of sign in the gradient). This has been shown to prevent dead
+neurons as in standard ReLU activation, especially for deep networks. If interested, a more detailed discussion of the benefits of Swish can be found in <a class="reference external" href="https://arxiv.org/abs/1710.05941">this paper</a> [1].</p>
+<p>Let’s implement the four activation functions below:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ReLU</span><span class="p">(</span><span class="n">ActivationFunction</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">LeakyReLU</span><span class="p">(</span><span class="n">ActivationFunction</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alpha</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ELU</span><span class="p">(</span><span class="n">ActivationFunction</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Swish</span><span class="p">(</span><span class="n">ActivationFunction</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>For later usage, we summarize all our activation functions in a dictionary mapping the name to the class object. In case you implement a new activation function by yourself, add it here to include it in future comparisons as well:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">act_fn_by_name</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;sigmoid&quot;</span><span class="p">:</span> <span class="n">Sigmoid</span><span class="p">,</span> <span class="s2">&quot;tanh&quot;</span><span class="p">:</span> <span class="n">Tanh</span><span class="p">,</span> <span class="s2">&quot;relu&quot;</span><span class="p">:</span> <span class="n">ReLU</span><span class="p">,</span> <span class="s2">&quot;leakyrelu&quot;</span><span class="p">:</span> <span class="n">LeakyReLU</span><span class="p">,</span> <span class="s2">&quot;elu&quot;</span><span class="p">:</span> <span class="n">ELU</span><span class="p">,</span> <span class="s2">&quot;swish&quot;</span><span class="p">:</span> <span class="n">Swish</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<section id="Visualizing-activation-functions">
+<h3>Visualizing activation functions<a class="headerlink" href="#Visualizing-activation-functions" title="Permalink to this heading">¶</a></h3>
+<p>To get an idea of what each activation function actually does, we will visualize them in the following. Next to the actual activation value, the gradient of the function is an important aspect as it is crucial for optimizing the neural network. PyTorch allows us to compute the gradients simply by calling the <code class="docutils literal notranslate"><span class="pre">backward</span></code> function:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_grads</span><span class="p">(</span><span class="n">act_fn</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the gradients of an activation function at specified positions.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        act_fn: An object of the class &quot;ActivationFunction&quot; with an implemented forward pass.</span>
+<span class="sd">        x: 1D input tensor.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A tensor with the same size of x containing the gradients of act_fn at x.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">()</span>  <span class="c1"># Mark the input as tensor for which we want to store gradients</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">act_fn</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>  <span class="c1"># Summing results in an equal gradient flow to each element in x</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">grad</span>  <span class="c1"># Accessing the gradients of x by &quot;x.grad&quot;</span>
+</pre></div>
+</div>
+</div>
+<p>Now we can visualize all our activation functions including their gradients:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">vis_act_fn</span><span class="p">(</span><span class="n">act_fn</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="c1"># Run activation function</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">act_fn</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">y_grads</span> <span class="o">=</span> <span class="n">get_grads</span><span class="p">(</span><span class="n">act_fn</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="c1"># Push x, y and gradients back to cpu for plotting</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_grads</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">y_grads</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="c1"># Plotting</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ActFn&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_grads</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Gradient&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">act_fn</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+
+<span class="c1"># Add activation functions if wanted</span>
+<span class="n">act_fns</span> <span class="o">=</span> <span class="p">[</span><span class="n">act_fn</span><span class="p">()</span> <span class="k">for</span> <span class="n">act_fn</span> <span class="ow">in</span> <span class="n">act_fn_by_name</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>  <span class="c1"># Range on which we want to visualize the activation functions</span>
+<span class="c1"># Plotting</span>
+<span class="n">cols</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">act_fns</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">cols</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">cols</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="n">rows</span> <span class="o">*</span> <span class="mi">4</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">act_fn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">act_fns</span><span class="p">):</span>
+    <span class="n">vis_act_fn</span><span class="p">(</span><span class="n">act_fn</span><span class="p">,</span> <span class="n">ax</span><span class="p">[</span><span class="nb">divmod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">cols</span><span class="p">)],</span> <span class="n">x</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_02-activation-functions_21_0.svg" src="../../_images/notebooks_course_UvA-DL_02-activation-functions_21_0.svg" /></div>
+</div>
+</section>
+</section>
+<section id="Analysing-the-effect-of-activation-functions">
+<h2>Analysing the effect of activation functions<a class="headerlink" href="#Analysing-the-effect-of-activation-functions" title="Permalink to this heading">¶</a></h2>
+<div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/GjCfAeHGq9U" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div><p>After implementing and visualizing the activation functions, we are aiming to gain insights into their effect. We do this by using a simple neural network trained on <a class="reference external" href="https://github.com/zalandoresearch/fashion-mnist">FashionMNIST</a> and examine various aspects of the model, including the performance and gradient flow.</p>
+<section id="id1">
+<h3>Setup<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
+<p>Firstly, let’s set up a neural network. The chosen network views the images as 1D tensors and pushes them through a sequence of linear layers and a specified activation function. Feel free to experiment with other network architectures.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BaseNetwork</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">act_fn</span><span class="p">,</span> <span class="n">input_size</span><span class="o">=</span><span class="mi">784</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">hidden_sizes</span><span class="o">=</span><span class="p">[</span><span class="mi">512</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">128</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Base Network.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            act_fn: Object of the activation function that should be used as non-linearity in the network.</span>
+<span class="sd">            input_size: Size of the input images in pixels</span>
+<span class="sd">            num_classes: Number of classes we want to predict</span>
+<span class="sd">            hidden_sizes: A list of integers specifying the hidden layer sizes in the NN</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="c1"># Create the network based on the specified hidden sizes</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">layer_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">input_size</span><span class="p">]</span> <span class="o">+</span> <span class="n">hidden_sizes</span>
+        <span class="n">layer_size_last</span> <span class="o">=</span> <span class="n">layer_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">layer_size</span> <span class="ow">in</span> <span class="n">layer_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">layers</span> <span class="o">+=</span> <span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">layer_size_last</span><span class="p">,</span> <span class="n">layer_size</span><span class="p">),</span> <span class="n">act_fn</span><span class="p">]</span>
+            <span class="n">layer_size_last</span> <span class="o">=</span> <span class="n">layer_size</span>
+        <span class="n">layers</span> <span class="o">+=</span> <span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">layer_sizes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_classes</span><span class="p">)]</span>
+        <span class="c1"># nn.Sequential summarizes a list of modules into a single module, applying them in sequence</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layers</span><span class="p">)</span>
+
+        <span class="c1"># We store all hyperparameters in a dictionary for saving and loading of the model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;act_fn&quot;</span><span class="p">:</span> <span class="n">act_fn</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+            <span class="s2">&quot;input_size&quot;</span><span class="p">:</span> <span class="n">input_size</span><span class="p">,</span>
+            <span class="s2">&quot;num_classes&quot;</span><span class="p">:</span> <span class="n">num_classes</span><span class="p">,</span>
+            <span class="s2">&quot;hidden_sizes&quot;</span><span class="p">:</span> <span class="n">hidden_sizes</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Reshape images to a flat vector</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+</pre></div>
+</div>
+</div>
+<p>We also add functions for loading and saving the model. The hyperparameters are stored in a configuration file (simple json file):</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">_get_config_file</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+    <span class="c1"># Name of the file for storing hyperparameter details</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;.config&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_model_file</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+    <span class="c1"># Name of the file for storing network parameters</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;.tar&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">net</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Loads a saved model from disk.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_path: Path of the checkpoint directory</span>
+<span class="sd">        model_name: Name of the model (str)</span>
+<span class="sd">        net: (Optional) If given, the state dict is loaded into this model. Otherwise, a new model is created.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config_file</span><span class="p">,</span> <span class="n">model_file</span> <span class="o">=</span> <span class="n">_get_config_file</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span><span class="p">),</span> <span class="n">_get_model_file</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span>
+        <span class="n">config_file</span>
+    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;Could not find the config file &quot;</span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s1">&quot;. Are you sure this is the correct path and you have your model config stored here?&#39;</span>
+    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span>
+        <span class="n">model_file</span>
+    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;Could not find the model file &quot;</span><span class="si">{</span><span class="n">model_file</span><span class="si">}</span><span class="s1">&quot;. Are you sure this is the correct path and you have your model stored here?&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">config_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">net</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">act_fn_name</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="s2">&quot;act_fn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">act_fn</span> <span class="o">=</span> <span class="n">act_fn_by_name</span><span class="p">[</span><span class="n">act_fn_name</span><span class="p">](</span><span class="o">**</span><span class="n">config_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;act_fn&quot;</span><span class="p">))</span>
+        <span class="n">net</span> <span class="o">=</span> <span class="n">BaseNetwork</span><span class="p">(</span><span class="n">act_fn</span><span class="o">=</span><span class="n">act_fn</span><span class="p">,</span> <span class="o">**</span><span class="n">config_dict</span><span class="p">)</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_file</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="n">device</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">net</span>
+
+
+<span class="k">def</span> <span class="nf">save_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a model, we save the state_dict and hyperparameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model: Network object to save parameters from</span>
+<span class="sd">        model_path: Path of the checkpoint directory</span>
+<span class="sd">        model_name: Name of the model (str)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config_dict</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">config</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">config_file</span><span class="p">,</span> <span class="n">model_file</span> <span class="o">=</span> <span class="n">_get_config_file</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span><span class="p">),</span> <span class="n">_get_model_file</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">model_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We also set up the dataset we want to train it on, namely <a class="reference external" href="https://github.com/zalandoresearch/fashion-mnist">FashionMNIST</a>. FashionMNIST is a more complex version of MNIST and contains black-and-white images of clothes instead of digits. The 10 classes include trousers, coats, shoes, bags and more. To load this dataset, we will make use of yet another PyTorch package, namely <code class="docutils literal notranslate"><span class="pre">torchvision</span></code> (<a class="reference external" href="https://pytorch.org/vision/stable/index.html">documentation</a>). The <code class="docutils literal notranslate"><span class="pre">torchvision</span></code> package
+consists of popular datasets, model architectures, and common image transformations for computer vision. We will use the package for many of the notebooks in this course to simplify our dataset handling.</p>
+<p>Let’s load the dataset below, and visualize a few images to get an impression of the data.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="c1"># Transformations applied on each image =&gt; first make them a tensor, then normalize them in the range -1 to 1</span>
+<span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,))])</span>
+
+<span class="c1"># Loading the training dataset. We need to split it into a training and validation part</span>
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">FashionMNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">DATASET_PATH</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">train_set</span><span class="p">,</span> <span class="n">val_set</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">random_split</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="p">[</span><span class="mi">50000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">])</span>
+
+<span class="c1"># Loading the test set</span>
+<span class="n">test_set</span> <span class="o">=</span> <span class="n">FashionMNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">DATASET_PATH</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Downloading http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-images-idx3-ubyte.gz
+Downloading http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-images-idx3-ubyte.gz to /__w/13/s/.datasets/FashionMNIST/raw/train-images-idx3-ubyte.gz
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 26421880/26421880 [00:01&lt;00:00, 17384514.83it/s]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Extracting /__w/13/s/.datasets/FashionMNIST/raw/train-images-idx3-ubyte.gz to /__w/13/s/.datasets/FashionMNIST/raw
+
+Downloading http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz
+Downloading http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz to /__w/13/s/.datasets/FashionMNIST/raw/train-labels-idx1-ubyte.gz
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 29515/29515 [00:00&lt;00:00, 321033.16it/s]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Extracting /__w/13/s/.datasets/FashionMNIST/raw/train-labels-idx1-ubyte.gz to /__w/13/s/.datasets/FashionMNIST/raw
+
+Downloading http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-images-idx3-ubyte.gz
+Downloading http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-images-idx3-ubyte.gz to /__w/13/s/.datasets/FashionMNIST/raw/t10k-images-idx3-ubyte.gz
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 4422102/4422102 [00:00&lt;00:00, 5680453.33it/s]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Extracting /__w/13/s/.datasets/FashionMNIST/raw/t10k-images-idx3-ubyte.gz to /__w/13/s/.datasets/FashionMNIST/raw
+
+Downloading http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-labels-idx1-ubyte.gz
+Downloading http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-labels-idx1-ubyte.gz to /__w/13/s/.datasets/FashionMNIST/raw/t10k-labels-idx1-ubyte.gz
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 5148/5148 [00:00&lt;00:00, 17640749.18it/s]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Extracting /__w/13/s/.datasets/FashionMNIST/raw/t10k-labels-idx1-ubyte.gz to /__w/13/s/.datasets/FashionMNIST/raw
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>We define a set of data loaders that we can use for various purposes later. Note that for actually training a model, we will use different data loaders with a lower batch size.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_loader</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">train_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">val_loader</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">val_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">test_loader</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">test_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exmp_imgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">train_set</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">)]</span>
+<span class="c1"># Organize the images into a grid for nicer visualization</span>
+<span class="n">img_grid</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">make_grid</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">exmp_imgs</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">nrow</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pad_value</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">img_grid</span> <span class="o">=</span> <span class="n">img_grid</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;FashionMNIST examples&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_grid</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_02-activation-functions_33_0.svg" src="../../_images/notebooks_course_UvA-DL_02-activation-functions_33_0.svg" /></div>
+</div>
+</section>
+<section id="Visualizing-the-gradient-flow-after-initialization">
+<h3>Visualizing the gradient flow after initialization<a class="headerlink" href="#Visualizing-the-gradient-flow-after-initialization" title="Permalink to this heading">¶</a></h3>
+<p>As mentioned previously, one important aspect of activation functions is how they propagate gradients through the network. Imagine we have a very deep neural network with more than 50 layers. The gradients for the input layer, i.e. the very first layer, have passed &gt;50 times the activation function, but we still want them to be of a reasonable size. If the gradient through the activation function is (in expectation) considerably smaller than 1, our gradients will vanish until they reach the
+input layer. If the gradient through the activation function is larger than 1, the gradients exponentially increase and might explode.</p>
+<p>To get a feeling of how every activation function influences the gradients, we can look at a freshly initialized network and measure the gradients for each parameter for a batch of 256 images:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">visualize_gradients</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Visualize gradients.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        net: Object of class BaseNetwork</span>
+<span class="sd">        color: Color in which we want to visualize the histogram (for easier separation of activation functions)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">small_loader</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">train_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">imgs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">small_loader</span><span class="p">))</span>
+    <span class="n">imgs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="c1"># Pass one batch through the network, and calculate the gradients for the weights</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+    <span class="n">preds</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">cross_entropy</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="c1"># We limit our visualization to the weight parameters and exclude the bias to reduce the number of plots</span>
+    <span class="n">grads</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">params</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">net</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;weight&quot;</span> <span class="ow">in</span> <span class="n">name</span>
+    <span class="p">}</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+    <span class="c1"># Plotting</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grads</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">columns</span> <span class="o">*</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">))</span>
+    <span class="n">fig_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">grads</span><span class="p">:</span>
+        <span class="n">key_ax</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="n">fig_index</span> <span class="o">%</span> <span class="n">columns</span><span class="p">]</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">grads</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">key_ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">key_ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="n">key_ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Grad magnitude&quot;</span><span class="p">)</span>
+        <span class="n">fig_index</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Gradient magnitude distribution for activation function </span><span class="si">{</span><span class="n">net</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;act_fn&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.05</span>
+    <span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mf">0.45</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Seaborn prints warnings if histogram has small values. We can ignore them for now</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+<span class="c1"># Create a plot for every activation function</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">act_fn_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">act_fn_by_name</span><span class="p">):</span>
+    <span class="c1"># Setting the seed ensures that we have the same weight initialization for each activation function</span>
+    <span class="n">set_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">act_fn</span> <span class="o">=</span> <span class="n">act_fn_by_name</span><span class="p">[</span><span class="n">act_fn_name</span><span class="p">]()</span>
+    <span class="n">net_actfn</span> <span class="o">=</span> <span class="n">BaseNetwork</span><span class="p">(</span><span class="n">act_fn</span><span class="o">=</span><span class="n">act_fn</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">visualize_gradients</span><span class="p">(</span><span class="n">net_actfn</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_02-activation-functions_36_0.svg" src="../../_images/notebooks_course_UvA-DL_02-activation-functions_36_0.svg" /></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_02-activation-functions_36_1.svg" src="../../_images/notebooks_course_UvA-DL_02-activation-functions_36_1.svg" /></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_02-activation-functions_36_2.svg" src="../../_images/notebooks_course_UvA-DL_02-activation-functions_36_2.svg" /></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_02-activation-functions_36_3.svg" src="../../_images/notebooks_course_UvA-DL_02-activation-functions_36_3.svg" /></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_02-activation-functions_36_4.svg" src="../../_images/notebooks_course_UvA-DL_02-activation-functions_36_4.svg" /></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_02-activation-functions_36_5.svg" src="../../_images/notebooks_course_UvA-DL_02-activation-functions_36_5.svg" /></div>
+</div>
+<p>The sigmoid activation function shows a clearly undesirable behavior. While the gradients for the output layer are very large with up to 0.1, the input layer has the lowest gradient norm across all activation functions with only 1e-5. This is due to its small maximum gradient of 1/4, and finding a suitable learning rate across all layers is not possible in this setup. All the other activation functions show to have similar gradient norms across all layers. Interestingly, the ReLU activation has
+a spike around 0 which is caused by its zero-part on the left, and dead neurons (we will take a closer look at this later on).</p>
+<p>Note that additionally to the activation, the initialization of the weight parameters can be crucial. By default, PyTorch uses the <a class="reference external" href="https://pytorch.org/docs/stable/nn.init.html#torch.nn.init.kaiming_uniform_">Kaiming</a> initialization for linear layers optimized for Tanh activations. In Tutorial 4, we will take a closer look at initialization, but assume for now that the Kaiming initialization works for all activation functions reasonably well.</p>
+</section>
+<section id="Training-a-model">
+<h3>Training a model<a class="headerlink" href="#Training-a-model" title="Permalink to this heading">¶</a></h3>
+<p>Next, we want to train our model with different activation functions on FashionMNIST and compare the gained performance. All in all, our final goal is to achieve the best possible performance on a dataset of our choice. Therefore, we write a training loop in the next cell including a validation after every epoch and a final test on the best model:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">max_epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Train a model on the training set of FashionMNIST.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        net: Object of BaseNetwork</span>
+<span class="sd">        model_name: (str) Name of the model, used for creating the checkpoint names</span>
+<span class="sd">        max_epochs: Number of epochs we want to (maximally) train for</span>
+<span class="sd">        patience: If the performance on the validation set has not improved for #patience epochs, we stop training early</span>
+<span class="sd">        batch_size: Size of batches used in training</span>
+<span class="sd">        overwrite: Determines how to handle the case when there already exists a checkpoint. If True, it will be overwritten. Otherwise, we skip training.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">_get_model_file</span><span class="p">(</span><span class="n">CHECKPOINT_PATH</span><span class="p">,</span> <span class="n">model_name</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">file_exists</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model file already exists. Skipping training...&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">file_exists</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Model file exists, but will be overwritten...&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Defining optimizer, loss and data loader</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>  <span class="c1"># Default parameters, feel free to change</span>
+        <span class="n">loss_module</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
+        <span class="n">train_loader_local</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+            <span class="n">train_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="n">val_scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">best_val_epoch</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_epochs</span><span class="p">):</span>
+            <span class="c1">############</span>
+            <span class="c1"># Training #</span>
+            <span class="c1">############</span>
+            <span class="n">net</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+            <span class="n">true_preds</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">imgs</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">train_loader_local</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Epoch </span><span class="si">{</span><span class="n">epoch</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                <span class="n">imgs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># To GPU</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>  <span class="c1"># Zero-grad can be placed anywhere before &quot;loss.backward()&quot;</span>
+                <span class="n">preds</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_module</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+                <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+                <span class="c1"># Record statistics during training</span>
+                <span class="n">true_preds</span> <span class="o">+=</span> <span class="p">(</span><span class="n">preds</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">train_acc</span> <span class="o">=</span> <span class="n">true_preds</span> <span class="o">/</span> <span class="n">count</span>
+
+            <span class="c1">##############</span>
+            <span class="c1"># Validation #</span>
+            <span class="c1">##############</span>
+            <span class="n">val_acc</span> <span class="o">=</span> <span class="n">test_model</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">val_loader</span><span class="p">)</span>
+            <span class="n">val_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val_acc</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;[Epoch </span><span class="si">{</span><span class="n">epoch</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s2">2i</span><span class="si">}</span><span class="s2">] Training accuracy: </span><span class="si">{</span><span class="n">train_acc</span><span class="o">*</span><span class="mf">100.0</span><span class="si">:</span><span class="s2">05.2f</span><span class="si">}</span><span class="s2">%, Validation accuracy: </span><span class="si">{</span><span class="n">val_acc</span><span class="o">*</span><span class="mf">100.0</span><span class="si">:</span><span class="s2">05.2f</span><span class="si">}</span><span class="s2">%&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_scores</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">val_acc</span> <span class="o">&gt;</span> <span class="n">val_scores</span><span class="p">[</span><span class="n">best_val_epoch</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">   (New best performance, saving model...)&quot;</span><span class="p">)</span>
+                <span class="n">save_model</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">CHECKPOINT_PATH</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+                <span class="n">best_val_epoch</span> <span class="o">=</span> <span class="n">epoch</span>
+            <span class="k">elif</span> <span class="n">best_val_epoch</span> <span class="o">&lt;=</span> <span class="n">epoch</span> <span class="o">-</span> <span class="n">patience</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Early stopping due to no improvement over the last </span><span class="si">{</span><span class="n">patience</span><span class="si">}</span><span class="s2"> epochs&quot;</span><span class="p">)</span>
+                <span class="k">break</span>
+
+        <span class="c1"># Plot a curve of the validation accuracy</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_scores</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)],</span> <span class="n">val_scores</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Epochs&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Validation accuracy&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validation performance of </span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">load_model</span><span class="p">(</span><span class="n">CHECKPOINT_PATH</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">net</span><span class="o">=</span><span class="n">net</span><span class="p">)</span>
+    <span class="n">test_acc</span> <span class="o">=</span> <span class="n">test_model</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">test_loader</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">((</span><span class="sa">f</span><span class="s2">&quot; Test accuracy: </span><span class="si">{</span><span class="n">test_acc</span><span class="o">*</span><span class="mf">100.0</span><span class="si">:</span><span class="s2">4.2f</span><span class="si">}</span><span class="s2">% &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;=&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">test_acc</span>
+
+
+<span class="k">def</span> <span class="nf">test_model</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">data_loader</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test a model on a specified dataset.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        net: Trained model of type BaseNetwork</span>
+<span class="sd">        data_loader: DataLoader object of the dataset to test on (validation or test)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">true_preds</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">imgs</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">data_loader</span><span class="p">:</span>
+        <span class="n">imgs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="n">preds</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">true_preds</span> <span class="o">+=</span> <span class="p">(</span><span class="n">preds</span> <span class="o">==</span> <span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">test_acc</span> <span class="o">=</span> <span class="n">true_preds</span> <span class="o">/</span> <span class="n">count</span>
+    <span class="k">return</span> <span class="n">test_acc</span>
+</pre></div>
+</div>
+</div>
+<p>We train one model for each activation function. We recommend using the pretrained models to save time if you are running this notebook on CPU.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">act_fn_name</span> <span class="ow">in</span> <span class="n">act_fn_by_name</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training BaseNetwork with </span><span class="si">{</span><span class="n">act_fn_name</span><span class="si">}</span><span class="s2"> activation...&quot;</span><span class="p">)</span>
+    <span class="n">set_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">act_fn</span> <span class="o">=</span> <span class="n">act_fn_by_name</span><span class="p">[</span><span class="n">act_fn_name</span><span class="p">]()</span>
+    <span class="n">net_actfn</span> <span class="o">=</span> <span class="n">BaseNetwork</span><span class="p">(</span><span class="n">act_fn</span><span class="o">=</span><span class="n">act_fn</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">train_model</span><span class="p">(</span><span class="n">net_actfn</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;FashionMNIST_</span><span class="si">{</span><span class="n">act_fn_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Training BaseNetwork with sigmoid activation...
+Model file already exists. Skipping training...
+============= Test accuracy: 10.00% ==============
+
+Training BaseNetwork with tanh activation...
+Model file already exists. Skipping training...
+============= Test accuracy: 87.59% ==============
+
+Training BaseNetwork with relu activation...
+Model file already exists. Skipping training...
+============= Test accuracy: 88.62% ==============
+
+Training BaseNetwork with leakyrelu activation...
+Model file already exists. Skipping training...
+============= Test accuracy: 88.92% ==============
+
+Training BaseNetwork with elu activation...
+Model file already exists. Skipping training...
+============= Test accuracy: 87.27% ==============
+
+Training BaseNetwork with swish activation...
+Model file already exists. Skipping training...
+============= Test accuracy: 88.73% ==============
+
+</pre></div></div>
+</div>
+<p>Not surprisingly, the model using the sigmoid activation function shows to fail and does not improve upon random performance (10 classes =&gt; 1/10 for random chance).</p>
+<p>All the other activation functions gain similar performance. To have a more accurate conclusion, we would have to train the models for multiple seeds and look at the averages. However, the “optimal” activation function also depends on many other factors (hidden sizes, number of layers, type of layers, task, dataset, optimizer, learning rate, etc.) so that a thorough grid search would not be useful in our case. In the literature, activation functions that have shown to work well with deep
+networks are all types of ReLU functions we experiment with here, with small gains for specific activation functions in specific networks.</p>
+</section>
+<section id="Visualizing-the-activation-distribution">
+<h3>Visualizing the activation distribution<a class="headerlink" href="#Visualizing-the-activation-distribution" title="Permalink to this heading">¶</a></h3>
+<p>After we have trained the models, we can look at the actual activation values that find inside the model. For instance, how many neurons are set to zero in ReLU? Where do we find most values in Tanh? To answer these questions, we can write a simple function which takes a trained model, applies it to a batch of images, and plots the histogram of the activations inside the network:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">visualize_activations</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">):</span>
+    <span class="n">activations</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">net</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">small_loader</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">train_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
+    <span class="n">imgs</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">small_loader</span><span class="p">))</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="n">layer_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">imgs</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">imgs</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">imgs</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># We need to manually loop through the layers to save all activations</span>
+        <span class="k">for</span> <span class="n">layer_index</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">layers</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">imgs</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span>
+            <span class="n">activations</span><span class="p">[</span><span class="n">layer_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+    <span class="c1"># Plotting</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">activations</span><span class="p">)</span> <span class="o">/</span> <span class="n">columns</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">columns</span> <span class="o">*</span> <span class="mf">2.7</span><span class="p">,</span> <span class="n">rows</span> <span class="o">*</span> <span class="mf">2.5</span><span class="p">))</span>
+    <span class="n">fig_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">activations</span><span class="p">:</span>
+        <span class="n">key_ax</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="n">fig_index</span> <span class="o">//</span> <span class="n">columns</span><span class="p">][</span><span class="n">fig_index</span> <span class="o">%</span> <span class="n">columns</span><span class="p">]</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">activations</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">key_ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">)</span>
+        <span class="n">key_ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Layer </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">net</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fig_index</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Activation distribution for activation function </span><span class="si">{</span><span class="n">net</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;act_fn&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">act_fn_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">act_fn_by_name</span><span class="p">):</span>
+    <span class="n">net_actfn</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="n">CHECKPOINT_PATH</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;FashionMNIST_</span><span class="si">{</span><span class="n">act_fn_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">visualize_activations</span><span class="p">(</span><span class="n">net_actfn</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_02-activation-functions_46_0.svg" src="../../_images/notebooks_course_UvA-DL_02-activation-functions_46_0.svg" /></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_02-activation-functions_46_1.svg" src="../../_images/notebooks_course_UvA-DL_02-activation-functions_46_1.svg" /></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_02-activation-functions_46_2.svg" src="../../_images/notebooks_course_UvA-DL_02-activation-functions_46_2.svg" /></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_02-activation-functions_46_3.svg" src="../../_images/notebooks_course_UvA-DL_02-activation-functions_46_3.svg" /></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_02-activation-functions_46_4.svg" src="../../_images/notebooks_course_UvA-DL_02-activation-functions_46_4.svg" /></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_02-activation-functions_46_5.svg" src="../../_images/notebooks_course_UvA-DL_02-activation-functions_46_5.svg" /></div>
+</div>
+<p>As the model with sigmoid activation was not able to train properly, the activations are also less informative and all gathered around 0.5 (the activation at input 0).</p>
+<p>The tanh shows a more diverse behavior. While for the input layer we experience a larger amount of neurons to be close to -1 and 1, where the gradients are close to zero, the activations in the two consecutive layers are closer to zero. This is probably because the input layers look for specific features in the input image, and the consecutive layers combine those together. The activations for the last layer are again more biased to the extreme points because the classification layer can be seen
+as a weighted average of those values (the gradients push the activations to those extremes).</p>
+<p>The ReLU has a strong peak at 0, as we initially expected. The effect of having no gradients for negative values is that the network does not have a Gaussian-like distribution after the linear layers, but a longer tail towards the positive values. The LeakyReLU shows a very similar behavior while ELU follows again a more Gaussian-like distribution. The Swish activation seems to lie in between, although it is worth noting that Swish uses significantly higher values than other activation functions
+(up to 20).</p>
+<p>As all activation functions show slightly different behavior although obtaining similar performance for our simple network, it becomes apparent that the selection of the “optimal” activation function really depends on many factors, and is not the same for all possible networks.</p>
+</section>
+<section id="Finding-dead-neurons-in-ReLU-networks">
+<h3>Finding dead neurons in ReLU networks<a class="headerlink" href="#Finding-dead-neurons-in-ReLU-networks" title="Permalink to this heading">¶</a></h3>
+<p>One known drawback of the ReLU activation is the occurrence of “dead neurons”, i.e. neurons with no gradient for any training input. The issue of dead neurons is that as no gradient is provided for the layer, we cannot train the parameters of this neuron in the previous layer to obtain output values besides zero. For dead neurons to happen, the output value of a specific neuron of the linear layer before the ReLU has to be negative for all input images. Considering the large number of neurons we
+have in a neural network, it is not unlikely for this to happen.</p>
+<p>To get a better understanding of how much of a problem this is, and when we need to be careful, we will measure how many dead neurons different networks have. For this, we implement a function which runs the network on the whole training set and records whether a neuron is exactly 0 for all data points or not:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">measure_number_dead_neurons</span><span class="p">(</span><span class="n">net</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function to measure the number of dead neurons in a trained neural network.</span>
+
+<span class="sd">    For each neuron, we create a boolean variable initially set to 1. If it has an activation unequals 0 at any time, we</span>
+<span class="sd">    set this variable to 0. After running through the whole training set, only dead neurons will have a 1.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">neurons_dead</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">net</span><span class="o">.</span><span class="n">layers</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">)</span>
+    <span class="p">]</span>  <span class="c1"># Same shapes as hidden size in BaseNetwork</span>
+
+    <span class="n">net</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">imgs</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">train_loader</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>  <span class="c1"># Run through whole training set</span>
+        <span class="n">layer_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">imgs</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">imgs</span> <span class="o">=</span> <span class="n">imgs</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">imgs</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">net</span><span class="o">.</span><span class="n">layers</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">imgs</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">ActivationFunction</span><span class="p">):</span>
+                <span class="c1"># Are all activations == 0 in the batch, and we did not record the opposite in the last batches?</span>
+                <span class="n">neurons_dead</span><span class="p">[</span><span class="n">layer_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">neurons_dead</span><span class="p">[</span><span class="n">layer_index</span><span class="p">],</span> <span class="p">(</span><span class="n">imgs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+                <span class="n">layer_index</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">number_neurons_dead</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">neurons_dead</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of dead neurons:&quot;</span><span class="p">,</span> <span class="n">number_neurons_dead</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;In percentage:&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="p">(</span><span class="mf">100.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">num_dead</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">tens</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">4.2f</span><span class="si">}</span><span class="s2">%&quot;</span> <span class="k">for</span> <span class="n">tens</span><span class="p">,</span> <span class="n">num_dead</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">neurons_dead</span><span class="p">,</span> <span class="n">number_neurons_dead</span><span class="p">)]</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>First, we can measure the number of dead neurons for an untrained network:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">set_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">net_relu</span> <span class="o">=</span> <span class="n">BaseNetwork</span><span class="p">(</span><span class="n">act_fn</span><span class="o">=</span><span class="n">ReLU</span><span class="p">())</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="n">measure_number_dead_neurons</span><span class="p">(</span><span class="n">net_relu</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "a93511ffa85242e0b0801ce8553a7679", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of dead neurons: [0, 0, 3, 10]
+In percentage: 0.00%, 0.00%, 1.17%, 7.81%
+</pre></div></div>
+</div>
+<p>We see that only a minor amount of neurons are dead, but that they increase with the depth of the layer. However, this is not a problem for the small number of dead neurons we have as the input to later layers is changed due to updates to the weights of previous layers. Therefore, dead neurons in later layers can potentially become “alive”/active again.</p>
+<p>How does this look like for a trained network (with the same initialization)?</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">net_relu</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="n">CHECKPOINT_PATH</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;FashionMNIST_relu&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="n">measure_number_dead_neurons</span><span class="p">(</span><span class="n">net_relu</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "25b60bbb218945babf2130e43a83973a", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of dead neurons: [0, 0, 0, 3]
+In percentage: 0.00%, 0.00%, 0.00%, 2.34%
+</pre></div></div>
+</div>
+<p>The number of dead neurons indeed decreased in the later layers. However, it should be noted that dead neurons are especially problematic in the input layer. As the input does not change over epochs (the training set is kept as it is), training the network cannot turn those neurons back active. Still, the input data has usually a sufficiently high standard deviation to reduce the risk of dead neurons.</p>
+<p>Finally, we check how the number of dead neurons behaves with increasing layer depth. For instance, let’s take the following 10-layer neural network:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">set_seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">net_relu</span> <span class="o">=</span> <span class="n">BaseNetwork</span><span class="p">(</span>
+    <span class="n">act_fn</span><span class="o">=</span><span class="n">ReLU</span><span class="p">(),</span>
+    <span class="n">hidden_sizes</span><span class="o">=</span><span class="p">[</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="n">measure_number_dead_neurons</span><span class="p">(</span><span class="n">net_relu</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "1dcda3d3c4ad4411a8cd0f562f5cf420", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Number of dead neurons: [0, 0, 7, 27, 89, 60, 58, 61, 72, 56]
+In percentage: 0.00%, 0.00%, 2.73%, 10.55%, 34.77%, 46.88%, 45.31%, 47.66%, 56.25%, 43.75%
+</pre></div></div>
+</div>
+<p>The number of dead neurons is significantly higher than before which harms the gradient flow especially in the first iterations. For instance, more than 56% of the neurons in the pre-last layer are dead which creates a considerable bottleneck. Hence, it is advisible to use other nonlinearities like Swish for very deep networks.</p>
+</section>
+</section>
+<section id="Conclusion">
+<h2>Conclusion<a class="headerlink" href="#Conclusion" title="Permalink to this heading">¶</a></h2>
+<p>In this notebook, we have reviewed a set of six activation functions (sigmoid, tanh, ReLU, LeakyReLU, ELU, and Swish) in neural networks, and discussed how they influence the gradient distribution across layers. Sigmoid tends to fail deep neural networks as the highest gradient it provides is 0.25 leading to vanishing gradients in early layers. All ReLU-based activation functions have shown to perform well, and besides the original ReLU, do not have the issue of dead neurons. When implementing
+your own neural network, it is recommended to start with a ReLU-based network and select the specific activation function based on the properties of the network.</p>
+</section>
+<section id="References">
+<h2>References<a class="headerlink" href="#References" title="Permalink to this heading">¶</a></h2>
+<p>[1] Ramachandran, Prajit, Barret Zoph, and Quoc V. Le. “Searching for activation functions.” arXiv preprint arXiv:1710.05941 (2017). <a class="reference external" href="https://arxiv.org/abs/1710.05941">Paper link</a></p>
+</section>
+<section id="Congratulations---Time-to-Join-the-Community!">
+<h2>Congratulations - Time to Join the Community!<a class="headerlink" href="#Congratulations---Time-to-Join-the-Community!" title="Permalink to this heading">¶</a></h2>
+<p>Congratulations on completing this notebook tutorial! If you enjoyed this and would like to join the Lightning movement, you can do so in the following ways!</p>
+<section id="Star-Lightning-on-GitHub">
+<h3>Star <a class="reference external" href="https://github.com/Lightning-AI/lightning">Lightning</a> on GitHub<a class="headerlink" href="#Star-Lightning-on-GitHub" title="Permalink to this heading">¶</a></h3>
+<p>The easiest way to help our community is just by starring the GitHub repos! This helps raise awareness of the cool tools we’re building.</p>
+</section>
+<section id="Join-our-Discord!">
+<h3>Join our <a class="reference external" href="https://discord.com/invite/tfXFetEZxv">Discord</a>!<a class="headerlink" href="#Join-our-Discord!" title="Permalink to this heading">¶</a></h3>
+<p>The best way to keep up to date on the latest advancements is to join our community! Make sure to introduce yourself and share your interests in <code class="docutils literal notranslate"><span class="pre">#general</span></code> channel</p>
+</section>
+<section id="Contributions-!">
+<h3>Contributions !<a class="headerlink" href="#Contributions-!" title="Permalink to this heading">¶</a></h3>
+<p>The best way to contribute to our community is to become a code contributor! At any time you can go to <a class="reference external" href="https://github.com/Lightning-AI/lightning">Lightning</a> or <a class="reference external" href="https://github.com/Lightning-AI/lightning-bolts">Bolt</a> GitHub Issues page and filter for “good first issue”.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/Lightning-AI/lightning/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22">Lightning good first issue</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Lightning-AI/lightning-bolts/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22">Bolt good first issue</a></p></li>
+<li><p>You can also contribute your own notebooks with useful examples !</p></li>
+</ul>
+</section>
+<section id="Great-thanks-from-the-entire-Pytorch-Lightning-Team-for-your-interest-!">
+<h3>Great thanks from the entire Pytorch Lightning Team for your interest !<a class="headerlink" href="#Great-thanks-from-the-entire-Pytorch-Lightning-Team-for-your-interest-!" title="Permalink to this heading">¶</a></h3>
+<p><a class="reference external" href="https://pytorchlightning.ai"><img alt="Pytorch Lightning" src="data:image/png;base64,NDA0OiBOb3QgRm91bmQ=" style="width: 240px; height: 60px;" /></a></p>
+<p><div class="col-md-12 tutorials-card-container" data-tags=GPU/TPU,UvA-DL-Course>
+    <div class="card tutorials-card">
+        <a href="notebooks/course_UvA-DL/02-activation-functions.html">
+            <div class="card-body">
+                <div class="card-title-container">
+                    <h4>Tutorial 2: Activation Functions </h4>
+                </div>
+                <p class="card-summary">In this tutorial, we will take a closer look at (popular) activation functions and investigate their effect on optimization properties in neural networks. Activation functions...</p>
+                <p class="tags">GPU/TPU,UvA-DL-Course</p>
+                <div class="tutorials-image"><img src='_static/images/course_UvA-DL/02-activation-functions.jpg'></div>
+            </div>
+        </a>
+    </div>
+</div></p>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {"0cdbb7671e9f4cbb9e088e9fd0b24cc5": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HTMLStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "17fead85f7f745618c02d92271821827": {"model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "1928816d123444cd881d62f3e18e846b": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HTMLStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "1dcda3d3c4ad4411a8cd0f562f5cf420": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HBoxModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_82b5066cb90242959416c827f3c6dcd2", "IPY_MODEL_d1e065d762724b50bb749fbf98a97fac", "IPY_MODEL_c01bcd6758504bb38e35db8bb1e7f109"], "layout": "IPY_MODEL_9b34eded4a494f078b5e6c3de411d4d1", "tabbable": null, "tooltip": null}}, "25b60bbb218945babf2130e43a83973a": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HBoxModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_38dab720dc5843f9aebca018be89171b", "IPY_MODEL_2c53e92c5f884f039a72c5c3f6761d65", "IPY_MODEL_68261f19f3ff4d7999129ca56267f3cd"], "layout": "IPY_MODEL_f7f77e0040d143dfbabd28f020a52f16", "tabbable": null, "tooltip": null}}, "2c53e92c5f884f039a72c5c3f6761d65": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "FloatProgressModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_93eb6914049d43329da854ffd8f94baf", "max": 49.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_f192a8a6112a4ccfa768a7406b4e611d", "tabbable": null, "tooltip": null, "value": 49.0}}, "38dab720dc5843f9aebca018be89171b": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HTMLModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_77f5f53e57394adf86262d0de1415449", "placeholder": "\u200b", "style": "IPY_MODEL_1928816d123444cd881d62f3e18e846b", "tabbable": null, "tooltip": null, "value": "100%"}}, "50241ed3fc8b40c1bf198f3c07a098b5": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "ProgressStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "518777084d7c474aaac9ebb2f1a5e068": {"model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "5767fd44f2a141b9a370c9555c65fee9": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HTMLModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_60fbb57002d744f6872173b680a5690a", "placeholder": "\u200b", "style": "IPY_MODEL_5e34e15d0fbe4e4bb51bc2bde816c59a", "tabbable": null, "tooltip": null, "value": "100%"}}, "58ad57c7aaa14632a5e38546a6c109bc": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HTMLStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "591ac6e25667404ca41298f1e71bc88e": {"model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": "hidden", "width": null}}, "5e34e15d0fbe4e4bb51bc2bde816c59a": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HTMLStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "60fbb57002d744f6872173b680a5690a": {"model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "63052a65ca8d4e0ca01f0b3016fc321d": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "ProgressStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "68261f19f3ff4d7999129ca56267f3cd": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HTMLModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_17fead85f7f745618c02d92271821827", "placeholder": "\u200b", "style": "IPY_MODEL_0cdbb7671e9f4cbb9e088e9fd0b24cc5", "tabbable": null, "tooltip": null, "value": "\u200749/49\u2007[00:07&lt;00:00,\u2007\u20077.36it/s]"}}, "77f5f53e57394adf86262d0de1415449": {"model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "82b5066cb90242959416c827f3c6dcd2": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HTMLModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_a650d5a42b554c4badf1c078c56d5e7e", "placeholder": "\u200b", "style": "IPY_MODEL_f02b7f50490f41be901191dc229010ac", "tabbable": null, "tooltip": null, "value": "100%"}}, "83d3117f642c407ca1e7327445748694": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HTMLModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_af91c50cc48f4329b96ca87fbd372ee4", "placeholder": "\u200b", "style": "IPY_MODEL_fa09fac70c714dc3b1c5eb70b1f031d3", "tabbable": null, "tooltip": null, "value": "\u200749/49\u2007[00:07&lt;00:00,\u2007\u20077.24it/s]"}}, "8fcd2578a88646768e353c29d06f81a4": {"model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "93eb6914049d43329da854ffd8f94baf": {"model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "9b34eded4a494f078b5e6c3de411d4d1": {"model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": "hidden", "width": null}}, "a650d5a42b554c4badf1c078c56d5e7e": {"model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "a93511ffa85242e0b0801ce8553a7679": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HBoxModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_5767fd44f2a141b9a370c9555c65fee9", "IPY_MODEL_bb310721fc464fe9ba1da2ae01d79d5a", "IPY_MODEL_83d3117f642c407ca1e7327445748694"], "layout": "IPY_MODEL_591ac6e25667404ca41298f1e71bc88e", "tabbable": null, "tooltip": null}}, "af91c50cc48f4329b96ca87fbd372ee4": {"model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "bb310721fc464fe9ba1da2ae01d79d5a": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "FloatProgressModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_eaf1cd7a36fe48ce91b9ef7510fa3cc8", "max": 49.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_50241ed3fc8b40c1bf198f3c07a098b5", "tabbable": null, "tooltip": null, "value": 49.0}}, "c01bcd6758504bb38e35db8bb1e7f109": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HTMLModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_8fcd2578a88646768e353c29d06f81a4", "placeholder": "\u200b", "style": "IPY_MODEL_58ad57c7aaa14632a5e38546a6c109bc", "tabbable": null, "tooltip": null, "value": "\u200749/49\u2007[00:07&lt;00:00,\u2007\u20077.29it/s]"}}, "d1e065d762724b50bb749fbf98a97fac": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "FloatProgressModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_518777084d7c474aaac9ebb2f1a5e068", "max": 49.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_63052a65ca8d4e0ca01f0b3016fc321d", "tabbable": null, "tooltip": null, "value": 49.0}}, "eaf1cd7a36fe48ce91b9ef7510fa3cc8": {"model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "f02b7f50490f41be901191dc229010ac": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HTMLStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "f192a8a6112a4ccfa768a7406b4e611d": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "ProgressStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "f7f77e0040d143dfbabd28f020a52f16": {"model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": "hidden", "width": null}}, "fa09fac70c714dc3b1c5eb70b1f031d3": {"model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "model_name": "HTMLStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="03-initialization-and-optimization.html" class="btn btn-neutral float-right" title="Tutorial 3: Initialization and Optimization" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="01-introduction-to-pytorch.html" class="btn btn-neutral" title="Tutorial 1: Introduction to PyTorch" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright Copyright (c) 2020-2021, PytorchLightning team..
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+      </div>
+     
+
+</footer>
+          </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Tutorial 2: Activation Functions</a><ul>
+<li><a class="reference internal" href="#Setup">Setup</a></li>
+<li><a class="reference internal" href="#Common-activation-functions">Common activation functions</a><ul>
+<li><a class="reference internal" href="#Visualizing-activation-functions">Visualizing activation functions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Analysing-the-effect-of-activation-functions">Analysing the effect of activation functions</a><ul>
+<li><a class="reference internal" href="#id1">Setup</a></li>
+<li><a class="reference internal" href="#Visualizing-the-gradient-flow-after-initialization">Visualizing the gradient flow after initialization</a></li>
+<li><a class="reference internal" href="#Training-a-model">Training a model</a></li>
+<li><a class="reference internal" href="#Visualizing-the-activation-distribution">Visualizing the activation distribution</a></li>
+<li><a class="reference internal" href="#Finding-dead-neurons-in-ReLU-networks">Finding dead neurons in ReLU networks</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Conclusion">Conclusion</a></li>
+<li><a class="reference internal" href="#References">References</a></li>
+<li><a class="reference internal" href="#Congratulations---Time-to-Join-the-Community!">Congratulations - Time to Join the Community!</a><ul>
+<li><a class="reference internal" href="#Star-Lightning-on-GitHub">Star Lightning on GitHub</a></li>
+<li><a class="reference internal" href="#Join-our-Discord!">Join our Discord!</a></li>
+<li><a class="reference internal" href="#Contributions-!">Contributions !</a></li>
+<li><a class="reference internal" href="#Great-thanks-from-the-entire-Pytorch-Lightning-Team-for-your-interest-!">Great thanks from the entire Pytorch Lightning Team for your interest !</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+         <script src="../../_static/doctools.js"></script>
+         <script src="../../_static/sphinx_highlight.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "packages": {"[+]": ["ams", "newcommand", "configMacros"]}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <!-- <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources"> -->
+    <!-- <div class="container"> -->
+      <!-- <div class="row"> -->
+        <!--
+        <div class="col-md-4 text-center">
+          <h2>Docs</h2>
+          <p>Access comprehensive developer documentation for PyTorch</p>
+          <a class="with-right-arrow" href="https://lightning-sandbox.rtfd.io/en/latest">View Docs</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Tutorials</h2>
+          <p>Get in-depth tutorials for beginners and advanced developers</p>
+          <a class="with-right-arrow" href="https://pt-lightning-sandbox.readthedocs.io/en/latest/#tutorials">View Tutorials</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Resources</h2>
+          <p>Find development resources and get your questions answered</p>
+          <a class="with-right-arrow" href="https://pt-lightning-sandbox.readthedocs.io/en/latest/#community-examples">View Resources</a>
+        </div>
+        -->
+      <!-- </div> -->
+    <!-- </div> -->
+  <!-- </div> -->
+
+  <!--
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pt-lightning-sandbox.rtfd.io/en/latest/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pt-lightning-sandbox.rtfd.io/en/latest/">PyTorch</a></li>
+            <li><a href="https://pt-lightning-sandbox.readthedocs.io/en/latest/introduction_guide.html">Get Started</a></li>
+            <li><a href="https://pt-lightning-sandbox.rtfd.io/en/latest/">Features</a></li>
+            <li><a href="">Ecosystem</a></li>
+            <li><a href="https://www.pytorchlightning.ai/blog">Blog</a></li>
+            <li><a href="https://github.com/Lightning-AI/lightning/blob/master/CONTRIBUTING.md">Contributing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pt-lightning-sandbox.readthedocs.io/en/latest/#community-examples">Resources</a></li>
+            <li><a href="https://pt-lightning-sandbox.readthedocs.io/en/latest/#tutorials">Tutorials</a></li>
+            <li><a href="https://lightning-sandbox.rtfd.io/en/latest">Docs</a></li>
+            <li><a href="https://pytorch-lightning.slack.com" target="_blank">Discuss</a></li>
+            <li><a href="https://github.com/Lightning-AI/lightning-sandbox/issues" target="_blank">Github Issues</a></li>
+            <li><a href="" target="_blank">Brand Guidelines</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col follow-us-col">
+          <ul>
+            <li class="list-title">Stay Connected</li>
+            <li>
+              <div id="mc_embed_signup">
+                <form
+                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
+                  method="post"
+                  id="mc-embedded-subscribe-form"
+                  name="mc-embedded-subscribe-form"
+                  class="email-subscribe-form validate"
+                  target="_blank"
+                  novalidate>
+                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
+                    <div class="mc-field-group">
+                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
+                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
+                    </div>
+
+                    <div id="mce-responses" class="clear">
+                      <div class="response" id="mce-error-response" style="display:none"></div>
+                      <div class="response" id="mce-success-response" style="display:none"></div>
+                    </div>
+
+                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
+
+                    <div class="clear">
+                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+            </li>
+          </ul>
+
+          <div class="footer-social-icons">
+            <a href="" target="_blank" class="facebook"></a>
+            <a href="https://twitter.com/PyTorchLightnin" target="_blank" class="twitter"></a>
+            <a href="" target="_blank" class="youtube"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+  -->
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. Read PyTorch Lightning's <a href="https://pytorchlightning.ai/privacy-policy">Privacy Policy</a>.</p>
+    <img class="close-button" src="../../_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pt-lightning-sandbox.rtfd.io/en/latest/" aria-label="PyTorch Lightning"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pt-lightning-sandbox.readthedocs.io/en/latest/introduction_guide.html">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://www.pytorchlightning.ai/blog">Blog</a>
+          </li>
+
+          <li class="resources-mobile-menu-title">
+            Ecosystem
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://lightning.ai/docs/pytorch/stable/">PyTorch Lightning</a>
+            </li>
+
+            <li>
+              <a href="https://lightning.ai/docs/fabric/stable/">Lightning Fabric</a>
+            </li>
+
+            <li>
+              <a href="https://torchmetrics.readthedocs.io/en/stable/">TorchMetrics</a>
+            </li>
+
+            <li>
+              <a href="https://lightning.ai/docs/fabric/stable/">Fabric</a>
+            </li>
+          </ul>
+
+          <!--<li class="resources-mobile-menu-title">
+            Resources
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pt-lightning-sandbox.readthedocs.io/en/latest/#community-examples">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pt-lightning-sandbox.rtfd.io/en/latest/">About</a>
+            </li>
+
+            <li>
+              <a href="">Models (Beta)</a>
+            </li>
+
+            <li>
+              <a href="">Community</a>
+            </li>
+
+            <li>
+              <a href="">Forums</a>
+            </li>
+          </ul>-->
+
+          <li>
+            <a href="https://github.com/Lightning-AI/lightning-sandbox">Github</a>
+          </li>
+
+          <li>
+            <a href="https://www.lightning.ai/">Lightning.ai</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PQBQ3CV"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+ </body>
+</html>
