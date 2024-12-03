@@ -118,7 +118,7 @@ train_dataset = CIFAR10(root=".", train=True, download=True, transform=train_tra
 val_transform = BarlowTwinsTransform(
     train=False, input_height=32, gaussian_blur=False, jitter_strength=0.5, normalize=cifar10_normalization()
 )
-val_dataset = CIFAR10(root=".", train=False, download=True, transform=train_transform)
+val_dataset = CIFAR10(root=".", train=False, download=True, transform=val_transform)
 
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, drop_last=True)
 val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, drop_last=True)
