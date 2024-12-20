@@ -147,6 +147,8 @@
 #
 # - ``ddp`` (and aliases ``ddp_find_unused_parameters_false``, ``ddp_find_unused_parameters_true``, ``ddp_spawn``, ``ddp_fork``, ``ddp_notebook``)
 # - ``fsdp`` (and alias ``fsdp_cpu_offload``)
+# - **NEW**: ``ModelParallelStrategy``
+#   - [See this example](https://finetuning-scheduler.readthedocs.io/en/stable/distributed/model_parallel_scheduled_fine_tuning.html) using FTS with PyTorch's composable distributed (e.g. ``fully_shard``, ``checkpoint``) and Tensor Parallelism (TP) APIs
 #
 # Custom or officially unsupported strategies can be used by setting [FinetuningScheduler.allow_untested](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.fts.html?highlight=allow_untested#finetuning_scheduler.fts.FinetuningScheduler.params.allow_untested) to ``True``.
 # Note that most currently unsupported strategies are so because they require varying degrees of modification to be compatible. For example, ``deepspeed`` will require a [StrategyAdapter](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.strategy_adapters.html#finetuning_scheduler.strategy_adapters.StrategyAdapter) to be written (similar to the one for ``FSDP``, [FSDPStrategyAdapter](https://finetuning-scheduler.readthedocs.io/en/stable/api/finetuning_scheduler.strategy_adapters.html#finetuning_scheduler.strategy_adapters.FSDPStrategyAdapter)) before support can be added (PRs welcome!),
@@ -260,7 +262,10 @@ class RteBoolqDataModule(L.LightningDataModule):
         self.save_hyperparameters()
         os.environ["TOKENIZERS_PARALLELISM"] = "true" if self.hparams.tokenizers_parallelism else "false"
         self.tokenizer = AutoTokenizer.from_pretrained(
-            self.hparams.model_name_or_path, use_fast=True, local_files_only=False
+            self.hparams.model_name_or_path,
+            use_fast=True,
+            local_files_only=False,
+            clean_up_tokenization_spaces=True,
         )
 
     def prepare_data(self):
