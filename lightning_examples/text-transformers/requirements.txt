@@ -2,7 +2,7 @@ scipy
 scikit-learn
 torchmetrics >=1.0, <1.2
 torchtext
-transformers
+transformers <=4.44.0
 datasets
 # todo: pin version intill reinstall with PT-eco alignment
 torch ==2.1.*

@@ -1,5 +1,5 @@
 gym <0.24
-pygame
+pygame <=2.7.0
 pandas
 seaborn
 # todo: pin version intill reinstall with PT-eco alignment
