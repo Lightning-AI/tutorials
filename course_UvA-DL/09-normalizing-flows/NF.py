@@ -512,7 +512,7 @@ def visualize_dequantization(quants, prior=None):
     x_ticks = []
     for v in np.unique(out):
         indices = np.where(out == v)
-        color = to_rgb("C%i" % v)
+        color = to_rgb(f"C{v}")
         plt.fill_between(inp[indices], prob[indices], np.zeros(indices[0].shape[0]), color=color + (0.5,), label=str(v))
         plt.plot([inp[indices[0][0]]] * 2, [0, prob[indices[0][0]]], color=color)
         plt.plot([inp[indices[0][-1]]] * 2, [0, prob[indices[0][-1]]], color=color)
@@ -525,7 +525,7 @@ def visualize_dequantization(quants, prior=None):
     plt.xlim(inp.min(), inp.max())
     plt.xlabel("z")
     plt.ylabel("Probability")
-    plt.title("Dequantization distribution for %i discrete values" % quants)
+    plt.title(f"Dequantization distribution for {quants} discrete values")
     plt.legend()
     plt.show()
     plt.close()
