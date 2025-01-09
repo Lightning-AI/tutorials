@@ -703,10 +703,7 @@ protonet_accuracies = dict()
 data_feats = None
 for k in [2, 4, 8, 16, 32]:
     protonet_accuracies[k], data_feats = test_proto_net(protonet_model, test_set, data_feats=data_feats, k_shot=k)
-    print(
-        "Accuracy for k=%i: %4.2f%% (+-%4.2f%%)"
-        % (k, 100.0 * protonet_accuracies[k][0], 100 * protonet_accuracies[k][1])
-    )
+    print(f"Accuracy for k={k}: {100.0 * protonet_accuracies[k][0]:4.2f}% (+-{100 * protonet_accuracies[k][1]:4.2f}%)")
 
 # %% [markdown]
 # Before discussing the results above, let's first plot the accuracies over number of examples in the support set:
@@ -1174,8 +1171,7 @@ else:
 
 for k in protomaml_accuracies:
     print(
-        "Accuracy for k=%i: %4.2f%% (+-%4.2f%%)"
-        % (k, 100.0 * protomaml_accuracies[k][0], 100.0 * protomaml_accuracies[k][1])
+        f"Accuracy for k={k}: {100.0 * protomaml_accuracies[k][0]:4.2f}% (+-{100.0 * protomaml_accuracies[k][1]:4.2f}%)"
     )
 
 # %% [markdown]
@@ -1267,8 +1263,7 @@ for k in [2, 4, 8, 16, 32]:
         protonet_model, svhn_fewshot_dataset, data_feats=data_feats, k_shot=k
     )
     print(
-        "Accuracy for k=%i: %4.2f%% (+-%4.2f%%)"
-        % (k, 100.0 * protonet_svhn_accuracies[k][0], 100 * protonet_svhn_accuracies[k][1])
+        f"Accuracy for k={k}: {100.0 * protonet_svhn_accuracies[k][0]:4.2f}% (+-{100 * protonet_svhn_accuracies[k][1]:4.2f}%)"
     )
 
 # %% [markdown]
@@ -1295,8 +1290,7 @@ else:
 
 for k in protomaml_svhn_accuracies:
     print(
-        "Accuracy for k=%i: %4.2f%% (+-%4.2f%%)"
-        % (k, 100.0 * protomaml_svhn_accuracies[k][0], 100.0 * protomaml_svhn_accuracies[k][1])
+        f"Accuracy for k={k}: {100.0 * protomaml_svhn_accuracies[k][0]:4.2f}% (+-{100.0 * protomaml_svhn_accuracies[k][1]:4.2f}%)"
     )
 
 # %% [markdown]

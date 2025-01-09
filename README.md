@@ -44,13 +44,13 @@ The addition has to formed as new folder:
   accelerator:
     - CPU
   ```
-- _\[optional\]_ requirements listed in `requirements.txt` in the particular folder (in case you need some other packaged then listed the parent folder)
+- _[optional]_ requirements listed in `requirements.txt` in the particular folder (in case you need some other packaged then listed the parent folder)
 
 ## Using datasets
 
 It is quite common to use some public or competition's dataset for your example.
 We facilitate this via defining the data sources in the metafile.
-There are two basic options, download a file from web or pul Kaggle dataset _\[Experimental\]_:
+There are two basic options, download a file from web or pul Kaggle dataset _[Experimental]_:
 
 ```yaml
 datasets:
