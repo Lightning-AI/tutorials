@@ -633,8 +633,8 @@ sns.set_theme()
 fig, ax = plt.subplots(2, 2, figsize=(12, 4))
 ax = [a for a_list in ax for a in a_list]
 for i in range(len(ax)):
-    ax[i].plot(np.arange(1, 17), pe[i, :16], color="C%i" % i, marker="o", markersize=6, markeredgecolor="black")
-    ax[i].set_title("Encoding in hidden dimension %i" % (i + 1))
+    ax[i].plot(np.arange(1, 17), pe[i, :16], color=f"C{i}", marker="o", markersize=6, markeredgecolor="black")
+    ax[i].set_title(f"Encoding in hidden dimension {i + 1}")
     ax[i].set_xlabel("Position in sequence", fontsize=10)
     ax[i].set_ylabel("Positional encoding", fontsize=10)
     ax[i].set_xticks(np.arange(1, 17))
@@ -1088,7 +1088,7 @@ def plot_attention_maps(input_data, attn_maps, idx=0):
             ax[row][column].set_xticklabels(input_data.tolist())
             ax[row][column].set_yticks(list(range(seq_len)))
             ax[row][column].set_yticklabels(input_data.tolist())
-            ax[row][column].set_title("Layer %i, Head %i" % (row + 1, column + 1))
+            ax[row][column].set_title(f"Layer {row + 1}, Head {column + 1}")
     fig.subplots_adjust(hspace=0.5)
     plt.show()
 
@@ -1590,7 +1590,7 @@ print("Indices with mistake:", mistakes)
 visualize_prediction(mistakes[-1])
 print("Probabilities:")
 for i, p in enumerate(preds[mistakes[-1]].cpu().numpy()):
-    print("Image %i: %4.2f%%" % (i, 100.0 * p))
+    print(f"Image {i}: {100.0 * p:4.2f}%")
 
 # %% [markdown]
 # In this example, the model confuses a palm tree with a building, giving a probability of ~90% to image 2, and 8% to the actual anomaly.

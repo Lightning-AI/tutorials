@@ -388,7 +388,7 @@ class GenerateCallback(Callback):
 def train_cifar(latent_dim):
     # Create a PyTorch Lightning trainer with the generation callback
     trainer = pl.Trainer(
-        default_root_dir=os.path.join(CHECKPOINT_PATH, "cifar10_%i" % latent_dim),
+        default_root_dir=os.path.join(CHECKPOINT_PATH, f"cifar10_{latent_dim}"),
         accelerator="auto",
         devices=1,
         max_epochs=500,
@@ -402,7 +402,7 @@ def train_cifar(latent_dim):
     trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
     # Check whether pretrained model exists. If yes, load it and skip training
-    pretrained_filename = os.path.join(CHECKPOINT_PATH, "cifar10_%i.ckpt" % latent_dim)
+    pretrained_filename = os.path.join(CHECKPOINT_PATH, f"cifar10_{latent_dim}.ckpt")
     if os.path.isfile(pretrained_filename):
         print("Found pretrained model, loading...")
         model = Autoencoder.load_from_checkpoint(pretrained_filename)
@@ -475,7 +475,7 @@ def visualize_reconstructions(model, input_imgs):
     grid = torchvision.utils.make_grid(imgs, nrow=4, normalize=True, value_range=(-1, 1))
     grid = grid.permute(1, 2, 0)
     plt.figure(figsize=(7, 4.5))
-    plt.title("Reconstructed from %i latents" % (model.hparams.latent_dim))
+    plt.title(f"Reconstructed from {model.hparams.latent_dim} latents")
     plt.imshow(grid)
     plt.axis("off")
     plt.show()

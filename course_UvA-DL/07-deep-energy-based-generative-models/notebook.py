@@ -570,7 +570,7 @@ class GenerateCallback(Callback):
                 grid = torchvision.utils.make_grid(
                     imgs_to_plot, nrow=imgs_to_plot.shape[0], normalize=True, value_range=(-1, 1)
                 )
-                trainer.logger.experiment.add_image("generation_%i" % i, grid, global_step=trainer.current_epoch)
+                trainer.logger.experiment.add_image(f"generation_{i}", grid, global_step=trainer.current_epoch)
 
     def generate_imgs(self, pl_module):
         pl_module.eval()
