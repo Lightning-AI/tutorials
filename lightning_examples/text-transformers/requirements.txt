@@ -7,3 +7,4 @@ datasets <=2.21
 # todo: pin version intill reinstall with PT-eco alignment
 torch ==2.1.*
 torchvision ==0.16.*
+numpy
