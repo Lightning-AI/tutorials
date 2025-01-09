@@ -403,7 +403,7 @@ vert_conv.conv.bias.data.fill_(0)
 for l_idx in range(4):
     vert_img = vert_conv(vert_img)
     horiz_img = horiz_conv(horiz_img) + vert_img
-    print("Layer %i" % (l_idx + 2))
+    print(f"Layer {l_idx + 2}")
     show_center_recep_field(inp_img, horiz_img)
 
 # %% [markdown]
