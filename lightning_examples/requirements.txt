@@ -1,5 +1,5 @@
 numpy <3.0 # needed for older Torch
 torch>=1.8.1, <2.5
-pytorch-lightning >=2.0,<2.5
 torchmetrics>=1.0, <1.7
+pytorch-lightning >=2.0,<2.6
 matplotlib
