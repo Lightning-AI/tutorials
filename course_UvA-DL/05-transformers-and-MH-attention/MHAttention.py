@@ -118,7 +118,7 @@ for file_name in pretrained_files:
 # * [Attention?
 # Attention!
 # (Lilian Weng, 2018)](https://lilianweng.github.io/lil-log/2018/06/24/attention-attention.html) - A nice blog post summarizing attention mechanisms in many domains including vision.
-# * [Illustrated: Self-Attention (Raimi Karim, 2019)](https://towardsdatascience.com/illustrated-self-attention-2d627e33b20a) - A nice visualization of the steps of self-attention.
+# * [Illustrated: Self-Attention (Raimi Karim, 2019)](https://medium.com/data-science/illustrated-self-attention-2d627e33b20a) - A nice visualization of the steps of self-attention.
 # Recommended going through if the explanation below is too abstract for you.
 # * [The Transformer family (Lilian Weng, 2020)](https://lilianweng.github.io/lil-log/2020/04/07/the-transformer-family.html) - A very detailed blog post reviewing more variants of Transformers besides the original one.
 
