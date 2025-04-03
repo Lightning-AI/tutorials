@@ -18,15 +18,15 @@ accelerator:
 OS: Linux
 python: 3.10.12
 environment:
-- transformers==4.43.2
-- torchmetrics==1.1.2
-- numpy==1.26.4
-- scipy==1.14.0
-- matplotlib==3.9.1
-- torchtext==0.16.2+cpu
-- datasets==2.20.0
-- pytorch-lightning==2.3.3
 - torch==2.1.2+cu121
-- scikit-learn==1.5.1
+- numpy==1.26.4
+- scipy==1.15.2
+- torchmetrics==1.1.2
 - torchvision==0.16.2+cu121
-published: '2024-07-26T13:17:41.828770'
+- pytorch-lightning==2.4.0
+- datasets==2.21.0
+- matplotlib==3.9.2
+- transformers==4.49.0
+- torchtext==0.16.2+cpu
+- scikit-learn==1.6.1
+published: '2025-04-03T21:04:00.119270'
