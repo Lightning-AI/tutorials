@@ -42,10 +42,10 @@ python: 3.10.12
 environment:
 - tensorboard==2.19.0
 - pytorch-lightning==2.4.0
-- seaborn==0.13.2
-- numpy==2.0.2
-- torchmetrics==1.4.1
 - torchvision==0.19.1+cu121
+- torchmetrics==1.4.1
+- numpy==2.0.2
+- seaborn==0.13.2
 - matplotlib==3.9.2
 - torch==2.4.1+cu121
-published: '2025-04-01T17:18:32.272919'
+published: '2025-04-03T19:25:12.283990'
