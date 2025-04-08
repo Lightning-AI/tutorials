@@ -1183,8 +1183,8 @@ all_models = [
 table = [
     [
         model_name,
-        f"{100.0*model_results['val']:4.2f}%",
-        f"{100.0*model_results['test']:4.2f}%",
+        f"{100.0 * model_results['val']:4.2f}%",
+        f"{100.0 * model_results['test']:4.2f}%",
         f"{sum(np.prod(p.shape) for p in model.parameters()):,}",
     ]
     for model_name, model_results, model in all_models

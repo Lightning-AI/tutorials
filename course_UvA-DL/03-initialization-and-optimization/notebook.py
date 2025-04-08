@@ -580,19 +580,19 @@ def _get_result_file(model_path, model_name):
 def load_model(model_path, model_name, net=None):
     config_file = _get_config_file(model_path, model_name)
     model_file = _get_model_file(model_path, model_name)
-    assert os.path.isfile(
-        config_file
-    ), f'Could not find the config file "{config_file}". Are you sure this is the correct path and you have your model config stored here?'
-    assert os.path.isfile(
-        model_file
-    ), f'Could not find the model file "{model_file}". Are you sure this is the correct path and you have your model stored here?'
+    assert os.path.isfile(config_file), (
+        f'Could not find the config file "{config_file}". Are you sure this is the correct path and you have your model config stored here?'
+    )
+    assert os.path.isfile(model_file), (
+        f'Could not find the model file "{model_file}". Are you sure this is the correct path and you have your model stored here?'
+    )
     with open(config_file) as f:
         config_dict = json.load(f)
     if net is None:
         act_fn_name = config_dict["act_fn"].pop("name").lower()
-        assert (
-            act_fn_name in act_fn_by_name
-        ), f'Unknown activation function "{act_fn_name}". Please add it to the "act_fn_by_name" dict.'
+        assert act_fn_name in act_fn_by_name, (
+            f'Unknown activation function "{act_fn_name}". Please add it to the "act_fn_by_name" dict.'
+        )
         act_fn = act_fn_by_name[act_fn_name]()
         net = BaseNetwork(act_fn=act_fn, **config_dict)
     net.load_state_dict(torch.load(model_file))
@@ -678,7 +678,7 @@ def train_model(net, model_name, optim_func, max_epochs=50, batch_size=256, over
     plt.show()
     plt.close()
 
-    print((f" Test accuracy: {results['test_acc']*100.0:4.2f}% ").center(50, "=") + "\n")
+    print((f" Test accuracy: {results['test_acc'] * 100.0:4.2f}% ").center(50, "=") + "\n")
     return results
 
 
@@ -700,7 +700,7 @@ def epoch_iteration(net, loss_module, optimizer, train_loader_local, val_loader,
         # Record statistics during training
         true_preds += (preds.argmax(dim=-1) == labels).sum().item()
         count += labels.shape[0]
-        t.set_description(f"Epoch {epoch+1}: loss={loss.item():4.2f}")
+        t.set_description(f"Epoch {epoch + 1}: loss={loss.item():4.2f}")
         epoch_losses.append(loss.item())
     train_acc = true_preds / count
 
@@ -709,7 +709,7 @@ def epoch_iteration(net, loss_module, optimizer, train_loader_local, val_loader,
     ##############
     val_acc = test_model(net, val_loader)
     print(
-        f"[Epoch {epoch+1:2i}] Training accuracy: {train_acc*100.0:05.2f}%, Validation accuracy: {val_acc*100.0:05.2f}%"
+        f"[Epoch {epoch + 1:2i}] Training accuracy: {train_acc * 100.0:05.2f}%, Validation accuracy: {val_acc * 100.0:05.2f}%"
     )
     return train_acc, val_acc, epoch_losses
 

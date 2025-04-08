@@ -883,7 +883,7 @@ test_data_loader = data.DataLoader(test_dataset, batch_size=128, shuffle=False, 
 #
 # $$acc = \frac{\#\text{correct predictions}}{\#\text{all predictions}} = \frac{TP+TN}{TP+TN+FP+FN}$$
 #
-# where TP are the true positives, TN true negatives, FP false positives, and FN the fale negatives.
+# where TP are the true positives, TN true negatives, FP false positives, and FN the false negatives.
 #
 # When evaluating the model, we don't need to keep track of the computation graph as we don't intend to calculate the gradients.
 # This reduces the required memory and speed up the model.
@@ -910,7 +910,7 @@ def eval_model(model, data_loader):
             num_preds += data_labels.shape[0]
 
     acc = true_preds / num_preds
-    print(f"Accuracy of the model: {100.0*acc:4.2f}%")
+    print(f"Accuracy of the model: {100.0 * acc:4.2f}%")
 
 
 # %%
