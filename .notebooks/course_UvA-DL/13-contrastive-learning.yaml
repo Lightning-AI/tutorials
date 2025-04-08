@@ -35,12 +35,12 @@ accelerator:
 OS: Linux
 python: 3.10.12
 environment:
-- tensorboard==2.19.0
-- pytorch-lightning==2.4.0
 - matplotlib==3.9.2
-- torchvision==0.19.1+cu121
-- numpy==2.0.2
-- seaborn==0.13.2
+- pytorch-lightning==2.4.0
+- tensorboard==2.19.0
 - torchmetrics==1.4.1
+- seaborn==0.13.2
 - torch==2.4.1+cu121
-published: '2025-04-03T19:44:26.366264'
+- numpy==2.0.2
+- torchvision==0.19.1+cu121
+published: '2025-04-08T10:59:20.188458'
