@@ -201,7 +201,7 @@ texinfo_documents = [
         project + " Documentation",
         author,
         project,
-        "" "Miscellaneous",  # about.__docs__,
+        "Miscellaneous",  # about.__docs__,
     ),
 ]
 
