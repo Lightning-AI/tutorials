@@ -343,12 +343,12 @@ def load_model(model_path, model_name, net=None):
 
     """
     config_file, model_file = _get_config_file(model_path, model_name), _get_model_file(model_path, model_name)
-    assert os.path.isfile(
-        config_file
-    ), f'Could not find the config file "{config_file}". Are you sure this is the correct path and you have your model config stored here?'
-    assert os.path.isfile(
-        model_file
-    ), f'Could not find the model file "{model_file}". Are you sure this is the correct path and you have your model stored here?'
+    assert os.path.isfile(config_file), (
+        f'Could not find the config file "{config_file}". Are you sure this is the correct path and you have your model config stored here?'
+    )
+    assert os.path.isfile(model_file), (
+        f'Could not find the model file "{model_file}". Are you sure this is the correct path and you have your model stored here?'
+    )
     with open(config_file) as f:
         config_dict = json.load(f)
     if net is None:
@@ -548,7 +548,7 @@ def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, over
             ############
             net.train()
             true_preds, count = 0.0, 0
-            for imgs, labels in tqdm(train_loader_local, desc=f"Epoch {epoch+1}", leave=False):
+            for imgs, labels in tqdm(train_loader_local, desc=f"Epoch {epoch + 1}", leave=False):
                 imgs, labels = imgs.to(device), labels.to(device)  # To GPU
                 optimizer.zero_grad()  # Zero-grad can be placed anywhere before "loss.backward()"
                 preds = net(imgs)
@@ -566,7 +566,7 @@ def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, over
             val_acc = test_model(net, val_loader)
             val_scores.append(val_acc)
             print(
-                f"[Epoch {epoch+1:2i}] Training accuracy: {train_acc*100.0:05.2f}%, Validation accuracy: {val_acc*100.0:05.2f}%"
+                f"[Epoch {epoch + 1:2i}] Training accuracy: {train_acc * 100.0:05.2f}%, Validation accuracy: {val_acc * 100.0:05.2f}%"
             )
 
             if len(val_scores) == 1 or val_acc > val_scores[best_val_epoch]:
@@ -587,7 +587,7 @@ def train_model(net, model_name, max_epochs=50, patience=7, batch_size=256, over
 
     load_model(CHECKPOINT_PATH, model_name, net=net)
     test_acc = test_model(net, test_loader)
-    print((f" Test accuracy: {test_acc*100.0:4.2f}% ").center(50, "=") + "\n")
+    print((f" Test accuracy: {test_acc * 100.0:4.2f}% ").center(50, "=") + "\n")
     return test_acc
 
 

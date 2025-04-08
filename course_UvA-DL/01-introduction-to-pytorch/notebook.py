@@ -910,7 +910,7 @@ def eval_model(model, data_loader):
             num_preds += data_labels.shape[0]
 
     acc = true_preds / num_preds
-    print(f"Accuracy of the model: {100.0*acc:4.2f}%")
+    print(f"Accuracy of the model: {100.0 * acc:4.2f}%")
 
 
 # %%

@@ -642,7 +642,7 @@ plt.minorticks_off()
 plt.show()
 
 for k, score in zip(dataset_sizes, test_scores):
-    print(f"Test accuracy for {k:3d} images per label: {100*score:4.2f}%")
+    print(f"Test accuracy for {k:3d} images per label: {100 * score:4.2f}%")
 
 # %% [markdown]
 # As one would expect, the classification performance improves the more data we have.
@@ -781,8 +781,8 @@ def train_resnet(batch_size, max_epochs=100, **kwargs):
 
 # %%
 resnet_model, resnet_result = train_resnet(batch_size=64, num_classes=10, lr=1e-3, weight_decay=2e-4, max_epochs=100)
-print(f"Accuracy on training set: {100*resnet_result['train']:4.2f}%")
-print(f"Accuracy on test set: {100*resnet_result['test']:4.2f}%")
+print(f"Accuracy on training set: {100 * resnet_result['train']:4.2f}%")
+print(f"Accuracy on test set: {100 * resnet_result['test']:4.2f}%")
 
 # %% [markdown]
 # The ResNet trained from scratch achieves 73.31% on the test set.
