@@ -12,10 +12,10 @@ accelerator:
 OS: Linux
 python: 3.10.12
 environment:
-- matplotlib==3.9.2
-- torch==2.4.1+cu121
-- pytorch-lightning==2.4.0
-- numpy==2.0.2
-- torchvision==0.19.1+cu121
-- torchmetrics==1.4.1
-published: '2025-04-03T20:47:29.969624'
+- torchvision==0.22.0
+- torchmetrics==1.7.1
+- numpy==2.2.5
+- torch==2.7.0
+- pytorch-lightning==2.5.1.post0
+- matplotlib==3.10.1
+published: '2025-05-01T11:57:59.875252'
