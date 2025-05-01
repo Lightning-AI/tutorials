@@ -44,12 +44,12 @@ accelerator:
 OS: Linux
 python: 3.10.12
 environment:
-- seaborn==0.13.2
+- pytorch-lightning==2.4.0
 - tabulate==0.9.0
+- torchmetrics==1.4.1
+- torchvision==0.19.1+cu121
+- torch==2.4.1+cu121
 - matplotlib==3.9.2
 - numpy==2.0.2
-- torchvision==0.19.1+cu121
-- pytorch-lightning==2.4.0
-- torchmetrics==1.4.1
-- torch==2.4.1+cu121
-published: '2025-04-03T19:26:18.678878'
+- seaborn==0.13.2
+published: '2025-05-01T10:38:02.312177'
