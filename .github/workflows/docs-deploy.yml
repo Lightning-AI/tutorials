@@ -16,7 +16,7 @@ on:
 jobs:
   # https://github.com/marketplace/actions/deploy-to-github-pages
   build-docs-deploy:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       PATH_DATASETS: ${{ github.workspace }}/.datasets
       TORCH_URL: "https://download.pytorch.org/whl/cpu/torch_stable.html"
