@@ -38,16 +38,16 @@ accelerator:
 OS: Linux
 python: 3.10.12
 environment:
-- torch==2.1.2+cu121
-- torch_geometric==2.1.0.post1
-- torch-sparse==0.6.18+pt21cu121
 - torch-cluster==1.6.3+pt21cu121
 - numpy==1.26.4
-- torchvision==0.16.2+cu121
-- seaborn==0.13.2
+- torch-sparse==0.6.18+pt21cu121
 - torchmetrics==1.4.1
-- torch-scatter==2.1.2+pt21cu121
+- torchvision==0.16.2+cu121
 - torch-spline-conv==1.2.2+pt21cu121
-- matplotlib==3.9.2
+- torch_geometric==2.1.0.post1
 - pytorch-lightning==2.4.0
-published: '2025-04-03T19:22:07.819933'
+- matplotlib==3.9.2
+- seaborn==0.13.2
+- torch-scatter==2.1.2+pt21cu121
+- torch==2.1.2+cu121
+published: '2025-05-01T10:34:04.651903'
