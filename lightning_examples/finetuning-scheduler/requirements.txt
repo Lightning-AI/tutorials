@@ -1,2 +1,2 @@
 datasets >=2.17.0  # to allow explicitly setting `trust_remote_code`
-finetuning-scheduler[examples] <=2.5.0
+finetuning-scheduler[examples] ==2.5.1
