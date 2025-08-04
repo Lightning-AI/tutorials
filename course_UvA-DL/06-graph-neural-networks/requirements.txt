@@ -6,5 +6,9 @@ torch-cluster ==1.6.*
 torch-spline-conv ==1.2.*
 torch-geometric ==2.1.*
 
+# addresing long package compilation times
+# Building wheels for collected packages: torch-spline-conv, torch-sparse, torch-cluster, torch-scatter, torch-geometric
+--prefer-binary
+
 # todo: some compatibility issues
 numpy <2.0
