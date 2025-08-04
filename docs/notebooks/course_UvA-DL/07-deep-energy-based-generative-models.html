@@ -1,0 +1,1711 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-PQBQ3CV');
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="google-site-verification" content="okUst94cAlWSsUsGZTB4xSS4UKTtRV8Nu5XZ9pdd3Aw" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Tutorial 7: Deep Energy-Based Generative Models &mdash; lightning-tutorials  documentation</title>
+  
+
+  
+  
+  
+  
+    <link rel="canonical" href="https://www.pytorchlightning.ai/notebooks/course_UvA-DL/07-deep-energy-based-generative-models.html"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinx_paramlinks.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Tutorial 8: Deep Autoencoders" href="08-deep-autoencoders.html" />
+    <link rel="prev" title="Tutorial 6: Basics of Graph Neural Networks" href="06-graph-neural-networks.html" />
+  <!-- Google Analytics -->
+  
+  <!-- End Google Analytics -->
+  
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+  <!-- Preload the theme fonts -->
+
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/UCity/UCity-Light.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/UCity/UCity-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/UCity/UCity-Semibold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../_static/fonts/Inconsolata/Inconsolata.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+<!-- Preload the katex fonts -->
+
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Math-Italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Main-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size1-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size4-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size2-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Size3-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/fonts/KaTeX_Caligraphic-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  <script defer src="https://use.fontawesome.com/releases/v6.1.1/js/all.js" integrity="sha384-xBXmu0dk1bEoiwd71wOonQLyH+VpgR1XcDH3rtxrLww5ajNTuMvBdL5SOiFZnNdp" crossorigin="anonymous"></script>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="../../_static/js/react/react.jsx" type="text/babel"></script>
+</head>
+
+<div class="container-fluid header-holder tutorials-header" id="header-holder">
+  <div class="container">
+    <div class="header-container">
+      <a class="header-logo" href="https://pt-lightning-sandbox.rtfd.io/en/latest/" aria-label="PyTorch Lightning">
+      <!--  <img class="call-to-action-img" src="../../_static/images/logo-lightning-icon.png"/> -->
+      </a>
+
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pt-lightning-sandbox.readthedocs.io/en/latest/introduction_guide.html">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://www.pytorchlightning.ai/blog">Blog</a>
+          </li>
+
+          <li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-orange-arrow">
+                Docs
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://lightning.ai/docs/pytorch/stable/">
+                  <span class="dropdown-title">PyTorch Lightning</span>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://lightning.ai/docs/fabric/stable/">
+                  <span class="dropdown-title">Lightning Fabric</span>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://torchmetrics.readthedocs.io/en/stable/">
+                  <span class="dropdown-title">TorchMetrics</span>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://lightning-flash.readthedocs.io/en/stable/">
+                  <span class="dropdown-title">Lightning Flash</span>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://lightning-bolts.readthedocs.io/en/stable/">
+                  <span class="dropdown-title">Lightning Bolts</span>
+                </a>
+            </div>
+          </li>
+
+          <!--<li>
+            <div id="resourcesDropdownButton" data-toggle="resources-dropdown" class="resources-dropdown">
+              <a class="resource-option with-down-arrow">
+                Resources
+              </a>
+              <div class="resources-dropdown-menu">
+                <a class="nav-dropdown-item" href="">
+                  <span class="dropdown-title">Community</span>
+                  <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pt-lightning-sandbox.readthedocs.io/en/latest/#community-examples">
+                  <span class="dropdown-title">Developer Resources</span>
+                  <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="" target="_blank">
+                  <span class="dropdown-title">Forums</span>
+                  <p>A place to discuss PyTorch code, issues, install, research</p>
+                </a>
+                <a class="nav-dropdown-item" href="">
+                  <span class="dropdown-title">Models (Beta)</span>
+                  <p>Discover, publish, and reuse pre-trained models</p>
+                </a>
+              </div>
+            </div>
+          </li>-->
+
+          
+
+          <li>
+            <a href="https://github.com/Lightning-AI/lightning-sandbox">GitHub</a>
+          </li>
+
+          <li>
+            <a href="https://www.lightning.ai/">Lightning AI</a>
+          </li>
+
+        </ul>
+      </div>
+
+      <a class="main-menu-open-button" href="#" data-behavior="open-mobile-menu"></a>
+    </div>
+  </div>
+</div>
+
+<body class="pytorch-body">
+
+   
+
+    
+
+    <div class="table-of-contents-link-wrapper">
+      <span>Table of Contents</span>
+      <a href="#" class="toggle-table-of-contents" data-behavior="toggle-table-of-contents"></a>
+    </div>
+
+    <nav data-toggle="wy-nav-shift" class="pytorch-left-menu" id="pytorch-left-menu">
+      <div class="pytorch-side-scroll">
+        <div class="pytorch-menu pytorch-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          <div class="pytorch-left-menu-search">
+            
+
+            
+              
+              
+            
+
+            
+
+
+  
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search Docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+            
+          </div>
+
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Start here</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="01-introduction-to-pytorch.html">Tutorial 1: Introduction to PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02-activation-functions.html">Tutorial 2: Activation Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03-initialization-and-optimization.html">Tutorial 3: Initialization and Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04-inception-resnet-densenet.html">Tutorial 4: Inception, ResNet and DenseNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05-transformers-and-MH-attention.html">Tutorial 5: Transformers and Multi-Head Attention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06-graph-neural-networks.html">Tutorial 6: Basics of Graph Neural Networks</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial 7: Deep Energy-Based Generative Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08-deep-autoencoders.html">Tutorial 8: Deep Autoencoders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09-normalizing-flows.html">Tutorial 9: Normalizing Flows for Image Modeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10-autoregressive-image-modeling.html">Tutorial 10: Autoregressive Image Modeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11-vision-transformer.html">Tutorial 11: Vision Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12-meta-learning.html">Tutorial 12: Meta-Learning - Learning to Learn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="13-contrastive-learning.html">Tutorial 13: Self-Supervised Contrastive Learning with SimCLR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/augmentation_kornia.html">GPU and batched data augmentation with Kornia and PyTorch-Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/barlow-twins.html">Barlow Twins Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/basic-gan.html">PyTorch Lightning Basic GAN Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/cifar10-baseline.html">PyTorch Lightning CIFAR10 ~94% Baseline Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/datamodules.html">PyTorch Lightning DataModules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/finetuning-scheduler.html">Fine-Tuning Scheduler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/mnist-hello-world.html">Introduction to PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/mnist-tpu-training.html">TPU training with PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/reinforce-learning-DQN.html">How to train a Deep Q Network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightning_examples/text-transformers.html">Finetune Transformers Models with PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../templates/simple.html">How to write a PyTorch Lightning tutorial</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <div class="pytorch-container">
+      <div class="pytorch-page-level-bar" id="pytorch-page-level-bar">
+        <div class="pytorch-breadcrumbs-wrapper">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="pytorch-breadcrumbs">
+    
+      <li>
+        <a href="../../index.html">
+          
+            Docs
+          
+        </a> &gt;
+      </li>
+
+        
+      <li>Tutorial 7: Deep Energy-Based Generative Models</li>
+    
+    
+      <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/notebooks/course_UvA-DL/07-deep-energy-based-generative-models.ipynb.txt" rel="nofollow"><img src="../../_static/images/view-page-source-icon.svg"></a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+</div>
+        </div>
+
+        <div class="pytorch-shortcuts-wrapper" id="pytorch-shortcuts-wrapper">
+          Shortcuts
+        </div>
+      </div>
+
+      <section data-toggle="wy-nav-shift" id="pytorch-content-wrap" class="pytorch-content-wrap">
+        <div class="pytorch-content-left">
+
+        
+          
+          <div class="rst-content">
+          
+            <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
+             <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
+              
+  <section id="Tutorial-7:-Deep-Energy-Based-Generative-Models">
+<h1>Tutorial 7: Deep Energy-Based Generative Models<a class="headerlink" href="#Tutorial-7:-Deep-Energy-Based-Generative-Models" title="Permalink to this heading">¶</a></h1>
+<ul class="simple">
+<li><p><strong>Author:</strong> Phillip Lippe</p></li>
+<li><p><strong>License:</strong> CC BY-SA</p></li>
+<li><p><strong>Generated:</strong> 2025-05-01T10:34:52.650320</p></li>
+</ul>
+<p>In this tutorial, we will look at energy-based deep learning models, and focus on their application as generative models. Energy models have been a popular tool before the huge deep learning hype around 2012 hit. However, in recent years, energy-based models have gained increasing attention because of improved training methods and tricks being proposed. Although they are still in a research stage, they have shown to outperform strong Generative Adversarial Networks in certain cases which have
+been the state of the art of generating images (<a class="reference external" href="https://ajolicoeur.wordpress.com/the-new-contender-to-gans-score-matching-with-langevin-sampling/">blog post</a>about strong energy-based models, <a class="reference external" href="https://medium.com/syncedreview/nvidia-open-sources-hyper-realistic-face-generator-stylegan-f346e1a73826">blog post</a> about the power of GANs). Hence, it is important to be aware of energy-based models, and as the theory can be abstract sometimes, we will show the idea of energy-based models with a
+lot of examples. This notebook is part of a lecture series on Deep Learning at the University of Amsterdam. The full list of tutorials can be found at <a class="reference external" href="https://uvadlc-notebooks.rtfd.io">https://uvadlc-notebooks.rtfd.io</a>.</p>
+<hr class="docutils" />
+<p>Open in <a class="reference external" href="https://colab.research.google.com/github/PytorchLightning/lightning-tutorials/blob/publication/.notebooks/course_UvA-DL/07-deep-energy-based-generative-models.ipynb"><img alt="Open In Colab" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHUAAAAUCAYAAACzrHJDAAAIuUlEQVRoQ+1ZaVRURxb+qhdolmbTUVSURpZgmLhHbQVFZIlGQBEXcMvJhKiTEzfigjQg7oNEJ9GMGidnjnNMBs2czIzajksEFRE1xklCTKJiQLRFsUGkoUWw+82pamn79etGYoKek1B/4NW99/tu3e/dquJBAGD27NkHALxKf39WY39gyrOi+i3xqGtUoePJrFmznrmgtModorbTu8YRNZk5cybXTvCtwh7o6NR2KzuZMWNGh6jtVt7nA0ymT5/eJlF9POrh7PAQl6s8bGYa3PUum//htmebVtLRqW0q01M5keTk5FZFzU0oRle3+zxwg5Hgtb+PZiL/ZVohxCI+hL5JgjmfjPxZ26+33BG3dA+ealHPM4gQAo5rU59gsI8bRvl54t3Ca62mvHyUAhtOlLd5WSQpKcluBjumnoCLs1EARkVd9E8l3p9y2i7RbQ1B6pFwu/YDgW8KbHJHMTQrwnjz2oZm9M4pavOCfo5jWrgCaaMVcMs6/pNhDr0+AMN93XlxV7R6DNpyzi7W/OE+yIrsjU6rTrbKV5cd/pNyItOmTbMp6sbBB+EqaYJY4cWE3VUciNt1TpgfcRFv71Fi54xT5kSoyLvOBEJMOMxWXkFlBeBSX4u6Zkcs+3KszYRtiapbNRqF31UgetVuc8z9vBXIv1qD+F1f83B6uDlCUyfsZGepGPpmg01OB7EITQbhS9ribKy+DmP1DUiClLz4bnIHVOqa7BY+Z1wg5g3zgUvyehiNpnJKxSLc/ts76LKm0BzX3c0RNy1yXjDcB5lWoro4iNHQxM+f1kWeWQARAWQS++trISJTp061Kep25X/MycwtjuctSC5rxo7ppi7VNUox5+PhPHtrsS2O1qJ6yx1QujQUzm9sh6hbkBlvvGcN8hYnwjUjH6kjfZEd5c/jitz5Jc5U3ENnFynKl4eB7nyEgP2UZ+Yz3/rVEbyYr27qELrtC4FIC0J7sc7xWnmccdHfRRTs0VB+cA4lt+oFcRR/wUeH8FG5w2Mbx8FQ8TXEvv1xYf4wBP3O2WyL3/UVjpXWgIqaFeUPr+wTmDvUB7njH6/bOv+HRg4SqioAg5GDe1aB3ZeMTJkyRSBqkLsWqSEm0fZVBEN94zEZnYvrdx1JL5cxe+a+AbhSJecRRHW/ikTFRTa38dtQlNZ5CRKwFvUtZU/kvBoEF9Uxni/XqIM+dwKbTw3rhcxIf7gmr2M+H6SMwx8iBzJbw5oxeG3Lv5FX9B3AGaHPS8e8z77H7v9VMpvPG5ug1enh7eGK8h0LBTwUb+GInqzInlRUK65DmTPQu4c3+uQKjwKK77zwUxBX4Tq7yR1RuiwUsqlrABCM6esHdXoy47fk4+prYKy8ZF574x4V5BnHQBuf4g9Z9ld8U36L2aktZNNplNfw7zotwWTy5MkCUft4aLEopJj5/OPHl1BQqeAVOnHgNSQOqmBzq9V9cfEm/yx5ubMGKS9cYPZ3vx2OS/c6PVHUuUO7Y1Pci3BO/1zgq18byebfGemLtNF+6JRtOvMk926ibussZqM+1mNz4TWkH7rCbM5phwGRGDAaoF8fY5OHFnlldAA8sgoEXKnDukA1NgSeNjqkJT9brbN4pC9WRweYXyLugR73c+MYvyWfu0yC6+mjzN1Isfw3FKJS98CU/zI1IHFkFPR52cHL2FJk0sB6kMTERIGo9GzcPkLNfA0cwdwi/hfEYO86ZMd9w+y1egfM2T2Eh/vesMNwljSzuZRT420SW3eqy8N6aHMmwmnFUZ7/PGVPbIoNZvNU1BURdHs0bT2+HjL8sDSM2e6vi4Lj5NW8WOLVA6RTT2azxLV+bglaFNqLieqemS/gWkw7NyoAHo+2dEsiivengjKsPFoqWOvbSh/kxPaxyW/JRzH2Fl3EzD9/xjAefJqB3usKUFn/0Gb+S/d/jy3FN2yLOmnSJJtn6oehByEiHPSeXnDxFGPRnoFoaBJjcdQlbDwcjL1zTNuQpoxD7R0OG0uUTMi0fkVwdzBdYIwcwZunxrVJVLplNm54BZp7jfDfYLoNyqQi1K6KxIdHzmN+QQ2WjFIwUT2zTGdlRXo4NFXVUO4sgX5dFC7f0aP/ZlNeUjFBuL8Xjl6uRuP6aMjSjpjzsH62FDU7JhBuGccEXIvDfJFFBc/gHw80dklfCVYnRaDfpiJcutPA4F7qJsfJeUPQI+1fqMlNhFx1FM0GDqkjFVg7NojlQ0Vt4aM5ReSqcbpaCg8nCW5lRsBvbT4T1TLfFptsfh7gItzuKTdJSEiwKSrt1vcmnEXXrsLbYnWDA1bu+z2WKy9Arq+1KRqdfKsoBo0GcdtEpS/B1bO4v0cFiUhkjskvKcMrWwtAPHuwQq8Z+4LZ1vTQANfXt4J0DwZX9gWa9qh4XDM/voC9JXfwYEMMHJcfNtusn82ihvliVUwg5KrPGVf6GH94ZJpEZBen6EC4qYTHA1dXhW0JIex8txzv//c8lhzXIi/BFxOH9jGbQhZsRalTIBZZ8KkGyZAxeRQvXkFF1TWz/Hm46jNYUnjPbt3JxIkT7f6dSj8qfJJyVvBxgaIlblOyjtysNHWN9fjjqWi7glJfW3/S0Hlj2XnA8PhKT9w6g3Qx3XiXhvuxQsuT1proxBKI/AaZqY1Xz5muvY8G8XkRRCaHsfQsRAFDH/tZPbcYuHotOG0FRIqB4HR3wNVoIPLtz8ycTguu+jpEigE218vd1YCr5m+HpHMvEI9u4LTXwNWaLjl0iPwGAmIpeHx1VeCqTJdPs1/vweweQPO3HC24NhOhnTphwoQnfv6QSY2ICbkNmdSA4h87oaLaiYfn5diIEd4att2erOwJXbPUHp953p6orQVSUVWRAXBT8c/dJ5L9xhzaJGp71GR/wFP8P5V2z10NSC9T93QM2xUg8fHxT+zU9ijeU4naHon8CjFJXFzc8/kn+dN06q9QgF98SYSo2Xen2NjYZy5sR6f+4nLSK5Iam2PH/x87a1YN/t5sBgAAAABJRU5ErkJggg==" style="width: 117px; height: 20px;" /></a></p>
+<p>Give us a ⭐ <a class="reference external" href="https://www.github.com/Lightning-AI/lightning/">on Github</a> | Check out <a class="reference external" href="https://lightning.ai/docs/">the documentation</a> | Join us <a class="reference external" href="https://discord.com/invite/tfXFetEZxv">on Discord</a></p>
+<section id="Setup">
+<h2>Setup<a class="headerlink" href="#Setup" title="Permalink to this heading">¶</a></h2>
+<p>This notebook requires some packages besides pytorch-lightning.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--quiet<span class="w"> </span><span class="s2">&quot;tensorboard&quot;</span><span class="w"> </span><span class="s2">&quot;torchvision&quot;</span><span class="w"> </span><span class="s2">&quot;matplotlib&quot;</span><span class="w"> </span><span class="s2">&quot;numpy &lt;3.0&quot;</span><span class="w"> </span><span class="s2">&quot;torch &gt;=1.8.1,&lt;2.8&quot;</span><span class="w"> </span><span class="s2">&quot;torchmetrics &gt;=1.0,&lt;1.8&quot;</span><span class="w"> </span><span class="s2">&quot;pytorch-lightning &gt;=2.0,&lt;2.6&quot;</span><span class="w"> </span><span class="s2">&quot;seaborn&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-yellow-fg">WARNING: Running pip as the &#39;root&#39; user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable.It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.</span><span class="ansi-yellow-fg">
+</span>
+<span class="ansi-bold">[</span><span class="ansi-blue-fg">notice</span><span class="ansi-bold">]</span> A new release of pip is available: <span class="ansi-red-fg">24.2</span> -&gt; <span class="ansi-green-fg">25.1</span>
+<span class="ansi-bold">[</span><span class="ansi-blue-fg">notice</span><span class="ansi-bold">]</span> To update, run: <span class="ansi-green-fg">python -m pip install --upgrade pip</span>
+</pre></div></div>
+</div>
+<div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/E6PDwquBBQc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div><p>First, let’s import our standard libraries below.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard libraries</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.error</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPError</span>
+
+<span class="c1"># Plotting</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib_inline.backend_inline</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># PyTorch Lightning</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytorch_lightning</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+
+<span class="c1"># PyTorch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.optim</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">optim</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">data</span>
+
+<span class="c1"># Torchvision</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torchvision</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pytorch_lightning.callbacks</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callback</span><span class="p">,</span> <span class="n">LearningRateMonitor</span><span class="p">,</span> <span class="n">ModelCheckpoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">transforms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">MNIST</span>
+
+<span class="n">matplotlib_inline</span><span class="o">.</span><span class="n">backend_inline</span><span class="o">.</span><span class="n">set_matplotlib_formats</span><span class="p">(</span><span class="s2">&quot;svg&quot;</span><span class="p">,</span> <span class="s2">&quot;pdf&quot;</span><span class="p">)</span>  <span class="c1"># For export</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;lines.linewidth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
+
+<span class="c1"># Path to the folder where the datasets are/should be downloaded (e.g. CIFAR10)</span>
+<span class="n">DATASET_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH_DATASETS&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+<span class="c1"># Path to the folder where the pretrained models are saved</span>
+<span class="n">CHECKPOINT_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PATH_CHECKPOINT&quot;</span><span class="p">,</span> <span class="s2">&quot;saved_models/tutorial8&quot;</span><span class="p">)</span>
+
+<span class="c1"># Setting the seed</span>
+<span class="n">pl</span><span class="o">.</span><span class="n">seed_everything</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Ensure that all operations are deterministic on GPU (if used) for reproducibility</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">deterministic</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">benchmark</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda:0&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Seed set to 42
+</pre></div></div>
+</div>
+<p>We also have pre-trained models that we download below.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Github URL where saved models are stored for this tutorial</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial8/&quot;</span>
+<span class="c1"># Files to download</span>
+<span class="n">pretrained_files</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MNIST.ckpt&quot;</span><span class="p">,</span> <span class="s2">&quot;tensorboards/events.out.tfevents.MNIST&quot;</span><span class="p">]</span>
+
+<span class="c1"># Create checkpoint path if it doesn&#39;t exist yet</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">CHECKPOINT_PATH</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># For each file, check whether it already exists. If not, try downloading it.</span>
+<span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">pretrained_files</span><span class="p">:</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CHECKPOINT_PATH</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">file_name</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+        <span class="n">file_url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="n">file_name</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading </span><span class="si">{</span><span class="n">file_url</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">file_url</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Something went wrong. Please try to download the files manually,&quot;</span>
+                <span class="s2">&quot; or contact the author with the full output including the following error:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">e</span><span class="p">,</span>
+            <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Downloading https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial8/MNIST.ckpt...
+Downloading https://raw.githubusercontent.com/phlippe/saved_models/main/tutorial8/tensorboards/events.out.tfevents.MNIST...
+</pre></div></div>
+</div>
+</section>
+<section id="Energy-Models">
+<h2>Energy Models<a class="headerlink" href="#Energy-Models" title="Permalink to this heading">¶</a></h2>
+<p>In the first part of this tutorial, we will review the theory of the energy-based models (the same theory has been discussed in Lecture 8). While most of the previous models had the goal of classification or regression, energy-based models are motivated from a different perspective: density estimation. Given a dataset with a lot of elements, we want to estimate the probability distribution over the whole data space. As an example, if we model images from CIFAR10, our goal would be to have a
+probability distribution over all possible images of size <span class="math notranslate nohighlight">\(32\times32\times3\)</span> where those images have a high likelihood that look realistic and are one of the 10 CIFAR classes. Simple methods like interpolation between images don’t work because images are extremely high-dimensional (especially for large HD images). Hence, we turn to deep learning methods that have performed well on complex data.</p>
+<p>However, how do we predict a probability distribution <span class="math notranslate nohighlight">\(p(\mathbf{x})\)</span> over so many dimensions using a simple neural network? The problem is that we cannot just predict a score between 0 and 1, because a probability distribution over data needs to fulfill two properties:</p>
+<ol class="arabic simple">
+<li><p>The probability distribution needs to assign any possible value of <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> a non-negative value: <span class="math notranslate nohighlight">\(p(\mathbf{x}) \geq 0\)</span>.</p></li>
+<li><p>The probability density must sum/integrate to 1 over <strong>all</strong> possible inputs: <span class="math notranslate nohighlight">\(\int_{\mathbf{x}} p(\mathbf{x}) d\mathbf{x} = 1\)</span>.</p></li>
+</ol>
+<p>Luckily, there are actually many approaches for this, and one of them are energy-based models. The fundamental idea of energy-based models is that you can turn any function that predicts values larger than zero into a probability distribution by dviding by its volume. Imagine we have a neural network, which has as output a single neuron, like in regression. We can call this network <span class="math notranslate nohighlight">\(E_{\theta}(\mathbf{x})\)</span>, where <span class="math notranslate nohighlight">\(\theta\)</span> are our parameters of the network, and <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> the
+input data (e.g. an image). The output of <span class="math notranslate nohighlight">\(E_{\theta}\)</span> is a scalar value between <span class="math notranslate nohighlight">\(-\infty\)</span> and <span class="math notranslate nohighlight">\(\infty\)</span>. Now, we can use basic probability theory to <em>normalize</em> the scores of all possible inputs:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}q_{\theta}(\mathbf{x}) = \frac{\exp\left(-E_{\theta}(\mathbf{x})\right)}{Z_{\theta}} \hspace{5mm}\text{where}\hspace{5mm}
+Z_{\theta} = \begin{cases}
+    \int_{\mathbf{x}}\exp\left(-E_{\theta}(\mathbf{x})\right) d\mathbf{x} &amp; \text{if }x\text{ is continuous}\\
+    \sum_{\mathbf{x}}\exp\left(-E_{\theta}(\mathbf{x})\right) &amp; \text{if }x\text{ is discrete}
+\end{cases}\end{split}\]</div>
+<p>The <span class="math notranslate nohighlight">\(\exp\)</span>-function ensures that we assign a probability greater than zero to any possible input. We use a negative sign in front of <span class="math notranslate nohighlight">\(E\)</span> because we call <span class="math notranslate nohighlight">\(E_{\theta}\)</span> to be the energy function: data points with high likelihood have a low energy, while data points with low likelihood have a high energy. <span class="math notranslate nohighlight">\(Z_{\theta}\)</span> is our normalization terms that ensures that the density integrates/sums to 1. We can show this by integrating over <span class="math notranslate nohighlight">\(q_{\theta}(\mathbf{x})\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\int_{\mathbf{x}}q_{\theta}(\mathbf{x})d\mathbf{x} =
+\int_{\mathbf{x}}\frac{\exp\left(-E_{\theta}(\mathbf{x})\right)}{\int_{\mathbf{\tilde{x}}}\exp\left(-E_{\theta}(\mathbf{\tilde{x}})\right) d\mathbf{\tilde{x}}}d\mathbf{x} =
+\frac{\int_{\mathbf{x}}\exp\left(-E_{\theta}(\mathbf{x})\right)d\mathbf{x}}{\int_{\mathbf{\tilde{x}}}\exp\left(-E_{\theta}(\mathbf{\tilde{x}})\right) d\mathbf{\tilde{x}}} = 1\]</div>
+<p>Note that we call the probability distribution <span class="math notranslate nohighlight">\(q_{\theta}(\mathbf{x})\)</span> because this is the learned distribution by the model, and is trained to be as close as possible to the <em>true</em>, unknown distribution <span class="math notranslate nohighlight">\(p(\mathbf{x})\)</span>.</p>
+<p>The main benefit of this formulation of the probability distribution is its great flexibility as we can choose <span class="math notranslate nohighlight">\(E_{\theta}\)</span> in whatever way we like, without any constraints. Nevertheless, when looking at the equation above, we can see a fundamental issue: How do we calculate <span class="math notranslate nohighlight">\(Z_{\theta}\)</span>? There is no chance that we can calculate <span class="math notranslate nohighlight">\(Z_{\theta}\)</span> analytically for high-dimensional input and/or larger neural networks, but the task requires us to know <span class="math notranslate nohighlight">\(Z_{\theta}\)</span>. Although we
+can’t determine the exact likelihood of a point, there exist methods with which we can train energy-based models. Thus, we will look next at “Contrastive Divergence” for training the model.</p>
+<section id="Contrastive-Divergence">
+<h3>Contrastive Divergence<a class="headerlink" href="#Contrastive-Divergence" title="Permalink to this heading">¶</a></h3>
+<p>When we train a model on generative modeling, it is usually done by maximum likelihood estimation. In other words, we try to maximize the likelihood of the examples in the training set. As the exact likelihood of a point cannot be determined due to the unknown normalization constant <span class="math notranslate nohighlight">\(Z_{\theta}\)</span>, we need to train energy-based models slightly different. We cannot just maximize the un-normalized probability <span class="math notranslate nohighlight">\(\exp(-E_{\theta}(\mathbf{x}_{\text{train}}))\)</span> because there is no guarantee
+that <span class="math notranslate nohighlight">\(Z_{\theta}\)</span> stays constant, or that <span class="math notranslate nohighlight">\(\mathbf{x}_{\text{train}}\)</span> is becoming more likely than the others. However, if we base our training on comparing the likelihood of points, we can create a stable objective. Namely, we can re-write our maximum likelihood objective where we maximize the probability of <span class="math notranslate nohighlight">\(\mathbf{x}_{\text{train}}\)</span> compared to a randomly sampled data point of our model:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{split}
+    \nabla_{\theta}\mathcal{L}_{\text{MLE}}(\mathbf{\theta};p) &amp; = -\mathbb{E}_{p(\mathbf{x})}\left[\nabla_{\theta}\log q_{\theta}(\mathbf{x})\right]\\[5pt]
+    &amp; = \mathbb{E}_{p(\mathbf{x})}\left[\nabla_{\theta}E_{\theta}(\mathbf{x})\right] - \mathbb{E}_{q_{\theta}(\mathbf{x})}\left[\nabla_{\theta}E_{\theta}(\mathbf{x})\right]
+\end{split}\end{split}\]</div>
+<p>Note that the loss is still an objective we want to minimize. Thus, we try to minimize the energy for data points from the dataset, while maximizing the energy for randomly sampled data points from our model (how we sample will be explained below). Although this objective sounds intuitive, how is it actually derived from our original distribution <span class="math notranslate nohighlight">\(q_{\theta}(\mathbf{x})\)</span>? The trick is that we approximate <span class="math notranslate nohighlight">\(Z_{\theta}\)</span> by a single Monte-Carlo sample. This gives us the exact same
+objective as written above.</p>
+<p>Visually, we can look at the objective as follows (figure credit - Stefano Ermon and Aditya Grover: lecture cs236/11):</p>
+<center width="100%"><p><img alt="d153b6cca71b4bf49dc74feade76a093" class="no-scaled-link" src="https://github.com/Lightning-AI/lightning-tutorials/raw/main/course_UvA-DL/07-deep-energy-based-generative-models/contrastive_divergence.svg" width="700px" /></p>
+</center><p><span class="math notranslate nohighlight">\(f_{\theta}\)</span> represents <span class="math notranslate nohighlight">\(\exp(-E_{\theta}(\mathbf{x}))\)</span> in our case. The point on the right, called “correct answer”, represents a data point from the dataset (i.e. <span class="math notranslate nohighlight">\(x_{\text{train}}\)</span>), and the left point, “wrong answer”, a sample from our model (i.e. <span class="math notranslate nohighlight">\(x_{\text{sample}}\)</span>). Thus, we try to “pull up” the probability of the data points in the dataset, while “pushing down” randomly sampled points. The two forces for pulling and pushing are in balance iff
+<span class="math notranslate nohighlight">\(q_{\theta}(\mathbf{x})=p(\mathbf{x})\)</span>.</p>
+</section>
+<section id="Sampling-from-Energy-Based-Models">
+<h3>Sampling from Energy-Based Models<a class="headerlink" href="#Sampling-from-Energy-Based-Models" title="Permalink to this heading">¶</a></h3>
+<p>For sampling from an energy-based model, we can apply a Markov Chain Monte Carlo using Langevin Dynamics. The idea of the algorithm is to start from a random point, and slowly move towards the direction of higher probability using the gradients of <span class="math notranslate nohighlight">\(E_{\theta}\)</span>. Nevertheless, this is not enough to fully capture the probability distribution. We need to add noise <span class="math notranslate nohighlight">\(\omega\)</span> at each gradient step to the current sample. Under certain conditions such as that we perform the gradient steps an
+infinite amount of times, we would be able to create an exact sample from our modeled distribution. However, as this is not practically possible, we usually limit the chain to <span class="math notranslate nohighlight">\(K\)</span> steps (<span class="math notranslate nohighlight">\(K\)</span> a hyperparameter that needs to be finetuned). Overall, the sampling procedure can be summarized in the following algorithm:</p>
+<center width="100%" style="padding:15px"><p><img alt="c4e4ef94dfb749bba2411fbfb8f479f4" class="no-scaled-link" src="https://github.com/Lightning-AI/lightning-tutorials/raw/main/course_UvA-DL/07-deep-energy-based-generative-models/sampling.svg" width="750px" /></p>
+</center></section>
+<section id="Applications-of-Energy-based-models-beyond-generation">
+<h3>Applications of Energy-based models beyond generation<a class="headerlink" href="#Applications-of-Energy-based-models-beyond-generation" title="Permalink to this heading">¶</a></h3>
+<p>Modeling the probability distribution for sampling new data is not the only application of energy-based models. Any application which requires us to compare two elements is much simpler to learn because we just need to go for the higher energy. A couple of examples are shown below (figure credit - Stefano Ermon and Aditya Grover: lecture cs236/11). A classification setup like object recognition or sequence labeling can be considered as an energy-based task as we just need to find the <span class="math notranslate nohighlight">\(Y\)</span>
+input that minimizes the output <span class="math notranslate nohighlight">\(E(X, Y)\)</span> (hence maximizes probability). Similarly, a popular application of energy-based models is denoising of images. Given an image <span class="math notranslate nohighlight">\(X\)</span> with a lot of noise, we try to minimize the energy by finding the true input image <span class="math notranslate nohighlight">\(Y\)</span>.</p>
+<center width="100%"><p><img alt="0efc0102c3ae4c8eaa9b74004a677d8e" class="no-scaled-link" src="https://github.com/Lightning-AI/lightning-tutorials/raw/main/course_UvA-DL/07-deep-energy-based-generative-models/energy_models_application.png" style="width: 600px;" /></p>
+</center><p>Nonetheless, we will focus on generative modeling here as in the next couple of lectures, we will discuss more generative deep learning approaches.</p>
+</section>
+</section>
+<section id="Image-generation">
+<h2>Image generation<a class="headerlink" href="#Image-generation" title="Permalink to this heading">¶</a></h2>
+<div class="center-wrapper"><div class="video-wrapper"><iframe src="https://www.youtube.com/embed/QJ94zuSQoP4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div><p>As an example for energy-based models, we will train a model on image generation. Specifically, we will look at how we can generate MNIST digits with a very simple CNN model. However, it should be noted that energy models are not easy to train and often diverge if the hyperparameters are not well tuned. We will rely on training tricks proposed in the paper <a class="reference external" href="https://arxiv.org/abs/1903.08689">Implicit Generation and Generalization in Energy-Based Models</a> by Yilun Du and Igor Mordatch
+(<a class="reference external" href="https://openai.com/index/energy-based-models/">blog</a>). The important part of this notebook is however to see how the theory above can actually be used in a model.</p>
+<section id="Dataset">
+<h3>Dataset<a class="headerlink" href="#Dataset" title="Permalink to this heading">¶</a></h3>
+<p>First, we can load the MNIST dataset below. Note that we need to normalize the images between -1 and 1 instead of mean 0 and std 1 because during sampling, we have to limit the input space. Scaling between -1 and 1 makes it easier to implement it.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Transformations applied on each image =&gt; make them a tensor and normalize between -1 and 1</span>
+<span class="n">transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,))])</span>
+
+<span class="c1"># Loading the training dataset. We need to split it into a training and validation part</span>
+<span class="n">train_set</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">DATASET_PATH</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Loading the test set</span>
+<span class="n">test_set</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">DATASET_PATH</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># We define a set of data loaders that we can use for various purposes later.</span>
+<span class="c1"># Note that for actually training a model, we will use different data loaders</span>
+<span class="c1"># with a lower batch size.</span>
+<span class="n">train_loader</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">train_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">pin_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">test_loader</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">test_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Downloading http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz
+Failed to download (trying next):
+HTTP Error 404: Not Found
+
+Downloading https://ossci-datasets.s3.amazonaws.com/mnist/train-images-idx3-ubyte.gz
+Downloading https://ossci-datasets.s3.amazonaws.com/mnist/train-images-idx3-ubyte.gz to /__w/11/s/.datasets/MNIST/raw/train-images-idx3-ubyte.gz
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 9912422/9912422 [00:00&lt;00:00, 40504804.71it/s]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Extracting /__w/11/s/.datasets/MNIST/raw/train-images-idx3-ubyte.gz to /__w/11/s/.datasets/MNIST/raw
+
+Downloading http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz
+Failed to download (trying next):
+HTTP Error 404: Not Found
+
+Downloading https://ossci-datasets.s3.amazonaws.com/mnist/train-labels-idx1-ubyte.gz
+Downloading https://ossci-datasets.s3.amazonaws.com/mnist/train-labels-idx1-ubyte.gz to /__w/11/s/.datasets/MNIST/raw/train-labels-idx1-ubyte.gz
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 28881/28881 [00:00&lt;00:00, 3000785.12it/s]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Extracting /__w/11/s/.datasets/MNIST/raw/train-labels-idx1-ubyte.gz to /__w/11/s/.datasets/MNIST/raw
+
+Downloading http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz
+Failed to download (trying next):
+HTTP Error 404: Not Found
+
+Downloading https://ossci-datasets.s3.amazonaws.com/mnist/t10k-images-idx3-ubyte.gz
+Downloading https://ossci-datasets.s3.amazonaws.com/mnist/t10k-images-idx3-ubyte.gz to /__w/11/s/.datasets/MNIST/raw/t10k-images-idx3-ubyte.gz
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 1648877/1648877 [00:00&lt;00:00, 21243780.19it/s]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Extracting /__w/11/s/.datasets/MNIST/raw/t10k-images-idx3-ubyte.gz to /__w/11/s/.datasets/MNIST/raw
+
+Downloading http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz
+Failed to download (trying next):
+HTTP Error 404: Not Found
+
+Downloading https://ossci-datasets.s3.amazonaws.com/mnist/t10k-labels-idx1-ubyte.gz
+Downloading https://ossci-datasets.s3.amazonaws.com/mnist/t10k-labels-idx1-ubyte.gz to /__w/11/s/.datasets/MNIST/raw/t10k-labels-idx1-ubyte.gz
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 4542/4542 [00:00&lt;00:00, 5702043.93it/s]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Extracting /__w/11/s/.datasets/MNIST/raw/t10k-labels-idx1-ubyte.gz to /__w/11/s/.datasets/MNIST/raw
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+</section>
+<section id="CNN-Model">
+<h3>CNN Model<a class="headerlink" href="#CNN-Model" title="Permalink to this heading">¶</a></h3>
+<p>First, we implement our CNN model. The MNIST images are of size 28x28, hence we only need a small model. As an example, we will apply several convolutions with stride 2 that downscale the images. If you are interested, you can also use a deeper model such as a small ResNet, but for simplicity, we will stick with the tiny network.</p>
+<p>It is a good practice to use a smooth activation function like Swish instead of ReLU in the energy model. This is because we will rely on the gradients we get back with respect to the input image, which should not be sparse.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CNNModel</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden_features</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">out_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># We increase the hidden dimension over layers. Here pre-calculated for simplicity.</span>
+        <span class="n">c_hid1</span> <span class="o">=</span> <span class="n">hidden_features</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">c_hid2</span> <span class="o">=</span> <span class="n">hidden_features</span>
+        <span class="n">c_hid3</span> <span class="o">=</span> <span class="n">hidden_features</span> <span class="o">*</span> <span class="mi">2</span>
+
+        <span class="c1"># Series of convolutions and Swish activation functions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cnn_layers</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">c_hid1</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>  <span class="c1"># [16x16] - Larger padding to get 32x32 image</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">SiLU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">c_hid1</span><span class="p">,</span> <span class="n">c_hid2</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>  <span class="c1"># [8x8]</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">SiLU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">c_hid2</span><span class="p">,</span> <span class="n">c_hid3</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>  <span class="c1"># [4x4]</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">SiLU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">c_hid3</span><span class="p">,</span> <span class="n">c_hid3</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>  <span class="c1"># [2x2]</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">SiLU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Flatten</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">c_hid3</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="n">c_hid3</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">SiLU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">c_hid3</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cnn_layers</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+</div>
+<p>In the rest of the notebook, the output of the model will actually not represent <span class="math notranslate nohighlight">\(E_{\theta}(\mathbf{x})\)</span>, but <span class="math notranslate nohighlight">\(-E_{\theta}(\mathbf{x})\)</span>. This is a standard implementation practice for energy-based models, as some people also write the energy probability density as <span class="math notranslate nohighlight">\(q_{\theta}(\mathbf{x}) = \frac{\exp\left(f_{\theta}(\mathbf{x})\right)}{Z_{\theta}}\)</span>. In that case, the model would actually represent <span class="math notranslate nohighlight">\(f_{\theta}(\mathbf{x})\)</span>. In the training loss etc., we need to be careful
+to not switch up the signs.</p>
+</section>
+<section id="Sampling-buffer">
+<h3>Sampling buffer<a class="headerlink" href="#Sampling-buffer" title="Permalink to this heading">¶</a></h3>
+<p>In the next part, we look at the training with sampled elements. To use the contrastive divergence objective, we need to generate samples during training. Previous work has shown that due to the high dimensionality of images, we need a lot of iterations inside the MCMC sampling to obtain reasonable samples. However, there is a training trick that significantly reduces the sampling cost: using a sampling buffer. The idea is that we store the samples of the last couple of batches in a buffer, and
+reuse those as the starting point of the MCMC algorithm for the next batches. This reduces the sampling cost because the model requires a significantly lower number of steps to converge to reasonable samples. However, to not solely rely on previous samples and allow novel samples as well, we re-initialize 5% of our samples from scratch (random noise between -1 and 1).</p>
+<p>Below, we implement the sampling buffer. The function <code class="docutils literal notranslate"><span class="pre">sample_new_exmps</span></code> returns a new batch of “fake” images. We refer to those as fake images because they have been generated, but are not actually part of the dataset. As mentioned before, we use initialize 5% randomly, and 95% are randomly picked from our buffer. On this initial batch, we perform MCMC for 60 iterations to improve the image quality and come closer to samples from <span class="math notranslate nohighlight">\(q_{\theta}(\mathbf{x})\)</span>. In the function
+<code class="docutils literal notranslate"><span class="pre">generate_samples</span></code>, we implemented the MCMC for images. Note that the hyperparameters of <code class="docutils literal notranslate"><span class="pre">step_size</span></code>, <code class="docutils literal notranslate"><span class="pre">steps</span></code>, the noise standard deviation <span class="math notranslate nohighlight">\(\sigma\)</span> are specifically set for MNIST, and need to be finetuned for a different dataset if you want to use such.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Sampler</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">img_shape</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">,</span> <span class="n">max_len</span><span class="o">=</span><span class="mi">8192</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sampler.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model: Neural network to use for modeling E_theta</span>
+<span class="sd">            img_shape: Shape of the images to model</span>
+<span class="sd">            sample_size: Batch size of the samples</span>
+<span class="sd">            max_len: Maximum number of data points to keep in the buffer</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span> <span class="o">=</span> <span class="n">img_shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span> <span class="o">=</span> <span class="n">sample_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_len</span> <span class="o">=</span> <span class="n">max_len</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">examples</span> <span class="o">=</span> <span class="p">[(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="n">img_shape</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">)]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">sample_new_exmps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Function for getting a new batch of &quot;fake&quot; images.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            steps: Number of iterations in the MCMC algorithm</span>
+<span class="sd">            step_size: Learning rate nu in the algorithm above</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Choose 95% of the batch from the buffer, 5% generate from scratch</span>
+        <span class="n">n_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
+        <span class="n">rand_imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="n">n_new</span><span class="p">,)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">img_shape</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">old_imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">examples</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span> <span class="o">-</span> <span class="n">n_new</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">inp_imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">rand_imgs</span><span class="p">,</span> <span class="n">old_imgs</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="c1"># Perform MCMC sampling</span>
+        <span class="n">inp_imgs</span> <span class="o">=</span> <span class="n">Sampler</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">inp_imgs</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="n">step_size</span><span class="p">)</span>
+
+        <span class="c1"># Add new images to the buffer and remove old ones if needed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">examples</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">inp_imgs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">chunk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">examples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">examples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">examples</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_len</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">inp_imgs</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_samples</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">inp_imgs</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">return_img_per_step</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Function for sampling images for a given model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model: Neural network to use for modeling E_theta</span>
+<span class="sd">            inp_imgs: Images to start from for sampling. If you want to generate new images, enter noise between -1 and 1.</span>
+<span class="sd">            steps: Number of iterations in the MCMC algorithm.</span>
+<span class="sd">            step_size: Learning rate nu in the algorithm above</span>
+<span class="sd">            return_img_per_step: If True, we return the sample at every iteration of the MCMC</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Before MCMC: set model parameters to &quot;required_grad=False&quot;</span>
+        <span class="c1"># because we are only interested in the gradients of the input.</span>
+        <span class="n">is_training</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">training</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">inp_imgs</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Enable gradient calculation if not already the case</span>
+        <span class="n">had_gradients_enabled</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">is_grad_enabled</span><span class="p">()</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">set_grad_enabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># We use a buffer tensor in which we generate noise each loop iteration.</span>
+        <span class="c1"># More efficient than creating a new tensor every iteration.</span>
+        <span class="n">noise</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">inp_imgs</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">inp_imgs</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="c1"># List for storing generations at each step (for later analysis)</span>
+        <span class="n">imgs_per_step</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Loop over K (steps)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+            <span class="c1"># Part 1: Add noise to the input.</span>
+            <span class="n">noise</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.005</span><span class="p">)</span>
+            <span class="n">inp_imgs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">add_</span><span class="p">(</span><span class="n">noise</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">inp_imgs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">clamp_</span><span class="p">(</span><span class="nb">min</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+            <span class="c1"># Part 2: calculate gradients for the current input.</span>
+            <span class="n">out_imgs</span> <span class="o">=</span> <span class="o">-</span><span class="n">model</span><span class="p">(</span><span class="n">inp_imgs</span><span class="p">)</span>
+            <span class="n">out_imgs</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+            <span class="n">inp_imgs</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">clamp_</span><span class="p">(</span><span class="o">-</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">)</span>  <span class="c1"># For stabilizing and preventing too high gradients</span>
+
+            <span class="c1"># Apply gradients to our current samples</span>
+            <span class="n">inp_imgs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">add_</span><span class="p">(</span><span class="o">-</span><span class="n">step_size</span> <span class="o">*</span> <span class="n">inp_imgs</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">inp_imgs</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">detach_</span><span class="p">()</span>
+            <span class="n">inp_imgs</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span>
+            <span class="n">inp_imgs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">clamp_</span><span class="p">(</span><span class="nb">min</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">return_img_per_step</span><span class="p">:</span>
+                <span class="n">imgs_per_step</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inp_imgs</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">())</span>
+
+        <span class="c1"># Reactivate gradients for parameters for training</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">is_training</span><span class="p">)</span>
+
+        <span class="c1"># Reset gradient calculation to setting before this function</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">set_grad_enabled</span><span class="p">(</span><span class="n">had_gradients_enabled</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_img_per_step</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">imgs_per_step</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inp_imgs</span>
+</pre></div>
+</div>
+</div>
+<p>The idea of the buffer becomes a bit clearer in the following algorithm.</p>
+</section>
+<section id="Training-algorithm">
+<h3>Training algorithm<a class="headerlink" href="#Training-algorithm" title="Permalink to this heading">¶</a></h3>
+<p>With the sampling buffer being ready, we can complete our training algorithm. Below is shown a summary of the full training algorithm of an energy model on image modeling:</p>
+<center width="100%" style="padding: 15px"><p><img alt="d3f7ff4277d540639ff3c809ff8be7db" class="no-scaled-link" src="https://github.com/Lightning-AI/lightning-tutorials/raw/main/course_UvA-DL/07-deep-energy-based-generative-models/training_algorithm.svg" width="700px" /></p>
+</center><p>The first few statements in each training iteration concern the sampling of the real and fake data, as we have seen above with the sample buffer. Next, we calculate the contrastive divergence objective using our energy model <span class="math notranslate nohighlight">\(E_{\theta}\)</span>. However, one additional training trick we need is to add a regularization loss on the output of <span class="math notranslate nohighlight">\(E_{\theta}\)</span>. As the output of the network is not constrained and adding a large bias or not to the output doesn’t change the contrastive divergence
+loss, we need to ensure somehow else that the output values are in a reasonable range. Without the regularization loss, the output values will fluctuate in a very large range. With this, we ensure that the values for the real data are around 0, and the fake data likely slightly lower (for noise or outliers the score can be still significantly lower). As the regularization loss is less important than the Contrastive Divergence, we have a weight factor <span class="math notranslate nohighlight">\(\alpha\)</span> which is usually quite some
+smaller than 1. Finally, we perform an update step with an optimizer on the combined loss and add the new samples to the buffer.</p>
+<p>Below, we put this training dynamic into a PyTorch Lightning module:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">DeepEnergyModel</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_shape</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">beta1</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">**</span><span class="n">CNN_args</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_hyperparameters</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cnn</span> <span class="o">=</span> <span class="n">CNNModel</span><span class="p">(</span><span class="o">**</span><span class="n">CNN_args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span> <span class="o">=</span> <span class="n">Sampler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cnn</span><span class="p">,</span> <span class="n">img_shape</span><span class="o">=</span><span class="n">img_shape</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">example_input_array</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">img_shape</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cnn</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">z</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Energy models can have issues with momentum as the loss surfaces changes with its parameters.</span>
+        <span class="c1"># Hence, we set it to 0 by default.</span>
+        <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">lr</span><span class="p">,</span> <span class="n">betas</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">beta1</span><span class="p">,</span> <span class="mf">0.999</span><span class="p">))</span>
+        <span class="n">scheduler</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">lr_scheduler</span><span class="o">.</span><span class="n">StepLR</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.97</span><span class="p">)</span>  <span class="c1"># Exponential decay over epochs</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">optimizer</span><span class="p">],</span> <span class="p">[</span><span class="n">scheduler</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
+        <span class="c1"># We add minimal noise to the original images to prevent the model from focusing on purely &quot;clean&quot; inputs</span>
+        <span class="n">real_imgs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">batch</span>
+        <span class="n">small_noise</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn_like</span><span class="p">(</span><span class="n">real_imgs</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.005</span>
+        <span class="n">real_imgs</span><span class="o">.</span><span class="n">add_</span><span class="p">(</span><span class="n">small_noise</span><span class="p">)</span><span class="o">.</span><span class="n">clamp_</span><span class="p">(</span><span class="nb">min</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="c1"># Obtain samples</span>
+        <span class="n">fake_imgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">sample_new_exmps</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="c1"># Predict energy score for all images</span>
+        <span class="n">inp_imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">real_imgs</span><span class="p">,</span> <span class="n">fake_imgs</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">real_out</span><span class="p">,</span> <span class="n">fake_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cnn</span><span class="p">(</span><span class="n">inp_imgs</span><span class="p">)</span><span class="o">.</span><span class="n">chunk</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Calculate losses</span>
+        <span class="n">reg_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">alpha</span> <span class="o">*</span> <span class="p">(</span><span class="n">real_out</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">fake_out</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">cdiv_loss</span> <span class="o">=</span> <span class="n">fake_out</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">real_out</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">reg_loss</span> <span class="o">+</span> <span class="n">cdiv_loss</span>
+
+        <span class="c1"># Logging</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span> <span class="n">loss</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;loss_regularization&quot;</span><span class="p">,</span> <span class="n">reg_loss</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;loss_contrastive_divergence&quot;</span><span class="p">,</span> <span class="n">cdiv_loss</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;metrics_avg_real&quot;</span><span class="p">,</span> <span class="n">real_out</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;metrics_avg_fake&quot;</span><span class="p">,</span> <span class="n">fake_out</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">loss</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">batch_idx</span><span class="p">):</span>
+        <span class="c1"># For validating, we calculate the contrastive divergence between purely random images and unseen examples</span>
+        <span class="c1"># Note that the validation/test step of energy-based models depends on what we are interested in the model</span>
+        <span class="n">real_imgs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">batch</span>
+        <span class="n">fake_imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand_like</span><span class="p">(</span><span class="n">real_imgs</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="n">inp_imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">real_imgs</span><span class="p">,</span> <span class="n">fake_imgs</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">real_out</span><span class="p">,</span> <span class="n">fake_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cnn</span><span class="p">(</span><span class="n">inp_imgs</span><span class="p">)</span><span class="o">.</span><span class="n">chunk</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">cdiv</span> <span class="o">=</span> <span class="n">fake_out</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">real_out</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;val_contrastive_divergence&quot;</span><span class="p">,</span> <span class="n">cdiv</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;val_fake_out&quot;</span><span class="p">,</span> <span class="n">fake_out</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;val_real_out&quot;</span><span class="p">,</span> <span class="n">real_out</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<p>We do not implement a test step because energy-based, generative models are usually not evaluated on a test set. The validation step however is used to get an idea of the difference between ennergy/likelihood of random images to unseen examples of the dataset.</p>
+</section>
+<section id="Callbacks">
+<h3>Callbacks<a class="headerlink" href="#Callbacks" title="Permalink to this heading">¶</a></h3>
+<p>To track the performance of our model during training, we will make extensive use of PyTorch Lightning’s callback framework. Remember that callbacks can be used for running small functions at any point of the training, for instance after finishing an epoch. Here, we will use three different callbacks we define ourselves.</p>
+<p>The first callback, called <code class="docutils literal notranslate"><span class="pre">GenerateCallback</span></code>, is used for adding image generations to the model during training. After every <span class="math notranslate nohighlight">\(N\)</span> epochs (usually <span class="math notranslate nohighlight">\(N=5\)</span> to reduce output to TensorBoard), we take a small batch of random images and perform many MCMC iterations until the model’s generation converges. Compared to the training that used 60 iterations, we use 256 here because</p>
+<ol class="arabic simple">
+<li><p>we only have to do it once compared to the training that has to do it every iteration, and</p></li>
+<li><p>we do not start from a buffer here, but from scratch. It is implemented as follows:</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">GenerateCallback</span><span class="p">(</span><span class="n">Callback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">vis_steps</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">num_steps</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">every_n_epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>  <span class="c1"># Number of images to generate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vis_steps</span> <span class="o">=</span> <span class="n">vis_steps</span>  <span class="c1"># Number of steps within generation to visualize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">=</span> <span class="n">num_steps</span>  <span class="c1"># Number of steps to take during generation</span>
+        <span class="c1"># Only save those images every N epochs (otherwise tensorboard gets quite large)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">every_n_epochs</span> <span class="o">=</span> <span class="n">every_n_epochs</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trainer</span><span class="p">,</span> <span class="n">pl_module</span><span class="p">):</span>
+        <span class="c1"># Skip for all other epochs</span>
+        <span class="k">if</span> <span class="n">trainer</span><span class="o">.</span><span class="n">current_epoch</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">every_n_epochs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Generate images</span>
+            <span class="n">imgs_per_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_imgs</span><span class="p">(</span><span class="n">pl_module</span><span class="p">)</span>
+            <span class="c1"># Plot and add to tensorboard</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">imgs_per_step</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">step_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">vis_steps</span>
+                <span class="n">imgs_to_plot</span> <span class="o">=</span> <span class="n">imgs_per_step</span><span class="p">[</span><span class="n">step_size</span> <span class="o">-</span> <span class="mi">1</span> <span class="p">::</span> <span class="n">step_size</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
+                <span class="n">grid</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">make_grid</span><span class="p">(</span>
+                    <span class="n">imgs_to_plot</span><span class="p">,</span> <span class="n">nrow</span><span class="o">=</span><span class="n">imgs_to_plot</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">value_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">trainer</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;generation_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">trainer</span><span class="o">.</span><span class="n">current_epoch</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_imgs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pl_module</span><span class="p">):</span>
+        <span class="n">pl_module</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="n">start_imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,)</span> <span class="o">+</span> <span class="n">pl_module</span><span class="o">.</span><span class="n">hparams</span><span class="p">[</span><span class="s2">&quot;img_shape&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">pl_module</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">start_imgs</span> <span class="o">=</span> <span class="n">start_imgs</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">imgs_per_step</span> <span class="o">=</span> <span class="n">Sampler</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span>
+            <span class="n">pl_module</span><span class="o">.</span><span class="n">cnn</span><span class="p">,</span> <span class="n">start_imgs</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_steps</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">return_img_per_step</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">pl_module</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">imgs_per_step</span>
+</pre></div>
+</div>
+</div>
+<p>The second callback is called <code class="docutils literal notranslate"><span class="pre">SamplerCallback</span></code>, and simply adds a randomly picked subset of images in the sampling buffer to the TensorBoard. This helps to understand what images are currently shown to the model as “fake”.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SamplerCallback</span><span class="p">(</span><span class="n">Callback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_imgs</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">every_n_epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_imgs</span> <span class="o">=</span> <span class="n">num_imgs</span>  <span class="c1"># Number of images to plot</span>
+        <span class="c1"># Only save those images every N epochs (otherwise tensorboard gets quite large)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">every_n_epochs</span> <span class="o">=</span> <span class="n">every_n_epochs</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trainer</span><span class="p">,</span> <span class="n">pl_module</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">trainer</span><span class="o">.</span><span class="n">current_epoch</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">every_n_epochs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">exmp_imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">pl_module</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">examples</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_imgs</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">grid</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">make_grid</span><span class="p">(</span><span class="n">exmp_imgs</span><span class="p">,</span> <span class="n">nrow</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">value_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">trainer</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="s2">&quot;sampler&quot;</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">trainer</span><span class="o">.</span><span class="n">current_epoch</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Finally, our last callback is <code class="docutils literal notranslate"><span class="pre">OutlierCallback</span></code>. This callback evaluates the model by recording the (negative) energy assigned to random noise. While our training loss is almost constant across iterations, this score is likely showing the progress of the model to detect “outliers”.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">OutlierCallback</span><span class="p">(</span><span class="n">Callback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trainer</span><span class="p">,</span> <span class="n">pl_module</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="n">pl_module</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+            <span class="n">rand_imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,)</span> <span class="o">+</span> <span class="n">pl_module</span><span class="o">.</span><span class="n">hparams</span><span class="p">[</span><span class="s2">&quot;img_shape&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">pl_module</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">rand_imgs</span> <span class="o">=</span> <span class="n">rand_imgs</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">1.0</span>
+            <span class="n">rand_out</span> <span class="o">=</span> <span class="n">pl_module</span><span class="o">.</span><span class="n">cnn</span><span class="p">(</span><span class="n">rand_imgs</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="n">pl_module</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+        <span class="n">trainer</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s2">&quot;rand_out&quot;</span><span class="p">,</span> <span class="n">rand_out</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">trainer</span><span class="o">.</span><span class="n">current_epoch</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Running-the-model">
+<h3>Running the model<a class="headerlink" href="#Running-the-model" title="Permalink to this heading">¶</a></h3>
+<p>Finally, we can add everything together to create our final training function. The function is very similar to any other PyTorch Lightning training function we have seen so far. However, there is the small difference of that we do not test the model on a test set because we will analyse the model afterward by checking its prediction and ability to perform outlier detection.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">train_model</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="c1"># Create a PyTorch Lightning trainer with the generation callback</span>
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span>
+        <span class="n">default_root_dir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CHECKPOINT_PATH</span><span class="p">,</span> <span class="s2">&quot;MNIST&quot;</span><span class="p">),</span>
+        <span class="n">accelerator</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="n">devices</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">max_epochs</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+        <span class="n">gradient_clip_val</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">ModelCheckpoint</span><span class="p">(</span><span class="n">save_weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="n">monitor</span><span class="o">=</span><span class="s2">&quot;val_contrastive_divergence&quot;</span><span class="p">),</span>
+            <span class="n">GenerateCallback</span><span class="p">(</span><span class="n">every_n_epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+            <span class="n">SamplerCallback</span><span class="p">(</span><span class="n">every_n_epochs</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+            <span class="n">OutlierCallback</span><span class="p">(),</span>
+            <span class="n">LearningRateMonitor</span><span class="p">(</span><span class="s2">&quot;epoch&quot;</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+    <span class="c1"># Check whether pretrained model exists. If yes, load it and skip training</span>
+    <span class="n">pretrained_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CHECKPOINT_PATH</span><span class="p">,</span> <span class="s2">&quot;MNIST.ckpt&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">pretrained_filename</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Found pretrained model, loading...&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">DeepEnergyModel</span><span class="o">.</span><span class="n">load_from_checkpoint</span><span class="p">(</span><span class="n">pretrained_filename</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pl</span><span class="o">.</span><span class="n">seed_everything</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">DeepEnergyModel</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_loader</span><span class="p">,</span> <span class="n">test_loader</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">DeepEnergyModel</span><span class="o">.</span><span class="n">load_from_checkpoint</span><span class="p">(</span><span class="n">trainer</span><span class="o">.</span><span class="n">checkpoint_callback</span><span class="o">.</span><span class="n">best_model_path</span><span class="p">)</span>
+    <span class="c1"># No testing as we are more interested in other properties</span>
+    <span class="k">return</span> <span class="n">model</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span><span class="n">img_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">),</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">train_loader</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">beta1</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Found pretrained model, loading...
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Lightning automatically upgraded your loaded checkpoint from v1.0.2 to v2.4.0. To apply the upgrade to your files permanently, run `python -m pytorch_lightning.utilities.upgrade_checkpoint saved_models/tutorial8/MNIST.ckpt`
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Analysis">
+<h2>Analysis<a class="headerlink" href="#Analysis" title="Permalink to this heading">¶</a></h2>
+<p>In the last part of the notebook, we will try to take the trained energy-based generative model, and analyse its properties.</p>
+<section id="TensorBoard">
+<h3>TensorBoard<a class="headerlink" href="#TensorBoard" title="Permalink to this heading">¶</a></h3>
+<p>The first thing we can look at is the TensorBoard generate during training. This can help us to understand the training dynamic even better, and shows potential issues. Let’s load the TensorBoard below:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Uncomment the following two lines to open a tensorboard in the notebook.</span>
+<span class="c1"># Adjust the path to your CHECKPOINT_PATH if needed.</span>
+<span class="o">%</span><span class="k">load_ext</span> tensorboard
+<span class="o">%</span><span class="k">tensorboard</span> --logdir ../saved_models/tutorial8/tensorboards/
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<iframe id="tensorboard-frame-1c80317fa3b1799d" width="100%" height="800" frameborder="0">
+</iframe>
+<script>
+  (function() {
+    const frame = document.getElementById("tensorboard-frame-1c80317fa3b1799d");
+    const url = new URL("/", window.location);
+    const port = 6006;
+    if (port) {
+      url.port = port;
+    }
+    frame.src = url;
+  })();
+</script></div>
+</div>
+<center width="100%"><p><img alt="c21115e3832b4b8290012242ac9bcc9d" class="no-scaled-link" src="https://github.com/Lightning-AI/lightning-tutorials/raw/main/course_UvA-DL/07-deep-energy-based-generative-models/tensorboard_screenshot.png" style="width: 1000px;" /></p>
+</center><p>We see that the contrastive divergence as well as the regularization converge quickly to 0. However, the training continues although the loss is always close to zero. This is because our “training” data changes with the model by sampling. The progress of training can be best measured by looking at the samples across iterations, and the score for random images that decreases constantly over time.</p>
+</section>
+<section id="Image-Generation">
+<h3>Image Generation<a class="headerlink" href="#Image-Generation" title="Permalink to this heading">¶</a></h3>
+<p>Another way of evaluating generative models is by sampling a few generated images. Generative models need to be good at generating realistic images as this truly shows that they have modeled the true data distribution. Thus, let’s sample a few images of the model below:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="n">pl</span><span class="o">.</span><span class="n">seed_everything</span><span class="p">(</span><span class="mi">43</span><span class="p">)</span>
+<span class="n">callback</span> <span class="o">=</span> <span class="n">GenerateCallback</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">vis_steps</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">num_steps</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+<span class="n">imgs_per_step</span> <span class="o">=</span> <span class="n">callback</span><span class="o">.</span><span class="n">generate_imgs</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">imgs_per_step</span> <span class="o">=</span> <span class="n">imgs_per_step</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Seed set to 43
+</pre></div></div>
+</div>
+<p>The characteristic of sampling with energy-based models is that they require the iterative MCMC algorithm. To gain an insight in how the images change over iterations, we plot a few intermediate samples in the MCMC as well:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">imgs_per_step</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+    <span class="n">step_size</span> <span class="o">=</span> <span class="n">callback</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">//</span> <span class="n">callback</span><span class="o">.</span><span class="n">vis_steps</span>
+    <span class="n">imgs_to_plot</span> <span class="o">=</span> <span class="n">imgs_per_step</span><span class="p">[</span><span class="n">step_size</span> <span class="o">-</span> <span class="mi">1</span> <span class="p">::</span> <span class="n">step_size</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span>
+    <span class="n">imgs_to_plot</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">imgs_per_step</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">],</span> <span class="n">imgs_to_plot</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">make_grid</span><span class="p">(</span>
+        <span class="n">imgs_to_plot</span><span class="p">,</span> <span class="n">nrow</span><span class="o">=</span><span class="n">imgs_to_plot</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">value_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">pad_value</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">2</span>
+    <span class="p">)</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Generation iteration&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span>
+        <span class="p">[(</span><span class="n">imgs_per_step</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">vis_steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)],</span>
+        <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">step_size</span><span class="p">,</span> <span class="n">imgs_per_step</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">step_size</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_07-deep-energy-based-generative-models_39_0.svg" src="../../_images/notebooks_course_UvA-DL_07-deep-energy-based-generative-models_39_0.svg" /></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_07-deep-energy-based-generative-models_39_1.svg" src="../../_images/notebooks_course_UvA-DL_07-deep-energy-based-generative-models_39_1.svg" /></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_07-deep-energy-based-generative-models_39_2.svg" src="../../_images/notebooks_course_UvA-DL_07-deep-energy-based-generative-models_39_2.svg" /></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_07-deep-energy-based-generative-models_39_3.svg" src="../../_images/notebooks_course_UvA-DL_07-deep-energy-based-generative-models_39_3.svg" /></div>
+</div>
+<p>We see that although starting from noise in the very first step, the sampling algorithm obtains reasonable shapes after only 32 steps. Over the next 200 steps, the shapes become clearer and changed towards realistic digits. The specific samples can differ when you run the code on Colab, hence the following description is specific to the plots shown on the website. The first row shows an 8, where we remove unnecessary white parts over iterations. The transformation across iterations can be seen
+at best for the second sample, which creates a digit of 2. While the first sample after 32 iterations looks a bit like a digit, but not really, the sample is transformed more and more to a typical image of the digit 2.</p>
+</section>
+<section id="Out-of-distribution-detection">
+<h3>Out-of-distribution detection<a class="headerlink" href="#Out-of-distribution-detection" title="Permalink to this heading">¶</a></h3>
+<p>A very common and strong application of energy-based models is out-of-distribution detection (sometimes referred to as “anomaly” detection). As more and more deep learning models are applied in production and applications, a crucial aspect of these models is to know what the models don’t know. Deep learning models are usually overconfident, meaning that they classify even random images sometimes with 100% probability. Clearly, this is not something that we want to see in applications.
+Energy-based models can help with this problem because they are trained to detect images that do not fit the training dataset distribution. Thus, in those applications, you could train an energy-based model along with the classifier, and only output predictions if the energy-based models assign a (unnormalized) probability higher than <span class="math notranslate nohighlight">\(\delta\)</span> to the image. You can actually combine classifiers and energy-based objectives in a single model, as proposed in this
+<a class="reference external" href="https://arxiv.org/abs/1912.03263">paper</a>.</p>
+<p>In this part of the analysis, we want to test the out-of-distribution capability of our energy-based model. Remember that a lower output of the model denotes a low probability. Thus, we hope to see low scores if we enter random noise to the model:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+    <span class="n">rand_imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="mi">128</span><span class="p">,)</span> <span class="o">+</span> <span class="n">model</span><span class="o">.</span><span class="n">hparams</span><span class="o">.</span><span class="n">img_shape</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">rand_imgs</span> <span class="o">=</span> <span class="n">rand_imgs</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">1.0</span>
+    <span class="n">rand_out</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">cnn</span><span class="p">(</span><span class="n">rand_imgs</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Average score for random images: </span><span class="si">{</span><span class="n">rand_out</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Average score for random images: -17.878559112548828
+</pre></div></div>
+</div>
+<p>As we hoped, the model assigns very low probability to those noisy images. As another reference, let’s look at predictions for a batch of images from the training set:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+    <span class="n">train_imgs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">train_loader</span><span class="p">))</span>
+    <span class="n">train_imgs</span> <span class="o">=</span> <span class="n">train_imgs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">train_out</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">cnn</span><span class="p">(</span><span class="n">train_imgs</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Average score for training images: </span><span class="si">{</span><span class="n">train_out</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s2">4.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Average score for training images: -0.01
+</pre></div></div>
+</div>
+<p>The scores are close to 0 because of the regularization objective that was added to the training. So clearly, the model can distinguish between noise and real digits. However, what happens if we change the training images a little, and see which ones gets a very low score?</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compare_images</span><span class="p">(</span><span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">):</span>
+    <span class="n">imgs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">score1</span><span class="p">,</span> <span class="n">score2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">cnn</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">chunk</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">make_grid</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">img1</span><span class="o">.</span><span class="n">cpu</span><span class="p">(),</span> <span class="n">img2</span><span class="o">.</span><span class="n">cpu</span><span class="p">()],</span> <span class="n">nrow</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">value_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">pad_value</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">2</span>
+    <span class="p">)</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">([(</span><span class="n">img1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)],</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Original image&quot;</span><span class="p">,</span> <span class="s2">&quot;Transformed image&quot;</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Score original image: </span><span class="si">{</span><span class="n">score1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Score transformed image: </span><span class="si">{</span><span class="n">score2</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We use a random test image for this. Feel free to change it to experiment with the model yourself.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_imgs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">test_loader</span><span class="p">))</span>
+<span class="n">exmp_img</span> <span class="o">=</span> <span class="n">test_imgs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The first transformation is to add some random noise to the image:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">img_noisy</span> <span class="o">=</span> <span class="n">exmp_img</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn_like</span><span class="p">(</span><span class="n">exmp_img</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.3</span>
+<span class="n">img_noisy</span><span class="o">.</span><span class="n">clamp_</span><span class="p">(</span><span class="nb">min</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">compare_images</span><span class="p">(</span><span class="n">exmp_img</span><span class="p">,</span> <span class="n">img_noisy</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_07-deep-energy-based-generative-models_50_0.svg" src="../../_images/notebooks_course_UvA-DL_07-deep-energy-based-generative-models_50_0.svg" /></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Score original image: tensor([0.0304])
+Score transformed image: tensor([-0.0746])
+</pre></div></div>
+</div>
+<p>We can see that the score considerably drops. Hence, the model can detect random Gaussian noise on the image. This is also to expect as initially, the “fake” samples are pure noise images.</p>
+<p>Next, we flip an image and check how this influences the score:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">img_flipped</span> <span class="o">=</span> <span class="n">exmp_img</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">compare_images</span><span class="p">(</span><span class="n">exmp_img</span><span class="p">,</span> <span class="n">img_flipped</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_07-deep-energy-based-generative-models_52_0.svg" src="../../_images/notebooks_course_UvA-DL_07-deep-energy-based-generative-models_52_0.svg" /></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Score original image: tensor([0.0304])
+Score transformed image: tensor([-0.0004])
+</pre></div></div>
+</div>
+<p>If the digit can only be read in this way, for example, the 7, then we can see that the score drops. However, the score only drops slightly. This is likely because of the small size of our model. Keep in mind that generative modeling is a much harder task than classification, as we do not only need to distinguish between classes but learn <strong>all</strong> details/characteristics of the digits. With a deeper model, this could eventually be captured better (but at the cost of greater training instability).</p>
+<p>Finally, we check what happens if we reduce the digit significantly in size:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">img_tiny</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">exmp_img</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="n">img_tiny</span><span class="p">[:,</span> <span class="n">exmp_img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span> <span class="p">:,</span> <span class="n">exmp_img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">exmp_img</span><span class="p">[:,</span> <span class="p">::</span><span class="mi">2</span><span class="p">,</span> <span class="p">::</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">compare_images</span><span class="p">(</span><span class="n">exmp_img</span><span class="p">,</span> <span class="n">img_tiny</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/notebooks_course_UvA-DL_07-deep-energy-based-generative-models_54_0.svg" src="../../_images/notebooks_course_UvA-DL_07-deep-energy-based-generative-models_54_0.svg" /></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Score original image: tensor([0.0304])
+Score transformed image: tensor([-0.0154])
+</pre></div></div>
+</div>
+<p>The score again drops but not by a large margin, although digits in the MNIST dataset usually are much larger.</p>
+<p>Overall, we can conclude that our model is good for detecting Gaussian noise and smaller transformations to existing digits. Nonetheless, to obtain a very good out-of-distribution model, we would need to train deeper models and for more iterations.</p>
+</section>
+<section id="Instability">
+<h3>Instability<a class="headerlink" href="#Instability" title="Permalink to this heading">¶</a></h3>
+<p>Finally, we should discuss the possible instabilities of energy-based models, in particular for the example of image generation that we have implemented in this notebook. In the process of hyperparameter search for this notebook, there have been several models that diverged. Divergence in energy-based models means that the models assign a high probability to examples of the training set which is a good thing. However, at the same time, the sampling algorithm fails and only generates noise images
+that obtain minimal probability scores. This happens because the model has created many local maxima in which the generated noise images fall. The energy surface over which we calculate the gradients to reach data points with high probability has “diverged” and is not useful for our MCMC sampling.</p>
+<p>Besides finding the optimal hyperparameters, a common trick in energy-based models is to reload stable checkpoints. If we detect that the model is diverging, we stop the training, load the model from one epoch ago where it did not diverge yet. Afterward, we continue training and hope that with a different seed the model is not diverging again. Nevertheless, this should be considered as the “last hope” for stabilizing the models, and careful hyperparameter tuning is the better way to do so.
+Sensitive hyperparameters include <code class="docutils literal notranslate"><span class="pre">step_size</span></code>, <code class="docutils literal notranslate"><span class="pre">steps</span></code> and the noise standard deviation in the sampler, and the learning rate and feature dimensionality in the CNN model.</p>
+</section>
+</section>
+<section id="Conclusion">
+<h2>Conclusion<a class="headerlink" href="#Conclusion" title="Permalink to this heading">¶</a></h2>
+<p>In this tutorial, we have discussed energy-based models for generative modeling. The concept relies on the idea that any strictly positive function can be turned into a probability distribution by normalizing over the whole dataset. As this is not reasonable to calculate for high dimensional data like images, we train the model using contrastive divergence and sampling via MCMC. While the idea allows us to turn any neural network into an energy-based model, we have seen that there are multiple
+training tricks needed to stabilize the training. Furthermore, the training time of these models is relatively long as, during every training iteration, we need to sample new “fake” images, even with a sampling buffer. In the next lectures and assignment, we will see different generative models (e.g. VAE, GAN, NF) that allow us to do generative modeling more stably, but with the cost of more parameters.</p>
+</section>
+<section id="Congratulations---Time-to-Join-the-Community!">
+<h2>Congratulations - Time to Join the Community!<a class="headerlink" href="#Congratulations---Time-to-Join-the-Community!" title="Permalink to this heading">¶</a></h2>
+<p>Congratulations on completing this notebook tutorial! If you enjoyed this and would like to join the Lightning movement, you can do so in the following ways!</p>
+<section id="Star-Lightning-on-GitHub">
+<h3>Star <a class="reference external" href="https://github.com/Lightning-AI/lightning">Lightning</a> on GitHub<a class="headerlink" href="#Star-Lightning-on-GitHub" title="Permalink to this heading">¶</a></h3>
+<p>The easiest way to help our community is just by starring the GitHub repos! This helps raise awareness of the cool tools we’re building.</p>
+</section>
+<section id="Join-our-Discord!">
+<h3>Join our <a class="reference external" href="https://discord.com/invite/tfXFetEZxv">Discord</a>!<a class="headerlink" href="#Join-our-Discord!" title="Permalink to this heading">¶</a></h3>
+<p>The best way to keep up to date on the latest advancements is to join our community! Make sure to introduce yourself and share your interests in <code class="docutils literal notranslate"><span class="pre">#general</span></code> channel</p>
+</section>
+<section id="Contributions-!">
+<h3>Contributions !<a class="headerlink" href="#Contributions-!" title="Permalink to this heading">¶</a></h3>
+<p>The best way to contribute to our community is to become a code contributor! At any time you can go to <a class="reference external" href="https://github.com/Lightning-AI/lightning">Lightning</a> or <a class="reference external" href="https://github.com/Lightning-AI/lightning-bolts">Bolt</a> GitHub Issues page and filter for “good first issue”.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/Lightning-AI/lightning/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22">Lightning good first issue</a></p></li>
+<li><p><a class="reference external" href="https://github.com/Lightning-AI/lightning-bolts/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22">Bolt good first issue</a></p></li>
+<li><p>You can also contribute your own notebooks with useful examples !</p></li>
+</ul>
+</section>
+<section id="Great-thanks-from-the-entire-Pytorch-Lightning-Team-for-your-interest-!">
+<h3>Great thanks from the entire Pytorch Lightning Team for your interest !<a class="headerlink" href="#Great-thanks-from-the-entire-Pytorch-Lightning-Team-for-your-interest-!" title="Permalink to this heading">¶</a></h3>
+<p><a class="reference external" href="https://pytorchlightning.ai"><img alt="Pytorch Lightning" src="data:image/png;base64,NDA0OiBOb3QgRm91bmQ=" style="width: 240px; height: 60px;" /></a></p>
+<p><div class="col-md-12 tutorials-card-container" data-tags=Image,GPU/TPU,UvA-DL-Course>
+    <div class="card tutorials-card">
+        <a href="notebooks/course_UvA-DL/07-deep-energy-based-generative-models.html">
+            <div class="card-body">
+                <div class="card-title-container">
+                    <h4>Tutorial 7: Deep Energy-Based Generative Models </h4>
+                </div>
+                <p class="card-summary">In this tutorial, we will look at energy-based deep learning models, and focus on their application as generative models. Energy models have been a popular tool before the...</p>
+                <p class="tags">Image,GPU/TPU,UvA-DL-Course</p>
+                <div class="tutorials-image"><img src='_static/images/course_UvA-DL/07-deep-energy-based-generative-models.jpg'></div>
+            </div>
+        </a>
+    </div>
+</div></p>
+</section>
+</section>
+</section>
+
+
+             </article>
+             
+            </div>
+            <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="08-deep-autoencoders.html" class="btn btn-neutral float-right" title="Tutorial 8: Deep Autoencoders" accesskey="n" rel="next">Next <img src="../../_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="06-graph-neural-networks.html" class="btn btn-neutral" title="Tutorial 6: Basics of Graph Neural Networks" accesskey="p" rel="prev"><img src="../../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
+  
+
+  
+
+    <hr>
+
+  
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright Copyright (c) 2020-2021, PytorchLightning team..
+
+    </p>
+  </div>
+    
+      <div>
+        Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+      </div>
+     
+
+</footer>
+          </div>
+        </div>
+
+        <div class="pytorch-content-right" id="pytorch-content-right">
+          <div class="pytorch-right-menu" id="pytorch-right-menu">
+            <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
+              <ul>
+<li><a class="reference internal" href="#">Tutorial 7: Deep Energy-Based Generative Models</a><ul>
+<li><a class="reference internal" href="#Setup">Setup</a></li>
+<li><a class="reference internal" href="#Energy-Models">Energy Models</a><ul>
+<li><a class="reference internal" href="#Contrastive-Divergence">Contrastive Divergence</a></li>
+<li><a class="reference internal" href="#Sampling-from-Energy-Based-Models">Sampling from Energy-Based Models</a></li>
+<li><a class="reference internal" href="#Applications-of-Energy-based-models-beyond-generation">Applications of Energy-based models beyond generation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Image-generation">Image generation</a><ul>
+<li><a class="reference internal" href="#Dataset">Dataset</a></li>
+<li><a class="reference internal" href="#CNN-Model">CNN Model</a></li>
+<li><a class="reference internal" href="#Sampling-buffer">Sampling buffer</a></li>
+<li><a class="reference internal" href="#Training-algorithm">Training algorithm</a></li>
+<li><a class="reference internal" href="#Callbacks">Callbacks</a></li>
+<li><a class="reference internal" href="#Running-the-model">Running the model</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Analysis">Analysis</a><ul>
+<li><a class="reference internal" href="#TensorBoard">TensorBoard</a></li>
+<li><a class="reference internal" href="#Image-Generation">Image Generation</a></li>
+<li><a class="reference internal" href="#Out-of-distribution-detection">Out-of-distribution detection</a></li>
+<li><a class="reference internal" href="#Instability">Instability</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Conclusion">Conclusion</a></li>
+<li><a class="reference internal" href="#Congratulations---Time-to-Join-the-Community!">Congratulations - Time to Join the Community!</a><ul>
+<li><a class="reference internal" href="#Star-Lightning-on-GitHub">Star Lightning on GitHub</a></li>
+<li><a class="reference internal" href="#Join-our-Discord!">Join our Discord!</a></li>
+<li><a class="reference internal" href="#Contributions-!">Contributions !</a></li>
+<li><a class="reference internal" href="#Great-thanks-from-the-entire-Pytorch-Lightning-Team-for-your-interest-!">Great thanks from the entire Pytorch Lightning Team for your interest !</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  
+
+  
+
+     
+       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+         <script src="../../_static/doctools.js"></script>
+         <script src="../../_static/sphinx_highlight.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "packages": {"[+]": ["ams", "newcommand", "configMacros"]}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+     
+
+  
+
+  <script type="text/javascript" src="../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../_static/js/vendor/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+  <!-- Begin Footer -->
+
+  <!-- <div class="container-fluid docs-tutorials-resources" id="docs-tutorials-resources"> -->
+    <!-- <div class="container"> -->
+      <!-- <div class="row"> -->
+        <!--
+        <div class="col-md-4 text-center">
+          <h2>Docs</h2>
+          <p>Access comprehensive developer documentation for PyTorch</p>
+          <a class="with-right-arrow" href="https://lightning-sandbox.rtfd.io/en/latest">View Docs</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Tutorials</h2>
+          <p>Get in-depth tutorials for beginners and advanced developers</p>
+          <a class="with-right-arrow" href="https://pt-lightning-sandbox.readthedocs.io/en/latest/#tutorials">View Tutorials</a>
+        </div>
+
+        <div class="col-md-4 text-center">
+          <h2>Resources</h2>
+          <p>Find development resources and get your questions answered</p>
+          <a class="with-right-arrow" href="https://pt-lightning-sandbox.readthedocs.io/en/latest/#community-examples">View Resources</a>
+        </div>
+        -->
+      <!-- </div> -->
+    <!-- </div> -->
+  <!-- </div> -->
+
+  <!--
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-logo-wrapper">
+        <a href="https://pt-lightning-sandbox.rtfd.io/en/latest/" class="footer-logo"></a>
+      </div>
+
+      <div class="footer-links-wrapper">
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pt-lightning-sandbox.rtfd.io/en/latest/">PyTorch</a></li>
+            <li><a href="https://pt-lightning-sandbox.readthedocs.io/en/latest/introduction_guide.html">Get Started</a></li>
+            <li><a href="https://pt-lightning-sandbox.rtfd.io/en/latest/">Features</a></li>
+            <li><a href="">Ecosystem</a></li>
+            <li><a href="https://www.pytorchlightning.ai/blog">Blog</a></li>
+            <li><a href="https://github.com/Lightning-AI/lightning/blob/master/CONTRIBUTING.md">Contributing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <ul>
+            <li class="list-title"><a href="https://pt-lightning-sandbox.readthedocs.io/en/latest/#community-examples">Resources</a></li>
+            <li><a href="https://pt-lightning-sandbox.readthedocs.io/en/latest/#tutorials">Tutorials</a></li>
+            <li><a href="https://lightning-sandbox.rtfd.io/en/latest">Docs</a></li>
+            <li><a href="https://pytorch-lightning.slack.com" target="_blank">Discuss</a></li>
+            <li><a href="https://github.com/Lightning-AI/lightning-sandbox/issues" target="_blank">Github Issues</a></li>
+            <li><a href="" target="_blank">Brand Guidelines</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col follow-us-col">
+          <ul>
+            <li class="list-title">Stay Connected</li>
+            <li>
+              <div id="mc_embed_signup">
+                <form
+                  action="https://twitter.us14.list-manage.com/subscribe/post?u=75419c71fe0a935e53dfa4a3f&id=91d0dccd39"
+                  method="post"
+                  id="mc-embedded-subscribe-form"
+                  name="mc-embedded-subscribe-form"
+                  class="email-subscribe-form validate"
+                  target="_blank"
+                  novalidate>
+                  <div id="mc_embed_signup_scroll" class="email-subscribe-form-fields-wrapper">
+                    <div class="mc-field-group">
+                      <label for="mce-EMAIL" style="display:none;">Email Address</label>
+                      <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="Email Address">
+                    </div>
+
+                    <div id="mce-responses" class="clear">
+                      <div class="response" id="mce-error-response" style="display:none"></div>
+                      <div class="response" id="mce-success-response" style="display:none"></div>
+                    </div>
+
+                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_75419c71fe0a935e53dfa4a3f_91d0dccd39" tabindex="-1" value=""></div>
+
+                    <div class="clear">
+                      <input type="submit" value="" name="subscribe" id="mc-embedded-subscribe" class="button email-subscribe-button">
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+            </li>
+          </ul>
+
+          <div class="footer-social-icons">
+            <a href="" target="_blank" class="facebook"></a>
+            <a href="https://twitter.com/PyTorchLightnin" target="_blank" class="twitter"></a>
+            <a href="" target="_blank" class="youtube"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+  -->
+
+  <div class="cookie-banner-wrapper">
+  <div class="container">
+    <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. Read PyTorch Lightning's <a href="https://pytorchlightning.ai/privacy-policy">Privacy Policy</a>.</p>
+    <img class="close-button" src="../../_static/images/pytorch-x.svg">
+  </div>
+</div>
+
+  <!-- End Footer -->
+
+  <!-- Begin Mobile Menu -->
+
+  <div class="mobile-main-menu">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="mobile-main-menu-header-container">
+          <a class="header-logo" href="https://pt-lightning-sandbox.rtfd.io/en/latest/" aria-label="PyTorch Lightning"></a>
+          <a class="main-menu-close-button" href="#" data-behavior="close-mobile-menu"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-main-menu-links-container">
+      <div class="main-menu">
+        <ul>
+          <li>
+            <a href="https://pt-lightning-sandbox.readthedocs.io/en/latest/introduction_guide.html">Get Started</a>
+          </li>
+
+          <li>
+            <a href="https://www.pytorchlightning.ai/blog">Blog</a>
+          </li>
+
+          <li class="resources-mobile-menu-title">
+            Ecosystem
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://lightning.ai/docs/pytorch/stable/">PyTorch Lightning</a>
+            </li>
+
+            <li>
+              <a href="https://lightning.ai/docs/fabric/stable/">Lightning Fabric</a>
+            </li>
+
+            <li>
+              <a href="https://torchmetrics.readthedocs.io/en/stable/">TorchMetrics</a>
+            </li>
+
+            <li>
+              <a href="https://lightning.ai/docs/fabric/stable/">Fabric</a>
+            </li>
+          </ul>
+
+          <!--<li class="resources-mobile-menu-title">
+            Resources
+          </li>
+
+          <ul class="resources-mobile-menu-items">
+            <li>
+              <a href="https://pt-lightning-sandbox.readthedocs.io/en/latest/#community-examples">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pt-lightning-sandbox.rtfd.io/en/latest/">About</a>
+            </li>
+
+            <li>
+              <a href="">Models (Beta)</a>
+            </li>
+
+            <li>
+              <a href="">Community</a>
+            </li>
+
+            <li>
+              <a href="">Forums</a>
+            </li>
+          </ul>-->
+
+          <li>
+            <a href="https://github.com/Lightning-AI/lightning-sandbox">Github</a>
+          </li>
+
+          <li>
+            <a href="https://www.lightning.ai/">Lightning.ai</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Mobile Menu -->
+
+  <script type="text/javascript" src="../../_static/js/vendor/anchor.min.js"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      mobileMenu.bind();
+      mobileTOC.bind();
+      pytorchAnchors.bind();
+      sideMenus.bind();
+      scrollToAnchor.bind();
+      highlightNavigation.bind();
+      mainMenuDropdown.bind();
+      filterTags.bind();
+
+      // Add class to links that have code blocks, since we cannot create links in code blocks
+      $("article.pytorch-article a span.pre").each(function(e) {
+        $(this).closest("a").addClass("has-code");
+      });
+    })
+  </script>
+
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PQBQ3CV"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+ </body>
+</html>
