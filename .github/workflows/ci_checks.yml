@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   check-schema:
-    uses: Lightning-AI/utilities/.github/workflows/check-schema.yml@v0.14.3
+    uses: Lightning-AI/utilities/.github/workflows/check-schema.yml@v0.15.0
     with:
       actions-ref: v0.14.3
       azure-schema-version: "v1.249.0"
