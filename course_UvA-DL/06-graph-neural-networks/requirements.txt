@@ -8,7 +8,7 @@ torch-geometric ==2.1.*
 
 # addressing long package compilation times
 # Building wheels for collected packages: torch-spline-conv, torch-sparse, torch-cluster, torch-scatter, torch-geometric
---prefer-binary
+--only-binary
 
 # todo: some compatibility issues
 numpy <2.0
