@@ -1,2 +1,3 @@
 datasets >=2.17.0  # to allow explicitly setting `trust_remote_code`
 finetuning-scheduler[examples] <=2.5.0
+torch <2.7.0  # todo: ModuleNotFoundError: No module named 'torch.distributed._composable.fsdp._fsdp_api'
